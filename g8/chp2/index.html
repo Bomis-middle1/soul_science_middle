@@ -21,6 +21,43 @@
             padding: 10px;
         }
 
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s ease-out 4.5s forwards;
+        }
+
+        .splash-screen img {
+            max-width: 400px;
+            width: 80%;
+            height: auto;
+            animation: logoScale 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes logoScale {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
         .container {
             max-width: 800px;
             width: 100%;
@@ -28,6 +65,14 @@
             border-radius: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-in 5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
         }
 
         .header {
@@ -328,10 +373,19 @@
                 font-size: 14px;
                 padding: 12px 15px;
             }
+
+            .splash-screen img {
+                max-width: 300px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Splash Screen with Logo -->
+    <div class="splash-screen" id="splashScreen">
+        <img src="assets/innovine-logo.png" alt="Innovine Logo">
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>🌟 Motivation Maze Runner 🌟</h1>
@@ -577,10 +631,12 @@
         let walls = [];
         let starsCollected = 0;
         let totalStarsCollected = 0;
+        let occupiedCells = new Set();
 
         // Generate maze
         function generateMaze() {
             walls = [];
+            occupiedCells.clear();
             const cols = Math.floor(canvas.width / gridSize);
             const rows = Math.floor(canvas.height / gridSize);
 
@@ -588,38 +644,89 @@
             for (let i = 0; i < cols; i++) {
                 walls.push({x: i, y: 0});
                 walls.push({x: i, y: rows - 1});
+                occupiedCells.add(`${i},0`);
+                occupiedCells.add(`${i},${rows - 1}`);
             }
             for (let i = 0; i < rows; i++) {
                 walls.push({x: 0, y: i});
                 walls.push({x: cols - 1, y: i});
+                occupiedCells.add(`0,${i}`);
+                occupiedCells.add(`${cols - 1},${i}`);
             }
+
+            // Reserve player starting position
+            occupiedCells.add('1,1');
 
             // Add some random walls
             for (let i = 0; i < 15; i++) {
                 const wallX = Math.floor(Math.random() * (cols - 2)) + 1;
                 const wallY = Math.floor(Math.random() * (rows - 2)) + 1;
-                if (wallX !== 1 || wallY !== 1) {
+                const cellKey = `${wallX},${wallY}`;
+                if (!occupiedCells.has(cellKey)) {
                     walls.push({x: wallX, y: wallY});
+                    occupiedCells.add(cellKey);
                 }
             }
         }
 
-        // Generate stars
-        function generateStars() {
-            stars = [];
+        // Check if position is valid (not occupied by wall, player, or another star)
+        function isValidPosition(x, y, excludeStars = false) {
+            const cellKey = `${x},${y}`;
+            
+            // Check if occupied by wall or player
+            if (occupiedCells.has(cellKey)) {
+                return false;
+            }
+            
+            // Check if occupied by existing star (unless we're excluding stars)
+            if (!excludeStars) {
+                for (let star of stars) {
+                    if (star.x === x && star.y === y) {
+                        return false;
+                    }
+                }
+            }
+            
+            return true;
+        }
+
+        // Generate a single star in valid position
+        function generateSingleStar() {
             const cols = Math.floor(canvas.width / gridSize);
             const rows = Math.floor(canvas.height / gridSize);
+            let attempts = 0;
+            const maxAttempts = 100;
 
+            while (attempts < maxAttempts) {
+                const starX = Math.floor(Math.random() * (cols - 2)) + 1;
+                const starY = Math.floor(Math.random() * (rows - 2)) + 1;
+                
+                if (isValidPosition(starX, starY)) {
+                    return {x: starX, y: starY};
+                }
+                attempts++;
+            }
+            
+            // Fallback: find any available position
+            for (let y = 1; y < rows - 1; y++) {
+                for (let x = 1; x < cols - 1; x++) {
+                    if (isValidPosition(x, y)) {
+                        return {x, y};
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // Generate initial stars
+        function generateStars() {
+            stars = [];
             for (let i = 0; i < 3; i++) {
-                let starX, starY, validPosition;
-                do {
-                    starX = Math.floor(Math.random() * (cols - 2)) + 1;
-                    starY = Math.floor(Math.random() * (rows - 2)) + 1;
-                    validPosition = !walls.some(wall => wall.x === starX && wall.y === starY) &&
-                                  (starX !== player.x || starY !== player.y);
-                } while (!validPosition);
-
-                stars.push({x: starX, y: starY});
+                const star = generateSingleStar();
+                if (star) {
+                    stars.push(star);
+                }
             }
         }
 
@@ -660,24 +767,20 @@
                     playStarSound();
                     updateScoreboard();
 
+                    // Regenerate star after 1 second to maintain 3 stars
+                    setTimeout(() => {
+                        const newStar = generateSingleStar();
+                        if (newStar) {
+                            stars.push(newStar);
+                        }
+                    }, 1000);
+
                     if (starsCollected >= 3) {
                         if (currentQuestionIndex < shuffledQuestions.length) {
                             showQuestion();
                         } else {
                             endGame();
                         }
-                    } else {
-                        // Generate new star
-                        const cols = Math.floor(canvas.width / gridSize);
-                        const rows = Math.floor(canvas.height / gridSize);
-                        let starX, starY, validPosition;
-                        do {
-                            starX = Math.floor(Math.random() * (cols - 2)) + 1;
-                            starY = Math.floor(Math.random() * (rows - 2)) + 1;
-                            validPosition = !walls.some(wall => wall.x === starX && wall.y === starY) &&
-                                          (starX !== player.x || starY !== player.y);
-                        } while (!validPosition);
-                        stars.push({x: starX, y: starY});
                     }
                 }
             }
@@ -898,9 +1001,11 @@
             initGame();
         });
 
-        // Start game
-        initGame();
-        draw();
+        // Start game after splash screen (5 seconds)
+        setTimeout(() => {
+            initGame();
+            draw();
+        }, 5000);
     </script>
 </body>
 </html>
