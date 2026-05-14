@@ -27,34 +27,32 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: white;
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeOut 0.5s ease-out 4.5s forwards;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .splash-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         .splash-screen img {
-            max-width: 400px;
-            width: 80%;
+            max-width: 500px;
+            width: 90%;
             height: auto;
-            animation: logoScale 1s ease-in-out infinite alternate;
+            animation: logoFloat 2s ease-in-out infinite;
         }
 
-        @keyframes logoScale {
-            from {
-                transform: scale(1);
+        @keyframes logoFloat {
+            0%, 100% {
+                transform: translateY(0px);
             }
-            to {
-                transform: scale(1.05);
-            }
-        }
-
-        @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
+            50% {
+                transform: translateY(-20px);
             }
         }
 
@@ -66,13 +64,11 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             overflow: hidden;
             opacity: 0;
-            animation: fadeIn 0.5s ease-in 5s forwards;
+            transition: opacity 0.5s ease-in;
         }
 
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-            }
+        .container.visible {
+            opacity: 1;
         }
 
         .header {
@@ -383,10 +379,10 @@
 <body>
     <!-- Splash Screen with Logo -->
     <div class="splash-screen" id="splashScreen">
-        <img src="assets/innovine-logo.png" alt="Innovine Logo">
+        <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'">
     </div>
 
-    <div class="container">
+    <div class="container" id="mainContainer">
         <div class="header">
             <h1>🌟 Motivation Maze Runner 🌟</h1>
             <div class="score-board">
@@ -443,6 +439,14 @@
     </div>
 
     <script>
+        // Hide splash screen and show game after 5 seconds
+        setTimeout(() => {
+            document.getElementById('splashScreen').classList.add('hidden');
+            document.getElementById('mainContainer').classList.add('visible');
+            initGame();
+            draw();
+        }, 5000);
+
         // Audio elements for external sound files
         const correctSound = new Audio('assets/correct.mp3');
         const wrongSound = new Audio('assets/wrong.mp3');
@@ -471,7 +475,6 @@
         }
 
         function playStarSound() {
-            // Using Web Audio API for star collection sound (lighter sound)
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
@@ -497,7 +500,7 @@
             document.getElementById('volumeLabel').textContent = e.target.value + '%';
         });
 
-        // Questions array - situational questions about motivation
+        // Questions array
         const questions = [
             {
                 question: "You have an important exam next week, but you feel demotivated to study. According to self-motivation tips, what should you do first?",
@@ -601,16 +604,13 @@
             }
         ];
 
-        // Shuffle questions
         let shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
         let currentQuestionIndex = 0;
         let correctAnswers = 0;
 
-        // Game variables
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // Set canvas size
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
             canvas.width = rect.width;
@@ -620,6 +620,7 @@
         window.addEventListener('resize', resizeCanvas);
 
         const gridSize = 40;
+        const MAX_STARS = 3;
         let player = {
             x: 1,
             y: 1,
@@ -633,14 +634,12 @@
         let totalStarsCollected = 0;
         let occupiedCells = new Set();
 
-        // Generate maze
         function generateMaze() {
             walls = [];
             occupiedCells.clear();
             const cols = Math.floor(canvas.width / gridSize);
             const rows = Math.floor(canvas.height / gridSize);
 
-            // Create border walls
             for (let i = 0; i < cols; i++) {
                 walls.push({x: i, y: 0});
                 walls.push({x: i, y: rows - 1});
@@ -654,10 +653,8 @@
                 occupiedCells.add(`${cols - 1},${i}`);
             }
 
-            // Reserve player starting position
             occupiedCells.add('1,1');
 
-            // Add some random walls
             for (let i = 0; i < 15; i++) {
                 const wallX = Math.floor(Math.random() * (cols - 2)) + 1;
                 const wallY = Math.floor(Math.random() * (rows - 2)) + 1;
@@ -669,28 +666,19 @@
             }
         }
 
-        // Check if position is valid (not occupied by wall, player, or another star)
-        function isValidPosition(x, y, excludeStars = false) {
+        function isValidPosition(x, y) {
             const cellKey = `${x},${y}`;
-            
-            // Check if occupied by wall or player
             if (occupiedCells.has(cellKey)) {
                 return false;
             }
-            
-            // Check if occupied by existing star (unless we're excluding stars)
-            if (!excludeStars) {
-                for (let star of stars) {
-                    if (star.x === x && star.y === y) {
-                        return false;
-                    }
+            for (let star of stars) {
+                if (star.x === x && star.y === y) {
+                    return false;
                 }
             }
-            
             return true;
         }
 
-        // Generate a single star in valid position
         function generateSingleStar() {
             const cols = Math.floor(canvas.width / gridSize);
             const rows = Math.floor(canvas.height / gridSize);
@@ -707,7 +695,6 @@
                 attempts++;
             }
             
-            // Fallback: find any available position
             for (let y = 1; y < rows - 1; y++) {
                 for (let x = 1; x < cols - 1; x++) {
                     if (isValidPosition(x, y)) {
@@ -719,18 +706,23 @@
             return null;
         }
 
-        // Generate initial stars
-        function generateStars() {
-            stars = [];
-            for (let i = 0; i < 3; i++) {
-                const star = generateSingleStar();
-                if (star) {
-                    stars.push(star);
+        // FIXED: Maintain exactly 3 stars at all times
+        function maintainStarCount() {
+            while (stars.length < MAX_STARS) {
+                const newStar = generateSingleStar();
+                if (newStar) {
+                    stars.push(newStar);
+                } else {
+                    break;
                 }
             }
         }
 
-        // Initialize game
+        function generateStars() {
+            stars = [];
+            maintainStarCount();
+        }
+
         function initGame() {
             player.x = 1;
             player.y = 1;
@@ -744,12 +736,10 @@
             updateScoreboard();
         }
 
-        // Check collision
         function checkCollision(x, y) {
             return walls.some(wall => wall.x === x && wall.y === y);
         }
 
-        // Move player
         function movePlayer(dx, dy) {
             const newX = player.x + dx;
             const newY = player.y + dy;
@@ -758,7 +748,6 @@
                 player.x = newX;
                 player.y = newY;
 
-                // Check star collection
                 const starIndex = stars.findIndex(star => star.x === player.x && star.y === player.y);
                 if (starIndex !== -1) {
                     stars.splice(starIndex, 1);
@@ -767,12 +756,9 @@
                     playStarSound();
                     updateScoreboard();
 
-                    // Regenerate star after 1 second to maintain 3 stars
+                    // FIXED: Regenerate star after 1 second to maintain 3 stars
                     setTimeout(() => {
-                        const newStar = generateSingleStar();
-                        if (newStar) {
-                            stars.push(newStar);
-                        }
+                        maintainStarCount();
                     }, 1000);
 
                     if (starsCollected >= 3) {
@@ -786,17 +772,14 @@
             }
         }
 
-        // Draw game
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw walls
             ctx.fillStyle = '#667eea';
             walls.forEach(wall => {
                 ctx.fillRect(wall.x * gridSize, wall.y * gridSize, gridSize - 2, gridSize - 2);
             });
 
-            // Draw stars
             stars.forEach(star => {
                 ctx.fillStyle = '#ffd700';
                 ctx.beginPath();
@@ -818,7 +801,6 @@
                 ctx.fill();
             });
 
-            // Draw player
             ctx.fillStyle = player.speedBoost ? '#4CAF50' : '#f5576c';
             ctx.beginPath();
             ctx.arc(
@@ -830,7 +812,6 @@
             );
             ctx.fill();
 
-            // Draw eyes
             ctx.fillStyle = 'white';
             ctx.beginPath();
             ctx.arc(player.x * gridSize + gridSize / 2 - 5, player.y * gridSize + gridSize / 2 - 3, 3, 0, 2 * Math.PI);
@@ -842,14 +823,12 @@
             requestAnimationFrame(draw);
         }
 
-        // Update scoreboard
         function updateScoreboard() {
             document.getElementById('stars').textContent = totalStarsCollected;
             document.getElementById('questionsAnswered').textContent = currentQuestionIndex + '/' + shuffledQuestions.length;
             document.getElementById('correctCount').textContent = correctAnswers;
         }
 
-        // Show question
         function showQuestion() {
             const modal = document.getElementById('questionModal');
             const questionText = document.getElementById('questionText');
@@ -876,7 +855,6 @@
             modal.style.display = 'flex';
         }
 
-        // Check answer
         function checkAnswer(selectedIndex, button) {
             const currentQuestion = shuffledQuestions[currentQuestionIndex];
             const feedback = document.getElementById('feedback');
@@ -893,7 +871,6 @@
                 playCorrectSound();
                 showCelebration();
                 
-                // Give speed boost
                 player.speedBoost = true;
                 setTimeout(() => {
                     player.speedBoost = false;
@@ -917,7 +894,6 @@
             }, 3000);
         }
 
-        // Show celebration animation
         function showCelebration() {
             const celebration = document.createElement('div');
             celebration.className = 'celebration';
@@ -928,7 +904,6 @@
             }, 1000);
         }
 
-        // End game
         function endGame() {
             const modal = document.getElementById('questionModal');
             const questionBox = document.querySelector('.question-box');
@@ -964,7 +939,6 @@
             document.getElementById('restartBtn').style.display = 'block';
         }
 
-        // Keyboard controls
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('questionModal').style.display === 'flex') return;
 
@@ -988,24 +962,16 @@
             }
         });
 
-        // Touch controls
         document.getElementById('upBtn').addEventListener('click', () => movePlayer(0, -1));
         document.getElementById('downBtn').addEventListener('click', () => movePlayer(0, 1));
         document.getElementById('leftBtn').addEventListener('click', () => movePlayer(-1, 0));
         document.getElementById('rightBtn').addEventListener('click', () => movePlayer(1, 0));
 
-        // Restart button
         document.getElementById('restartBtn').addEventListener('click', () => {
             document.getElementById('questionModal').style.display = 'none';
             document.getElementById('restartBtn').style.display = 'none';
             initGame();
         });
-
-        // Start game after splash screen (5 seconds)
-        setTimeout(() => {
-            initGame();
-            draw();
-        }, 5000);
     </script>
 </body>
 </html>
