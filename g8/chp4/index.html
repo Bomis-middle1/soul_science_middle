@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pressure Radar - Dealing with Peer Pressure</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #38bdf8;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 24px 16px 26px;
+      text-align: center;
+      background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(56, 189, 248, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 30px;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 18px;
+      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 2px solid #38bdf8;
+      color: #e0f2fe;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .radar-area {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .radar-title {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: #bae6fd;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .radar {
+      margin-top: 4px;
+      position: relative;
+      width: 100%;
+      padding-top: 70%;
+    }
+    .radar-inner {
+      position: absolute;
+      inset: 8px 18px 8px 18px;
+      border-radius: 18px;
+      background: radial-gradient(circle, rgba(34, 211, 238, 0.05), rgba(15, 23, 42, 0.95));
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      overflow: hidden;
+    }
+
+    .radar-grid {
+      position: absolute;
+      inset: 18px 40px 18px 40px;
+      border-radius: 999px;
+      border: 2px solid rgba(56, 189, 248, 0.7);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+    }
+    .radar-grid::before,
+    .radar-grid::after {
+      content: '';
+      position: absolute;
+      inset: 16px;
+      border-radius: inherit;
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+    }
+    .radar-grid::after {
+      inset: 32px;
+      border-style: dotted;
+    }
+
+    .radar-line {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 50%; height: 2px;
+      background: linear-gradient(to right, rgba(56, 189, 248, 0.2), #38bdf8);
+      transform-origin: left center;
+      animation: sweep 4s linear infinite;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.9);
+    }
+    @keyframes sweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .radar-dot {
+      position: absolute;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f97316 0%, #b91c1c 70%);
+      box-shadow: 0 0 12px rgba(248, 250, 252, 0.9);
+      transform: translate(-50%, -50%);
+      transition: all 0.5s ease-out;
+    }
+
+    .radar-label {
+      position: absolute;
+      font-size: 11px;
+      color: #e5e7eb;
+      padding: 2px 6px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      transform: translate(-50%, -50%);
+    }
+
+    .radar-zones {
+      position: absolute;
+      inset: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .radar-zones span {
+      background: rgba(15, 23, 42, 0.9);
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+    }
+
+    .score-panel {
+      flex: 0.9;
+      min-width: 270px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.6);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 20px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .question-panel {
+      margin-top: 2px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 12px;
+      box-shadow: inset 0 0 15px rgba(15, 23, 42, 0.9);
+    }
+    .question-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #38bdf8;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .scenario-text {
+      font-size: 14px;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .option-btn {
+      border-radius: 9px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 7px 8px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      border-color: #4ade80;
+      color: #ecfdf5;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #f87171;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled { pointer-events: none; opacity: 0.9; }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #38bdf8;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .radar-area, .score-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧭 PRESSURE RADAR 🧭</h1>
+        <div class="subtitle">Dealing with Peer Pressure - Grade 8</div>
+        <div class="stage-indicator" id="stageIndicator">Scenario 1 of 10</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="radar-area">
+        <div class="radar-title">Scan: Is this Good or Bad Pressure?</div>
+        <div class="radar">
+          <div class="radar-inner">
+            <div class="radar-grid"></div>
+            <div class="radar-line"></div>
+            <div class="radar-zones">
+              <span>Good Pressure Zone</span>
+              <span>Bad Pressure Zone</span>
+            </div>
+            <div class="radar-dot" id="radarDot" style="top: 50%; left: 50%;"></div>
+            <div class="radar-label" id="radarLabel" style="top: 65%; left: 50%;">Scanning...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Type Detections Right</div>
+            <div class="score-value" id="typeScore">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Strategy Choices Right</div>
+            <div class="score-value" id="strategyScore">0</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Scenario</div>
+            <div class="score-value" id="scenarioCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Overall Radar Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="question-panel" id="questionPanel">
+          <div class="question-title">Scenario</div>
+          <div class="scenario-text" id="scenarioText"></div>
+
+          <div class="step-label">Step 1: What kind of peer pressure is this?</div>
+          <div class="options" id="typeOptions"></div>
+
+          <div class="step-label" id="step2Label" style="display:none; margin-top:4px;">Step 2: What is the healthiest response?</div>
+          <div class="options" id="strategyOptions"></div>
+
+          <div class="feedback" id="feedback"></div>
+
+          <div class="controls">
+            <div id="progressText">First, classify the pressure. Then choose a response.</div>
+            <button class="btn-primary" id="nextBtn">Next Scenario →</button>
+          </div>
+
+          <div class="volume-control">
+            <span>🔊 Volume</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash screen
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio (shared assets)
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Scenarios based on chapter 4 content [file:14]
+    const scenarios = [
+      {
+        text: "Your friends are all revising for an upcoming test. You were going to skip studying, but seeing them work hard makes you want to prepare properly too.",
+        type: "good",
+        typeExplanation: "This is helpful peer pressure. Their behaviour motivates you to study and do your best, which matches your long-term goals.",
+        strategies: [
+          {
+            text: "Join them in studying and make your own simple study plan.",
+            isBest: true,
+            explanation: "You are using the positive pressure to improve yourself and act in line with your goals."
+          },
+          {
+            text: "Mock them for studying and keep scrolling on your phone.",
+            isBest: false,
+            explanation: "This ignores a healthy example and may harm your results."
+          },
+          {
+            text: "Do nothing and wait to see your marks later.",
+            isBest: false,
+            explanation: "You miss a chance to use positive peer influence in your favour."
+          }
+        ]
+      },
+      {
+        text: "At lunch, classmates keep teasing another student for bringing homemade food instead of buying snacks. They laugh and say, “You’re so boring, just be like us.”",
+        type: "bad",
+        typeExplanation: "This is unhealthy peer pressure. Mocking and shaming someone for their choices is not okay.",
+        strategies: [
+          {
+            text: "Join in the teasing so they don’t target you.",
+            isBest: false,
+            explanation: "This supports the unhealthy pressure and hurts the other student."
+          },
+          {
+            text: "Stand up for the student or change the topic, and sit with them so they feel supported.",
+            isBest: true,
+            explanation: "You are recognising an unhealthy dynamic and using bystander intervention to support them."
+          },
+          {
+            text: "Stay silent but keep sitting with the group, laughing softly.",
+            isBest: false,
+            explanation: "Silence may be seen as agreement and doesn’t help the person being pressured."
+          }
+        ]
+      },
+      {
+        text: "A group invites you to hang out after school, but says you can only join if you skip your homework and lie to your parents about where you are going.",
+        type: "bad",
+        typeExplanation: "They are asking you to lie and ignore your responsibilities, which goes against your values and can have negative consequences.",
+        strategies: [
+          {
+            text: "Use a delay tactic like, “Let me think about it, I’ll get back to you.”",
+            isBest: true,
+            explanation: "Delay gives you time to think about consequences and check in with your values before deciding."
+          },
+          {
+            text: "Agree quickly so you don’t lose these friends.",
+            isBest: false,
+            explanation: "Acting against your values just to be accepted can lead to guilt and trouble later."
+          },
+          {
+            text: "Say nothing and suddenly walk away without a word.",
+            isBest: false,
+            explanation: "Walking away can be okay, but clear communication or delay is usually more helpful here."
+          }
+        ]
+      },
+      {
+        text: "Some seniors at a party keep handing you a drink and say, “Don’t be a baby, everyone is trying it. Just one won’t hurt.” You don’t want to drink.",
+        type: "bad",
+        typeExplanation: "This is direct pressure to do something you are not comfortable with, and it may be unsafe.",
+        strategies: [
+          {
+            text: "Say, “No thanks, not today,” and keep your answer firm.",
+            isBest: true,
+            explanation: "You are clearly saying no and respecting your boundaries, just as the chapter suggests."
+          },
+          {
+            text: "Take the drink but only pretend to sip it.",
+            isBest: false,
+            explanation: "This still keeps you in the pressured situation and may lead to more risk."
+          },
+          {
+            text: "Say yes now and worry about it later.",
+            isBest: false,
+            explanation: "You are ignoring your values and the possible consequences."
+          }
+        ]
+      },
+      {
+        text: "Your project group decides to finish the work early so everyone can relax before exams. Seeing their effort makes you want to contribute your best too.",
+        type: "good",
+        typeExplanation: "Their behaviour inspires responsibility and teamwork, which is an example of positive peer pressure.",
+        strategies: [
+          {
+            text: "Offer to take a fair share of the tasks and complete them on time.",
+            isBest: true,
+            explanation: "You are matching their positive effort and supporting the group."
+          },
+          {
+            text: "Let them work while you enjoy free time since they seem responsible.",
+            isBest: false,
+            explanation: "This is unfair to the group and doesn’t use the positive example to improve yourself."
+          },
+          {
+            text: "Complain that they are taking things too seriously.",
+            isBest: false,
+            explanation: "This discourages helpful habits that reduce stress later."
+          }
+        ]
+      },
+      {
+        text: "In the corridor, you see someone being pushed to share their personal secrets while others watch and laugh. They look uncomfortable and try to change the subject.",
+        type: "bad",
+        typeExplanation: "Forcing someone to reveal personal information while mocking them is an unhealthy dynamic.",
+        strategies: [
+          {
+            text: "Invite the person being pressured to come with you to do something else.",
+            isBest: true,
+            explanation: "This is a form of bystander intervention that helps them leave the pressure-filled situation."
+          },
+          {
+            text: "Join the group and ask even more personal questions.",
+            isBest: false,
+            explanation: "This increases the pressure and makes the situation worse."
+          },
+          {
+            text: "Stay and watch without saying anything.",
+            isBest: false,
+            explanation: "Watching silently does not support the person who is uncomfortable."
+          }
+        ]
+      },
+      {
+        text: "Your close friend tells you they don’t want to cheat on a test even though others are sharing answers in a group chat. They ask if you will join them in staying honest.",
+        type: "good",
+        typeExplanation: "Your friend is modelling integrity and inviting you to make a values-based choice. This is positive peer influence.",
+        strategies: [
+          {
+            text: "Agree to stay honest together and avoid the cheating group chat.",
+            isBest: true,
+            explanation: "You support each other in acting according to your values."
+          },
+          {
+            text: "Tell them they’re overreacting and convince them to cheat anyway.",
+            isBest: false,
+            explanation: "This pressures them to go against their values and could have serious consequences."
+          },
+          {
+            text: "Secretly cheat but pretend you agreed with them.",
+            isBest: false,
+            explanation: "This breaks trust and goes against the idea of choosing based on your values."
+          }
+        ]
+      },
+      {
+        text: "At a gathering, someone keeps calling you “boring” because you refuse to take part in a risky challenge. They pressure you to join “just once”.",
+        type: "bad",
+        typeExplanation: "Mocking, shaming and pressuring you to do something risky is unhealthy peer pressure.",
+        strategies: [
+          {
+            text: "Say, “No, that’s not for me,” and move away or spend time with people who respect your choice.",
+            isBest: true,
+            explanation: "You are setting a boundary and choosing to be with people who respect your decisions."
+          },
+          {
+            text: "Give in so they stop calling you names.",
+            isBest: false,
+            explanation: "You are letting insults control your decisions instead of your values."
+          },
+          {
+            text: "Stay there and argue loudly with them.",
+            isBest: false,
+            explanation: "This may escalate the conflict instead of calmly protecting your boundaries."
+          }
+        ]
+      },
+      {
+        text: "Some classmates invite you to join a community clean-up. You were planning to sleep in, but their enthusiasm makes you want to help too.",
+        type: "good",
+        typeExplanation: "They are inspiring you to do something positive for others, which is a healthy kind of peer pressure.",
+        strategies: [
+          {
+            text: "Join them and contribute in a way that feels manageable to you.",
+            isBest: true,
+            explanation: "You are responding to positive pressure in a balanced way."
+          },
+          {
+            text: "Laugh at them for wasting time and tell others not to go.",
+            isBest: false,
+            explanation: "This discourages helpful actions and spreads negativity."
+          },
+          {
+            text: "Say you will come, but never show up.",
+            isBest: false,
+            explanation: "This avoids an honest response and does not respect their effort."
+          }
+        ]
+      },
+      {
+        text: "In an online group, people are sharing mean comments and edited photos of a classmate. They tag you and say, “Like this and post your own version!”",
+        type: "bad",
+        typeExplanation: "This is cyberbullying and social pressure to join in hurting someone, which is clearly unhealthy.",
+        strategies: [
+          {
+            text: "Refuse to join, report or block the content if needed, and avoid that chat.",
+            isBest: true,
+            explanation: "You are recognising an unhealthy dynamic and choosing not to support it."
+          },
+          {
+            text: "Like the posts so you won’t be targeted.",
+            isBest: false,
+            explanation: "This supports the bullying and goes against respect for others."
+          },
+          {
+            text: "Stay in the group and watch without reacting.",
+            isBest: false,
+            explanation: "Silence can be seen as silent approval and does not help the person being targeted."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_SCENARIOS = 10;
+
+    let currentOrder = [];
+    let currentIndex = 0;
+    let typeScore = 0;
+    let strategyScore = 0;
+
+    const scenarioText = document.getElementById("scenarioText");
+    const typeOptionsContainer = document.getElementById("typeOptions");
+    const strategyOptionsContainer = document.getElementById("strategyOptions");
+    const feedbackBox = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const typeScoreEl = document.getElementById("typeScore");
+    const strategyScoreEl = document.getElementById("strategyScore");
+    const scenarioCounterEl = document.getElementById("scenarioCounter");
+    const overallScoreEl = document.getElementById("overallScore");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const radarDot = document.getElementById("radarDot");
+    const radarLabel = document.getElementById("radarLabel");
+    const step2Label = document.getElementById("step2Label");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = scenarios.map((_, idx) => idx);
+      currentOrder = shuffle(indices).slice(0, TOTAL_SCENARIOS);
+      currentIndex = 0;
+      typeScore = 0;
+      strategyScore = 0;
+      updateScores();
+      loadScenario();
+    }
+
+    function updateScores(){
+      typeScoreEl.textContent = String(typeScore);
+      strategyScoreEl.textContent = String(strategyScore);
+      const total = typeScore + strategyScore;
+      const max = TOTAL_SCENARIOS * 2;
+      const percent = max > 0 ? Math.round((total / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+      scenarioCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_SCENARIOS}`;
+      stageIndicator.textContent = `Scenario ${currentIndex + 1} of ${TOTAL_SCENARIOS}`;
+    }
+
+    function resetRadar(){
+      radarDot.style.top = "50%";
+      radarDot.style.left = "50%";
+      radarLabel.textContent = "Scanning...";
+      radarLabel.style.top = "65%";
+      radarLabel.style.left = "50%";
+    }
+
+    function loadScenario(){
+      const scenario = scenarios[currentOrder[currentIndex]];
+      scenarioText.textContent = scenario.text;
+      typeOptionsContainer.innerHTML = "";
+      strategyOptionsContainer.innerHTML = "";
+      feedbackBox.style.display = "none";
+      feedbackBox.textContent = "";
+      step2Label.style.display = "none";
+      nextBtn.style.display = "none";
+      document.getElementById("progressText").textContent = "First, classify the pressure.";
+      resetRadar();
+
+      ["Good peer pressure (helpful influence)", "Bad peer pressure (unhealthy influence)"].forEach((text, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = text;
+        btn.addEventListener("click", () => handleTypeChoice(idx === 0 ? "good" : "bad"));
+        typeOptionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleTypeChoice(choice){
+      const scenario = scenarios[currentOrder[currentIndex]];
+      const buttons = typeOptionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(btn => btn.classList.add("disabled"));
+
+      if(scenario.type === "good"){
+        radarDot.style.top = "35%";
+        radarDot.style.left = "30%";
+        radarLabel.textContent = "Good Pressure";
+        radarLabel.style.top = "25%";
+        radarLabel.style.left = "30%";
+      } else {
+        radarDot.style.top = "65%";
+        radarDot.style.left = "70%";
+        radarLabel.textContent = "Bad Pressure";
+        radarLabel.style.top = "75%";
+        radarLabel.style.left = "70%";
+      }
+
+      if(choice === scenario.type){
+        typeScore++;
+        feedbackBox.className = "feedback correct";
+        feedbackBox.textContent = scenario.typeExplanation;
+        playCorrect();
+      } else {
+        feedbackBox.className = "feedback wrong";
+        feedbackBox.textContent = scenario.typeExplanation;
+        playWrong();
+      }
+      feedbackBox.style.display = "block";
+
+      const correctIsGood = scenario.type === "good";
+      buttons.forEach((btn, idx) => {
+        const isGoodBtn = idx === 0;
+        if((isGoodBtn && correctIsGood) || (!isGoodBtn && !correctIsGood)){
+          btn.classList.add("correct");
+        } else if((isGoodBtn && !correctIsGood && choice === "good") || (!isGoodBtn && correctIsGood && choice === "bad")){
+          btn.classList.add("wrong");
+        }
+      });
+
+      updateScores();
+      buildStrategyOptions();
+    }
+
+    function buildStrategyOptions(){
+      const scenario = scenarios[currentOrder[currentIndex]];
+      step2Label.style.display = "block";
+      strategyOptionsContainer.innerHTML = "";
+      document.getElementById("progressText").textContent = "Now, choose the healthiest response.";
+
+      scenario.strategies.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleStrategyChoice(idx));
+        strategyOptionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleStrategyChoice(index){
+      const scenario = scenarios[currentOrder[currentIndex]];
+      const buttons = strategyOptionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(btn => btn.classList.add("disabled"));
+
+      const chosen = scenario.strategies[index];
+      if(chosen.isBest){
+        strategyScore++;
+        feedbackBox.className = "feedback correct";
+        feedbackBox.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackBox.className = "feedback wrong";
+        feedbackBox.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackBox.style.display = "block";
+
+      scenario.strategies.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        buttons[index].classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_SCENARIOS - 1 ? "Next Scenario →" : "View Radar Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_SCENARIOS - 1){
+        currentIndex++;
+        updateScores();
+        loadScenario();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      const totalCorrect = typeScore + strategyScore;
+      const max = TOTAL_SCENARIOS * 2;
+      const percent = Math.round((totalCorrect / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Peer Pressure Pro";
+        badge = "🛡️";
+        text = "You accurately read pressure types and choose healthy responses. You protect your values and support others.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Strong Defender";
+        badge = "⚔️";
+        text = "You usually spot unhealthy pressure and respond well. Keep practising boundary setting and bystander skills.";
+      } else if(percent >= 50){
+        rank = "Growing Guardian";
+        badge = "🌱";
+        text = "You are learning to tell good from bad pressure. Review the strategies and try again.";
+      } else {
+        rank = "New Scanner";
+        badge = "🔍";
+        text = "This is a starting point. Revisit the chapter’s strategies and replay to build confidence.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Pressure Radar Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Type detections: ${typeScore} / ${TOTAL_SCENARIOS}</div>
+          <div class="final-score">Strategy choices: ${strategyScore} / ${TOTAL_SCENARIOS}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
