@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stress-Smart Choices - Tip Matcher</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1000px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #bbf7d0;
+    }
+    .timer.warning .timer-circle {
+      border-color: #f97316;
+      color: #fed7aa;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .categories-area {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px 14px 10px;
+    }
+    .categories-title {
+      text-align: center;
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: #bbf7d0;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      font-size: 12px;
+    }
+    .category-card {
+      background: radial-gradient(circle at top, #020617, #020617 70%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px 8px 6px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .category-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #a5b4fc;
+    }
+    .category-subtitle {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .drop-zone {
+      margin-top: 4px;
+      min-height: 40px;
+      border-radius: 10px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .card-list-area {
+      flex: 0.9;
+      min-width: 260px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .current-stress-box {
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+    .current-stress-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+
+    .cards-pool {
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px;
+      margin-top: 6px;
+      min-height: 60px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tip-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      padding: 6px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #e5e7eb;
+      min-width: 120px;
+      max-width: 100%;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.9);
+      transition: all 0.15s;
+    }
+    .tip-card:hover {
+      transform: translateY(-1px);
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+    }
+    .tip-card.selected {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .tip-card.correct {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      border-color: #bbf7d0;
+      color: #022c22;
+    }
+    .tip-card.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #22c55e;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .categories-area, .card-list-area { min-width: 100%; }
+      .categories-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>💚 STRESS-SMART CHOICES 💚</h1>
+        <div class="subtitle">Stress Management Tip Matcher - Grade 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Chapter 5: Stress Management - Match each tip to the right type of change.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">30</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="categories-area">
+        <div class="categories-title">Three Ways to Respond to Stress</div>
+        <div class="categories-grid">
+          <div class="category-card" data-category="thought">
+            <div class="category-title">Change your thought process</div>
+            <div class="category-subtitle">How you think about the situation</div>
+            <div class="drop-zone" id="dropThought"></div>
+          </div>
+          <div class="category-card" data-category="behaviour">
+            <div class="category-title">Change your behaviour patterns</div>
+            <div class="category-subtitle">What you do and how you act</div>
+            <div class="drop-zone" id="dropBehaviour"></div>
+          </div>
+          <div class="category-card" data-category="lifestyle">
+            <div class="category-title">Change your lifestyle</div>
+            <div class="category-subtitle">Daily habits and routines</div>
+            <div class="drop-zone" id="dropLifestyle"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-list-area">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Question</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Correct Matches</div>
+            <div class="score-value" id="correctScore">0</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="current-stress-box">
+          <div class="current-stress-label">Stress Situation</div>
+          <div id="stressSituation"></div>
+        </div>
+
+        <div class="cards-pool" id="cardsPool"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Tap a tip, then tap a category to match it. You have 30 seconds.</div>
+          <button class="btn-primary" id="nextBtn">Next Question →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 30;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 30;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 10){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 20){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // Questions based on stress causes & tips [file:14]
+    const questions = [
+      {
+        situation: "You feel overwhelmed by the fear of examinations and keep thinking you will fail.",
+        tips: [
+          {
+            text: "Remind yourself of past successes and focus on what you can control.",
+            category: "thought"
+          },
+          {
+            text: "Create a simple study timetable and stick to it.",
+            category: "behaviour"
+          },
+          {
+            text: "Sleep on time and avoid late-night screen time before exams.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You struggle to finish homework and assignments on time and feel stressed.",
+        tips: [
+          {
+            text: "Tell yourself, “I can handle this by doing one step at a time.”",
+            category: "thought"
+          },
+          {
+            text: "Break tasks into smaller parts and prioritise them.",
+            category: "behaviour"
+          },
+          {
+            text: "Set a regular homework time each day and reduce distractions.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You feel pressure from managing school, household work and extra-curricular activities.",
+        tips: [
+          {
+            text: "Reframe the situation by focusing on what you are learning from it.",
+            category: "thought"
+          },
+          {
+            text: "Say “no” to some extra tasks and ask for help when needed.",
+            category: "behaviour"
+          },
+          {
+            text: "Plan your week so that you have time for rest and hobbies.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You feel stressed because of conflict with friends or family.",
+        tips: [
+          {
+            text: "Remind yourself that conflicts can be solved with calm communication.",
+            category: "thought"
+          },
+          {
+            text: "Listen carefully and speak politely instead of shouting.",
+            category: "behaviour"
+          },
+          {
+            text: "Take a short walk or do deep breathing before talking again.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You often feel unhappy about your physical appearance.",
+        tips: [
+          {
+            text: "Focus on your strengths and qualities instead of only looks.",
+            category: "thought"
+          },
+          {
+            text: "Avoid comparing yourself with edited pictures on social media.",
+            category: "behaviour"
+          },
+          {
+            text: "Follow a healthy routine with food, movement and sleep.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You are stressed because you keep delaying work and then rush at the last moment.",
+        tips: [
+          {
+            text: "Replace “I will never change” with “I can start with small changes today.”",
+            category: "thought"
+          },
+          {
+            text: "Start tasks as soon as they are given instead of waiting until the deadline.",
+            category: "behaviour"
+          },
+          {
+            text: "Use a planner or calendar to organise your day.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You feel stressed because you get distracted easily while studying.",
+        tips: [
+          {
+            text: "Tell yourself that focus is a skill you can train, not something fixed.",
+            category: "thought"
+          },
+          {
+            text: "Study in short focused blocks with planned breaks.",
+            category: "behaviour"
+          },
+          {
+            text: "Keep your study space clean and free from unnecessary devices.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You feel tired and irritated most of the time due to lack of rest.",
+        tips: [
+          {
+            text: "Remind yourself that rest is important, not a waste of time.",
+            category: "thought"
+          },
+          {
+            text: "Take short breaks when you feel tired instead of forcing yourself.",
+            category: "behaviour"
+          },
+          {
+            text: "Aim for a consistent sleep schedule each night.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You worry a lot about what others think and this makes you stressed.",
+        tips: [
+          {
+            text: "Challenge the thought that everyone is judging you all the time.",
+            category: "thought"
+          },
+          {
+            text: "Spend more time with people who support and respect you.",
+            category: "behaviour"
+          },
+          {
+            text: "Limit time spent on negative conversations or gossip.",
+            category: "lifestyle"
+          }
+        ]
+      },
+      {
+        situation: "You feel anxious before speaking in front of the class.",
+        tips: [
+          {
+            text: "Replace “I will mess up” with “I can prepare and do my best.”",
+            category: "thought"
+          },
+          {
+            text: "Practise your talk a few times in front of a mirror or friend.",
+            category: "behaviour"
+          },
+          {
+            text: "Take slow deep breaths before and during the presentation.",
+            category: "lifestyle"
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let order = [];
+    let currentIndex = 0;
+    let correctMatches = 0;
+
+    const stressSituationEl = document.getElementById("stressSituation");
+    const cardsPool = document.getElementById("cardsPool");
+    const dropThought = document.getElementById("dropThought");
+    const dropBehaviour = document.getElementById("dropBehaviour");
+    const dropLifestyle = document.getElementById("dropLifestyle");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const correctScoreEl = document.getElementById("correctScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let selectedCardId = null;
+    let locked = false;
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = questions.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      correctMatches = 0;
+      updateScoreDisplay();
+      loadQuestion();
+    }
+
+    function updateScoreDisplay(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      correctScoreEl.textContent = String(correctMatches);
+      const max = TOTAL_QUESTIONS * 3;
+      const percent = max > 0 ? Math.round((correctMatches / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+    }
+
+    function clearDropZones(){
+      dropThought.innerHTML = "";
+      dropBehaviour.innerHTML = "";
+      dropLifestyle.innerHTML = "";
+    }
+
+    function loadQuestion(){
+      locked = false;
+      selectedCardId = null;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "Tap a tip, then tap a category to match it. You have 30 seconds.";
+      clearDropZones();
+
+      const q = questions[order[currentIndex]];
+      stressSituationEl.textContent = q.situation;
+      cardsPool.innerHTML = "";
+
+      q.tips.forEach((tip, idx) => {
+        const card = document.createElement("div");
+        card.className = "tip-card";
+        card.textContent = tip.text;
+        card.dataset.category = tip.category;
+        card.dataset.cardId = idx.toString();
+        card.addEventListener("click", () => handleCardClick(card));
+        cardsPool.appendChild(card);
+      });
+
+      [
+        { el: dropThought, name: "thought" },
+        { el: dropBehaviour, name: "behaviour" },
+        { el: dropLifestyle, name: "lifestyle" }
+      ].forEach(({ el, name }) => {
+        el.onclick = () => handleCategoryClick(name);
+      });
+
+      updateScoreDisplay();
+      resetTimer();
+    }
+
+    function handleCardClick(card){
+      if(locked || timeLeft <= 0) return;
+      const previouslySelected = document.querySelector(".tip-card.selected");
+      if(previouslySelected && previouslySelected !== card){
+        previouslySelected.classList.remove("selected");
+      }
+      if(card.classList.contains("selected")){
+        card.classList.remove("selected");
+        selectedCardId = null;
+      } else {
+        card.classList.add("selected");
+        selectedCardId = card.dataset.cardId;
+      }
+    }
+
+    function handleCategoryClick(categoryName){
+      if(locked || timeLeft <= 0) return;
+      if(selectedCardId === null) return;
+
+      const q = questions[order[currentIndex]];
+      const selectedTip = q.tips[parseInt(selectedCardId)];
+      const cardEl = Array.from(cardsPool.children).find(c => c.dataset.cardId === selectedCardId);
+      if(!cardEl) return;
+
+      locked = true;
+      stopTimer();
+
+      if(selectedTip.category === categoryName){
+        cardEl.classList.remove("selected");
+        cardEl.classList.add("correct");
+        correctMatches++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = "Great match! That tip fits this type of change.";
+        playCorrect();
+      } else {
+        cardEl.classList.remove("selected");
+        cardEl.classList.add("wrong");
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = "Not the best match. Check which kind of change the tip really represents.";
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+      updateScoreDisplay();
+
+      // Move card into chosen category zone
+      const clone = cardEl.cloneNode(true);
+      clone.classList.remove("selected");
+      if(categoryName === "thought") dropThought.appendChild(clone);
+      if(categoryName === "behaviour") dropBehaviour.appendChild(clone);
+      if(categoryName === "lifestyle") dropLifestyle.appendChild(clone);
+
+      // Show hint about correct category
+      const hint = document.createElement("div");
+      hint.style.fontSize = "10px";
+      hint.style.marginTop = "4px";
+      hint.style.color = "#9ca3af";
+      hint.textContent = `This tip actually belongs to: ${selectedTip.category.toUpperCase()} change.`;
+      feedbackEl.appendChild(hint);
+
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Question →" : "View Summary →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Review the tips and think about which type of change they show.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Question →" : "View Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadQuestion();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const max = TOTAL_QUESTIONS * 3;
+      const percent = Math.round((correctMatches / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Stress Strategy Star";
+        badge = "🌟";
+        text = "You clearly understand how to use thought, behaviour and lifestyle changes to manage stress.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Calm Planner";
+        badge = "💫";
+        text = "You usually choose helpful tips. Keep practising matching strategies to situations.";
+      } else if(percent >= 50){
+        rank = "Growing Helper";
+        badge = "🌱";
+        text = "You are learning the stress tips. Review the chapter and play again to strengthen your skills.";
+      } else {
+        rank = "New Explorer";
+        badge = "🔍";
+        text = "This is a starting point. Revisit the ABC strategy and stress tips, then try again.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Stress-Smart Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct matches: ${correctMatches} / ${max}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
