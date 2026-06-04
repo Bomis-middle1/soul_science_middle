@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Behaviour Change Planner - Case Builder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 24px 18px 28px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 6px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: rgba(2, 44, 34, 0.9);
+      border: 2px solid #bbf7d0;
+      color: #bbf7d0;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.7);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .case-panel {
+      flex: 1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .case-header {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .case-body {
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+
+    .case-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      margin-bottom: 2px;
+      letter-spacing: 0.7px;
+    }
+
+    .case-text {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+
+    .score-panel {
+      flex: 1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .bank-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #facc15;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .card-bank {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 80px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+    }
+
+    .card {
+      min-width: 120px;
+      max-width: 220px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      font-size: 13px;
+      color: #e5e7eb;
+      cursor: grab;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.9);
+    }
+    .card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .drop-zones {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .drop-zone {
+      border-radius: 12px;
+      border: 2px dashed rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.9));
+      padding: 8px;
+      min-height: 60px;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    .drop-zone-label {
+      font-size: 11px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .drop-zone.hint {
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+    }
+    .drop-zone.correct-zone {
+      border-color: #22c55e;
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.8);
+    }
+    .drop-zone.wrong-zone {
+      border-color: #ef4444;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.8);
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.8);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 12px;
+      cursor: pointer;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #22c55e;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .case-panel, .score-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧩 BEHAVIOUR CHANGE PLANNER 🧩</h1>
+        <div class="subtitle">Case Builder · Grade 7 · Behaviour Management</div>
+        <div class="stage-indicator" id="stageIndicator">Case 1 of 4</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Drag cards to build a clear plan: Reasons → Consequences → Improvement steps.</div>
+      <div>Each case helps you think like the reflection sheet in your book.</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="case-panel">
+        <div class="case-header">Current Behaviour Case</div>
+        <div class="case-body">
+          <div class="case-label" id="caseTitle"></div>
+          <div class="case-text" id="caseDescription"></div>
+        </div>
+        <div class="bank-title">Card Bank</div>
+        <div class="card-bank" id="cardBank"></div>
+      </div>
+
+      <div class="score-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Cases Completed</div>
+            <div class="score-value" id="casesCompleted">0 / 4</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Well-Planned Cases</div>
+            <div class="score-value" id="goodPlans">0</div>
+          </div>
+        </div>
+
+        <div class="drop-zones">
+          <div class="drop-zone" data-zone="reasons">
+            <div class="drop-zone-label">Reasons for my behaviour (drop 2 cards)</div>
+          </div>
+          <div class="drop-zone" data-zone="consequences">
+            <div class="drop-zone-label">Consequences of my behaviour (drop 2 cards)</div>
+          </div>
+          <div class="drop-zone" data-zone="plan">
+            <div class="drop-zone-label">Plan for improvement (drop 2–3 cards)</div>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetCaseBtn">Reset Case</button>
+          <div id="progressText">Drag cards into each box, then click “Check Plan”.</div>
+          <button class="btn-primary" id="checkBtn">Check Plan</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Cases: behaviour + cards [file:16]
+    const cases = [
+      {
+        title: "Case 1 – Late Homework",
+        description: "A student frequently hands in homework late or skips it, even when there is enough time after school.",
+        reasons: [
+          { text: "Gets distracted by phone or games after school", id: "r1" },
+          { text: "Feels overwhelmed and puts homework off until too late", id: "r2" }
+        ],
+        extraReasons: [
+          { text: "Loves spending time with friends but forgets about homework", id: "r3" }
+        ],
+        consequences: [
+          { text: "Teacher feels disappointed and reminds them often", id: "c1" },
+          { text: "Marks go down and stress increases", id: "c2" }
+        ],
+        extraConsequences: [
+          { text: "Feels guilty and promises to change but doesn’t plan how", id: "c3" }
+        ],
+        plan: [
+          { text: "Do at least 20 minutes of homework before any screen time", id: "p1" },
+          { text: "Write homework in a planner and tick tasks off each day", id: "p2" }
+        ],
+        extraPlan: [
+          { text: "Ask a family member to check the planner each evening", id: "p3" }
+        ]
+      },
+      {
+        title: "Case 2 – Snapping at Sibling",
+        description: "After a long day, the student often shouts at their younger sibling over small things.",
+        reasons: [
+          { text: "Feels tired and stressed after school", id: "r4" },
+          { text: "Does not know how to calm down before talking", id: "r5" }
+        ],
+        extraReasons: [
+          { text: "Believes their sibling never understands them", id: "r6" }
+        ],
+        consequences: [
+          { text: "Sibling feels hurt and cries or avoids them", id: "c4" },
+          { text: "Arguments at home increase and everyone feels tense", id: "c5" }
+        ],
+        extraConsequences: [
+          { text: "Student later feels bad and ashamed of their behaviour", id: "c6" }
+        ],
+        plan: [
+          { text: "Take 5 deep breaths or a short break before responding", id: "p4" },
+          { text: "Use calm words to explain feelings instead of shouting", id: "p5" }
+        ],
+        extraPlan: [
+          { text: "Talk to sibling at a quiet time about how to play or share better", id: "p6" }
+        ]
+      },
+      {
+        title: "Case 3 – Talking in Class",
+        description: "In class, the student keeps chatting with friends during explanations and misses instructions.",
+        reasons: [
+          { text: "Wants attention and to make friends laugh", id: "r7" },
+          { text: "Finds it hard to stay focused for long periods", id: "r8" }
+        ],
+        extraReasons: [
+          { text: "Feels bored and doesn’t see why the topic matters", id: "r9" }
+        ],
+        consequences: [
+          { text: "Teacher warns them and may move their seat", id: "c7" },
+          { text: "Misses important points and struggles with tasks", id: "c8" }
+        ],
+        extraConsequences: [
+          { text: "Classmates may get annoyed when they miss work too", id: "c9" }
+        ],
+        plan: [
+          { text: "Sit away from close friends during explanations", id: "p7" },
+          { text: "Keep a small note sheet for questions to ask at the right time", id: "p8" }
+        ],
+        extraPlan: [
+          { text: "Set a personal rule to wait until teacher finishes before speaking", id: "p9" }
+        ]
+      },
+      {
+        title: "Case 4 – Phone Late at Night",
+        description: "The student uses their phone late into the night and feels sleepy and unfocused the next day.",
+        reasons: [
+          { text: "Checks messages and social media again and again", id: "r10" },
+          { text: "Feels that they will miss out if they put the phone away", id: "r11" }
+        ],
+        extraReasons: [
+          { text: "Uses the phone to avoid thinking about worries", id: "r12" }
+        ],
+        consequences: [
+          { text: "Gets less sleep and feels tired in class", id: "c10" },
+          { text: "Finds it harder to concentrate and remember information", id: "c11" }
+        ],
+        extraConsequences: [
+          { text: "Mood becomes irritable and small problems feel bigger", id: "c12" }
+        ],
+        plan: [
+          { text: "Set a fixed time to put the phone away each night", id: "p10" },
+          { text: "Keep the phone in another room while sleeping", id: "p11" }
+        ],
+        extraPlan: [
+          { text: "Use a relaxing pre‑sleep routine like reading or calm music", id: "p12" }
+        ]
+      }
+    ];
+
+    const MAX_CASES = cases.length;
+
+    const cardBank = document.getElementById("cardBank");
+    const dropZones = document.querySelectorAll(".drop-zone");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetCaseBtn = document.getElementById("resetCaseBtn");
+    const casesCompletedEl = document.getElementById("casesCompleted");
+    const goodPlansEl = document.getElementById("goodPlans");
+    const caseTitleEl = document.getElementById("caseTitle");
+    const caseDescriptionEl = document.getElementById("caseDescription");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let currentCaseIndex = 0;
+    let goodPlans = 0;
+    let draggingCard = null;
+    let shuffledCasesOrder = [];
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      shuffledCasesOrder = shuffle(cases.map((_, idx) => idx));
+      currentCaseIndex = 0;
+      goodPlans = 0;
+      updateCaseCounters();
+      loadCase();
+    }
+
+    function updateCaseCounters(){
+      casesCompletedEl.textContent = `${currentCaseIndex} / ${MAX_CASES}`;
+      goodPlansEl.textContent = `${goodPlans}`;
+      stageIndicator.textContent = `Case ${currentCaseIndex + 1} of ${MAX_CASES}`;
+    }
+
+    function clearDropZones(){
+      dropZones.forEach(zone => {
+        zone.classList.remove("correct-zone","wrong-zone","hint");
+        const label = zone.querySelector(".drop-zone-label");
+        zone.innerHTML = "";
+        zone.appendChild(label);
+      });
+    }
+
+    function loadCase(){
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      progressTextEl.textContent = "Drag cards into each box, then click “Check Plan”.";
+      clearDropZones();
+      cardBank.innerHTML = "";
+
+      const caseObj = cases[shuffledCasesOrder[currentCaseIndex]];
+      caseTitleEl.textContent = caseObj.title;
+      caseDescriptionEl.textContent = caseObj.description;
+
+      // Build pool of cards: correct + extras, then shuffle
+      const allCards = [];
+
+      caseObj.reasons.forEach(c => allCards.push({ ...c, type: "reason", correct: true }));
+      caseObj.extraReasons.forEach(c => allCards.push({ ...c, type: "reason", correct: true })); // extras but still valid reasons
+
+      caseObj.consequences.forEach(c => allCards.push({ ...c, type: "consequence", correct: true }));
+      caseObj.extraConsequences.forEach(c => allCards.push({ ...c, type: "consequence", correct: true }));
+
+      caseObj.plan.forEach(c => allCards.push({ ...c, type: "plan", correct: true }));
+      caseObj.extraPlan.forEach(c => allCards.push({ ...c, type: "plan", correct: true }));
+
+      // Add a few neutral/distractor cards
+      allCards.push(
+        { text: "Ignore the problem and hope it disappears", id: caseObj.title + "_d1", type: "plan", correct: false },
+        { text: "Blame others instead of changing my own behaviour", id: caseObj.title + "_d2", type: "reason", correct: false },
+        { text: "Do nothing different and expect results to change", id: caseObj.title + "_d3", type: "plan", correct: false }
+      );
+
+      shuffle(allCards).forEach(cardData => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.textContent = cardData.text;
+        card.draggable = true;
+        card.dataset.id = cardData.id;
+        card.dataset.type = cardData.type;
+        card.dataset.correct = cardData.correct ? "true" : "false";
+        card.addEventListener("dragstart", handleDragStart);
+        card.addEventListener("dragend", handleDragEnd);
+        cardBank.appendChild(card);
+      });
+    }
+
+    function handleDragStart(e){
+      draggingCard = e.target;
+      draggingCard.classList.add("dragging");
+      dropZones.forEach(z => z.classList.add("hint"));
+    }
+
+    function handleDragEnd(e){
+      if(draggingCard){
+        draggingCard.classList.remove("dragging");
+      }
+      draggingCard = null;
+      dropZones.forEach(z => z.classList.remove("hint"));
+    }
+
+    dropZones.forEach(zone => {
+      zone.addEventListener("dragover", e => {
+        e.preventDefault();
+      });
+
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        if(!draggingCard) return;
+        if(zone.contains(draggingCard)) return;
+
+        // prevent zone from being too overfilled (simple rule)
+        const cardsInZone = zone.querySelectorAll(".card").length;
+        const zoneType = zone.dataset.zone;
+        if(zoneType === "reasons" && cardsInZone >= 3) return;
+        if(zoneType === "consequences" && cardsInZone >= 3) return;
+        if(zoneType === "plan" && cardsInZone >= 4) return;
+
+        zone.appendChild(draggingCard);
+      });
+    });
+
+    resetCaseBtn.addEventListener("click", () => {
+      loadCase();
+    });
+
+    checkBtn.addEventListener("click", () => {
+      const reasonsZone = document.querySelector('.drop-zone[data-zone="reasons"]');
+      const consZone = document.querySelector('.drop-zone[data-zone="consequences"]');
+      const planZone = document.querySelector('.drop-zone[data-zone="plan"]');
+
+      const reasonsCards = reasonsZone.querySelectorAll(".card");
+      const consCards = consZone.querySelectorAll(".card");
+      const planCards = planZone.querySelectorAll(".card");
+
+      let messageParts = [];
+      let isStrongPlan = true;
+
+      // Basic amount checks
+      if(reasonsCards.length < 2){
+        messageParts.push("Add at least 2 clear reasons for the behaviour.");
+        isStrongPlan = false;
+      }
+      if(consCards.length < 2){
+        messageParts.push("Add at least 2 consequences that actually follow the behaviour.");
+        isStrongPlan = false;
+      }
+      if(planCards.length < 2){
+        messageParts.push("Add at least 2 concrete improvement steps.");
+        isStrongPlan = false;
+      }
+
+      // Check for obviously unhelpful/distractor cards in plan
+      planCards.forEach(card => {
+        if(card.dataset.correct === "false"){
+          isStrongPlan = false;
+          messageParts.push("Avoid steps like blaming others, doing nothing, or ignoring the problem.");
+        }
+      });
+
+      // Visual feedback on zones
+      dropZones.forEach(zone => {
+        zone.classList.remove("correct-zone","wrong-zone");
+        const zoneCards = zone.querySelectorAll(".card");
+        if(zoneCards.length === 0){
+          zone.classList.add("wrong-zone");
+        } else {
+          zone.classList.add("correct-zone");
+        }
+      });
+
+      feedbackEl.style.display = "block";
+
+      if(isStrongPlan){
+        playCorrect();
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = "This is a strong plan: you listed realistic reasons, consequences, and clear steps to change the behaviour.";
+        goodPlans++;
+      } else {
+        playWrong();
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = messageParts.join(" ");
+      }
+
+      currentCaseIndex++;
+      updateCaseCounters();
+
+      if(currentCaseIndex >= MAX_CASES){
+        setTimeout(showFinalScreen, 1200);
+      } else {
+        setTimeout(() => {
+          loadCase();
+        }, 1500);
+      }
+    });
+
+    function showFinalScreen(){
+      playCelebrate();
+      const percent = Math.round((goodPlans / MAX_CASES) * 100);
+      let rank, badge, text;
+
+      if(percent >= 75){
+        rank = "Behaviour Planner Pro";
+        badge = "🌟";
+        text = "You build thoughtful plans that link reasons, consequences and clear actions. This is exactly how self‑management works.";
+      } else if(percent >= 50){
+        rank = "Growing Planner";
+        badge = "✨";
+        text = "You are learning to think through behaviour step by step. With a bit more practice your plans will get even stronger.";
+      } else {
+        rank = "New Planner";
+        badge = "🌱";
+        text = "This is a good start. Revisit how reasons, consequences and plans connect, and try again with fresh cases.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Behaviour Change Planning Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Well‑planned cases: ${goodPlans} / ${MAX_CASES} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Plan New Cases</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
