@@ -17,6 +17,23 @@
       color: #fff;
     }
 
+    /* Splash screen */
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
     .container {
       max-width: 1100px; width: 100%;
       background: #020617;
@@ -24,8 +41,9 @@
       border: 3px solid #facc15;
       box-shadow: 0 0 40px rgba(250, 204, 21, 0.4);
       overflow: hidden;
-      opacity: 1;
+      opacity: 0; transition: opacity 0.6s ease-in;
     }
+    .container.visible { opacity: 1; }
 
     .header {
       position: relative;
@@ -360,6 +378,11 @@
   </style>
 </head>
 <body>
+  <!-- Splash with Innovine logo -->
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
   <div class="container" id="mainContainer">
     <div class="header">
       <div class="header-content">
@@ -433,7 +456,14 @@
   </div>
 
   <script>
-    // Audio (plug in your own asset paths if needed)
+    // Splash timing – same pattern as other games
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio assets
     const correctSound = new Audio('assets/correct.mp3');
     const wrongSound = new Audio('assets/wrong.mp3');
     const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
@@ -486,7 +516,7 @@
       clearInterval(timerInterval);
     }
 
-    // Question bank – Thought management, helpful vs unhelpful self-talk
+    // Question bank – helpful vs unhelpful self-talk
     const allCases = [
       {
         situation: "You are starting a new school year and don’t know your teachers or classmates yet.",
@@ -968,9 +998,6 @@
         location.reload();
       });
     }
-
-    // Start game
-    initGame();
   </script>
 </body>
 </html>
