@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team-Up Builder - Collaboration & Empathy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1000px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #bbf7d0;
+    }
+    .timer.warning .timer-circle {
+      border-color: #f97316;
+      color: #fed7aa;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .left-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .right-panel {
+      flex: 0.9;
+      min-width: 260px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bbf7d0;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .task-box {
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+    .task-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .member-card {
+      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px;
+      font-size: 12px;
+    }
+    .member-name {
+      font-weight: bold;
+      color: #bfdbfe;
+      margin-bottom: 2px;
+    }
+    .member-strengths {
+      color: #9ca3af;
+      font-size: 11px;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #22c55e;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+      .team-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🤝 TEAM-UP BUILDER 🤝</h1>
+        <div class="subtitle">Collaboration & Empathy - Grade 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Match teammates and responses that show empathy and strong collaboration.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">60</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="section-title">Scenario & Team</div>
+        <div class="task-box">
+          <div class="task-label">Task</div>
+          <div id="taskText"></div>
+        </div>
+
+        <div class="section-title">Team Members</div>
+        <div class="team-grid" id="teamGrid"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Question</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Correct Choices</div>
+            <div class="score-value" id="correctScore">0</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Choose the Best Team-Up Option</div>
+        <div class="step-label">Pick the option that respects everyone’s strengths and feelings.</div>
+        <div class="options-grid" id="optionsContainer"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Read the task and team, then choose the most empathetic and collaborative option. You have 1 minute.</div>
+          <button class="btn-primary" id="nextBtn">Next Scenario →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer (1 minute per question)
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 60;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 15){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 30){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // Scenarios: collaboration + empathy, strengths, feelings [file:15]
+    const scenarios = [
+      {
+        task: "Your class has to make a poster and short presentation for a school exhibition on \"Kindness in Our Community\".",
+        team: [
+          { name: "Aarav", strengths: "Loves drawing and design, quiet but observant." },
+          { name: "Mira", strengths: "Confident speaker, enjoys presenting." },
+          { name: "Rohan", strengths: "Good at writing and organising information." },
+          { name: "Sara", strengths: "New to the class, shy but very creative with ideas." }
+        ],
+        options: [
+          {
+            text: "Let the loudest people decide everything and ask Sara to just hold the chart.",
+            isBest: false,
+            explanation: "This ignores Sara’s ideas and does not use everyone’s strengths. It is not empathetic or collaborative."
+          },
+          {
+            text: "Ask what each person enjoys, give Aarav the drawing, Rohan the writing, Mira the presenting, and invite Sara to share ideas for the poster.",
+            isBest: true,
+            explanation: "You value each person’s strengths and make sure the shy member is included. This shows empathy and teamwork."
+          },
+          {
+            text: "Do the whole project yourself so that it is perfect.",
+            isBest: false,
+            explanation: "This is not collaboration; others do not get a chance to learn or contribute."
+          }
+        ]
+      },
+      {
+        task: "You are in a group project to make a science model. One member has a broken arm and cannot cut or stick things easily.",
+        team: [
+          { name: "Ishaan", strengths: "Broken arm, but good at planning and explaining ideas." },
+          { name: "Neha", strengths: "Fast with art and craft work." },
+          { name: "Kabir", strengths: "Enjoys using tools and building models." },
+          { name: "Zoya", strengths: "Neat handwriting, good at labelling and making charts." }
+        ],
+        options: [
+          {
+            text: "Tell Ishaan to sit quietly so he doesn’t slow the group down.",
+            isBest: false,
+            explanation: "This leaves him out and does not respect his abilities or feelings."
+          },
+          {
+            text: "Ask Ishaan to guide the plan and explanation while others do the cutting, sticking and labelling.",
+            isBest: true,
+            explanation: "You adjust roles with empathy so that everyone, including Ishaan, can contribute using their strengths."
+          },
+          {
+            text: "Give Ishaan the most difficult physical work to prove he is strong.",
+            isBest: false,
+            explanation: "This ignores his current difficulty and is not a caring choice."
+          }
+        ]
+      },
+      {
+        task: "Your group must prepare a skit about \"Including Others\" for assembly. One member is very nervous about speaking on stage.",
+        team: [
+          { name: "Dev", strengths: "Enjoys acting and making people laugh." },
+          { name: "Riya", strengths: "Good at script writing and planning scenes." },
+          { name: "Sameer", strengths: "Very nervous on stage but good at music and sound effects." },
+          { name: "Ananya", strengths: "Organised; keeps track of props and cues." }
+        ],
+        options: [
+          {
+            text: "Force Sameer to speak a big part so that he \"gets over it\".",
+            isBest: false,
+            explanation: "This ignores his feelings and may increase his fear instead of building confidence slowly."
+          },
+          {
+            text: "Give Dev and others more speaking roles, ask Sameer to handle music and sound, and check if he wants a small, simple line.",
+            isBest: true,
+            explanation: "You respect his feelings and still let him be part of the performance in a comfortable way."
+          },
+          {
+            text: "Ask Sameer to stay in the audience and not join at all.",
+            isBest: false,
+            explanation: "This excludes him instead of finding a role that suits his strengths."
+          }
+        ]
+      },
+      {
+        task: "Your class is making a group presentation about \"Global Cultures\". One teammate is from another country and sometimes feels left out.",
+        team: [
+          { name: "Liam", strengths: "From another country, has many stories and cultural experiences." },
+          { name: "Pooja", strengths: "Likes researching facts online." },
+          { name: "Arjun", strengths: "Skilled at making slides look neat." },
+          { name: "Meera", strengths: "Confident at speaking in front of the class." }
+        ],
+        options: [
+          {
+            text: "Talk only about your own country and ignore Liam’s experiences.",
+            isBest: false,
+            explanation: "This misses a chance to value diversity and may make Liam feel invisible."
+          },
+          {
+            text: "Invite Liam to share examples from his culture and include them in the slides along with other countries.",
+            isBest: true,
+            explanation: "You value his viewpoint and make the project richer with diverse perspectives."
+          },
+          {
+            text: "Ask Liam to do only the typing and not speak.",
+            isBest: false,
+            explanation: "This uses his effort but not his unique strengths and experiences."
+          }
+        ]
+      },
+      {
+        task: "You must design a class charity activity to help animals in need.",
+        team: [
+          { name: "Sana", strengths: "Loves animals and knows facts about pet care." },
+          { name: "Yash", strengths: "Good with money and keeping records." },
+          { name: "Priya", strengths: "Creative with posters and slogans." },
+          { name: "Joel", strengths: "Very social, likes talking to many people." }
+        ],
+        options: [
+          {
+            text: "Let only one person decide everything quickly to save time.",
+            isBest: false,
+            explanation: "This ignores others’ ideas and reduces collaboration."
+          },
+          {
+            text: "Discuss ideas together, let Sana suggest what animals need, Yash handle money, Priya design posters, and Joel speak to people about donating.",
+            isBest: true,
+            explanation: "You combine different strengths so that the activity becomes effective and fair."
+          },
+          {
+            text: "Choose roles randomly without asking what people are good at.",
+            isBest: false,
+            explanation: "This may waste strengths and can make some teammates uncomfortable."
+          }
+        ]
+      },
+      {
+        task: "Your teacher asks your bench group to create a small model about \"Saving Water\".",
+        team: [
+          { name: "Harsh", strengths: "Very talkative, sometimes interrupts others." },
+          { name: "Tanvi", strengths: "Quiet but good at drawing diagrams." },
+          { name: "Ritu", strengths: "Thinks of ideas quickly." },
+          { name: "Omar", strengths: "Writes neatly and likes making labels." }
+        ],
+        options: [
+          {
+            text: "Let Harsh speak the entire time and ignore Tanvi’s and others’ ideas.",
+            isBest: false,
+            explanation: "This does not show empathy or respect for quieter teammates."
+          },
+          {
+            text: "Ask everyone to share at least one idea, give Tanvi the diagrams, Ritu idea generation, Omar labels, and let Harsh help explain the final model.",
+            isBest: true,
+            explanation: "You create space for all voices and match tasks to strengths."
+          },
+          {
+            text: "Work alone because group work feels confusing.",
+            isBest: false,
+            explanation: "This avoids collaboration instead of practising it."
+          }
+        ]
+      },
+      {
+        task: "You are planning a group study session before exams. One friend is struggling more than the others.",
+        team: [
+          { name: "Kunal", strengths: "Understands the subject well and explains clearly." },
+          { name: "Leena", strengths: "Organises notes and makes mind maps." },
+          { name: "Farah", strengths: "Struggling with the topic, feels nervous and embarrassed." },
+          { name: "Vikram", strengths: "Keeps the mood light with humour." }
+        ],
+        options: [
+          {
+            text: "Laugh at Farah for being slow and tell her to study alone.",
+            isBest: false,
+            explanation: "This is hurtful and not empathetic. It may increase her stress."
+          },
+          {
+            text: "Ask Kunal to explain, Leena to make simple notes, and include Farah in solving easy questions first while Vikram encourages everyone.",
+            isBest: true,
+            explanation: "You support the struggling member with kindness and use everyone’s strengths."
+          },
+          {
+            text: "Ignore Farah’s difficulty and let everyone study on their own phones.",
+            isBest: false,
+            explanation: "This misses a chance to collaborate and help each other."
+          }
+        ]
+      },
+      {
+        task: "Your group is organising a small classroom game for a celebration.",
+        team: [
+          { name: "Nina", strengths: "Great at thinking of fun rules and variations." },
+          { name: "Arav", strengths: "Good at explaining instructions clearly." },
+          { name: "Simran", strengths: "Sometimes feels left out and quiet, but observes carefully." },
+          { name: "Rehan", strengths: "Enjoys setting up materials and space." }
+        ],
+        options: [
+          {
+            text: "Decide the game without asking Simran anything because she is quiet.",
+            isBest: false,
+            explanation: "This assumes quiet people have no ideas and is not empathetic."
+          },
+          {
+            text: "Invite Simran to share ideas, let Nina design the game, Rehan set up, and Arav explain the rules to the class.",
+            isBest: true,
+            explanation: "You include everyone and give roles based on strengths."
+          },
+          {
+            text: "Give all jobs to one person to avoid confusion.",
+            isBest: false,
+            explanation: "This does not build collaboration or trust."
+          }
+        ]
+      },
+      {
+        task: "There is a class clean-up activity after an art project.",
+        team: [
+          { name: "Anil", strengths: "Strong and can move heavier things safely." },
+          { name: "Dia", strengths: "Organised; knows where items belong." },
+          { name: "Mohan", strengths: "Allergic to dust but wants to help." },
+          { name: "Isha", strengths: "Likes motivating others and keeping things fair." }
+        ],
+        options: [
+          {
+            text: "Ask Mohan to sweep the dustiest corners even though he is allergic.",
+            isBest: false,
+            explanation: "This ignores his health and is not caring."
+          },
+          {
+            text: "Give Anil heavier items, Dia sorting, Mohan tasks away from dust (like arranging books), and Isha to check that the work is shared fairly.",
+            isBest: true,
+            explanation: "You show empathy for Mohan and use each person’s strengths."
+          },
+          {
+            text: "Let only Anil and Dia work while others relax.",
+            isBest: false,
+            explanation: "This is unfair and does not build a sense of shared responsibility."
+          }
+        ]
+      },
+      {
+        task: "Your class must create a wall of positive messages to reduce bullying.",
+        team: [
+          { name: "Krish", strengths: "Good at coming up with kind, supportive phrases." },
+          { name: "Mili", strengths: "Enjoys decorating and colouring borders." },
+          { name: "Armaan", strengths: "Used to be teased and is a bit unsure if his ideas matter." },
+          { name: "Jia", strengths: "Organises the layout and spacing on the wall." }
+        ],
+        options: [
+          {
+            text: "Tell Armaan to stay out because his experience is \"too negative\".",
+            isBest: false,
+            explanation: "This ignores his feelings; he may have powerful ideas about kindness."
+          },
+          {
+            text: "Ask Armaan what messages would have helped him, let Krish turn them into phrases, Mili decorate, and Jia arrange them neatly.",
+            isBest: true,
+            explanation: "You use empathy and lived experience to make the project more meaningful."
+          },
+          {
+            text: "Write random jokes on the wall because serious messages are boring.",
+            isBest: false,
+            explanation: "This does not match the goal of reducing bullying and may feel uncaring to those who suffered."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let order = [];
+    let currentIndex = 0;
+    let correctScore = 0;
+    let locked = false;
+
+    const taskText = document.getElementById("taskText");
+    const teamGrid = document.getElementById("teamGrid");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const correctScoreEl = document.getElementById("correctScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = scenarios.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      correctScore = 0;
+      updateScores();
+      loadScenario();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      correctScoreEl.textContent = String(correctScore);
+      const max = TOTAL_QUESTIONS;
+      const percent = max > 0 ? Math.round((correctScore / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+    }
+
+    function loadScenario(){
+      locked = false;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "Read the task and team, then choose the most empathetic and collaborative option. You have 1 minute.";
+
+      const s = scenarios[order[currentIndex]];
+      taskText.textContent = s.task;
+
+      teamGrid.innerHTML = "";
+      s.team.forEach(member => {
+        const card = document.createElement("div");
+        card.className = "member-card";
+        const nameEl = document.createElement("div");
+        nameEl.className = "member-name";
+        nameEl.textContent = member.name;
+        const strengthsEl = document.createElement("div");
+        strengthsEl.className = "member-strengths";
+        strengthsEl.textContent = member.strengths;
+        card.appendChild(nameEl);
+        card.appendChild(strengthsEl);
+        teamGrid.appendChild(card);
+      });
+
+      optionsContainer.innerHTML = "";
+      s.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleChoice(idx, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      updateScores();
+      resetTimer();
+    }
+
+    function handleChoice(index, btn){
+      if(locked || timeLeft <= 0) return;
+      locked = true;
+      stopTimer();
+
+      const s = scenarios[order[currentIndex]];
+      const chosen = s.options[index];
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+
+      if(chosen.isBest){
+        correctScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      s.options.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        btn.classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Scenario →" : "View Team-Up Summary →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Think again about how to use each person’s strengths and feelings next time.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Scenario →" : "View Team-Up Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadScenario();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const max = TOTAL_QUESTIONS;
+      const percent = Math.round((correctScore / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Collaboration Star";
+        badge = "🌟";
+        text = "You consistently build teams that use everyone’s strengths with empathy and fairness.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Strong Teammate";
+        badge = "🤝";
+        text = "You usually make caring, collaborative choices. Keep practising noticing quieter or struggling teammates.";
+      } else if(percent >= 50){
+        rank = "Growing Partner";
+        badge = "🌱";
+        text = "You are learning to balance tasks and feelings in a team. Review your tricky scenarios and try again.";
+      } else {
+        rank = "New Team Builder";
+        badge = "📚";
+        text = "This is a starting point. Revisit how empathy and collaboration help everyone succeed and play again.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Team-Up Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct scenarios: ${correctScore} / ${max}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
