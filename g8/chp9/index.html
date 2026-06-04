@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thought Reframer - Growth Tower</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #bbf7d0;
+    }
+    .timer.warning .timer-circle {
+      border-color: #f97316;
+      color: #fed7aa;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .tower-panel {
+      flex: 0.9;
+      min-width: 280px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tower-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bbf7d0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .tower-wrapper {
+      position: relative;
+      width: 160px;
+      height: 260px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .tower-base {
+      position: absolute;
+      bottom: 0;
+      width: 80%;
+      height: 24px;
+      background: linear-gradient(to top, #1f2937, #111827);
+      border-radius: 10px 10px 0 0;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+
+    .tower-block {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 18px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      border: 1px solid #bbf7d0;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+      opacity: 0;
+      transform-origin: bottom center;
+    }
+
+    .tower-block.visible {
+      opacity: 1;
+      animation: blockDrop 0.4s ease-out forwards;
+    }
+
+    @keyframes blockDrop {
+      0% { transform: translate(-50%, -40px); }
+      100% { transform: translate(-50%, 0); }
+    }
+
+    .tower-level-label {
+      font-size: 13px;
+      color: #e5e7eb;
+      margin-top: 4px;
+    }
+
+    .right-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .scenario-box {
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+    .scenario-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+
+    .fixed-thought-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #fca5a5;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+    .fixed-thought {
+      font-size: 13px;
+      color: #fecaca;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #0ea5e9);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #22c55e;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .tower-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧠 THOUGHT REFRAMER - GROWTH TOWER 🧠</h1>
+        <div class="subtitle">Growth Mindset - Grade 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Each growth mindset choice adds a new block to your tower.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">60</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="tower-panel">
+        <div class="tower-title">Your Growth Tower</div>
+        <div class="tower-wrapper" id="towerWrapper">
+          <div class="tower-base"></div>
+        </div>
+        <div class="tower-level-label" id="towerLevelLabel">Tower level: 0 / 10</div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Question</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Growth Choices</div>
+            <div class="score-value" id="correctScore">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Reframe the Thought</div>
+        <div class="scenario-box">
+          <div class="scenario-label">Situation</div>
+          <div id="scenarioText"></div>
+          <div class="fixed-thought-label">Instead of saying...</div>
+          <div class="fixed-thought" id="fixedThoughtText"></div>
+        </div>
+
+        <div class="section-title">Choose the Growth Mindset Thought</div>
+        <div class="options-grid" id="optionsContainer"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Spot the growth mindset thought. You have 1 minute.</div>
+          <button class="btn-primary" id="nextBtn">Next Thought →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer (1 minute per question)
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 60;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 15){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 30){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // Question bank: fixed vs growth mindset thoughts [file:15]
+    const allQuestions = [
+      {
+        situation: "You got a low score on a maths test.",
+        fixedThought: "I can’t do this. I’m just bad at maths.",
+        options: [
+          {
+            text: "I can’t do this yet, but I can ask for help and practise more.",
+            isBest: true,
+            explanation: "This sees the result as temporary and focuses on effort and learning new strategies."
+          },
+          {
+            text: "Maths is too hard for me, so I should avoid it when I can.",
+            isBest: false,
+            explanation: "This gives up and avoids the challenge instead of seeing it as an opportunity."
+          },
+          {
+            text: "If I ignore this test, it will not matter.",
+            isBest: false,
+            explanation: "This avoids learning from the mistake and does not help you improve."
+          }
+        ]
+      },
+      {
+        situation: "You tried out for a sports team and were not selected.",
+        fixedThought: "That’s it, I failed. I’m not talented enough.",
+        options: [
+          {
+            text: "I didn’t make it this time, but I can train more and try again next time.",
+            isBest: true,
+            explanation: "This treats failure as feedback and focuses on effort and practice."
+          },
+          {
+            text: "If I’m not naturally good, there is no point trying.",
+            isBest: false,
+            explanation: "This assumes talent is fixed and ignores the power of hard work."
+          },
+          {
+            text: "The coach is unfair, so I will never join anything again.",
+            isBest: false,
+            explanation: "This blames others and closes future opportunities."
+          }
+        ]
+      },
+      {
+        situation: "You find a science concept difficult to understand.",
+        fixedThought: "I can’t understand this at all.",
+        options: [
+          {
+            text: "I don’t understand this yet, but I can ask questions and use another method to learn.",
+            isBest: true,
+            explanation: "You add “yet” and focus on trying new strategies instead of giving up."
+          },
+          {
+            text: "Science is only for really smart people, not me.",
+            isBest: false,
+            explanation: "This creates a fixed label and stops you from learning."
+          },
+          {
+            text: "I will just memorise without trying to understand.",
+            isBest: false,
+            explanation: "This avoids real understanding and growth."
+          }
+        ]
+      },
+      {
+        situation: "You made several mistakes in your art project.",
+        fixedThought: "I made mistakes, so this project is ruined.",
+        options: [
+          {
+            text: "These mistakes show me what to improve. I can adjust and make the project better.",
+            isBest: true,
+            explanation: "You treat mistakes as information to improve the work."
+          },
+          {
+            text: "I should never try art again; I’m just not artistic.",
+            isBest: false,
+            explanation: "This fixes your identity and stops practice."
+          },
+          {
+            text: "I will hide my project so no one can see it.",
+            isBest: false,
+            explanation: "This responds with shame instead of learning and trying again."
+          }
+        ]
+      },
+      {
+        situation: "Your classmate understands the topic faster than you.",
+        fixedThought: "They are much better than me, so I shouldn’t even try.",
+        options: [
+          {
+            text: "I can learn from them and improve in my own time and way.",
+            isBest: true,
+            explanation: "You use others’ success as inspiration instead of comparison."
+          },
+          {
+            text: "It’s not fair; they are just lucky.",
+            isBest: false,
+            explanation: "This ignores their effort and your own ability to grow."
+          },
+          {
+            text: "If I can’t be the best, there is no point.",
+            isBest: false,
+            explanation: "This focuses on being the best instead of enjoying learning."
+          }
+        ]
+      },
+      {
+        situation: "You received constructive criticism on your writing.",
+        fixedThought: "They criticised me, so my writing is bad.",
+        options: [
+          {
+            text: "This feedback can help me strengthen my writing if I use it.",
+            isBest: true,
+            explanation: "You see criticism as useful information to improve your work."
+          },
+          {
+            text: "No one should criticise me; I won’t show my work again.",
+            isBest: false,
+            explanation: "This closes you off from learning and support."
+          },
+          {
+            text: "They probably don’t like me as a person.",
+            isBest: false,
+            explanation: "This takes criticism personally instead of focusing on the work."
+          }
+        ]
+      },
+      {
+        situation: "You struggled to solve a puzzle and want to give up.",
+        fixedThought: "I’m just not a problem-solver.",
+        options: [
+          {
+            text: "Solving puzzles takes practice. If I keep trying and reflect on my steps, I can improve.",
+            isBest: true,
+            explanation: "You connect effort and reflection to growth in problem-solving."
+          },
+          {
+            text: "Other people are born clever; I am not.",
+            isBest: false,
+            explanation: "This fixed belief blocks improvement."
+          },
+          {
+            text: "I’ll quickly check the answer and never try on my own.",
+            isBest: false,
+            explanation: "This skips the learning process and avoids challenge."
+          }
+        ]
+      },
+      {
+        situation: "You failed once at speaking in front of the class and felt embarrassed.",
+        fixedThought: "I messed up, so I should never speak in front of others again.",
+        options: [
+          {
+            text: "That attempt was uncomfortable, but I can practise and grow more confident over time.",
+            isBest: true,
+            explanation: "You accept discomfort and still believe in your ability to improve."
+          },
+          {
+            text: "If people laughed once, they will always laugh at me.",
+            isBest: false,
+            explanation: "This assumes the future will always be the same as one moment."
+          },
+          {
+            text: "I’ll only speak when I am perfect.",
+            isBest: false,
+            explanation: "Perfectionism stops you from trying and learning."
+          }
+        ]
+      },
+      {
+        situation: "You are learning a new skill and progress feels slow.",
+        fixedThought: "This is taking too long; I will stop.",
+        options: [
+          {
+            text: "Learning takes time. Every small step is part of my progress.",
+            isBest: true,
+            explanation: "You value the process and small gains, not only quick results."
+          },
+          {
+            text: "If it doesn’t come quickly, it means I’m not meant for it.",
+            isBest: false,
+            explanation: "This links ability only to speed instead of effort."
+          },
+          {
+            text: "I’ll only continue if someone praises me.",
+            isBest: false,
+            explanation: "This depends only on others’ approval, not inner growth."
+          }
+        ]
+      },
+      {
+        situation: "You planned to improve at a game but lost again.",
+        fixedThought: "I lost again, so I will never get better.",
+        options: [
+          {
+            text: "Each game teaches me something. I can think about what went wrong and try a new strategy.",
+            isBest: true,
+            explanation: "You use reflection and strategy change as tools for growth."
+          },
+          {
+            text: "Others are just naturally better; I’ll never catch up.",
+            isBest: false,
+            explanation: "This focuses on comparison instead of self-improvement."
+          },
+          {
+            text: "Winning is all that matters, so today was useless.",
+            isBest: false,
+            explanation: "This ignores learning from the experience."
+          }
+        ]
+      },
+      {
+        situation: "You see a friend improving quickly at drawing while you are still learning basics.",
+        fixedThought: "They are talented and I am not.",
+        options: [
+          {
+            text: "They might have practised more. If I practise regularly, I can also improve.",
+            isBest: true,
+            explanation: "You connect progress to practice rather than fixed talent."
+          },
+          {
+            text: "I will stop drawing because I can’t be as good as them.",
+            isBest: false,
+            explanation: "This gives up instead of choosing to grow."
+          },
+          {
+            text: "Their success means I have failed.",
+            isBest: false,
+            explanation: "This treats success as a competition rather than inspiration."
+          }
+        ]
+      },
+      {
+        situation: "You are afraid to try a new activity because you might fail.",
+        fixedThought: "If I try and fail, everyone will think I’m not good enough.",
+        options: [
+          {
+            text: "Trying something new is how I learn. Even if I fail, I can learn and try again.",
+            isBest: true,
+            explanation: "You see challenge as an opportunity and accept failure as part of learning."
+          },
+          {
+            text: "It’s safer to never try new things.",
+            isBest: false,
+            explanation: "This avoids growth and keeps you stuck."
+          },
+          {
+            text: "I’ll only join if I am sure I will be the best.",
+            isBest: false,
+            explanation: "This focuses on perfection instead of learning."
+          }
+        ]
+      },
+      {
+        situation: "You made a mistake in front of your teacher.",
+        fixedThought: "I made a mistake; now the teacher will think I am foolish.",
+        options: [
+          {
+            text: "Everyone makes mistakes. I can correct it and show that I am willing to learn.",
+            isBest: true,
+            explanation: "You normalise mistakes and focus on correcting them."
+          },
+          {
+            text: "I must avoid answering questions in class now.",
+            isBest: false,
+            explanation: "This avoids engagement instead of practising."
+          },
+          {
+            text: "I will act like I don’t care at all.",
+            isBest: false,
+            explanation: "This hides your feelings instead of using the moment to grow."
+          }
+        ]
+      },
+      {
+        situation: "You see someone else receive praise for their improvement.",
+        fixedThought: "They are growing, but I’m not.",
+        options: [
+          {
+            text: "I can be happy for them and use their progress as motivation for my own learning.",
+            isBest: true,
+            explanation: "You celebrate others’ growth and keep faith in your own path."
+          },
+          {
+            text: "If they are doing well, there is no space left for me.",
+            isBest: false,
+            explanation: "This views success as limited instead of abundant."
+          },
+          {
+            text: "I should ignore their success so I don’t feel bad.",
+            isBest: false,
+            explanation: "This misses a chance to be inspired."
+          }
+        ]
+      },
+      {
+        situation: "You sometimes feel discouraged by your weaknesses.",
+        fixedThought: "My imperfections mean I will always fail.",
+        options: [
+          {
+            text: "My imperfections make me unique, and I can still grow by working on them.",
+            isBest: true,
+            explanation: "You embrace imperfections and still believe in growth."
+          },
+          {
+            text: "I must hide my flaws so no one sees them.",
+            isBest: false,
+            explanation: "This hides instead of accepting and improving."
+          },
+          {
+            text: "I will focus only on things I am already good at.",
+            isBest: false,
+            explanation: "This avoids new learning and challenge."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let order = [];
+    let currentIndex = 0;
+    let correctScore = 0;
+    let locked = false;
+    let currentTowerLevel = 0;
+
+    const scenarioText = document.getElementById("scenarioText");
+    const fixedThoughtText = document.getElementById("fixedThoughtText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const correctScoreEl = document.getElementById("correctScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const towerWrapper = document.getElementById("towerWrapper");
+    const towerLevelLabel = document.getElementById("towerLevelLabel");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = allQuestions.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      correctScore = 0;
+      currentTowerLevel = 0;
+      renderTower();
+      updateScores();
+      loadQuestion();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      correctScoreEl.textContent = String(correctScore);
+      const max = TOTAL_QUESTIONS;
+      const percent = max > 0 ? Math.round((correctScore / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+      towerLevelLabel.textContent = `Tower level: ${currentTowerLevel} / ${TOTAL_QUESTIONS}`;
+    }
+
+    function renderTower(){
+      const existingBlocks = towerWrapper.querySelectorAll(".tower-block");
+      existingBlocks.forEach(b => b.remove());
+      const maxHeight = 220; // space above base
+      for(let i = 0; i < currentTowerLevel; i++){
+        const block = document.createElement("div");
+        block.className = "tower-block visible";
+        const bottomOffset = 24 + (i * (maxHeight / TOTAL_QUESTIONS));
+        block.style.bottom = bottomOffset + "px";
+        towerWrapper.appendChild(block);
+      }
+    }
+
+    function loadQuestion(){
+      locked = false;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "Spot the growth mindset thought. You have 1 minute.";
+
+      const q = allQuestions[order[currentIndex]];
+      scenarioText.textContent = q.situation;
+      fixedThoughtText.textContent = q.fixedThought;
+
+      optionsContainer.innerHTML = "";
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleChoice(idx, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      updateScores();
+      resetTimer();
+    }
+
+    function handleChoice(index, btn){
+      if(locked || timeLeft <= 0) return;
+      locked = true;
+      stopTimer();
+
+      const q = allQuestions[order[currentIndex]];
+      const chosen = q.options[index];
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+
+      if(chosen.isBest){
+        correctScore++;
+        currentTowerLevel++;
+        renderTower();
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      q.options.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        btn.classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Thought →" : "View Growth Summary →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Look for words like “never”, “can’t”, or giving up. Growth thoughts talk about learning, trying again and using effort.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Thought →" : "View Growth Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadQuestion();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const max = TOTAL_QUESTIONS;
+      const percent = Math.round((correctScore / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Growth Mindset Builder";
+        badge = "🌟";
+        text = "You consistently choose growth thoughts. Challenges are truly opportunities for you to learn.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Growing Learner";
+        badge = "📈";
+        text = "You often think in growth ways. Keep noticing your self-talk and choosing learning over giving up.";
+      } else if(percent >= 50){
+        rank = "On the Way Up";
+        badge = "🌱";
+        text = "You are starting to shift your thoughts. Review your tricky items and play again to grow your tower higher.";
+      } else {
+        rank = "New Starter";
+        badge = "📚";
+        text = "This is a beginning. Remember: every time you reframe a thought, your inner tower gets stronger.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Growth Tower Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Tower level: ${currentTowerLevel} / ${max}</div>
+          <div class="final-score">Growth choices: ${correctScore} / ${max}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
