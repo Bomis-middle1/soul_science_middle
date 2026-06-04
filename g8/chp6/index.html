@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>5C Communication Lab - Effective Communication</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1000px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #3b82f6;
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #3b82f6 0%, #22c55e 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(59, 130, 246, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #bbf7d0;
+    }
+    .timer.warning .timer-circle {
+      border-color: #f97316;
+      color: #fed7aa;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .left-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+    }
+    .right-panel {
+      flex: 0.9;
+      min-width: 260px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .scenario-box {
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+      margin-bottom: 10px;
+    }
+    .scenario-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+
+    .dialogue {
+      margin-top: 4px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .highlight-bad {
+      color: #fecaca;
+    }
+
+    .options-grid {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .improvement-box {
+      margin-top: 8px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 8px;
+      font-size: 13px;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #3b82f6;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🗣️ 5C COMMUNICATION LAB 🗣️</h1>
+        <div class="subtitle">Effective Communication - Grade 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Identify which C is missing and choose a better response.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">60</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="section-title">Communication Scenario</div>
+        <div class="scenario-box">
+          <div class="scenario-label">Dialogue</div>
+          <div class="dialogue" id="dialogueText"></div>
+        </div>
+        <div class="section-title">Step 1: Which C is missing?</div>
+        <div class="options-grid" id="cOptions"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Question</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Correct Cs</div>
+            <div class="score-value" id="cScore">0</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Better Replies</div>
+            <div class="score-value" id="replyScore">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Step 2: Choose a better reply</div>
+        <div class="improvement-box">
+          <div class="step-label">Better reply options:</div>
+          <div class="options-grid" id="replyOptions"></div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">First pick the missing C, then pick the best improved reply. You have 1 minute.</div>
+          <button class="btn-primary" id="nextBtn">Next Scenario →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer (1 minute per question)
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 60;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 15){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 30){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // 5C scenarios (clear, correct, complete, concise, compassionate) + listening etc. [file:14]
+    const scenarios = [
+      {
+        dialogue: "Teacher: “When can you submit your project?” Student: “Soon… I’ll see.”",
+        missingC: "clear",
+        cExplanation: "The answer is vague and does not clearly say when the project will be submitted.",
+        replies: [
+          {
+            text: "“I’ll try my best.”",
+            isBest: false,
+            explanation: "Still not clear. It does not give a specific time."
+          },
+          {
+            text: "“I can submit it by Friday after school.”",
+            isBest: true,
+            explanation: "This reply is clear and specific about the time of submission."
+          },
+          {
+            text: "“Why are you asking so many times?”",
+            isBest: false,
+            explanation: "This is not clear and also not respectful."
+          }
+        ]
+      },
+      {
+        dialogue: "Friend A: “What pages do we have to study?” Friend B: “Uh… that chapter with the blue picture, I think.”",
+        missingC: "correct",
+        cExplanation: "The response is not correct or precise. It doesn’t give accurate information like page numbers.",
+        replies: [
+          {
+            text: "“I’m not sure. Let’s check the homework note – it says pages 45 to 50.”",
+            isBest: true,
+            explanation: "You correct the information using the right source and share it clearly."
+          },
+          {
+            text: "“Just study anything, it doesn’t matter.”",
+            isBest: false,
+            explanation: "This ignores correctness and may confuse your friend."
+          },
+          {
+            text: "“The pages are somewhere in the middle of the book.”",
+            isBest: false,
+            explanation: "Still not correct or precise enough to be useful."
+          }
+        ]
+      },
+      {
+        dialogue: "Group leader: “Can you update the class group about the trip?” Student: “Trip is tomorrow.” (sends only this message)",
+        missingC: "complete",
+        cExplanation: "The message is incomplete. It misses important details like time, place and what to bring.",
+        replies: [
+          {
+            text: "“Trip is tomorrow, figure out the rest.”",
+            isBest: false,
+            explanation: "Still incomplete and not helpful."
+          },
+          {
+            text: "“Reminder: Our trip is tomorrow. Reach school by 7:30 am at the main gate, wear uniform and carry water and snacks.”",
+            isBest: true,
+            explanation: "This message is complete with time, place and things to bring."
+          },
+          {
+            text: "“Trip is tomorrow and will be fun!!!”",
+            isBest: false,
+            explanation: "Positive but still missing key details."
+          }
+        ]
+      },
+      {
+        dialogue: "Student: (during presentation) “Um… so like… basically… I mean… there are many things… you know…”",
+        missingC: "concise",
+        cExplanation: "The student is using many filler words and not getting to the main point.",
+        replies: [
+          {
+            text: "“Let me summarise: There are three main causes, and I will explain each one briefly.”",
+            isBest: true,
+            explanation: "You move to the point and keep it brief and focused."
+          },
+          {
+            text: "“So, like, basically, there are kind of many things I could maybe say…”",
+            isBest: false,
+            explanation: "Still not concise or clear."
+          },
+          {
+            text: "“I forgot everything, never mind.”",
+            isBest: false,
+            explanation: "This avoids communicating instead of improving conciseness."
+          }
+        ]
+      },
+      {
+        dialogue: "Friend: “I’m really upset about my marks.” You reply: “It’s not a big deal, stop overreacting.”",
+        missingC: "compassionate",
+        cExplanation: "The reply shows no empathy or understanding of your friend’s feelings.",
+        replies: [
+          {
+            text: "“You always get upset. I’m tired of hearing it.”",
+            isBest: false,
+            explanation: "This is even less compassionate and may hurt your friend more."
+          },
+          {
+            text: "“I’m sorry you’re feeling this way. Do you want to talk about what happened and how we can prepare for next time?”",
+            isBest: true,
+            explanation: "This shows empathy and offers support and solutions."
+          },
+          {
+            text: "“Just study harder next time, that’s it.”",
+            isBest: false,
+            explanation: "It gives advice but ignores the emotion, so compassion is still missing."
+          }
+        ]
+      },
+      {
+        dialogue: "Parent: “How was your day?” You: (looking at phone, no eye contact) “Fine.”",
+        missingC: "complete",
+        cExplanation: "The answer is very short and gives almost no information; it also misses a chance to share and connect.",
+        replies: [
+          {
+            text: "“Fine. Can we talk later? I’m finishing something right now.” (looks up briefly)",
+            isBest: true,
+            explanation: "This is more complete and respectful, and it explains your situation."
+          },
+          {
+            text: "Ignore the question and keep scrolling.",
+            isBest: false,
+            explanation: "This blocks communication and is disrespectful."
+          },
+          {
+            text: "“Same as always.” (still on phone)",
+            isBest: false,
+            explanation: "Still incomplete and shows little interest."
+          }
+        ]
+      },
+      {
+        dialogue: "Student to teacher: “Your explanations are confusing.” (in a loud, rude tone in front of the whole class)",
+        missingC: "compassionate",
+        cExplanation: "The message may be honest but not compassionate or respectful toward the teacher.",
+        replies: [
+          {
+            text: "“Could you please explain that part again in a different way? I didn’t fully understand.”",
+            isBest: true,
+            explanation: "You stay respectful and clear while asking for help."
+          },
+          {
+            text: "“Nobody understands you, your teaching is bad.”",
+            isBest: false,
+            explanation: "This is hurtful and not compassionate."
+          },
+          {
+            text: "Stay silent and complain later to everyone else.",
+            isBest: false,
+            explanation: "This does not improve communication or solve the problem."
+          }
+        ]
+      },
+      {
+        dialogue: "You need to tell your friend you will be late, so you send: “coming l8r idk when lol”.",
+        missingC: "clear",
+        cExplanation: "The message is unclear and casual; it doesn’t say how late you will be.",
+        replies: [
+          {
+            text: "“I’ll be about 15 minutes late. Sorry, please start without me if needed.”",
+            isBest: true,
+            explanation: "This is clearer and more respectful of their time."
+          },
+          {
+            text: "Say nothing and just arrive late.",
+            isBest: false,
+            explanation: "This leaves your friend confused and waiting."
+          },
+          {
+            text: "“Busy.”",
+            isBest: false,
+            explanation: "Too short and unclear; it doesn’t help them plan."
+          }
+        ]
+      },
+      {
+        dialogue: "Friend: “I have something important to tell you.” You reply: “Later.” and walk away without listening.",
+        missingC: "compassionate",
+        cExplanation: "You are not listening or showing that you care about their important message.",
+        replies: [
+          {
+            text: "“I want to hear it. Can we talk in 10 minutes after I finish this?”",
+            isBest: true,
+            explanation: "You show you care and also set a realistic time to listen properly."
+          },
+          {
+            text: "“Is it really important? I’m busy.”",
+            isBest: false,
+            explanation: "This questions their feelings and may make them feel unimportant."
+          },
+          {
+            text: "Ignore them completely.",
+            isBest: false,
+            explanation: "This blocks communication and shows no empathy."
+          }
+        ]
+      },
+      {
+        dialogue: "Classmate: “What are the instructions for the science project?” You reply: “Just do something about plants.”",
+        missingC: "correct",
+        cExplanation: "The reply is too vague and may not match the teacher’s actual instructions.",
+        replies: [
+          {
+            text: "“The teacher said: make a model showing plant growth and label the parts. Let’s check the note to be sure.”",
+            isBest: true,
+            explanation: "You share the correct instructions and suggest checking the source together."
+          },
+          {
+            text: "“Anything with plants is okay, the teacher won’t mind.”",
+            isBest: false,
+            explanation: "This may be incorrect and could mislead your classmate."
+          },
+          {
+            text: "“I forgot. Figure it out yourself.”",
+            isBest: false,
+            explanation: "This doesn’t help and may cause confusion."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    const C_OPTIONS = [
+      { key: "clear", label: "Clear" },
+      { key: "correct", label: "Correct" },
+      { key: "complete", label: "Complete" },
+      { key: "concise", label: "Concise" },
+      { key: "compassionate", label: "Compassionate" }
+    ];
+
+    let order = [];
+    let currentIndex = 0;
+    let cScore = 0;
+    let replyScore = 0;
+    let cAnswered = false;
+    let locked = false;
+
+    const dialogueText = document.getElementById("dialogueText");
+    const cOptionsEl = document.getElementById("cOptions");
+    const replyOptionsEl = document.getElementById("replyOptions");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const cScoreEl = document.getElementById("cScore");
+    const replyScoreEl = document.getElementById("replyScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = scenarios.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      cScore = 0;
+      replyScore = 0;
+      updateScores();
+      loadScenario();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      cScoreEl.textContent = String(cScore);
+      replyScoreEl.textContent = String(replyScore);
+      const total = cScore + replyScore;
+      const max = TOTAL_QUESTIONS * 2;
+      const percent = max > 0 ? Math.round((total / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+    }
+
+    function loadScenario(){
+      locked = false;
+      cAnswered = false;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "First pick the missing C, then pick the best improved reply. You have 1 minute.";
+      replyOptionsEl.innerHTML = "";
+
+      const s = scenarios[order[currentIndex]];
+      dialogueText.textContent = s.dialogue;
+      cOptionsEl.innerHTML = "";
+
+      C_OPTIONS.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.label;
+        btn.addEventListener("click", () => handleCChoice(opt.key, btn));
+        cOptionsEl.appendChild(btn);
+      });
+
+      updateScores();
+      resetTimer();
+    }
+
+    function handleCChoice(choiceKey, btn){
+      if(locked || timeLeft <= 0 || cAnswered) return;
+      const s = scenarios[order[currentIndex]];
+      const buttons = cOptionsEl.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+
+      if(choiceKey === s.missingC){
+        cScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = s.cExplanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = s.cExplanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      buttons.forEach(b => {
+        const label = b.textContent.toLowerCase();
+        if(label === capitalize(s.missingC)){
+          b.classList.add("correct");
+        } else if(b === btn && choiceKey !== s.missingC){
+          b.classList.add("wrong");
+        }
+      });
+
+      cAnswered = true;
+      updateScores();
+      buildReplyOptions();
+    }
+
+    function capitalize(str){
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function buildReplyOptions(){
+      const s = scenarios[order[currentIndex]];
+      replyOptionsEl.innerHTML = "";
+      s.replies.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleReplyChoice(idx, btn));
+        replyOptionsEl.appendChild(btn);
+      });
+    }
+
+    function handleReplyChoice(index, btn){
+      if(locked || timeLeft <= 0) return;
+      const s = scenarios[order[currentIndex]];
+      const buttons = replyOptionsEl.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+      locked = true;
+      stopTimer();
+
+      const chosen = s.replies[index];
+      if(chosen.isBest){
+        replyScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      s.replies.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        btn.classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Scenario →" : "View Lab Summary →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Review which C was missing and think how you would improve the reply.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Scenario →" : "View Lab Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadScenario();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const total = cScore + replyScore;
+      const max = TOTAL_QUESTIONS * 2;
+      const percent = Math.round((total / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Communication Champion";
+        badge = "🌟";
+        text = "You spot missing Cs and improve replies with clarity, respect and empathy.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Skilled Speaker";
+        badge = "🎤";
+        text = "You usually choose effective, 5C-style communication. Keep practising the details.";
+      } else if(percent >= 50){
+        rank = "Growing Communicator";
+        badge = "🌱";
+        text = "You are learning the 5 Cs. Review tricky scenarios and try again.";
+      } else {
+        rank = "New Learner";
+        badge = "📚";
+        text = "This is a starting point. Revisit the 5 Cs and play again to build your skills.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">5C Communication Lab Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct Cs: ${cScore} / ${TOTAL_QUESTIONS}</div>
+          <div class="final-score">Better replies: ${replyScore} / ${TOTAL_QUESTIONS}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
