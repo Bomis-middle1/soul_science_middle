@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I-Statement Builder - Assertiveness</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1000px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #f97316;
+      box-shadow: 0 0 40px rgba(249, 115, 22, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #f97316 0%, #fb7185 100%);
+      color: #111827;
+      box-shadow: 0 5px 20px rgba(249, 115, 22, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.18) 12px,
+        rgba(255, 255, 255, 0.18) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.25);
+      margin-bottom: 4px;
+    }
+    .subtitle { font-size: 15px; font-weight: bold; }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #fed7aa;
+    }
+    .timer.warning .timer-circle {
+      border-color: #eab308;
+      color: #fef9c3;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .left-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .right-panel {
+      flex: 0.9;
+      min-width: 260px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #fed7aa;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .scenario-box {
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+    .scenario-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #fb923c;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .dialogue {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .bad-response-box {
+      margin-top: 8px;
+      background: radial-gradient(circle at top, #111827 0%, #020617 100%);
+      border-radius: 12px;
+      border: 1px solid rgba(248, 113, 113, 0.7);
+      padding: 8px;
+      font-size: 13px;
+    }
+    .bad-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #fca5a5;
+      margin-bottom: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #f97316;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #fb7185);
+      color: #111827;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(249, 115, 22, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #f97316;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>💬 I-STATEMENT BUILDER 💬</h1>
+        <div class="subtitle">Assertiveness - Grade 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Turn blaming \"You\" messages into calm, respectful \"I\" statements.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">60</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="section-title">Situation</div>
+        <div class="scenario-box">
+          <div class="scenario-label">What happened?</div>
+          <div class="dialogue" id="scenarioText"></div>
+
+          <div class="bad-response-box">
+            <div class="bad-label">Unhelpful “You” response</div>
+            <div id="badResponseText"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Question</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Correct I-Statements</div>
+            <div class="score-value" id="correctScore">0</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Build a Better I-Statement</div>
+        <div class="step-label">Choose the option that uses “I feel / I think” respectfully and clearly.</div>
+        <div class="options-grid" id="optionsContainer"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Read the scenario and pick the best I-statement. You have 1 minute.</div>
+          <button class="btn-primary" id="nextBtn">Next Situation →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer (1 minute per question)
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 60;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 15){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 30){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // Scenarios that need I-statements, matching chapter’s guidance on “I feel / I think” and calm tone [file:15]
+    const scenarios = [
+      {
+        situation: "Your classmate keeps copying your homework without asking, and you feel frustrated and used.",
+        bad: "\"You always cheat and use me. You’re so lazy!\"",
+        options: [
+          {
+            text: "“I feel upset when my homework is copied without asking. I want you to do your own work or we can study together instead.”",
+            isBest: true,
+            explanation: "You use “I feel… when…” and clearly ask for a change without attacking the person."
+          },
+          {
+            text: "“You never do anything yourself. Stop being so annoying.”",
+            isBest: false,
+            explanation: "This still blames with “you” and can sound aggressive."
+          },
+          {
+            text: "“It’s fine, I’ll keep giving you my homework.”",
+            isBest: false,
+            explanation: "This is not assertive; it ignores your own needs and feelings."
+          }
+        ]
+      },
+      {
+        situation: "Your friend talks over you in group discussions, and you rarely get to share your ideas.",
+        bad: "\"You are so rude. You never let anyone speak!\"",
+        options: [
+          {
+            text: "“I feel ignored when I’m interrupted. I would like a chance to finish my ideas too.”",
+            isBest: true,
+            explanation: "You express your feeling and request respectfully using “I” language."
+          },
+          {
+            text: "“You always think you are the most important.”",
+            isBest: false,
+            explanation: "This is blaming and may make the other person defensive."
+          },
+          {
+            text: "Stay silent and stop joining group discussions.",
+            isBest: false,
+            explanation: "This is passive and does not protect your right to be heard."
+          }
+        ]
+      },
+      {
+        situation: "A classmate keeps borrowing your stationery and often returns it late or broken.",
+        bad: "\"You destroy all my things. You’re impossible!\"",
+        options: [
+          {
+            text: "“I feel worried about my things when they are not returned on time. I need you to ask first and take care of them.”",
+            isBest: true,
+            explanation: "You say how you feel and clearly state what you need to change."
+          },
+          {
+            text: "“Fine, just don’t touch anything ever again.” (angry tone)",
+            isBest: false,
+            explanation: "This may sound aggressive and closes communication."
+          },
+          {
+            text: "Say nothing and let them keep taking your things.",
+            isBest: false,
+            explanation: "This is not assertive and ignores your own rights."
+          }
+        ]
+      },
+      {
+        situation: "Your sibling plays loud music while you are trying to study, and you cannot concentrate.",
+        bad: "\"You are so selfish. You never care about my studies!\"",
+        options: [
+          {
+            text: "“I find it hard to focus when the music is loud. I would like you to lower the volume or use headphones while I study.”",
+            isBest: true,
+            explanation: "You explain the effect on you and make a clear, reasonable request."
+          },
+          {
+            text: "“Turn it off right now or I’ll break your speakers.”",
+            isBest: false,
+            explanation: "This is aggressive and threatens the other person."
+          },
+          {
+            text: "Leave the room and study angrily without saying anything.",
+            isBest: false,
+            explanation: "This avoids the problem instead of communicating assertively."
+          }
+        ]
+      },
+      {
+        situation: "Your friend keeps cancelling plans at the last minute without explanation.",
+        bad: "\"You are so unreliable. I can’t trust you at all!\"",
+        options: [
+          {
+            text: "“I feel disappointed when our plans are cancelled at the last minute. I would like you to tell me earlier if you can’t come.”",
+            isBest: true,
+            explanation: "You share your feeling and ask for a specific change in behaviour."
+          },
+          {
+            text: "“You ruin everything. I don’t want to be your friend.”",
+            isBest: false,
+            explanation: "This is extreme and aggressive, not assertive."
+          },
+          {
+            text: "Pretend it doesn’t bother you and say nothing.",
+            isBest: false,
+            explanation: "This hides your feelings and does not solve the pattern."
+          }
+        ]
+      },
+      {
+        situation: "In a game, a teammate keeps pushing you roughly, even after you have asked them once to stop.",
+        bad: "\"You are such a bully. You always hurt people!\"",
+        options: [
+          {
+            text: "“I feel uncomfortable when I am pushed in the game. I want us to play without rough pushing.”",
+            isBest: true,
+            explanation: "You clearly name your feeling and the behaviour you want to change."
+          },
+          {
+            text: "Push them back even harder to show you are strong.",
+            isBest: false,
+            explanation: "This is aggressive and may make the situation worse."
+          },
+          {
+            text: "Walk away angry without saying anything.",
+            isBest: false,
+            explanation: "This avoids expressing your needs assertively."
+          }
+        ]
+      },
+      {
+        situation: "You did a lot of work in a group project, but another member takes all the credit in front of the teacher.",
+        bad: "\"You stole my work. You are a liar!\"",
+        options: [
+          {
+            text: "“I feel upset when my contribution is not mentioned. I want the teacher to know that I also worked on this part.”",
+            isBest: true,
+            explanation: "You state your feeling and ask for fair recognition without name-calling."
+          },
+          {
+            text: "“You are the worst partner ever. I’ll never work with you again.”",
+            isBest: false,
+            explanation: "This attacks the person instead of focusing on the behaviour."
+          },
+          {
+            text: "Say nothing and accept that you get no credit.",
+            isBest: false,
+            explanation: "This is passive and does not respect your own effort."
+          }
+        ]
+      },
+      {
+        situation: "Your friend sends constant messages while you are trying to sleep, and you feel tired.",
+        bad: "\"You are so annoying. Stop texting me all the time!\"",
+        options: [
+          {
+            text: "“I feel tired when I get messages late at night. I would like to chat earlier in the day instead.”",
+            isBest: true,
+            explanation: "You explain how it affects you and suggest a respectful boundary."
+          },
+          {
+            text: "Turn off your phone but send an angry message the next morning.",
+            isBest: false,
+            explanation: "This may not clearly explain your need in a calm way."
+          },
+          {
+            text: "Keep replying even though you are exhausted.",
+            isBest: false,
+            explanation: "This ignores your own wellbeing and is not assertive."
+          }
+        ]
+      },
+      {
+        situation: "In class, someone keeps making jokes about your accent or the way you speak.",
+        bad: "\"You are all so mean. I hate you.\"",
+        options: [
+          {
+            text: "“I feel hurt when my way of speaking is made into a joke. I want you to stop making comments about my accent.”",
+            isBest: true,
+            explanation: "You express your feeling and set a clear limit respectfully."
+          },
+          {
+            text: "“You are all rude and have no manners.”",
+            isBest: false,
+            explanation: "This attacks the group generally and may not lead to change."
+          },
+          {
+            text: "Laugh along with the jokes even though you feel bad.",
+            isBest: false,
+            explanation: "This hides your hurt and does not protect your dignity."
+          }
+        ]
+      },
+      {
+        situation: "Your parent or guardian often forgets to tell you about changes in plans, and you end up confused.",
+        bad: "\"You never tell me anything. You are so careless!\"",
+        options: [
+          {
+            text: "“I feel confused when plans change and I don’t know. I would like you to tell me earlier so I can be ready.”",
+            isBest: true,
+            explanation: "You use “I feel” and clearly state the change you are asking for."
+          },
+          {
+            text: "“You don’t care about me at all.”",
+            isBest: false,
+            explanation: "This assumes their feelings and can sound blaming."
+          },
+          {
+            text: "Keep guessing and never ask for clear information.",
+            isBest: false,
+            explanation: "This does not communicate your needs assertively."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let order = [];
+    let currentIndex = 0;
+    let correctScore = 0;
+    let locked = false;
+
+    const scenarioText = document.getElementById("scenarioText");
+    const badResponseText = document.getElementById("badResponseText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const correctScoreEl = document.getElementById("correctScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = scenarios.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      correctScore = 0;
+      updateScores();
+      loadScenario();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      correctScoreEl.textContent = String(correctScore);
+      const max = TOTAL_QUESTIONS;
+      const percent = max > 0 ? Math.round((correctScore / max) * 100) : 0;
+      overallScoreEl.textContent = percent + "%";
+    }
+
+    function loadScenario(){
+      locked = false;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "Read the scenario and pick the best I-statement. You have 1 minute.";
+
+      const s = scenarios[order[currentIndex]];
+      scenarioText.textContent = s.situation;
+      badResponseText.textContent = s.bad;
+
+      optionsContainer.innerHTML = "";
+      s.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleChoice(idx, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      updateScores();
+      resetTimer();
+    }
+
+    function handleChoice(index, btn){
+      if(locked || timeLeft <= 0) return;
+      locked = true;
+      stopTimer();
+
+      const s = scenarios[order[currentIndex]];
+      const chosen = s.options[index];
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+
+      if(chosen.isBest){
+        correctScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      s.options.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        btn.classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Situation →" : "View Assertiveness Summary →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Remember: start with “I feel / I find / I would like…”, then describe behaviour and your request calmly.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Situation →" : "View Assertiveness Summary →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadScenario();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const max = TOTAL_QUESTIONS;
+      const percent = Math.round((correctScore / max) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Assertive Voice Pro";
+        badge = "🌟";
+        text = "You build clear, respectful I-statements that protect your rights and respect others.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Confident Communicator";
+        badge = "💬";
+        text = "You often choose helpful I-statements. Keep practising them in real situations.";
+      } else if(percent >= 50){
+        rank = "Growing Speaker";
+        badge = "🌱";
+        text = "You are learning to replace blaming with calm “I” messages. Review and try again.";
+      } else {
+        rank = "New Assertiveness Learner";
+        badge = "📚";
+        text = "This is a starting point. Revisit the assertiveness tips and play again to strengthen your voice.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">I-Statement Builder Summary</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct I-statements: ${correctScore} / ${max}</div>
+          <div class="final-score">Overall: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
