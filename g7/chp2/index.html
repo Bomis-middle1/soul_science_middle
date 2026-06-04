@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thought Detective - Grade 7</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #020617;
+      border-radius: 20px;
+      border: 3px solid #facc15;
+      box-shadow: 0 0 40px rgba(250, 204, 21, 0.4);
+      overflow: hidden;
+      opacity: 1;
+    }
+
+    .header {
+      position: relative;
+      padding: 22px 16px 24px;
+      text-align: center;
+      background: radial-gradient(circle at top, #111827 0%, #020617 70%);
+      color: #facc15;
+      border-bottom: 2px solid rgba(250, 204, 21, 0.6);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(250, 204, 21, 0.12) 12px,
+        rgba(250, 204, 21, 0.12) 24px
+      );
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 26px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 12px rgba(250, 204, 21, 0.8);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #fee2b3;
+      font-weight: bold;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(90deg, #0f172a 0%, #020617 100%);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .timer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .timer-circle {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 2px solid #22c55e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      color: #bbf7d0;
+    }
+    .timer.warning .timer-circle {
+      border-color: #f97316;
+      color: #fed7aa;
+      box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+    }
+    .timer.danger .timer-circle {
+      border-color: #ef4444;
+      color: #fecaca;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.9);
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background: radial-gradient(circle at top, #020617 0%, #000 70%);
+    }
+
+    .left-panel {
+      flex: 0.9;
+      min-width: 280px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detective-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(250, 204, 21, 0.6);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      box-shadow: 0 0 14px rgba(250, 204, 21, 0.4);
+      font-size: 13px;
+    }
+    .badge-icon {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      border: 2px solid #facc15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+    }
+    .badge-text-main {
+      color: #facc15;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .badge-text-sub {
+      color: #e5e7eb;
+      font-size: 11px;
+    }
+
+    .case-file {
+      width: 100%;
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+    }
+    .case-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #93c5fd;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    .case-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+    .case-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .thought-bubble {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px dashed rgba(248, 113, 113, 0.8);
+      background: radial-gradient(circle at top, #111827 0%, #020617 100%);
+      font-size: 13px;
+      color: #fecaca;
+    }
+
+    .right-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #facc15;
+      box-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #facc15, #f97316);
+      color: #111827;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #facc15;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🕵️ THOUGHT DETECTIVE HQ 🕵️</h1>
+        <div class="subtitle">Grade 7 · Thought Management</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Investigate unhelpful thoughts and find better ones.</div>
+      <div class="timer" id="timerBox">
+        <span>Time left:</span>
+        <div class="timer-circle" id="timerCircle">60</div>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="detective-badge">
+          <div class="badge-icon">🔍</div>
+          <div>
+            <div class="badge-text-main">Thought Detective</div>
+            <div class="badge-text-sub">Case files: Unhelpful thoughts vs Helpful thoughts</div>
+          </div>
+        </div>
+
+        <div class="case-file">
+          <div class="case-title">Case File</div>
+          <div class="case-label">Situation</div>
+          <div class="case-text" id="situationText"></div>
+          <div class="case-label">Unhelpful thought</div>
+          <div class="thought-bubble" id="unhelpfulThoughtText"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Case</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Correct Deductions</div>
+            <div class="score-value" id="correctScore">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Detective Accuracy</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Find the Helpful Replacement Thought</div>
+        <div class="step-label">
+          Look for a thought that is realistic, kind to yourself, and helps you act in a better way.
+        </div>
+        <div class="options-grid" id="optionsContainer"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Choose your best replacement thought. You have 1 minute.</div>
+          <button class="btn-primary" id="nextBtn">Next Case →</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio (plug in your own asset paths if needed)
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Timer (1 minute per case)
+    const timerCircle = document.getElementById('timerCircle');
+    const timerBox = document.getElementById('timerBox');
+    let timerInterval = null;
+    let timeLeft = 60;
+
+    function resetTimer(){
+      clearInterval(timerInterval);
+      timeLeft = 60;
+      timerCircle.textContent = timeLeft;
+      timerBox.classList.remove('warning','danger');
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft <= 0){
+          timeLeft = 0;
+          timerCircle.textContent = '0';
+          timerBox.classList.add('danger');
+          clearInterval(timerInterval);
+          handleTimeUp();
+        } else {
+          timerCircle.textContent = timeLeft;
+          if(timeLeft <= 15){
+            timerBox.classList.add('danger');
+            timerBox.classList.remove('warning');
+          } else if(timeLeft <= 30){
+            timerBox.classList.add('warning');
+          }
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){
+      clearInterval(timerInterval);
+    }
+
+    // Question bank – Thought management, helpful vs unhelpful self-talk
+    const allCases = [
+      {
+        situation: "You are starting a new school year and don’t know your teachers or classmates yet.",
+        unhelpful: "No one will like me. This year is going to be a disaster.",
+        options: [
+          {
+            text: "It’s normal to feel nervous at first. I can be kind and open, and friendships can grow with time.",
+            isBest: true,
+            explanation: "You accept nervousness but focus on kind actions and the possibility of new friendships."
+          },
+          {
+            text: "If people don’t like me immediately, it means something is wrong with me.",
+            isBest: false,
+            explanation: "This is harsh and turns one moment into a fixed judgement about yourself."
+          },
+          {
+            text: "I’ll just stay quiet so no one notices me.",
+            isBest: false,
+            explanation: "This avoids the situation instead of helping you connect with others."
+          }
+        ]
+      },
+      {
+        situation: "You got a lower grade on a test than you expected.",
+        unhelpful: "I’m so stupid. I always mess up.",
+        options: [
+          {
+            text: "This test didn’t go how I wanted, but I can see what I missed and try a different way next time.",
+            isBest: true,
+            explanation: "You see the result as information and focus on learning from it."
+          },
+          {
+            text: "This proves I am bad at this subject forever.",
+            isBest: false,
+            explanation: "This turns one result into a permanent label."
+          },
+          {
+            text: "I’ll ignore the test and never look at it again.",
+            isBest: false,
+            explanation: "This avoids useful feedback instead of using it to improve."
+          }
+        ]
+      },
+      {
+        situation: "You were not chosen for a class activity you wanted to join.",
+        unhelpful: "Nobody thinks I’m good enough. I should stop trying.",
+        options: [
+          {
+            text: "I feel disappointed, but I can ask for feedback and look for another chance to participate.",
+            isBest: true,
+            explanation: "You name the feeling and still look for actions that keep you involved."
+          },
+          {
+            text: "They are unfair, so I’ll never join anything again.",
+            isBest: false,
+            explanation: "This closes future opportunities and keeps you stuck."
+          },
+          {
+            text: "It doesn’t matter at all; nothing is important.",
+            isBest: false,
+            explanation: "This pushes away your feelings instead of handling them."
+          }
+        ]
+      },
+      {
+        situation: "Your friend hasn’t replied to your message all day.",
+        unhelpful: "They are ignoring me on purpose. I must have done something wrong.",
+        options: [
+          {
+            text: "There could be many reasons they haven’t replied yet. I can wait and talk to them calmly later if I’m worried.",
+            isBest: true,
+            explanation: "You avoid jumping to conclusions and leave space for a calm conversation."
+          },
+          {
+            text: "They clearly don’t care about me anymore.",
+            isBest: false,
+            explanation: "This assumes the worst without any evidence."
+          },
+          {
+            text: "I’ll send angry messages until they answer.",
+            isBest: false,
+            explanation: "This acts on the unhelpful thought and may damage the friendship."
+          }
+        ]
+      },
+      {
+        situation: "You made a mistake while presenting in class and some students giggled.",
+        unhelpful: "Everyone thinks I’m ridiculous. I should never speak in class again.",
+        options: [
+          {
+            text: "That moment was embarrassing, but mistakes happen. I can learn from it and try again next time.",
+            isBest: true,
+            explanation: "You accept the feeling and still believe you can keep growing."
+          },
+          {
+            text: "If I can’t be perfect, I shouldn’t speak at all.",
+            isBest: false,
+            explanation: "This turns perfection into a rule and blocks practice."
+          },
+          {
+            text: "I’ll pretend it didn’t bother me and never think about it again.",
+            isBest: false,
+            explanation: "This avoids understanding what happened and what you can change."
+          }
+        ]
+      },
+      {
+        situation: "You are learning something new and it feels very confusing.",
+        unhelpful: "My brain just doesn’t work. I’ll never understand this.",
+        options: [
+          {
+            text: "This feels confusing now, but with practice, questions, and time my brain can learn it.",
+            isBest: true,
+            explanation: "You recognise the difficulty and still trust your ability to learn."
+          },
+          {
+            text: "Other people are smarter, so there’s no point in me trying.",
+            isBest: false,
+            explanation: "This compares you to others and blocks effort."
+          },
+          {
+            text: "I’ll copy someone else’s work so I don’t have to think about it.",
+            isBest: false,
+            explanation: "This avoids thinking and stops your own learning."
+          }
+        ]
+      },
+      {
+        situation: "You argued with a family member and feel upset.",
+        unhelpful: "They don’t care about me at all. Our relationship is ruined.",
+        options: [
+          {
+            text: "We are both upset right now. After a while we can talk, listen, and try to understand each other.",
+            isBest: true,
+            explanation: "You see the argument as a moment, not the end of the relationship."
+          },
+          {
+            text: "I should never talk about my feelings again.",
+            isBest: false,
+            explanation: "This stops honest communication instead of improving it."
+          },
+          {
+            text: "I’ll keep replaying the argument in my head all day.",
+            isBest: false,
+            explanation: "This keeps you stuck in the hurt without moving forward."
+          }
+        ]
+      },
+      {
+        situation: "You tried a hobby (like drawing, coding, or music) and the first attempt didn’t go well.",
+        unhelpful: "I’m terrible at this. I should quit now.",
+        options: [
+          {
+            text: "First attempts are usually messy. If I keep practising, I’ll get better step by step.",
+            isBest: true,
+            explanation: "You normalise messy starts and focus on practice."
+          },
+          {
+            text: "Some people are born talented; I’m not one of them.",
+            isBest: false,
+            explanation: "This treats talent as fixed and ignores effort."
+          },
+          {
+            text: "I’ll only do things that I’m already good at.",
+            isBest: false,
+            explanation: "This keeps you in a very small comfort zone."
+          }
+        ]
+      },
+      {
+        situation: "You are invited to try something new that feels outside your comfort zone.",
+        unhelpful: "If I try and I’m not perfect, everyone will laugh at me.",
+        options: [
+          {
+            text: "Trying new things is how I grow. It’s okay to be a beginner and make mistakes.",
+            isBest: true,
+            explanation: "You allow yourself to be a learner instead of needing to be perfect."
+          },
+          {
+            text: "It’s safer to always say no to new things.",
+            isBest: false,
+            explanation: "This avoids growth and keeps fear strong."
+          },
+          {
+            text: "I’ll go only if I’m certain I will be the best.",
+            isBest: false,
+            explanation: "This focuses on winning, not on learning."
+          }
+        ]
+      },
+      {
+        situation: "A teacher corrects your work and points out what can be improved.",
+        unhelpful: "They are picking on me. I must be a bad student.",
+        options: [
+          {
+            text: "They are showing me how to improve. I can use their feedback to get better.",
+            isBest: true,
+            explanation: "You see correction as support for learning, not as an attack."
+          },
+          {
+            text: "I should stop answering in that class so I won’t be corrected.",
+            isBest: false,
+            explanation: "This stops you from participating and learning more."
+          },
+          {
+            text: "They never correct other students, only me.",
+            isBest: false,
+            explanation: "This assumes unfairness without checking the full picture."
+          }
+        ]
+      },
+      {
+        situation: "You forgot something important and feel ashamed.",
+        unhelpful: "I always ruin things. I can’t be trusted with anything.",
+        options: [
+          {
+            text: "I made a mistake this time. I can apologise and set a reminder so it’s less likely next time.",
+            isBest: true,
+            explanation: "You accept responsibility and create a simple plan for change."
+          },
+          {
+            text: "I should never accept any responsibility again.",
+            isBest: false,
+            explanation: "This avoids responsibility instead of learning how to manage it."
+          },
+          {
+            text: "Everyone must think I am useless now.",
+            isBest: false,
+            explanation: "This guesses other people’s thoughts in a very negative way."
+          }
+        ]
+      },
+      {
+        situation: "You see a classmate do something very well.",
+        unhelpful: "They are so much better than me. I’ll never reach their level.",
+        options: [
+          {
+            text: "Their success can inspire me. I can keep practising and ask them for tips.",
+            isBest: true,
+            explanation: "You turn comparison into inspiration and learning."
+          },
+          {
+            text: "If they are good, that means there’s no room for me.",
+            isBest: false,
+            explanation: "This treats success as limited instead of shared."
+          },
+          {
+            text: "I will pretend not to care so I don’t feel bad.",
+            isBest: false,
+            explanation: "This hides your feelings instead of using them to grow."
+          }
+        ]
+      },
+      {
+        situation: "You’re worried about future changes (like moving grades or schools).",
+        unhelpful: "Change is always bad. I can’t handle it.",
+        options: [
+          {
+            text: "Change feels scary, but I’ve handled new things before and I can learn my way through this too.",
+            isBest: true,
+            explanation: "You acknowledge the fear and remind yourself of past coping."
+          },
+          {
+            text: "If anything changes, everything will go wrong.",
+            isBest: false,
+            explanation: "This exaggerates and predicts the worst outcome."
+          },
+          {
+            text: "I won’t think about it at all and just hope it disappears.",
+            isBest: false,
+            explanation: "This avoids planning and reflecting, which could help you."
+          }
+        ]
+      },
+      {
+        situation: "You sometimes think from only your own perspective in a disagreement.",
+        unhelpful: "My way of seeing this is the only right way.",
+        options: [
+          {
+            text: "My feelings are real, and other people can see the same situation differently. I can try to understand their view too.",
+            isBest: true,
+            explanation: "You respect your feelings and open up to others’ perspectives as well."
+          },
+          {
+            text: "If someone disagrees with me, they must be wrong.",
+            isBest: false,
+            explanation: "This closes off empathy and understanding."
+          },
+          {
+            text: "I’ll just stop talking to people who see things differently.",
+            isBest: false,
+            explanation: "This avoids working through differences."
+          }
+        ]
+      },
+      {
+        situation: "You feel anxious about a challenge and want to stay in your comfort zone.",
+        unhelpful: "If I stay in my comfort zone, I will never feel nervous.",
+        options: [
+          {
+            text: "Stepping out of my comfort zone can be uncomfortable, but it is how I grow stronger.",
+            isBest: true,
+            explanation: "You accept nervousness as part of growth instead of avoiding it."
+          },
+          {
+            text: "I should only do things that feel easy and safe forever.",
+            isBest: false,
+            explanation: "This keeps your world small and limits your potential."
+          },
+          {
+            text: "If I feel nervous, it means I am weak.",
+            isBest: false,
+            explanation: "This gives a negative meaning to a normal human feeling."
+          }
+        ]
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    let order = [];
+    let currentIndex = 0;
+    let correctScore = 0;
+    let locked = false;
+
+    const situationText = document.getElementById("situationText");
+    const unhelpfulThoughtText = document.getElementById("unhelpfulThoughtText");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("nextBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const correctScoreEl = document.getElementById("correctScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = allCases.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      correctScore = 0;
+      updateScores();
+      loadCase();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      correctScoreEl.textContent = String(correctScore);
+      const percent = Math.round((correctScore / TOTAL_QUESTIONS) * 100);
+      overallScoreEl.textContent = percent + "%";
+    }
+
+    function loadCase(){
+      locked = false;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      nextBtn.style.display = "none";
+      progressTextEl.textContent = "Choose your best replacement thought. You have 1 minute.";
+
+      const c = allCases[order[currentIndex]];
+      situationText.textContent = c.situation;
+      unhelpfulThoughtText.textContent = c.unhelpful;
+
+      optionsContainer.innerHTML = "";
+      c.options.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = opt.text;
+        btn.addEventListener("click", () => handleChoice(idx, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      updateScores();
+      resetTimer();
+    }
+
+    function handleChoice(index, btn){
+      if(locked || timeLeft <= 0) return;
+      locked = true;
+      stopTimer();
+
+      const c = allCases[order[currentIndex]];
+      const chosen = c.options[index];
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+
+      if(chosen.isBest){
+        correctScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = chosen.explanation;
+        playCorrect();
+      } else {
+        feedbackEl.className = "feedback wrong";
+        feedbackEl.textContent = chosen.explanation;
+        playWrong();
+      }
+      feedbackEl.style.display = "block";
+
+      c.options.forEach((opt, idx) => {
+        if(opt.isBest){
+          buttons[idx].classList.add("correct");
+        }
+      });
+      if(!chosen.isBest){
+        btn.classList.add("wrong");
+      }
+
+      updateScores();
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Case →" : "View Detective Report →";
+    }
+
+    function handleTimeUp(){
+      if(locked) return;
+      locked = true;
+      feedbackEl.className = "feedback wrong";
+      feedbackEl.textContent = "Time is up! Thought detectives look for helpful, realistic thoughts that lead to better actions.";
+      feedbackEl.style.display = "block";
+      playWrong();
+      const buttons = optionsContainer.querySelectorAll(".option-btn");
+      buttons.forEach(b => b.classList.add("disabled"));
+      nextBtn.style.display = "inline-block";
+      nextBtn.textContent = currentIndex < TOTAL_QUESTIONS - 1 ? "Next Case →" : "View Detective Report →";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < TOTAL_QUESTIONS - 1){
+        currentIndex++;
+        loadCase();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen(){
+      stopTimer();
+      const percent = Math.round((correctScore / TOTAL_QUESTIONS) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "Master Thought Detective";
+        badge = "🌟";
+        text = "You’re excellent at spotting unhelpful thoughts and choosing better ones. This skill will help you manage your feelings and behaviour.";
+        playCelebrate();
+      } else if(percent >= 70){
+        rank = "Skilled Investigator";
+        badge = "🕵️";
+        text = "You often choose helpful thoughts. Keep practising to make this your daily habit.";
+      } else if(percent >= 50){
+        rank = "Trainee Detective";
+        badge = "📝";
+        text = "You’re learning to notice your self-talk. Review tricky cases and play again to strengthen your skills.";
+      } else {
+        rank = "New Recruit";
+        badge = "🔎";
+        text = "This is your starting point. The more you practise, the easier it becomes to choose helpful thoughts.";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Thought Detective Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct deductions: ${correctScore} / ${TOTAL_QUESTIONS}</div>
+          <div class="final-score">Accuracy: ${percent}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+
+    // Start game
+    initGame();
+  </script>
+</body>
+</html>
