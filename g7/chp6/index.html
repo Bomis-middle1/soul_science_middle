@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Integrity Compass - Journey at Sea</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 55%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #000;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
+      border-radius: 20px;
+      border: 3px solid #38bdf8;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.5);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 18px 24px;
+      text-align: center;
+      background: radial-gradient(circle at top, #082f49 0%, #020617 65%);
+      color: #e0f2fe;
+      box-shadow: 0 5px 20px rgba(8, 47, 73, 0.8);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(255,255,255,0.15) 0, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(148,163,184,0.2) 0, transparent 55%);
+      opacity: 0.6;
+      animation: stars 25s linear infinite;
+    }
+    @keyframes stars {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-80px, 40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.6);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bae6fd;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #38bdf8;
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.7);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #020617, #0b1120);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background:
+        radial-gradient(circle at top, rgba(15, 23, 42, 1) 0, #020617 55%),
+        linear-gradient(to bottom, #020617, #000);
+    }
+
+    .left-panel {
+      flex: 1.1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sea-scene {
+      position: relative;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      background:
+        linear-gradient(to top, #020617 0%, #0f172a 40%, #082f49 100%);
+      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .sea {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background:
+        radial-gradient(circle at 20% 0, rgba(56,189,248,0.3) 0, transparent 50%),
+        linear-gradient(to top, #0b1120, #020617);
+      overflow: hidden;
+    }
+    .wave {
+      position: absolute;
+      left: -50%;
+      width: 200%;
+      height: 40%;
+      background: radial-gradient(circle at 50% 0, rgba(56,189,248,0.5) 0, transparent 55%);
+      opacity: 0.5;
+      animation: waveMove 9s linear infinite;
+    }
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-25%); }
+    }
+
+    .ship {
+      position: absolute;
+      bottom: 25%;
+      left: 10%;
+      width: 70px;
+      height: 50px;
+      transform: rotate(-2deg);
+      animation: bob 3s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%,100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-6px) rotate(2deg); }
+    }
+    .ship-hull {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 60%;
+      background: linear-gradient(to right, #0f172a, #1e293b);
+      border-radius: 0 0 20px 20px;
+      border: 2px solid rgba(148,163,184,0.8);
+    }
+    .ship-mast {
+      position: absolute;
+      bottom: 40%;
+      left: 45%;
+      width: 4px;
+      height: 40%;
+      background: #e5e7eb;
+    }
+    .ship-sail {
+      position: absolute;
+      bottom: 40%;
+      left: 48%;
+      width: 30px;
+      height: 24px;
+      background: linear-gradient(to right, #e5e7eb, #bae6fd);
+      border-radius: 0 10px 10px 0;
+    }
+
+    .compass {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 3px solid rgba(148, 163, 184, 0.9);
+      background: radial-gradient(circle at 30% 30%, #1f2937 0, #020617 70%);
+      box-shadow: 0 0 12px rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .compass-inner {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 2px solid rgba(148, 163, 184, 0.8);
+      background: radial-gradient(circle, #020617 0, #020617 70%);
+    }
+    .compass-label {
+      position: absolute;
+      font-size: 9px;
+      color: #e5e7eb;
+      text-shadow: 0 0 4px #000;
+    }
+    .label-honest { top: 2px; left: 50%; transform: translateX(-50%); }
+    .label-lie { bottom: 2px; left: 50%; transform: translateX(-50%); }
+    .label-left { left: 2px; top: 50%; transform: translateY(-50%); }
+    .label-right { right: 2px; top: 50%; transform: translateY(-50%); }
+
+    .compass-needle {
+      position: absolute;
+      width: 4px;
+      height: 32px;
+      background: linear-gradient(to bottom, #f97316, #b91c1c);
+      border-radius: 999px;
+      transform-origin: 50% 80%;
+      transform: rotate(-10deg);
+      transition: transform 0.5s ease-out;
+    }
+    .compass-center {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      border: 1px solid #0f172a;
+    }
+
+    .scenario-panel {
+      margin-top: 10px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+    .scenario-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #38bdf8;
+      letter-spacing: 0.7px;
+      margin-bottom: 4px;
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .step-label {
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      color: #e5e7eb;
+      padding: 7px 9px;
+      text-align: left;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.7);
+      transform: translateY(-1px);
+    }
+    .option-btn.selected {
+      border-color: #f97316;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.8);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #16a34a, #22c55e);
+      border-color: #bbf7d0;
+      color: #022c22;
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #fecaca;
+      color: #fee2e2;
+      box-shadow: 0 0 14px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #fbbf24, #38bdf8);
+      color: #02101f;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #fbbf24;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧭 INTEGRITY COMPASS 🧭</h1>
+        <div class="subtitle">Journey at Sea · Grade 7 · Integrity</div>
+        <div class="stage-indicator" id="stageIndicator">Decision 1 of 10</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Each scenario is a storm at sea. Let your integrity compass guide you to the right action.</div>
+      <div>Integrity means doing the right thing even if no one is watching. [Chapter 6]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="sea-scene">
+          <div class="sea">
+            <div class="wave"></div>
+          </div>
+          <div class="ship">
+            <div class="ship-hull"></div>
+            <div class="ship-mast"></div>
+            <div class="ship-sail"></div>
+          </div>
+          <div class="compass">
+            <div class="compass-inner">
+              <div class="compass-label label-honest">HONEST</div>
+              <div class="compass-label label-lie">LIE</div>
+              <div class="compass-label label-left">Crowd</div>
+              <div class="compass-label label-right">Conscience</div>
+              <div class="compass-needle" id="compassNeedle"></div>
+              <div class="compass-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="scenario-panel">
+          <div class="scenario-label">Storm Situation</div>
+          <div id="scenarioText"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Decision</div>
+            <div class="score-value" id="questionCounter">1 / 10</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Integrity Choices</div>
+            <div class="score-value" id="integrityScore">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Compass Accuracy</div>
+            <div class="score-value" id="overallScore">0%</div>
+          </div>
+        </div>
+
+        <div class="section-title">Step 1: What would you do?</div>
+        <div class="step-label">Choose the action that fits integrity best.</div>
+        <div class="options-grid" id="actionOptions"></div>
+
+        <div class="section-title">Step 2: Which value shines here?</div>
+        <div class="step-label">Pick the strongest integrity value in your choice.</div>
+        <div class="options-grid" id="valueOptions"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <div id="progressText">Choose an action and a value, then click “Set Compass”.</div>
+          <button class="btn-primary" id="checkBtn">Set Compass</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    const compassNeedle = document.getElementById("compassNeedle");
+
+    // Scenarios based on chapter 6 (honesty, trust, fairness, responsibility, courage, respect). [file:28]
+    const scenarios = [
+      {
+        text: "You find a fancy pencil on your classroom floor. Nobody is around and nobody saw you pick it up.",
+        actions: [
+          "Keep it. If no one saw, it is your good luck now.",
+          "Give it to the teacher so the owner can find it.",
+          "Hide it in your bag and pretend you never saw it."
+        ],
+        bestActionIndex: 1,
+        valueKey: "honesty",
+        valueExplanation: "Giving it to the teacher shows honesty and responsibility. A person with integrity does the right thing even if no one is watching. [file:28]",
+        actionExplanation: "Instead of keeping what is not yours, you choose to act truthfully and return it."
+      },
+      {
+        text: "Your friend offers to send you their completed project so that you can copy parts of it before the deadline.",
+        actions: [
+          "Copy most of it but change a few words so it looks different.",
+          "Say no and work on your own project, even if it takes more effort.",
+          "Copy it fully because everyone else is probably doing the same."
+        ],
+        bestActionIndex: 1,
+        valueKey: "honesty",
+        valueExplanation: "Creating your own work shows academic honesty and respect for rules. [file:28]",
+        actionExplanation: "Integrity means providing original content and not trying to gain an unfair benefit in assessments. [file:28]"
+      },
+      {
+        text: "During an exam, you notice another student clearly cheating. The teacher does not see it.",
+        actions: [
+          "Ignore it. It is not your job to say anything.",
+          "Quietly tell the teacher after the exam what you saw.",
+          "Help them by whispering answers so you both pass."
+        ],
+        bestActionIndex: 1,
+        valueKey: "courage",
+        valueExplanation: "Informing a teacher about an academic offence shows courage and responsibility. [file:28]",
+        actionExplanation: "Integrity sometimes means speaking up about rule‑breaking, even when it is uncomfortable."
+      },
+      {
+        text: "Your group is deciding who should present the project. You promised earlier that you would present, but now you feel a bit nervous.",
+        actions: [
+          "Stick to your promise and present, doing your best.",
+          "Make an excuse and push the job onto someone else.",
+          "Skip school that day so you do not have to present."
+        ],
+        bestActionIndex: 0,
+        valueKey: "responsibility",
+        valueExplanation: "Keeping your commitment shows responsibility and builds trust. [file:28]",
+        actionExplanation: "Integrity means keeping promises even when it requires extra effort."
+      },
+      {
+        text: "Some classmates start making fun of another student’s appearance. They invite you to join in the jokes.",
+        actions: [
+          "Join in so they think you are funny too.",
+          "Stay silent but laugh a little so they do not target you.",
+          "Refuse to join and tell them it is not okay to talk like that."
+        ],
+        bestActionIndex: 2,
+        valueKey: "respect",
+        valueExplanation: "Refusing to use hurtful language shows respect and fairness. [file:28]",
+        actionExplanation: "People with integrity do not disrespect others in their remarks, even if others are doing so. [file:28]"
+      },
+      {
+        text: "You accidentally break a school rule and your teacher asks if you know who is responsible.",
+        actions: [
+          "Blame someone else who was near you.",
+          "Admit that you made a mistake and apologise.",
+          "Say nothing and hope nobody finds out."
+        ],
+        bestActionIndex: 1,
+        valueKey: "responsibility",
+        valueExplanation: "Owning up and apologising shows responsibility and honesty. [file:28]",
+        actionExplanation: "Apologising reduces the burden of guilt and helps maintain integrity. [file:28]"
+      },
+      {
+        text: "Your friends plan to skip a class and tell you to join them because ‘everyone is doing it’.",
+        actions: [
+          "Go with them. You do not want to be left out.",
+          "Say no and go to class, even if they tease you.",
+          "Skip this time, but tell yourself you will not do it again."
+        ],
+        bestActionIndex: 1,
+        valueKey: "courage",
+        valueExplanation: "Choosing what is right instead of following the crowd shows courage. [file:28]",
+        actionExplanation: "Integrity means not acting improperly even if others are doing so. [file:28]"
+      },
+      {
+        text: "Someone gives you advice to spread a rumour about another student to make yourself more popular.",
+        actions: [
+          "Follow the advice so that others will like you.",
+          "Ignore the advice and refuse to spread the rumour.",
+          "Change the rumour a little before sharing it."
+        ],
+        bestActionIndex: 1,
+        valueKey: "fairness",
+        valueExplanation: "Refusing to mislead others or harm someone’s reputation protects fairness and respect. [file:28]",
+        actionExplanation: "Integrity means not following bad advice that could hurt or mislead someone. [file:28]"
+      },
+      {
+        text: "You promised to help a classmate with notes after school, but a more fun plan appears at the same time.",
+        actions: [
+          "Cancel on your classmate without telling them.",
+          "Keep your promise and help them with the notes.",
+          "Tell them you forgot, even though you did not."
+        ],
+        bestActionIndex: 1,
+        valueKey: "trust",
+        valueExplanation: "Being dependable and keeping your word builds trust. [file:28]",
+        actionExplanation: "Integrity means people can rely on you to do what you said you would do."
+      },
+      {
+        text: "You answered a question rudely to your parent in anger. Later, you feel bad about it.",
+        actions: [
+          "Act like nothing happened and hope they forget.",
+          "Apologise sincerely and try to speak respectfully next time.",
+          "Blame your bad mood and say it is not your fault."
+        ],
+        bestActionIndex: 1,
+        valueKey: "respect",
+        valueExplanation: "Apologising for hurtful words shows respect and a wish to repair the relationship. [file:28]",
+        actionExplanation: "A person with integrity accepts accountability and uses calm, courteous language. [file:28]"
+      }
+    ];
+
+    const values = [
+      { key: "honesty", label: "Honesty" },
+      { key: "trust", label: "Trust" },
+      { key: "fairness", label: "Fairness" },
+      { key: "respect", label: "Respect" },
+      { key: "responsibility", label: "Responsibility" },
+      { key: "courage", label: "Courage" }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+
+    let order = [];
+    let currentIndex = 0;
+    let integrityScore = 0;
+
+    const scenarioText = document.getElementById("scenarioText");
+    const actionOptionsEl = document.getElementById("actionOptions");
+    const valueOptionsEl = document.getElementById("valueOptions");
+    const feedbackEl = document.getElementById("feedback");
+    const checkBtn = document.getElementById("checkBtn");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const integrityScoreEl = document.getElementById("integrityScore");
+    const overallScoreEl = document.getElementById("overallScore");
+    const progressTextEl = document.getElementById("progressText");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let selectedActionIndex = null;
+    let selectedValueKey = null;
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      const indices = scenarios.map((_, idx) => idx);
+      order = shuffle(indices).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      integrityScore = 0;
+      updateScores();
+      loadScenario();
+    }
+
+    function updateScores(){
+      questionCounterEl.textContent = `${currentIndex + 1} / ${TOTAL_QUESTIONS}`;
+      integrityScoreEl.textContent = String(integrityScore);
+      const percent = Math.round((integrityScore / TOTAL_QUESTIONS) * 100);
+      overallScoreEl.textContent = percent + "%";
+      stageIndicator.textContent = `Decision ${currentIndex + 1} of ${TOTAL_QUESTIONS}`;
+    }
+
+    function resetCompass(){
+      compassNeedle.style.transform = "rotate(-10deg)";
+    }
+
+    function pointCompassToIntegrity(){
+      compassNeedle.style.transform = "rotate(15deg)";
+    }
+
+    function pointCompassAway(){
+      compassNeedle.style.transform = "rotate(160deg)";
+    }
+
+    function loadScenario(){
+      const s = scenarios[order[currentIndex]];
+      scenarioText.textContent = s.text;
+
+      selectedActionIndex = null;
+      selectedValueKey = null;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      progressTextEl.textContent = "Choose an action and a value, then click “Set Compass”.";
+      resetCompass();
+
+      // Actions
+      actionOptionsEl.innerHTML = "";
+      s.actions.forEach((act, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = act;
+        btn.addEventListener("click", () => {
+          selectedActionIndex = idx;
+          Array.from(actionOptionsEl.children).forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+        actionOptionsEl.appendChild(btn);
+      });
+
+      // Values
+      valueOptionsEl.innerHTML = "";
+      values.forEach(v => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = v.label;
+        btn.addEventListener("click", () => {
+          selectedValueKey = v.key;
+          Array.from(valueOptionsEl.children).forEach(b => b.classList.remove("selected"));
+          btn.classList.add("selected");
+        });
+        valueOptionsEl.appendChild(btn);
+      });
+    }
+
+    checkBtn.addEventListener("click", () => {
+      if(selectedActionIndex === null || selectedValueKey === null){
+        progressTextEl.textContent = "Choose both what you would do and which value it shows before setting your compass.";
+        return;
+      }
+
+      const s = scenarios[order[currentIndex]];
+      const actionButtons = actionOptionsEl.querySelectorAll(".option-btn");
+      const valueButtons = valueOptionsEl.querySelectorAll(".option-btn");
+
+      // Disable buttons
+      actionButtons.forEach(b => b.classList.add("disabled"));
+      valueButtons.forEach(b => b.classList.add("disabled"));
+
+      // Clear previous styling
+      actionButtons.forEach(b => b.classList.remove("correct","wrong"));
+      valueButtons.forEach(b => b.classList.remove("correct","wrong"));
+
+      // Mark correct action
+      actionButtons[s.bestActionIndex].classList.add("correct");
+      let actionCorrect = false;
+      if(selectedActionIndex === s.bestActionIndex){
+        actionCorrect = true;
+      } else {
+        actionButtons[selectedActionIndex].classList.add("wrong");
+      }
+
+      // Mark correct value
+      const correctValueIndex = values.findIndex(v => v.key === s.valueKey);
+      let valueCorrect = false;
+      if(correctValueIndex >= 0){
+        valueButtons[correctValueIndex].classList.add("correct");
+        const chosenValueIndex = values.findIndex(v => v.key === selectedValueKey);
+        if(chosenValueIndex === correctValueIndex){
+          valueCorrect = true;
+        } else {
+          valueButtons[chosenValueIndex].classList.add("wrong");
+        }
+      }
+
+      let allCorrect = actionCorrect && valueCorrect;
+
+      if(allCorrect){
+        playCorrect();
+        integrityScore++;
+        feedbackEl.className = "feedback correct";
+        feedbackEl.textContent = s.actionExplanation + " " + s.valueExplanation;
+        pointCompassToIntegrity();
+      } else {
+        playWrong();
+        feedbackEl.className = "feedback wrong";
+        let msg = "";
+        if(!actionCorrect){
+          msg += s.actionExplanation + " ";
+        }
+        if(!valueCorrect){
+          msg += s.valueExplanation;
+        }
+        feedbackEl.textContent = msg;
+        pointCompassAway();
+      }
+
+      feedbackEl.style.display = "block";
+      updateScores();
+
+      setTimeout(() => {
+        if(currentIndex < TOTAL_QUESTIONS - 1){
+          currentIndex++;
+          updateScores();
+          loadScenario();
+        } else {
+          showFinalScreen();
+        }
+      }, 1800);
+    });
+
+    function showFinalScreen(){
+      playCelebrate();
+      const percent = Math.round((integrityScore / TOTAL_QUESTIONS) * 100);
+      let rank, badge, text;
+
+      if(percent >= 90){
+        rank = "True North Navigator";
+        badge = "🧭";
+        text = "Your compass points strongly towards honesty, courage and responsibility. You act with integrity even in rough seas.";
+      } else if(percent >= 70){
+        rank = "Steady Sailor of Integrity";
+        badge = "⛵";
+        text = "You usually follow your conscience instead of the crowd. With a bit more practice, your integrity will guide you in every situation.";
+      } else if(percent >= 50){
+        rank = "Learning Helmsman";
+        badge = "🌊";
+        text = "You are starting to notice which choices match honesty and respect. Reflect on each scenario to strengthen your inner compass.";
+      } else {
+        rank = "New Crew Member";
+        badge = "⚓";
+        text = "This is the beginning of your integrity journey. Remember: real integrity is doing the right thing even when nobody is going to know if you did it. [file:28]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Integrity Compass Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Choices guided by integrity: ${integrityScore} / ${TOTAL_QUESTIONS} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Sail Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
