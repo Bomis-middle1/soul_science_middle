@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Soul Quest - Introduction to Soul Science</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #243b55 0%, #141e30 45%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #0b1020;
+      border-radius: 20px;
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 25px 20px 30px;
+      text-align: center;
+      background: linear-gradient(135deg, #ffd700 0%, #ff9f1c 100%);
+      color: #1a1a2e;
+      box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 12px,
+        rgba(255, 255, 255, 0.15) 12px,
+        rgba(255, 255, 255, 0.15) 24px
+      );
+      opacity: 0.5;
+      animation: shimmer 18s linear infinite;
+    }
+    @keyframes shimmer {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(60px, 60px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 32px;
+      letter-spacing: 2px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      margin-bottom: 6px;
+    }
+    .subtitle { font-size: 16px; font-weight: bold; }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 20px;
+      border-radius: 20px;
+      background: rgba(26, 26, 46, 0.9);
+      border: 2px solid #ffd700;
+      color: #ffd700;
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 0 18px rgba(255, 215, 0, 0.7);
+    }
+
+    .board-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 60%);
+    }
+
+    .board-area {
+      flex: 1.2;
+      min-width: 320px;
+      background: radial-gradient(circle at center, #1e293b 0%, #020617 70%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.6);
+      padding: 20px 18px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .board-title {
+      text-align: center;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #e5e7eb;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .board-path {
+      position: relative;
+      margin-top: 10px;
+      padding: 18px 10px 10px;
+    }
+    .path-line {
+      position: absolute;
+      inset: 40px 22px 30px;
+      border-radius: 30px;
+      border: 3px dashed rgba(251, 191, 36, 0.7);
+      opacity: 0.7;
+    }
+
+    .cells {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-auto-rows: 60px;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cell {
+      position: relative;
+      border-radius: 14px;
+      border: 2px solid rgba(148, 163, 184, 0.9);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.4), rgba(15, 23, 42, 0.9));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      text-align: center;
+      padding: 4px;
+      color: #e5e7eb;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.9);
+    }
+    .cell.start {
+      background: radial-gradient(circle at top, rgba(34, 197, 94, 0.6), rgba(15, 23, 42, 0.9));
+      border-color: #22c55e;
+      font-weight: bold;
+    }
+    .cell.finish {
+      background: radial-gradient(circle at top, rgba(251, 191, 36, 0.8), rgba(15, 23, 42, 0.95));
+      border-color: #facc15;
+      font-weight: bold;
+    }
+    .cell span.step-number {
+      position: absolute;
+      top: 4px; left: 6px;
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .token {
+      position: absolute;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: radial-gradient(circle at top, #f97316 0%, #b91c1c 70%);
+      border: 2px solid #fed7aa;
+      box-shadow: 0 0 14px rgba(248, 250, 252, 0.9);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transform: translate(-50%, -60%);
+      transition: all 0.6s ease-out;
+      z-index: 3;
+    }
+
+    .info-panel {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .score-panel {
+      flex: 0.9;
+      min-width: 260px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 60%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.6);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 10px 8px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .score-value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .question-panel {
+      margin-top: 4px;
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 100%);
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 14px 14px 12px;
+      box-shadow: inset 0 0 15px rgba(15, 23, 42, 0.9);
+    }
+    .question-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #facc15;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .question-text {
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .option-btn {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.7));
+      color: #e5e7eb;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option-btn:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+    .option-btn.correct {
+      background: linear-gradient(135deg, #15803d, #16a34a);
+      border-color: #4ade80;
+      color: #ecfdf5;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.9);
+    }
+    .option-btn.wrong {
+      background: linear-gradient(135deg, #b91c1c, #7f1d1d);
+      border-color: #f87171;
+      color: #fee2e2;
+      box-shadow: 0 0 18px rgba(248, 113, 113, 0.9);
+    }
+    .option-btn.disabled { pointer-events: none; opacity: 0.9; }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.5;
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: none;
+    }
+    .feedback.correct {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.wrong {
+      background: rgba(185, 28, 28, 0.2);
+      border: 1px solid #fca5a5;
+      color: #fecaca;
+    }
+
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 9px 20px;
+      border-radius: 20px;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #facc15, #ea580c);
+      color: #111827;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: none;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(251, 191, 36, 0.8);
+    }
+
+    .volume-control {
+      margin-top: 6px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #9ca3af;
+    }
+    .volume-control input {
+      flex: 1;
+    }
+
+    .final-screen {
+      padding: 30px 20px 26px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 26px;
+      margin-bottom: 12px;
+      color: #facc15;
+    }
+    .final-badge {
+      font-size: 60px;
+      margin: 12px 0;
+    }
+    .final-rank {
+      font-size: 22px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .final-score {
+      font-size: 24px;
+      margin: 8px 0;
+    }
+    .final-text {
+      font-size: 15px;
+      color: #e5e7eb;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 24px; }
+      .cells { grid-template-columns: repeat(4, 1fr); }
+      .board-wrapper { flex-direction: column; }
+      .board-area, .score-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🌌 SOUL QUEST 🌌</h1>
+        <div class="subtitle">Introduction to Soul Science - Grade 7</div>
+        <div class="stage-indicator" id="stageIndicator">Step 1 of 10</div>
+      </div>
+    </div>
+
+    <div class="board-wrapper" id="gameWrapper">
+      <div class="board-area">
+        <div class="board-title">Journey from Confusion to Clarity</div>
+        <div class="board-path">
+          <div class="path-line"></div>
+          <div class="cells" id="cellsContainer"></div>
+          <div class="token" id="token">🔮</div>
+        </div>
+        <div class="info-panel">
+          <div>Start: Confusion about Soul Science</div>
+          <div>Finish: Clarity of Mind–Body–Soul</div>
+        </div>
+      </div>
+
+      <div class="score-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Correct Answers</div>
+            <div class="score-value" id="correctCount">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Current Step</div>
+            <div class="score-value" id="currentStep">1 / 10</div>
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Soul Quest Score</div>
+            <div class="score-value" id="totalScore">0%</div>
+          </div>
+        </div>
+
+        <div class="question-panel" id="questionPanel">
+          <div class="question-title">Question</div>
+          <div class="question-text" id="questionText"></div>
+          <div class="options" id="optionsContainer"></div>
+          <div class="feedback" id="feedback"></div>
+          <div class="controls">
+            <div id="progressText">Answer to move along the path.</div>
+            <button class="btn-primary" id="nextBtn">Next Step →</button>
+          </div>
+          <div class="volume-control">
+            <span>🔊 Volume</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash → main
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrectSound(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrongSound(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrationSound(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Question bank expanded to ~18 questions [file:12]
+    const questionBank = [
+      {
+        type: 'mcq',
+        question: 'Soul Science is described as a blend of which two main areas?',
+        options: [
+          'Physics and chemistry',
+          'Spirituality and psychology',
+          'Mathematics and biology',
+          'History and geography'
+        ],
+        correctIndex: 1,
+        explanation: 'Soul Science blends spirituality (meaning and purpose) with psychology (understanding thoughts, feelings, and behaviour). [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which of these best describes SPIRITUALITY in the chapter?',
+        options: [
+          'Only following strict rituals without thinking',
+          'Connecting with something bigger than ourselves and finding meaning in life',
+          'Ignoring feelings and focusing only on marks',
+          'Memorising facts about the universe'
+        ],
+        correctIndex: 1,
+        explanation: 'Spirituality is connecting with something bigger (universe, nature, inner wisdom) and finding meaning, purpose, and joy. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'What does PSYCHOLOGY help us understand, according to Soul Science?',
+        options: [
+          'Only how the brain grows physically',
+          'Why we feel, think, and behave in certain ways',
+          'How to memorise long answers quickly',
+          'Only how to score full marks in exams'
+        ],
+        correctIndex: 1,
+        explanation: 'Psychology helps us understand our thoughts and feelings, and why we behave the way we do. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Everyday practice of Soul Science mainly helps students to…',
+        options: [
+          'Avoid responsibilities and relax all day',
+          'Hone their skills, set clear goals, and handle serious life situations carefully',
+          'Only focus on spiritual rituals',
+          'Forget about school and friends'
+        ],
+        correctIndex: 1,
+        explanation: 'It helps students stand out, set smart goals, and handle serious situations with awareness and emotional balance. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which of the following is an example of the MIND in “mind, body and soul”?',
+        options: [
+          'Your ability to run fast',
+          'Your beliefs, thoughts and behaviours',
+          'Your height and weight',
+          'Your fingerprints'
+        ],
+        correctIndex: 1,
+        explanation: 'Mind is your thinking mind (conscious and unconscious) that produces beliefs, thoughts, and behaviours. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'The BODY in “mind, body and soul” mainly refers to…',
+        options: [
+          'Only the brain',
+          'Your physical self that moves you through life using your senses',
+          'Invisible energy around you',
+          'Only your height'
+        ],
+        correctIndex: 1,
+        explanation: 'The body is your physical self that lets you experience the world through the five senses. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'The SOUL is described in the chapter as…',
+        options: [
+          'Just another name for the brain',
+          'Your essence or spirit, the intangible part of you',
+          'Only your physical heart',
+          'Something that only religious people have'
+        ],
+        correctIndex: 1,
+        explanation: 'The soul or spirit is the intangible essence of your life, whether you connect with it through religion, nature, or inner reflection. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'The “mind–body–soul connection” activity (breathing with eyes closed) shows that…',
+        options: [
+          'Breathing exercises are boring',
+          'Closing your eyes always makes you sleepy',
+          'How you breathe and focus can change how you feel in your mind and body',
+          'Only the body matters, not the mind'
+        ],
+        correctIndex: 2,
+        explanation: 'Simple breath awareness can change how you feel physically and mentally, proving their connection. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which statement about YOGA in the chapter is most accurate?',
+        options: [
+          'Yoga is only physical exercise for weight loss',
+          'Yoga is an ancient spiritual practice that uses breath, postures and focus to create union and connection',
+          'Yoga is just sitting still and doing nothing',
+          'Yoga is only for adults'
+        ],
+        correctIndex: 1,
+        explanation: 'Yoga uses asanas, breath control, and focus as a spiritual practice of union. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'How do YOGA and MEDITATION work together, according to the text?',
+        options: [
+          'They cannot be done on the same day',
+          'Yoga is for the body, meditation is useless',
+          'Yoga prepares and relaxes the body, and meditation deepens awareness and connection',
+          'Meditation replaces all need for physical movement'
+        ],
+        correctIndex: 2,
+        explanation: 'Yoga stabilises the body; meditation (dhyana) then deepens consciousness and connection. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which of these is a described BENEFIT of chanting shlokas?',
+        options: [
+          'They only improve singing voice',
+          'They can boost cognitive function and verbal memory',
+          'They only help in learning history dates',
+          'They make you forget your own language'
+        ],
+        correctIndex: 1,
+        explanation: 'Benefits include improved cognitive function and verbal memory, and a calmer mind. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'The story “The Invisible Chains” mainly teaches that…',
+        options: [
+          'Elephants are always gentle animals',
+          'We should never visit fairs',
+          'Old fears and limiting beliefs can hold us back even when we are strong enough to move forward',
+          'Ropes are dangerous'
+        ],
+        correctIndex: 2,
+        explanation: 'Like the elephants, we may stay stuck because of past failures and limiting beliefs. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which response BEST shows someone breaking their “invisible chains”?',
+        options: [
+          'Refusing to try again after one failure',
+          'Trying a new challenge even though they failed before',
+          'Avoiding all difficult tasks forever',
+          'Always blaming others for their problems'
+        ],
+        correctIndex: 1,
+        explanation: 'Testing your limits again shows you are not allowing old defeats to control you. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'According to the chapter, everyday Soul Science practice can improve things like…',
+        options: [
+          'Effective communication, empathy and growth mindset',
+          'Only physical strength',
+          'Only exam marks in mathematics',
+          'How many social media followers you have'
+        ],
+        correctIndex: 0,
+        explanation: 'It highlights communication, collaboration, empathy, assertiveness and growth mindset. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'What does the Gita shloka about the ocean and rivers mainly suggest?',
+        options: [
+          'We should never go near the sea',
+          'A peaceful person stays steady even when many desires or temptations come to them',
+          'We must fulfil every desire to be happy',
+          'Rivers make the ocean angry'
+        ],
+        correctIndex: 1,
+        explanation: 'Like the calm ocean, a wise person remains steady amidst many desires instead of chasing all of them. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which action matches the idea of mind–body–soul BALANCE from the chapter?',
+        options: [
+          'Only studying and never resting',
+          'Ignoring emotions completely',
+          'Using breath awareness, movement, and reflection to care for yourself',
+          'Thinking only about marks all the time'
+        ],
+        correctIndex: 2,
+        explanation: 'Caring for mind, body and soul together supports balance and well-being. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Why does the chapter say Soul Science fits with 21st century skills?',
+        options: [
+          'It only teaches technology skills',
+          'It focuses on personal, social, professional, and spiritual growth, not just academics',
+          'It replaces all other school subjects',
+          'It is only about ancient stories'
+        ],
+        correctIndex: 1,
+        explanation: 'Soul Science bridges the gap between traditional learning and skills needed for life by focusing on holistic growth. [file:12]'
+      },
+      {
+        type: 'mcq',
+        question: 'Which everyday practice BEST shows applying Soul Science?',
+        options: [
+          'Ignoring your feelings so you can study more hours',
+          'Reflecting on your day, noticing your emotions, and planning small changes for tomorrow',
+          'Judging others for their beliefs',
+          'Only focusing on physical exercise'
+        ],
+        correctIndex: 1,
+        explanation: 'Reflection plus small, thoughtful changes ties mind, body, and soul together in daily life. [file:12]'
+      }
+    ];
+
+    const TOTAL_STEPS = 10;
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let correctCount = 0;
+
+    const cellsContainer = document.getElementById('cellsContainer');
+    const token = document.getElementById('token');
+    const questionText = document.getElementById('questionText');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedback = document.getElementById('feedback');
+    const nextBtn = document.getElementById('nextBtn');
+    const correctCountEl = document.getElementById('correctCount');
+    const currentStepEl = document.getElementById('currentStep');
+    const totalScoreEl = document.getElementById('totalScore');
+    const stageIndicator = document.getElementById('stageIndicator');
+    const gameWrapper = document.getElementById('gameWrapper');
+
+    let cellPositions = [];
+
+    function initBoard() {
+      cellsContainer.innerHTML = '';
+      cellPositions = [];
+      const totalCells = TOTAL_STEPS + 2; // Start + 10 steps + Finish
+
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        if (i === 0) {
+          cell.classList.add('start');
+          cell.innerHTML = '<span class="step-number">Start</span><span>Confusion</span>';
+        } else if (i === totalCells - 1) {
+          cell.classList.add('finish');
+          cell.innerHTML = '<span class="step-number">Finish</span><span>Clarity</span>';
+        } else {
+          cell.innerHTML = `<span class="step-number">${i}</span><span>Step ${i}</span>`;
+        }
+        cellsContainer.appendChild(cell);
+      }
+
+      const cellElems = Array.from(cellsContainer.children);
+      cellElems.forEach(cell => {
+        const rect = cell.getBoundingClientRect();
+        const parentRect = cellsContainer.getBoundingClientRect();
+        const x = rect.left - parentRect.left + rect.width / 2;
+        const y = rect.top - parentRect.top + rect.height / 2;
+        cellPositions.push({ x, y });
+      });
+
+      moveTokenTo(0);
+    }
+
+    function moveTokenTo(stepIndex) {
+      const pos = cellPositions[stepIndex];
+      if (!pos) return;
+      const containerRect = cellsContainer.getBoundingClientRect();
+      const offsetX = (pos.x / containerRect.width) * 100;
+      const offsetY = (pos.y / containerRect.height) * 100;
+      token.style.left = offsetX + '%';
+      token.style.top = offsetY + '%';
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function initGame() {
+      const shuffled = shuffle([...questionBank]);
+      currentQuestions = shuffled.slice(0, TOTAL_STEPS);
+      currentIndex = 0;
+      correctCount = 0;
+      correctCountEl.textContent = '0';
+      currentStepEl.textContent = `1 / ${TOTAL_STEPS}`;
+      totalScoreEl.textContent = '0%';
+      stageIndicator.textContent = `Step 1 of ${TOTAL_STEPS}`;
+      setTimeout(initBoard, 50);
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      const q = currentQuestions[currentIndex];
+      if (!q) return;
+
+      questionText.textContent = q.question;
+      optionsContainer.innerHTML = '';
+      feedback.style.display = 'none';
+      feedback.textContent = '';
+      document.getElementById('progressText').textContent = 'Answer to move along the path.';
+      nextBtn.style.display = 'none';
+
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => handleAnswer(index));
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIndex) {
+      const q = currentQuestions[currentIndex];
+      const optionButtons = optionsContainer.querySelectorAll('.option-btn');
+
+      optionButtons.forEach((btn, idx) => {
+        btn.classList.add('disabled');
+        if (idx === q.correctIndex) {
+          btn.classList.add('correct');
+        }
+      });
+
+      if (selectedIndex === q.correctIndex) {
+        feedback.className = 'feedback correct';
+        feedback.textContent = q.explanation;
+        correctCount++;
+        playCorrectSound();
+      } else {
+        optionButtons[selectedIndex].classList.add('wrong');
+        feedback.className = 'feedback wrong';
+        feedback.textContent = q.explanation;
+        playWrongSound();
+      }
+
+      feedback.style.display = 'block';
+
+      const tokenTargetIndex = Math.min(currentIndex + 1, TOTAL_STEPS);
+      moveTokenTo(tokenTargetIndex);
+
+      correctCountEl.textContent = String(correctCount);
+      const percent = Math.round((correctCount / TOTAL_STEPS) * 100);
+      totalScoreEl.textContent = percent + '%';
+
+      nextBtn.style.display = 'inline-block';
+      nextBtn.textContent = currentIndex < TOTAL_STEPS - 1 ? 'Next Step →' : 'View Soul Quest Result →';
+    }
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < TOTAL_STEPS - 1) {
+        currentIndex++;
+        currentStepEl.textContent = `${currentIndex + 1} / ${TOTAL_STEPS}`;
+        stageIndicator.textContent = `Step ${currentIndex + 1} of ${TOTAL_STEPS}`;
+        loadQuestion();
+      } else {
+        showFinalScreen();
+      }
+    });
+
+    function showFinalScreen() {
+      moveTokenTo(TOTAL_STEPS + 1);
+      const percent = Math.round((correctCount / TOTAL_STEPS) * 100);
+      let rank, badge, text;
+
+      if (percent >= 90) {
+        rank = 'Soul Scientist';
+        badge = '🌟';
+        text = 'You have a deep grasp of Soul Science basics and are ready to apply them in life.';
+        playCelebrationSound();
+      } else if (percent >= 70) {
+        rank = 'Mindful Explorer';
+        badge = '✨';
+        text = 'You understand Soul Science well. Keep practising mind–body–soul balance.';
+      } else if (percent >= 50) {
+        rank = 'Curious Seeker';
+        badge = '🔍';
+        text = 'You are on the path. Revisit a few ideas and try the quest again.';
+      } else {
+        rank = 'New Traveller';
+        badge = '🌱';
+        text = 'This is just the beginning. Explore the chapter and return for another quest.';
+      }
+
+      const finalHtml = `
+        <div class="final-screen">
+          <div class="final-title">Soul Quest Complete</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Score: ${correctCount} / ${TOTAL_STEPS} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Play Again</button>
+        </div>
+      `;
+      const panel = document.getElementById('gameWrapper');
+      panel.innerHTML = finalHtml;
+
+      document.getElementById('playAgainBtn').addEventListener('click', () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
