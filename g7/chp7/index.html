@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Storm-Ready Farm - Dependability Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #022c22 0%, #022c22 50%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #000;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: radial-gradient(circle at top, #022c22 0%, #022c22 80%);
+      border-radius: 20px;
+      border: 3px solid #fbbf24;
+      box-shadow: 0 0 40px rgba(250, 204, 21, 0.5);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 18px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #166534 0%, #22c55e 40%, #facc15 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(21, 128, 61, 0.8);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,255,255,0.2) 0, transparent 55%),
+        radial-gradient(circle at 75% 20%, rgba(254,249,195,0.35) 0, transparent 55%);
+      opacity: 0.7;
+      animation: clouds 24s linear infinite;
+    }
+    @keyframes clouds {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-80px,40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ecfdf5;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #fbbf24;
+      color: #fef9c3;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.8);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #022c22, #14532d);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background:
+        radial-gradient(circle at top, #14532d 0, #022c22 55%),
+        linear-gradient(to bottom, #022c22, #000);
+    }
+
+    .farm-panel {
+      flex: 1.3;
+      min-width: 360px;
+      background: radial-gradient(circle at top, #052e16 0%, #022c22 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .farm-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bbf7d0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .farm-scene {
+      position: relative;
+      border-radius: 16px;
+      background:
+        linear-gradient(to top, #14532d 0%, #16a34a 40%, #22c55e 60%, #86efac 100%);
+      height: 260px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .farm-ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 35%;
+      background:
+        linear-gradient(to top, #14532d 0%, #166534 60%, #16a34a 100%);
+    }
+
+    .farm-house, .farm-barn, .farm-shed, .farm-field {
+      position: absolute;
+      border-radius: 6px;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+      background: #f97316;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.8);
+      cursor: pointer;
+    }
+
+    .farm-house {
+      width: 90px;
+      height: 70px;
+      left: 12%;
+      bottom: 22%;
+      background: linear-gradient(to top, #f97316, #fed7aa);
+    }
+    .farm-barn {
+      width: 110px;
+      height: 80px;
+      right: 12%;
+      bottom: 20%;
+      background: linear-gradient(to top, #b91c1c, #fecaca);
+    }
+    .farm-shed {
+      width: 80px;
+      height: 50px;
+      left: 55%;
+      bottom: 15%;
+      background: linear-gradient(to top, #4b5563, #9ca3af);
+    }
+    .farm-field {
+      width: 120px;
+      height: 60px;
+      left: 8%;
+      bottom: 8%;
+      background: repeating-linear-gradient(
+        135deg,
+        #a3e635,
+        #a3e635 6px,
+        #65a30d 6px,
+        #65a30d 12px
+      );
+    }
+
+    .farm-label {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translate(-50%, -4px);
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #ecfdf5;
+      text-shadow: 0 0 4px #000;
+      letter-spacing: 0.8px;
+    }
+
+    .drop-zone {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      border: 2px dashed rgba(248, 250, 252, 0.0);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .drop-zone.highlight {
+      border-color: rgba(250, 250, 250, 0.8);
+      box-shadow: 0 0 10px rgba(250, 250, 250, 0.7);
+    }
+
+    .storm-overlay {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(15,23,42,0), rgba(15,23,42,0.8));
+      opacity: 0;
+      transition: opacity 0.8s ease-out;
+    }
+    .storm-overlay.active {
+      opacity: 1;
+    }
+
+    .storm-rain {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(to bottom, rgba(148,163,184,0.6) 2px, transparent 2px);
+      background-size: 2px 12px;
+      opacity: 0.8;
+      animation: rain 0.4s linear infinite;
+    }
+    @keyframes rain {
+      0% { transform: translateY(-10px); }
+      100% { transform: translateY(10px); }
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #052e16 0%, #022c22 70%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .instructions-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #facc15;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+
+    .instructions-text {
+      font-size: 13px;
+      color: #e5e7eb;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .task-bank-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #bbf7d0;
+      margin-top: 4px;
+    }
+
+    .task-bank {
+      min-height: 60px;
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      padding: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: radial-gradient(circle at top, #022c22 0%, #022c22 100%);
+    }
+
+    .task-card {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: grab;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+    .task-card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+    }
+    .task-card.correct-assigned {
+      border-color: #22c55e;
+    }
+    .task-card.wrong-assigned {
+      border-color: #ef4444;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.warn {
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px solid #facc15;
+      color: #fef9c3;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #facc15, #22c55e);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 12px;
+      cursor: pointer;
+      background: radial-gradient(circle at top, #022c22 0%, #022c22 100%);
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #facc15;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .farm-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🌾 STORM-READY FARM 🌾</h1>
+        <div class="subtitle">Dependability Game · Grade 7</div>
+        <div class="stage-indicator" id="stageIndicator">Storm Night 1 of 3</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Drag each farm task to the right place before the storm hits. A dependable farmhand can sleep through a storm. [file:29]</div>
+      <div>Tasks like storing tools, securing barns, and preparing animals show planning and dependability. [file:29]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="farm-panel">
+        <div class="farm-title">Prepare the Farm</div>
+        <div class="farm-scene">
+          <div class="farm-ground"></div>
+
+          <div class="farm-house">
+            <div class="farm-label">HOUSE</div>
+            <div class="drop-zone" data-zone="house"></div>
+          </div>
+
+          <div class="farm-barn">
+            <div class="farm-label">BARN</div>
+            <div class="drop-zone" data-zone="barn"></div>
+          </div>
+
+          <div class="farm-shed">
+            <div class="farm-label">SHED</div>
+            <div class="drop-zone" data-zone="shed"></div>
+          </div>
+
+          <div class="farm-field">
+            <div class="farm-label">FIELD</div>
+            <div class="drop-zone" data-zone="field"></div>
+          </div>
+
+          <div class="storm-overlay" id="stormOverlay">
+            <div class="storm-rain"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Storm Night</div>
+            <div class="score-value" id="nightCounter">1 / 3</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Dependable Nights</div>
+            <div class="score-value" id="goodNights">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Dependability Score</div>
+            <div class="score-value" id="dependabilityScore">0%</div>
+          </div>
+        </div>
+
+        <div class="instructions-title">Your Farm Tasks</div>
+        <div class="instructions-text">Drag each task onto the right place on the farm: house, barn, shed or field.</div>
+
+        <div class="task-bank-label">Tasks to place</div>
+        <div class="task-bank" id="taskBank"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Reset this night</button>
+          <div id="progressText">Drag tasks, then click “Start Storm” to see if your farm is ready.</div>
+          <button class="btn-primary" id="checkBtn">Start Storm</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById('volumeSlider').addEventListener('input', e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    const stormOverlay = document.getElementById("stormOverlay");
+
+    // Nights with tasks (all farm-related, tied to story: shutters, logs, shed, tied bales, tractor, animals). [file:29]
+    const nights = [
+      {
+        tasks: [
+          { text: "Latch farmhouse shutters", zone: "house" },
+          { text: "Stack logs near fireplace", zone: "house" },
+          { text: "Lock barn doors", zone: "barn" },
+          { text: "Feed animals before storm", zone: "barn" },
+          { text: "Move tractor into shed", zone: "shed" },
+          { text: "Cover wheat bales with tarpaulins", zone: "field" }
+        ]
+      },
+      {
+        tasks: [
+          { text: "Check animals have dry bedding", zone: "barn" },
+          { text: "Tie loose tools inside shed", zone: "shed" },
+          { text: "Close windows of farmhouse", zone: "house" },
+          { text: "Secure grain sacks in barn", zone: "barn" },
+          { text: "Gather extra water inside house", zone: "house" },
+          { text: "Stack hay away from open field", zone: "field" }
+        ]
+      },
+      {
+        tasks: [
+          { text: "Park cart under shed roof", zone: "shed" },
+          { text: "Check barn latch is strong", zone: "barn" },
+          { text: "Bring pets safely inside house", zone: "house" },
+          { text: "Collect tools from field", zone: "field" },
+          { text: "Store rakes and spades in shed", zone: "shed" },
+          { text: "Move feed buckets into barn", zone: "barn" }
+        ]
+      }
+    ];
+
+    const TOTAL_NIGHTS = nights.length;
+
+    const taskBank = document.getElementById("taskBank");
+    const dropZones = document.querySelectorAll(".drop-zone");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const nightCounterEl = document.getElementById("nightCounter");
+    const goodNightsEl = document.getElementById("goodNights");
+    const dependabilityScoreEl = document.getElementById("dependabilityScore");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let draggingCard = null;
+    let currentNightIndex = 0;
+    let goodNights = 0;
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame(){
+      currentNightIndex = 0;
+      goodNights = 0;
+      updateNightCounters();
+      loadNight();
+      setUpDragTargets();
+    }
+
+    function updateNightCounters(){
+      nightCounterEl.textContent = `${currentNightIndex + 1} / ${TOTAL_NIGHTS}`;
+      goodNightsEl.textContent = `${goodNights}`;
+      const percent = Math.round((goodNights / TOTAL_NIGHTS) * 100);
+      dependabilityScoreEl.textContent = percent + "%";
+      stageIndicator.textContent = `Storm Night ${currentNightIndex + 1} of ${TOTAL_NIGHTS}`;
+    }
+
+    function clearNight(){
+      taskBank.innerHTML = "";
+      dropZones.forEach(z => z.innerHTML = "");
+      dropZones.forEach(z => z.classList.remove("highlight"));
+      stormOverlay.classList.remove("active");
+    }
+
+    function loadNight(){
+      clearNight();
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+      progressTextEl.textContent = "Drag tasks, then click “Start Storm” to see if your farm is ready.";
+
+      const night = nights[currentNightIndex];
+      const tasksShuffled = shuffle([...night.tasks]);
+
+      tasksShuffled.forEach((task, idx) => {
+        const card = document.createElement("div");
+        card.className = "task-card";
+        card.textContent = task.text;
+        card.draggable = true;
+        card.dataset.zone = task.zone;
+        card.dataset.index = idx;
+        card.addEventListener("dragstart", handleDragStart);
+        card.addEventListener("dragend", handleDragEnd);
+        taskBank.appendChild(card);
+      });
+    }
+
+    function handleDragStart(e){
+      draggingCard = e.target;
+      draggingCard.classList.add("dragging");
+      dropZones.forEach(z => z.classList.add("highlight"));
+    }
+
+    function handleDragEnd(e){
+      if(draggingCard){
+        draggingCard.classList.remove("dragging");
+      }
+      draggingCard = null;
+      dropZones.forEach(z => z.classList.remove("highlight"));
+    }
+
+    function setUpDragTargets(){
+      dropZones.forEach(zone => {
+        zone.addEventListener("dragover", e => {
+          e.preventDefault();
+        });
+        zone.addEventListener("drop", e => {
+          e.preventDefault();
+          if(!draggingCard) return;
+          zone.appendChild(draggingCard);
+        });
+      });
+
+      // Allow dropping back to task bank
+      taskBank.addEventListener("dragover", e => {
+        e.preventDefault();
+      });
+      taskBank.addEventListener("drop", e => {
+        e.preventDefault();
+        if(!draggingCard) return;
+        taskBank.appendChild(draggingCard);
+      });
+    }
+
+    resetBtn.addEventListener("click", () => {
+      loadNight();
+    });
+
+    checkBtn.addEventListener("click", () => {
+      stormOverlay.classList.add("active");
+
+      const night = nights[currentNightIndex];
+      const allTaskCards = document.querySelectorAll(".task-card");
+
+      if(allTaskCards.length === 0 && taskBank.children.length === 0){
+        // all tasks placed somewhere
+      } else if(taskBank.children.length === night.tasks.length){
+        playWrong();
+        feedbackEl.style.display = "block";
+        feedbackEl.className = "feedback warn";
+        feedbackEl.textContent = "You left all tasks undone. A dependable person plans and prepares before difficult times, like the farmhand in the story. [file:29]";
+        return;
+      }
+
+      let correctCount = 0;
+      let wrongCount = 0;
+
+      allTaskCards.forEach(card => {
+        card.classList.remove("correct-assigned","wrong-assigned");
+        const assignedZoneEl = card.parentElement.closest(".drop-zone");
+        if(!assignedZoneEl){
+          // still in task bank, untreated
+          wrongCount++;
+          card.classList.add("wrong-assigned");
+        } else {
+          const assignedZone = assignedZoneEl.dataset.zone;
+          if(assignedZone === card.dataset.zone){
+            correctCount++;
+            card.classList.add("correct-assigned");
+          } else {
+            wrongCount++;
+            card.classList.add("wrong-assigned");
+          }
+        }
+      });
+
+      const total = night.tasks.length;
+      const ratio = correctCount / total;
+      let message = "";
+      let dependableNight = false;
+
+      if(ratio === 1){
+        dependableNight = true;
+        playCorrect();
+        feedbackEl.className = "feedback good";
+        message = "Perfect. You stored equipment, secured the barn, protected the field and prepared the farmhouse. Like the farmhand, you could sleep through the storm because you planned ahead. [file:29]";
+      } else if(ratio >= 0.6){
+        dependableNight = true;
+        playCorrect();
+        feedbackEl.className = "feedback good";
+        message = "You prepared most things well. A few tasks were missed or misplaced, but your planning and organisation still show strong dependability. [file:29]";
+      } else {
+        playWrong();
+        feedbackEl.className = "feedback warn";
+        message = "Some important tasks were missing or in the wrong place. Dependability means being organised, thinking ahead and taking responsibility for details before the storm arrives. [file:29]";
+      }
+
+      feedbackEl.textContent = message;
+      feedbackEl.style.display = "block";
+
+      if(dependableNight){
+        goodNights++;
+      }
+      updateNightCounters();
+
+      setTimeout(() => {
+        stormOverlay.classList.remove("active");
+        if(currentNightIndex < TOTAL_NIGHTS - 1){
+          currentNightIndex++;
+          updateNightCounters();
+          loadNight();
+        } else {
+          showFinalScreen();
+        }
+      }, 2000);
+    });
+
+    function showFinalScreen(){
+      playCelebrate();
+      const percent = Math.round((goodNights / TOTAL_NIGHTS) * 100);
+      let rank, badge, text;
+
+      if(percent >= 67){
+        rank = "Storm-Ready Farmhand";
+        badge = "🐄";
+        text = "You prepare carefully, stay organised and take ownership. People can trust you to handle tasks even when no one is watching, just like the farmhand who could sleep through a storm. [file:29]";
+      } else if(percent >= 34){
+        rank = "Growing Helper";
+        badge = "🚜";
+        text = "You are learning to plan ahead and manage details. Practising dependability will make life easier during difficult times. [file:29]";
+      } else {
+        rank = "New Farm Worker";
+        badge = "🌱";
+        text = "This is a first step. Dependability grows when you learn to be reliable, communicate clearly and organise your work before the storm comes. [file:29]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Storm-Ready Farm Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Dependable nights: ${goodNights} / ${TOTAL_NIGHTS} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Prepare the Farm Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
