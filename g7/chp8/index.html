@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Lab - Wise Choices Simulator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 50%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed; inset: 0;
+      background: #020617;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999; transition: opacity 0.5s ease-out;
+    }
+    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+    .splash-screen img {
+      max-width: 480px; width: 90%; height: auto;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-18px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.45);
+      overflow: hidden;
+      opacity: 0; transition: opacity 0.6s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 22px 18px 24px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 50%, #6366f1 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.7);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(59,130,246,0.3) 0, transparent 55%),
+        radial-gradient(circle at 80% 20%, rgba(45,212,191,0.25) 0, transparent 55%);
+      opacity: 0.7;
+      animation: glow 22s linear infinite;
+    }
+    @keyframes glow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-80px,40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 15px;
+      font-weight: bold;
+      color: #ecfdf5;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #a5b4fc;
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.8);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #020617, #0b1120);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 18px;
+      gap: 18px;
+      background:
+        radial-gradient(circle at top, #020617 0, #020617 60%),
+        linear-gradient(to bottom, #020617, #000);
+    }
+
+    .lab-panel {
+      flex: 1.3;
+      min-width: 360px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 75%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .lab-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .lab-scene {
+      position: relative;
+      border-radius: 16px;
+      background:
+        linear-gradient(to top, #020617 0%, #020617 55%, #0f172a 100%);
+      height: 260px;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .lab-wall {
+      position: absolute;
+      inset: 0 0 40% 0;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(148,163,184,0.12) 0, transparent 55%),
+        radial-gradient(circle at 80% 30%, rgba(148,163,184,0.12) 0, transparent 55%),
+        linear-gradient(to bottom, #020617, #020617);
+    }
+
+    .lab-bench {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background:
+        linear-gradient(to top, #020617 0%, #111827 45%, #020617 100%);
+      box-shadow: 0 -6px 12px rgba(0,0,0,0.9);
+    }
+
+    .station {
+      position: absolute;
+      width: 80px;
+      height: 110px;
+      bottom: 8%;
+      border-radius: 10px;
+      border: 2px solid rgba(148,163,184,0.8);
+      background: radial-gradient(circle at top, #020617 0, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .station-label {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .station.active {
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.9);
+      border-color: #0ea5e9;
+    }
+
+    .station .icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid rgba(148,163,184,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 20%, #1f2937 0, #020617 70%);
+      position: relative;
+    }
+
+    .icon-flask::before {
+      content: "";
+      width: 20px;
+      height: 28px;
+      border-radius: 0 0 12px 12px;
+      border: 2px solid #22c55e;
+      border-top: none;
+      background: linear-gradient(to top, #22c55e, #4ade80);
+    }
+    .icon-question::before {
+      content: "?";
+      font-size: 26px;
+      color: #facc15;
+      font-weight: bold;
+    }
+    .icon-book::before {
+      content: "";
+      width: 26px;
+      height: 22px;
+      border-radius: 4px;
+      border: 2px solid #a5b4fc;
+      background: linear-gradient(to right, #1d4ed8, #6366f1);
+    }
+    .icon-brain::before {
+      content: "";
+      width: 26px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+      background: radial-gradient(circle, #fb923c 0, #ea580c 70%);
+    }
+    .icon-arrows::before {
+      content: "";
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px dashed #22d3ee;
+    }
+    .icon-speech::before {
+      content: "";
+      width: 26px;
+      height: 20px;
+      border-radius: 12px;
+      border: 2px solid #4ade80;
+      background: linear-gradient(to right, #22c55e, #a7f3d0);
+    }
+
+    .station[data-step="identify"] { left: 6%; }
+    .station[data-step="ask"]      { left: 22%; }
+    .station[data-step="research"] { left: 38%; }
+    .station[data-step="think"]    { left: 54%; }
+    .station[data-step="flex"]     { left: 70%; }
+    .station[data-step="communicate"] { left: 86%; }
+
+    .step-panel {
+      margin-top: 10px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 10px;
+      font-size: 14px;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+    .step-label-text {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #a5b4fc;
+      letter-spacing: 0.7px;
+      margin-bottom: 2px;
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      border-radius: 18px;
+      border: 2px solid rgba(148, 163, 184, 0.7);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 8px 6px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .scenario-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fbbf24;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+
+    .scenario-text {
+      font-size: 13px;
+      color: #e5e7eb;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .tray-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #bfdbfe;
+      margin-top: 4px;
+    }
+
+    .tray {
+      min-height: 52px;
+      border-radius: 10px;
+      border: 1px dashed rgba(148, 163, 184, 0.7);
+      padding: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+    }
+
+    .card {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: grab;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
+      color: #e5e7eb;
+      white-space: nowrap;
+    }
+    .card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+    }
+    .card.correct {
+      border-color: #22c55e;
+    }
+    .card.wrong {
+      border-color: #ef4444;
+    }
+
+    .feedback {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 7px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.warn {
+      background: rgba(250, 204, 21, 0.15);
+      border: 1px solid #facc15;
+      color: #fef9c3;
+    }
+
+    .controls {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .btn-primary {
+      padding: 7px 16px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #fbbf24, #22c55e);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 12px;
+      cursor: pointer;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 26px 18px 22px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #fbbf24;
+    }
+    .final-badge { font-size: 50px; margin: 10px 0; }
+    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
+    .final-score { font-size: 20px; margin: 6px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .lab-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="splash-screen" id="splashScreen">
+    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧪 DECISION LAB 🧪</h1>
+        <div class="subtitle">Wise Choices Simulator · Grade 7</div>
+        <div class="stage-indicator" id="stageIndicator">Experiment 1 of 3</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Use each lab station to complete the 6 steps of decision-making: Identify, Ask, Research, Think, Be flexible, Communicate. [file:29]</div>
+      <div>Good decision-makers mix reasoning, problem-solving and intuition to choose wisely. [file:29]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="lab-panel">
+        <div class="lab-title">Decision Lab Bench</div>
+        <div class="lab-scene">
+          <div class="lab-wall"></div>
+          <div class="lab-bench"></div>
+
+          <div class="station" data-step="identify">
+            <div class="icon icon-flask"></div>
+            <div class="station-label">IDENTIFY</div>
+          </div>
+
+          <div class="station" data-step="ask">
+            <div class="icon icon-question"></div>
+            <div class="station-label">ASK</div>
+          </div>
+
+          <div class="station" data-step="research">
+            <div class="icon icon-book"></div>
+            <div class="station-label">RESEARCH</div>
+          </div>
+
+          <div class="station" data-step="think">
+            <div class="icon icon-brain"></div>
+            <div class="station-label">THINK</div>
+          </div>
+
+          <div class="station" data-step="flex">
+            <div class="icon icon-arrows"></div>
+            <div class="station-label">BE FLEXIBLE</div>
+          </div>
+
+          <div class="station" data-step="communicate">
+            <div class="icon icon-speech"></div>
+            <div class="station-label">COMMUNICATE</div>
+          </div>
+        </div>
+
+        <div class="step-panel">
+          <div class="step-label-text">Current Lab Step</div>
+          <div id="stepDescription"></div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Experiment</div>
+            <div class="score-value" id="expCounter">1 / 3</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Steps Done Well</div>
+            <div class="score-value" id="goodSteps">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Decision Skill</div>
+            <div class="score-value" id="skillScore">0%</div>
+          </div>
+        </div>
+
+        <div class="scenario-title">Scenario</div>
+        <div class="scenario-text" id="scenarioText"></div>
+
+        <div class="tray-label">Decision Ingredients</div>
+        <div class="tray" id="bankTray"></div>
+
+        <div class="tray-label">Place each card on the correct lab step</div>
+        <div class="tray" id="identifyTray" data-step="identify"></div>
+        <div class="tray" id="askTray" data-step="ask"></div>
+        <div class="tray" id="researchTray" data-step="research"></div>
+        <div class="tray" id="thinkTray" data-step="think"></div>
+        <div class="tray" id="flexTray" data-step="flex"></div>
+        <div class="tray" id="communicateTray" data-step="communicate"></div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Reset experiment</button>
+          <div id="progressText">Drag each card to the step where it belongs, then click “Run Experiment”.</div>
+          <button class="btn-primary" id="checkBtn">Run Experiment</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    setTimeout(() => {
+      document.getElementById('splashScreen').classList.add('hidden');
+      document.getElementById('mainContainer').classList.add('visible');
+      initGame();
+    }, 5000);
+
+    // Audio
+    const correctSound = new Audio('assets/correct.mp3');
+    const wrongSound = new Audio('assets/wrong.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
+    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      correctSound.volume = volume;
+      wrongSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    const stations = document.querySelectorAll(".station");
+    const stepDescriptionEl = document.getElementById("stepDescription");
+
+    // Decision-making steps from textbook: Identify, Ask, Research, Think creatively, Be flexible, Communicate. [file:29]
+    const stepDescriptions = {
+      identify: "Identify: First, recognise and name the real problem or decision. You can only decide how to proceed when you know what the issue is. [file:29]",
+      ask: "Ask: If you have doubts, ask questions to people involved to clear your confusion about the situation. [file:29]",
+      research: "Research: Gather more information and look deeper into the roots of the problem before choosing. [file:29]",
+      think: "Think creatively: Use your imagination to generate different possible solutions. [file:29]",
+      flex: "Be flexible: Keep an open mind and consider several options and their effects before you choose. [file:29]",
+      communicate: "Communicate: Share your decision clearly so that others understand it and do not misinterpret it. [file:29]"
+    };
+
+    // Experiments / scenarios [file:29]
+    const experiments = [
+      {
+        scenario: "You have been invited to two events on the same evening: a close friend's birthday and an important school competition practice. You cannot attend both.",
+        cards: [
+          { text: "Write down what the actual choice is: which event to attend this evening.", step: "identify" },
+          { text: "Ask your teacher or coach how important this practice is for the team.", step: "ask" },
+          { text: "Check the competition date and how many practices are left.", step: "research" },
+          { text: "Brainstorm options like going early to one event and later to the other.", step: "think" },
+          { text: "List pros and cons of each option and be ready to adjust your plan.", step: "flex" },
+          { text: "Explain your final choice calmly to your friend and teacher.", step: "communicate" }
+        ]
+      },
+      {
+        scenario: "You are struggling with a subject and are thinking about whether to join an extra coaching class.",
+        cards: [
+          { text: "State the decision: should you join extra coaching for this subject or not?", step: "identify" },
+          { text: "Ask your current teacher what areas you are weak in.", step: "ask" },
+          { text: "Find out class timings, cost and how others improved with coaching.", step: "research" },
+          { text: "Think of other ways to improve, like study groups or online videos.", step: "think" },
+          { text: "Consider mixing two ideas, like coaching plus short daily self-study.", step: "flex" },
+          { text: "Share your decision with your parents and ask for their support.", step: "communicate" }
+        ]
+      },
+      {
+        scenario: "Two classmates are fighting and each one wants you to take their side.",
+        cards: [
+          { text: "Identify the problem: your friends are in conflict and you feel pressure to choose sides.", step: "identify" },
+          { text: "Ask each person calmly what happened and how they feel.", step: "ask" },
+          { text: "Think about school rules on conflict and what a teacher might suggest.", step: "research" },
+          { text: "Imagine peaceful solutions like helping them talk it out or involving a mediator.", step: "think" },
+          { text: "Be open to changing your first idea if you hear new information from both sides.", step: "flex" },
+          { text: "Communicate your decision not to spread gossip and to support a fair solution.", step: "communicate" }
+        ]
+      }
+    ];
+
+    const TOTAL_EXPERIMENTS = experiments.length;
+
+    const scenarioTextEl = document.getElementById("scenarioText");
+    const bankTray = document.getElementById("bankTray");
+    const identifyTray = document.getElementById("identifyTray");
+    const askTray = document.getElementById("askTray");
+    const researchTray = document.getElementById("researchTray");
+    const thinkTray = document.getElementById("thinkTray");
+    const flexTray = document.getElementById("flexTray");
+    const communicateTray = document.getElementById("communicateTray");
+    const trays = [identifyTray, askTray, researchTray, thinkTray, flexTray, communicateTray];
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const checkBtn = document.getElementById("checkBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const expCounterEl = document.getElementById("expCounter");
+    const goodStepsEl = document.getElementById("goodSteps");
+    const skillScoreEl = document.getElementById("skillScore");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let currentExperimentIndex = 0;
+    let goodStepsTotal = 0;
+    let draggingCard = null;
+
+    function initGame(){
+      currentExperimentIndex = 0;
+      goodStepsTotal = 0;
+      updateCounters();
+      setActiveStep("identify");
+      loadExperiment();
+      setupDragTargets();
+    }
+
+    function updateCounters(){
+      expCounterEl.textContent = `${currentExperimentIndex + 1} / ${TOTAL_EXPERIMENTS}`;
+      goodStepsEl.textContent = String(goodStepsTotal);
+      const possibleSteps = TOTAL_EXPERIMENTS * 6;
+      const percent = possibleSteps ? Math.round((goodStepsTotal / possibleSteps) * 100) : 0;
+      skillScoreEl.textContent = percent + "%";
+      stageIndicator.textContent = `Experiment ${currentExperimentIndex + 1} of ${TOTAL_EXPERIMENTS}`;
+    }
+
+    function setActiveStep(stepKey){
+      stations.forEach(st => {
+        if(st.dataset.step === stepKey){
+          st.classList.add("active");
+        } else {
+          st.classList.remove("active");
+        }
+      });
+      stepDescriptionEl.textContent = stepDescriptions[stepKey] || "";
+    }
+
+    stations.forEach(st => {
+      st.addEventListener("click", () => {
+        setActiveStep(st.dataset.step);
+      });
+    });
+
+    function clearExperiment(){
+      bankTray.innerHTML = "";
+      trays.forEach(t => t.innerHTML = "");
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+    }
+
+    function loadExperiment(){
+      clearExperiment();
+      progressTextEl.textContent = "Drag each card to the step where it belongs, then click “Run Experiment”.";
+      const exp = experiments[currentExperimentIndex];
+      scenarioTextEl.textContent = exp.scenario;
+
+      const shuffledCards = shuffle([...exp.cards]);
+      shuffledCards.forEach((card, idx) => {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.textContent = card.text;
+        el.draggable = true;
+        el.dataset.step = card.step;
+        el.dataset.index = idx;
+        el.addEventListener("dragstart", handleDragStart);
+        el.addEventListener("dragend", handleDragEnd);
+        bankTray.appendChild(el);
+      });
+    }
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function handleDragStart(e){
+      draggingCard = e.target;
+      draggingCard.classList.add("dragging");
+    }
+
+    function handleDragEnd(e){
+      if(draggingCard){
+        draggingCard.classList.remove("dragging");
+      }
+      draggingCard = null;
+    }
+
+    function setupDragTargets(){
+      [bankTray, ...trays].forEach(tray => {
+        tray.addEventListener("dragover", e => {
+          e.preventDefault();
+        });
+        tray.addEventListener("drop", e => {
+          e.preventDefault();
+          if(!draggingCard) return;
+          tray.appendChild(draggingCard);
+        });
+      });
+    }
+
+    resetBtn.addEventListener("click", () => {
+      loadExperiment();
+    });
+
+    checkBtn.addEventListener("click", () => {
+      const exp = experiments[currentExperimentIndex];
+      const expectedCount = exp.cards.length;
+      const placedCount = Array.from(document.querySelectorAll(".tray .card")).length - bankTray.querySelectorAll(".card").length;
+
+      if(bankTray.querySelectorAll(".card").length > 0){
+        progressTextEl.textContent = "Try to place every card on a step before running the experiment.";
+        return;
+      }
+
+      let correctThisExperiment = 0;
+      const allCards = document.querySelectorAll(".card");
+      allCards.forEach(card => {
+        card.classList.remove("correct","wrong");
+        const parentTray = card.parentElement;
+        const trayStep = parentTray.dataset.step;
+        if(trayStep && trayStep === card.dataset.step){
+          card.classList.add("correct");
+          correctThisExperiment++;
+        } else if(trayStep) {
+          card.classList.add("wrong");
+        }
+      });
+
+      let message = "";
+      const ratio = correctThisExperiment / expectedCount;
+
+      if(ratio === 1){
+        playCorrect();
+        feedbackEl.className = "feedback good";
+        message = "Excellent. You matched each action to the correct step of decision making: identifying the problem, asking, researching, thinking creatively, staying flexible and communicating clearly. [file:29]";
+      } else if(ratio >= 0.6){
+        playCorrect();
+        feedbackEl.className = "feedback good";
+        message = "You placed most cards on the right steps. Review the ones in red to see which decisions belong to asking, researching or thinking creatively. Practising the full process makes decisions wiser. [file:29]";
+      } else {
+        playWrong();
+        feedbackEl.className = "feedback warn";
+        message = "Several cards are on the wrong steps. Remember: first identify the problem, then ask questions, research, think of options, stay flexible, and finally communicate your choice. [file:29]";
+      }
+
+      feedbackEl.textContent = message;
+      feedbackEl.style.display = "block";
+
+      goodStepsTotal += correctThisExperiment;
+      updateCounters();
+
+      setTimeout(() => {
+        if(currentExperimentIndex < TOTAL_EXPERIMENTS - 1){
+          currentExperimentIndex++;
+          updateCounters();
+          loadExperiment();
+        } else {
+          showFinalScreen();
+        }
+      }, 2000);
+    });
+
+    function showFinalScreen(){
+      playCelebrate();
+      const possibleSteps = TOTAL_EXPERIMENTS * 6;
+      const percent = possibleSteps ? Math.round((goodStepsTotal / possibleSteps) * 100) : 0;
+      let rank, badge, text;
+
+      if(percent >= 70){
+        rank = "Decision Scientist";
+        badge = "🧬";
+        text = "You use all six decision-making steps with confidence. You can identify problems, ask, research, think creatively, stay flexible and communicate clearly. [file:29]";
+      } else if(percent >= 40){
+        rank = "Growing Lab Assistant";
+        badge = "⚗️";
+        text = "You are learning to use the full decision process. With more practice, your choices will become even wiser and more responsible. [file:29]";
+      } else {
+        rank = "New Lab Intern";
+        badge = "🔬";
+        text = "This is the start of your decision-making journey. Keep practising the six steps and notice how your choices improve over time. [file:29]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Decision Lab Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct steps: ${goodStepsTotal} / ${possibleSteps} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Run Experiments Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+  </script>
+</body>
+</html>
