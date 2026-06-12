@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bounce-Back Challenge – Resilience Runner</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #020617 0%, #020617 50%, #000 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.45);
+      overflow: hidden;
+    }
+
+    .header {
+      position: relative;
+      padding: 20px 18px 22px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 50%, #6366f1 100%);
+      color: #022c22;
+      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.7);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 15%, rgba(59,130,246,0.3) 0, transparent 55%),
+        radial-gradient(circle at 80% 20%, rgba(45,212,191,0.25) 0, transparent 55%);
+      opacity: 0.7;
+      animation: glow 22s linear infinite;
+    }
+    @keyframes glow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-80px,40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 26px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.3);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      font-weight: bold;
+      color: #ecfdf5;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 16px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #a5b4fc;
+      color: #e0f2fe;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(129, 140, 248, 0.8);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #020617, #0b1120);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 13px;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 16px;
+      gap: 16px;
+      background:
+        radial-gradient(circle at top, #020617 0, #020617 60%),
+        linear-gradient(to bottom, #020617, #000);
+    }
+
+    .game-panel {
+      flex: 1.4;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(148,163,184,0.7);
+      padding: 10px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 75%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .game-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .runner-scene {
+      position: relative;
+      height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      background:
+        linear-gradient(to top, #0f172a 0%, #0f172a 40%, #1d4ed8 80%, #38bdf8 100%);
+      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+    }
+
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          #16a34a,
+          #16a34a 10px,
+          #15803d 10px,
+          #15803d 18px
+        );
+    }
+
+    .lane-line {
+      position: absolute;
+      bottom: 40px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(248,250,252,0.8),
+        rgba(248,250,252,0.8) 40px,
+        transparent 40px,
+        transparent 60px
+      );
+      opacity: 0.7;
+    }
+
+    .runner {
+      position: absolute;
+      bottom: 48px;
+      left: 60px;
+      width: 40px;
+      height: 60px;
+      border-radius: 12px;
+      background: linear-gradient(to bottom, #22c55e, #16a34a);
+      box-shadow: 0 0 14px rgba(34,197,94,0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #022c22;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      padding: 4px;
+      animation: breathe 1.4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .obstacle {
+      position: absolute;
+      bottom: 50px;
+      right: 80px;
+      width: 70px;
+      height: 50px;
+      border-radius: 10px;
+      border: 2px solid rgba(248,250,252,0.8);
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      box-shadow: 0 0 12px rgba(248,250,252,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0f172a;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+      padding: 4px;
+    }
+
+    .school-building {
+      position: absolute;
+      bottom: 80px;
+      right: -40px;
+      width: 130px;
+      height: 120px;
+      border-radius: 8px;
+      background:
+        linear-gradient(to top, #1f2937, #1e40af);
+      border: 2px solid rgba(148,163,184,0.9);
+      box-shadow: 0 0 18px rgba(15,23,42,0.9);
+    }
+    .school-building::before {
+      content: "";
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 16px;
+      border-radius: 10px;
+      background: #e5e7eb;
+    }
+    .school-building::after {
+      content: "SCHOOL";
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      font-weight: bold;
+      color: #0f172a;
+      letter-spacing: 0.8px;
+    }
+
+    .sky-text {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 13px;
+      font-weight: bold;
+      color: #e0f2fe;
+      text-shadow: 0 0 8px rgba(15,23,42,0.9);
+      text-align: center;
+    }
+
+    .pause-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+    }
+    .pause-overlay.active {
+      display: flex;
+    }
+    .pause-box {
+      max-width: 340px;
+      width: 100%;
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
+      border: 2px solid rgba(148,163,184,0.9);
+      padding: 10px 12px 12px;
+      box-shadow: 0 0 18px rgba(15,23,42,0.9);
+    }
+    .pause-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fbbf24;
+      margin-bottom: 4px;
+    }
+    .pause-situation {
+      font-size: 12px;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+    }
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .choice-btn {
+      border-radius: 14px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 6px 8px;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      color: #e5e7eb;
+    }
+    .choice-btn:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56,189,248,0.7);
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(148,163,184,0.7);
+      padding: 12px;
+      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #9ca3af;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+    }
+
+    .meter-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fbbf24;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+    }
+
+    .meter-bar {
+      position: relative;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      overflow: hidden;
+      background: linear-gradient(to right, #4b5563, #020617);
+    }
+
+    .meter-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 60%;
+      border-radius: 999px;
+      background: linear-gradient(to right, #f97316, #22c55e);
+      box-shadow: 0 0 14px rgba(34,197,94,0.7);
+      transition: width 0.4s ease-out;
+    }
+
+    .meter-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      color: #e5e7eb;
+      text-shadow: 0 0 4px rgba(0,0,0,0.7);
+    }
+
+    .scenario-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+
+    .scenario-text {
+      font-size: 13px;
+      color: #e5e7eb;
+      text-align: center;
+      min-height: 44px;
+    }
+
+    .tip-box {
+      margin-top: 4px;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 6px 8px;
+      font-size: 12px;
+      color: #e5e7eb;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(22, 163, 74, 0.2);
+      border: 1px solid #4ade80;
+      color: #bbf7d0;
+    }
+    .feedback.warn {
+      background: rgba(248, 113, 113, 0.15);
+      border: 1px solid #f97316;
+      color: #fed7aa;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #fbbf24, #22c55e);
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 12px;
+      cursor: pointer;
+      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      color: #e5e7eb;
+    }
+    .btn-secondary:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #9ca3af;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 18px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #fbbf24;
+    }
+    .final-badge { font-size: 46px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; }
+    .final-score { font-size: 18px; margin: 4px 0; }
+    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .game-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🏃‍♂️ Bounce-Back Challenge – Resilience Runner</h1>
+        <div class="subtitle">Positive Attitude · Grade 7</div>
+        <div class="stage-indicator" id="stageIndicator">Obstacle 1 of 6</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Positive people are resilient – they recover from setbacks, see the bright side and keep going.[file:29]</div>
+      <div>Choose responses that show optimism, courage, gratitude and acceptance to boost your Resilience Meter.[file:29]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="game-panel">
+        <div class="game-title">School Day Run</div>
+        <div class="runner-scene">
+          <div class="sky-text" id="skyText">Morning: A new school day begins.</div>
+          <div class="school-building"></div>
+          <div class="ground"></div>
+          <div class="lane-line"></div>
+
+          <div class="runner" id="runner">YOU</div>
+          <div class="obstacle" id="obstacleBox">...</div>
+
+          <div class="pause-overlay" id="pauseOverlay">
+            <div class="pause-box">
+              <div class="pause-title">Obstacle Ahead</div>
+              <div class="pause-situation" id="pauseSituation"></div>
+              <div class="choices">
+                <button class="choice-btn" id="choicePositive"></button>
+                <button class="choice-btn" id="choiceNegative"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Obstacle</div>
+            <div class="score-value" id="obstacleCounter">1 / 6</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Positive Choices</div>
+            <div class="score-value" id="positiveCount">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Resilience Score</div>
+            <div class="score-value" id="resilienceScore">0%</div>
+          </div>
+        </div>
+
+        <div class="meter-label">Resilience Meter</div>
+        <div class="meter-bar">
+          <div class="meter-fill" id="meterFill"></div>
+          <div class="meter-text" id="meterText">60%</div>
+        </div>
+
+        <div class="scenario-title">Current Situation</div>
+        <div class="scenario-text" id="scenarioText"></div>
+
+        <div class="tip-box" id="tipBox">
+          Positive attitude means staying hopeful, seeing the good in situations and handling emotions in a constructive way.[file:29]
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Restart run</button>
+          <div id="progressText">Click “Start Run” and choose how you respond at each obstacle.</div>
+          <button class="btn-primary" id="startBtn">Start Run</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Volume</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio (optional; use your own file paths)
+    const goodSound = new Audio('assets/correct.mp3');
+    const badSound = new Audio('assets/wrong.mp3');
+    const finishSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    badSound.volume = volume;
+    finishSound.volume = volume;
+
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playBad(){ badSound.currentTime = 0; badSound.play().catch(()=>{}); }
+    function playFinish(){ finishSound.currentTime = 0; finishSound.play().catch(()=>{}); }
+
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      badSound.volume = volume;
+      finishSound.volume = volume;
+    });
+
+    // Obstacles and choices – all tied to chapter concepts: stress, comparison, gratitude, acceptance, courage, optimism.[file:29]
+    const obstacles = [
+      {
+        time: "Morning",
+        shortLabel: "Test stress",
+        situation: "You have a big exam today. You studied, but you still feel nervous and your heart is racing.",
+        positiveChoice: "Take a few deep breaths, remind yourself of what you have prepared and tell yourself, “I will try my best.”",
+        negativeChoice: "Keep telling yourself you will fail and think about quitting the exam.",
+        positiveTip: "Positive attitude helps you relax and manage stress caused by exams.[file:29]",
+        negativeTip: "Negative self-talk increases stress and makes it harder to focus.[file:29]"
+      },
+      {
+        time: "Mid-morning",
+        shortLabel: "Comparison",
+        situation: "You see classmates scoring higher marks and posting their achievements in a group chat.",
+        positiveChoice: "Feel happy for them, use their success as motivation and focus on your own progress.",
+        negativeChoice: "Feel jealous, compare yourself constantly and decide you will never be good enough.",
+        positiveTip: "Positivity helps you focus on what you have and avoid unhealthy comparison.[file:29]",
+        negativeTip: "Jealousy pulls your attention away from your own strengths.[file:29]"
+      },
+      {
+        time: "Lunch break",
+        shortLabel: "Busy schedule",
+        situation: "You have homework, activities and sports after school and you feel overwhelmed.",
+        positiveChoice: "Make a small plan, do one task at a time and remind yourself you can handle it step by step.",
+        negativeChoice: "Complain all day, do nothing and tell yourself life is too hard.",
+        positiveTip: "Positive mindset strengthens your ability to handle uncertainty and stress.[file:29]",
+        negativeTip: "Giving in to hopelessness makes challenges feel even bigger.[file:29]"
+      },
+      {
+        time: "Afternoon",
+        shortLabel: "Mistake",
+        situation: "You make a mistake while answering in class and a few students giggle.",
+        positiveChoice: "Accept the mistake, smile, and think, “I learnt something new. Everyone makes mistakes.”",
+        negativeChoice: "Feel ashamed, stay silent the rest of the day and decide never to answer again.",
+        positiveTip: "Positive people accept situations as part of life and learn from mistakes.[file:29]",
+        negativeTip: "Fear of failure can stop you from trying new things.[file:29]"
+      },
+      {
+        time: "After school",
+        shortLabel: "Friend’s success",
+        situation: "Your friend wins a competition that you also tried for.",
+        positiveChoice: "Genuinely congratulate them and feel inspired to practise and try again.",
+        negativeChoice: "Act cold, avoid them and keep thinking you are less talented.",
+        positiveTip: "Being happy in others’ success and drawing motivation from it is a sign of positive attitude.[file:29]",
+        negativeTip: "Resentment damages friendships and does not improve your skills.[file:29]"
+      },
+      {
+        time: "Evening",
+        shortLabel: "Tired and moody",
+        situation: "You feel tired and a family member snaps at you for something small.",
+        positiveChoice: "Remind yourself not to take it personally, calm down and choose kind words.",
+        negativeChoice: "Shout back, stay angry all evening and think everything is bad.",
+        positiveTip: "Not taking things personally and choosing kindness keeps your attitude positive.[file:29]",
+        negativeTip: "Holding onto anger steals your peace and joy.[file:29]"
+      }
+    ];
+
+    const runner = document.getElementById("runner");
+    const obstacleBox = document.getElementById("obstacleBox");
+    const skyText = document.getElementById("skyText");
+    const pauseOverlay = document.getElementById("pauseOverlay");
+    const pauseSituation = document.getElementById("pauseSituation");
+    const choicePositive = document.getElementById("choicePositive");
+    const choiceNegative = document.getElementById("choiceNegative");
+
+    const obstacleCounterEl = document.getElementById("obstacleCounter");
+    const positiveCountEl = document.getElementById("positiveCount");
+    const resilienceScoreEl = document.getElementById("resilienceScore");
+    const stageIndicator = document.getElementById("stageIndicator");
+
+    const meterFill = document.getElementById("meterFill");
+    const meterText = document.getElementById("meterText");
+
+    const scenarioTextEl = document.getElementById("scenarioText");
+    const tipBox = document.getElementById("tipBox");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+
+    const resetBtn = document.getElementById("resetBtn");
+    const startBtn = document.getElementById("startBtn");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let currentIndex = 0;
+    let positiveChoices = 0;
+    let resilience = 60; // 0-100 baseline
+    let running = false;
+
+    function updateUI(){
+      obstacleCounterEl.textContent = `${currentIndex + 1} / ${obstacles.length}`;
+      positiveCountEl.textContent = String(positiveChoices);
+      const scorePercent = Math.round((positiveChoices / obstacles.length) * 100);
+      resilienceScoreEl.textContent = scorePercent + "%";
+      stageIndicator.textContent = `Obstacle ${currentIndex + 1} of ${obstacles.length}`;
+      if(resilience < 0) resilience = 0;
+      if(resilience > 100) resilience = 100;
+      meterFill.style.width = resilience + "%";
+      meterText.textContent = resilience + "%";
+    }
+
+    function loadObstacle(){
+      const ob = obstacles[currentIndex];
+      skyText.textContent = `${ob.time}: New challenge on your path.`;
+      obstacleBox.textContent = ob.shortLabel;
+      scenarioTextEl.textContent = ob.situation;
+      feedbackEl.style.display = "none";
+      feedbackEl.textContent = "";
+    }
+
+    function startRun(){
+      running = true;
+      currentIndex = 0;
+      positiveChoices = 0;
+      resilience = 60;
+      updateUI();
+      loadObstacle();
+      progressTextEl.textContent = "Run started. When you reach an obstacle, choose your response.";
+      showChoice();
+    }
+
+    function showChoice(){
+      const ob = obstacles[currentIndex];
+      pauseSituation.textContent = ob.situation;
+      choicePositive.textContent = ob.positiveChoice;
+      choiceNegative.textContent = ob.negativeChoice;
+      pauseOverlay.classList.add("active");
+    }
+
+    choicePositive.addEventListener("click", () => handleChoice(true));
+    choiceNegative.addEventListener("click", () => handleChoice(false));
+
+    function handleChoice(isPositive){
+      const ob = obstacles[currentIndex];
+      pauseOverlay.classList.remove("active");
+      if(isPositive){
+        positiveChoices++;
+        resilience += 10;
+        playGood();
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = ob.positiveTip;
+        tipBox.textContent = ob.positiveTip;
+      } else {
+        resilience -= 10;
+        playBad();
+        feedbackEl.className = "feedback warn";
+        feedbackEl.textContent = ob.negativeTip;
+        tipBox.textContent = ob.negativeTip;
+      }
+      feedbackEl.style.display = "block";
+      updateUI();
+
+      setTimeout(() => {
+        currentIndex++;
+        if(currentIndex < obstacles.length){
+          updateUI();
+          loadObstacle();
+          showChoice();
+        } else {
+          finishRun();
+        }
+      }, 1600);
+    }
+
+    function finishRun(){
+      running = false;
+      playFinish();
+      const scorePercent = Math.round((positiveChoices / obstacles.length) * 100);
+      let rank, badge, text;
+
+      if(scorePercent >= 70){
+        rank = "Resilience Hero";
+        badge = "💪";
+        text = "You bounce back from challenges, stay hopeful and use each situation to grow. This is what a positive attitude looks like in daily life.[file:29]";
+      } else if(scorePercent >= 40){
+        rank = "Growing Fighter";
+        badge = "🌟";
+        text = "You sometimes stay positive and sometimes get pulled into negative thoughts. With practice, you can become more optimistic and resilient.[file:29]";
+      } else {
+        rank = "New Runner";
+        badge = "🌱";
+        text = "Everyone starts somewhere. Learning gratitude, self-talk and acceptance can help you handle stress and tough situations better.[file:29]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Resilience Run Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Positive choices: ${positiveChoices} / ${obstacles.length} (${scorePercent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Run Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+
+    resetBtn.addEventListener("click", () => {
+      startRun();
+    });
+
+    startBtn.addEventListener("click", () => {
+      if(!running){
+        startRun();
+      }
+    });
+
+    // Initial state
+    updateUI();
+    scenarioTextEl.textContent = "Your day is like a running track. Obstacles will appear, but your attitude decides how you move past them.[file:29]";
+  </script>
+</body>
+</html>
