@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Care Island – Daily Choices Adventure</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #fef9c3 0%, #fef9c3 40%, #bfdbfe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash screen with Innovine logo */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 16px;
+      animation: logoFloat 2.2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: radial-gradient(circle at top, #bfdbfe 0%, #bbf7d0 40%, #fef3c7 100%);
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.6);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 18px 16px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #22c55e 30%, #f97316 70%, #facc15 100%);
+      color: #022c22;
+      box-shadow: 0 4px 18px rgba(234,179,8,0.9);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.9) 0, transparent 55%);
+      opacity: 0.9;
+      animation: sunGlow 20s linear infinite;
+    }
+    @keyframes sunGlow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-80px,40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 26px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fefce8;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      border-radius: 18px;
+      background: rgba(15,23,42,0.9);
+      border: 2px solid #fef3c7;
+      color: #fefce8;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 18px rgba(248,171,60,0.9);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #fef3c7, #e0f2fe);
+      border-bottom: 1px solid rgba(148,163,184,0.7);
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 16px;
+      gap: 16px;
+      background:
+        radial-gradient(circle at 10% 0%, #f9a8d4 0%, transparent 45%),
+        radial-gradient(circle at 90% 0%, #a5b4fc 0%, transparent 45%),
+        linear-gradient(to bottom, #bfdbfe, #bbf7d0);
+    }
+
+    .island-panel {
+      flex: 1.4;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.9);
+      padding: 10px;
+      background: radial-gradient(circle at top, #e0f2fe 0%, #bbf7d0 40%, #fef9c3 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .island-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .island-scene {
+      position: relative;
+      height: 260px;
+      border-radius: 16px;
+      margin-top: 6px;
+      overflow: hidden;
+      background:
+        linear-gradient(to top, #22c55e 0%, #bef264 20%, #38bdf8 60%, #7dd3fc 100%);
+      box-shadow: inset 0 0 18px rgba(56,189,248,0.7);
+    }
+
+    .sea {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 90px;
+      background:
+        linear-gradient(to top, #0ea5e9 0%, #38bdf8 60%, rgba(56,189,248,0) 100%);
+    }
+    .waves {
+      position: absolute;
+      top: -10px;
+      left: 0;
+      right: 0;
+      height: 20px;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          rgba(191,219,254,0.8),
+          rgba(191,219,254,0.8) 10px,
+          rgba(56,189,248,0.8) 10px,
+          rgba(56,189,248,0.8) 20px
+        );
+      opacity: 0.7;
+      animation: waveMove 6s linear infinite;
+    }
+    @keyframes waveMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-80px); }
+    }
+
+    .island {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      height: 120px;
+      background: radial-gradient(circle at 50% 30%, #facc15 0%, #f97316 40%, #f97316 80%);
+      border-radius: 50% 50% 40% 40%;
+      box-shadow: 0 6px 16px rgba(180,83,9,0.9);
+    }
+
+    .palm {
+      position: absolute;
+      bottom: 60px;
+      left: 24%;
+      width: 12px;
+      height: 70px;
+      background: linear-gradient(to top, #7c2d12, #b45309);
+      border-radius: 999px;
+    }
+    .palm::before,
+    .palm::after {
+      content: "";
+      position: absolute;
+      width: 60px;
+      height: 20px;
+      background: #22c55e;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(34,197,94,0.8);
+    }
+    .palm::before {
+      top: -6px;
+      left: -26px;
+      transform: rotate(-20deg);
+    }
+    .palm::after {
+      top: 4px;
+      left: -26px;
+      transform: rotate(15deg);
+    }
+
+    .sun-main {
+      position: absolute;
+      top: 16px;
+      right: 40px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fde68a 0%, #f97316 70%);
+      box-shadow: 0 0 26px rgba(251,191,36,0.9);
+    }
+
+    .hut {
+      position: absolute;
+      bottom: 65px;
+      left: 18%;
+      width: 70px;
+      height: 50px;
+      background: linear-gradient(to top, #f97316, #fed7aa);
+      border-radius: 6px;
+      border: 2px solid rgba(124,45,18,0.8);
+    }
+    .hut::before {
+      content: "";
+      position: absolute;
+      top: -24px;
+      left: -10px;
+      width: 90px;
+      height: 24px;
+      background: #b45309;
+      border-radius: 10px 10px 2px 2px;
+    }
+
+    .cafe {
+      position: absolute;
+      bottom: 60px;
+      right: 18%;
+      width: 70px;
+      height: 50px;
+      background: linear-gradient(to top, #22c55e, #bbf7d0);
+      border-radius: 6px;
+      border: 2px solid rgba(21,128,61,0.8);
+    }
+    .cafe::before {
+      content: "";
+      position: absolute;
+      top: -18px;
+      left: -4px;
+      width: 78px;
+      height: 18px;
+      background: #facc15;
+      border-radius: 10px 10px 2px 2px;
+    }
+
+    .field {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 40px;
+      background: repeating-linear-gradient(
+        45deg,
+        #22c55e,
+        #22c55e 6px,
+        #16a34a 6px,
+        #16a34a 12px
+      );
+      border-radius: 14px;
+      border: 2px solid rgba(22,163,74,0.9);
+    }
+
+    .quiet-spot {
+      position: absolute;
+      bottom: 48px;
+      left: 8%;
+      width: 46px;
+      height: 32px;
+      background: #e5e7eb;
+      border-radius: 50%;
+      border: 2px solid #9ca3af;
+    }
+
+    .friends-circle {
+      position: absolute;
+      bottom: 48px;
+      right: 8%;
+      width: 46px;
+      height: 32px;
+      background: #fecaca;
+      border-radius: 50%;
+      border: 2px solid #f97316;
+    }
+
+    .spot-label {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translate(-50%, -4px);
+      font-size: 10px;
+      font-weight: bold;
+      color: #022c22;
+      text-shadow: 0 0 4px rgba(255,255,255,0.8);
+      white-space: nowrap;
+    }
+
+    .spot-hotspot {
+      position: absolute;
+      cursor: pointer;
+    }
+
+    .spot-hotspot:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.9);
+      padding: 12px;
+      background: radial-gradient(circle at top, #fefce8 0%, #e0f2fe 70%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 3px 8px rgba(148,163,184,0.7);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #4b5563;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .meter-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .meter-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+    .meter-label {
+      width: 60px;
+      font-weight: bold;
+    }
+    .meter-bar {
+      position: relative;
+      flex: 1;
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      overflow: hidden;
+      background: linear-gradient(to right, #e5e7eb, #fefce8);
+    }
+    .meter-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 50%;
+      border-radius: 999px;
+      transition: width 0.3s ease-out;
+    }
+    #energyFill {
+      background: linear-gradient(to right, #f97316, #22c55e);
+      box-shadow: 0 0 10px rgba(248,171,60,0.9);
+    }
+    #calmFill {
+      background: linear-gradient(to right, #38bdf8, #a5b4fc);
+      box-shadow: 0 0 10px rgba(59,130,246,0.8);
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #374151;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .scenario-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #7c2d12;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+
+    .scenario-text {
+      font-size: 13px;
+      color: #374151;
+      text-align: center;
+      min-height: 44px;
+    }
+
+    .choice-box {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.9);
+      padding: 6px 8px;
+      background: #fef9c3;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(134,239,172,0.6);
+      border: 1px solid #16a34a;
+      color: #064e3b;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      color: #111827;
+      box-shadow: 0 3px 10px rgba(248,171,60,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(248,171,60,1);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn-secondary:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+    .final-badge { font-size: 46px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
+    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
+    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .island-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Self-Care Island...</div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🏝 Self-Care Island 🏝</h1>
+        <div class="subtitle">Chapter 3 – Self-care · Grade 6</div>
+        <div class="stage-indicator" id="stageIndicator">Time of day: Morning</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Self-care means looking after your mind, body and emotions with healthy habits.[file:34]</div>
+      <div>Your choices on the island change your Energy and Calm for the day.[file:34]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="island-panel">
+        <div class="island-title">Tap a place to choose an activity</div>
+        <div class="island-scene">
+          <div class="sun-main"></div>
+          <div class="island"></div>
+          <div class="palm"></div>
+
+          <div class="spot-hotspot" data-spot="sleep" style="bottom:60px; left:16%;">
+            <div class="hut"></div>
+            <div class="spot-label">Sleep Hut</div>
+          </div>
+
+          <div class="spot-hotspot" data-spot="food" style="bottom:55px; right:16%;">
+            <div class="cafe"></div>
+            <div class="spot-label">Healthy Café</div>
+          </div>
+
+          <div class="spot-hotspot" data-spot="exercise" style="bottom:50px; left:50%; transform:translateX(-50%);">
+            <div class="field"></div>
+            <div class="spot-label">Play Field</div>
+          </div>
+
+          <div class="spot-hotspot" data-spot="mindfulness" style="bottom:45px; left:10%;">
+            <div class="quiet-spot"></div>
+            <div class="spot-label">Quiet Cove</div>
+          </div>
+
+          <div class="spot-hotspot" data-spot="social" style="bottom:45px; right:10%;">
+            <div class="friends-circle"></div>
+            <div class="spot-label">Friends’ Circle</div>
+          </div>
+
+          <div class="sea">
+            <div class="waves"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Energy</div>
+            <div class="score-value" id="energyText">50</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Calm</div>
+            <div class="score-value" id="calmText">50</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Self-care Score</div>
+            <div class="score-value" id="scoreText">0%</div>
+          </div>
+        </div>
+
+        <div class="meter-wrapper">
+          <div class="meter-row">
+            <div class="meter-label">Energy</div>
+            <div class="meter-bar"><div class="meter-fill" id="energyFill"></div></div>
+          </div>
+          <div class="meter-row">
+            <div class="meter-label">Calm</div>
+            <div class="meter-bar"><div class="meter-fill" id="calmFill"></div></div>
+          </div>
+        </div>
+
+        <div class="status-text" id="statusText">Start your day by choosing a healthy self-care action.</div>
+
+        <div class="scenario-title">Current Time of Day</div>
+        <div class="scenario-text" id="scenarioText"></div>
+
+        <div class="choice-box" id="choiceBox">
+          Click on one of the island spots to choose what you will do at this time of day.
+        </div>
+
+        <div class="feedback good" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">New day</button>
+          <div id="progressText">Make 4 choices: Morning, Midday, Afternoon, Evening.</div>
+          <button class="btn-primary" id="nextBtn">Start Day</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Sounds</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash screen timing
+    const splashScreen = document.getElementById("splashScreen");
+    const mainContainer = document.getElementById("mainContainer");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      mainContainer.classList.add("visible");
+    }, 3000);
+
+    // Audio (reuse assets)
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Time-of-day steps
+    const timeSteps = [
+      { label: "Morning", description: "You are getting ready for school." },
+      { label: "Midday", description: "It is around lunchtime and break." },
+      { label: "Afternoon", description: "School is done and you are back home." },
+      { label: "Evening", description: "It is time to wind down and get ready to sleep." }
+    ];
+
+    // Self-care actions per spot; each has energy/calm effects and explanation, aligned to textbook strategies.[file:34]
+    const actions = {
+      sleep: {
+        name: "Sleep Hut",
+        effects: [
+          { energy: +20, calm: +10, text: "You slept early and got enough rest. Good sleep gives your body and mind time to recover.[file:34]" },
+          { energy: +10, calm: +5, text: "You took a short nap instead of more screen time. Rest helps you feel fresh again.[file:34]" }
+        ]
+      },
+      food: {
+        name: "Healthy Café",
+        effects: [
+          { energy: +15, calm: +5, text: "You chose a balanced meal and drank water. Healthy food and hydration support your well-being.[file:34]" },
+          { energy: +10, calm: +5, text: "You ate fruit instead of only junk snacks. A balanced diet keeps your body strong.[file:34]" }
+        ]
+      },
+      exercise: {
+        name: "Play Field",
+        effects: [
+          { energy: +10, calm: +10, text: "You played a sport and moved your body. Exercise releases feel-good chemicals and reduces stress.[file:34]" },
+          { energy: +8, calm: +8, text: "You did stretching and light yoga. Movement plus mindful breathing can calm your mind.[file:34]" }
+        ]
+      },
+      mindfulness: {
+        name: "Quiet Cove",
+        effects: [
+          { energy: +5, calm: +15, text: "You sat quietly and did deep breathing. Mindfulness helps you handle emotions and stress.[file:34]" },
+          { energy: +4, calm: +12, text: "You noticed your surroundings and relaxed. Staying present makes you feel more balanced.[file:34]" }
+        ]
+      },
+      social: {
+        name: "Friends’ Circle",
+        effects: [
+          { energy: +8, calm: +12, text: "You talked to a friend about your feelings. Sharing with others gives comfort and support.[file:34]" },
+          { energy: +6, calm: +10, text: "You joined a fun activity with others. Social support helps you feel connected and less stressed.[file:34]" }
+        ]
+      }
+    };
+
+    const stageIndicator = document.getElementById("stageIndicator");
+    const scenarioTextEl = document.getElementById("scenarioText");
+    const choiceBoxEl = document.getElementById("choiceBox");
+    const feedbackEl = document.getElementById("feedback");
+    const statusTextEl = document.getElementById("statusText");
+    const progressTextEl = document.getElementById("progressText");
+
+    const energyTextEl = document.getElementById("energyText");
+    const calmTextEl = document.getElementById("calmText");
+    const scoreTextEl = document.getElementById("scoreText");
+    const energyFill = document.getElementById("energyFill");
+    const calmFill = document.getElementById("calmFill");
+
+    const resetBtn = document.getElementById("resetBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    const spots = document.querySelectorAll(".spot-hotspot");
+
+    let currentStepIndex = -1;
+    let energy = 50;
+    let calm = 50;
+    let choicesMade = 0;
+    const totalChoices = timeSteps.length;
+
+    function updateMeters(){
+      if(energy < 0) energy = 0;
+      if(energy > 100) energy = 100;
+      if(calm < 0) calm = 0;
+      if(calm > 100) calm = 100;
+
+      energyTextEl.textContent = energy;
+      calmTextEl.textContent = calm;
+
+      energyFill.style.width = energy + "%";
+      calmFill.style.width = calm + "%";
+
+      const avg = Math.round((energy + calm) / 2);
+      scoreTextEl.textContent = avg + "%";
+
+      if(avg >= 75){
+        statusTextEl.textContent = "Great balance! You are taking good care of yourself.";
+      } else if(avg >= 50){
+        statusTextEl.textContent = "You are doing okay. A few more healthy choices can help even more.";
+      } else {
+        statusTextEl.textContent = "Your mind and body need more care. Small changes can make you feel better.";
+      }
+    }
+
+    function loadNextStep(){
+      currentStepIndex++;
+      if(currentStepIndex >= timeSteps.length){
+        finishDay();
+        return;
+      }
+      const step = timeSteps[currentStepIndex];
+      stageIndicator.textContent = "Time of day: " + step.label;
+      scenarioTextEl.textContent = step.description;
+      choiceBoxEl.textContent = "Click on one island spot to choose a self-care activity for the " + step.label.toLowerCase() + ".";
+      feedbackEl.style.display = "none";
+      progressTextEl.textContent = "Choose " + (totalChoices - choicesMade) + " more self-care actions to complete your day.";
+    }
+
+    function handleSpotClick(spotKey){
+      if(currentStepIndex < 0 || currentStepIndex >= timeSteps.length) return;
+      const actionGroup = actions[spotKey];
+      if(!actionGroup) return;
+
+      const effectsArr = actionGroup.effects;
+      const chosen = effectsArr[Math.floor(Math.random() * effectsArr.length)];
+
+      energy += chosen.energy;
+      calm += chosen.calm;
+      choicesMade++;
+      updateMeters();
+      playGood();
+
+      feedbackEl.className = "feedback good";
+      feedbackEl.textContent = chosen.text;
+      feedbackEl.style.display = "block";
+
+      progressTextEl.textContent = "Nice choice at the " + actionGroup.name + ". Click “Next Time” to move forward in your day.";
+    }
+
+    function finishDay(){
+      playCelebrate();
+      const avg = Math.round((energy + calm) / 2);
+      let rank, badge, text;
+      if(avg >= 75){
+        rank = "Self-Care Star";
+        badge = "⭐";
+        text = "You used movement, rest, healthy habits and support from others to look after yourself. This is strong self-care.[file:34]";
+      } else if(avg >= 50){
+        rank = "Growing Explorer";
+        badge = "🏝";
+        text = "You made some good choices, but there is still room to add more self-care. Small daily changes will help you feel even better.[file:34]";
+      } else {
+        rank = "New Visitor";
+        badge = "🌱";
+        text = "This was your first visit to Self-Care Island. Learning to use sleep, food, exercise, relaxation and support will improve your energy and calm.[file:34]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Self-Care Island Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Energy: ${energy} · Calm: ${calm} · Self-care score: ${avg}%</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">New Day on the Island</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    spots.forEach(spot => {
+      spot.addEventListener("click", () => {
+        if(currentStepIndex < 0 || currentStepIndex >= timeSteps.length) return;
+        handleSpotClick(spot.dataset.spot);
+      });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      energy = 50;
+      calm = 50;
+      choicesMade = 0;
+      currentStepIndex = -1;
+      updateMeters();
+      stageIndicator.textContent = "Time of day: Morning";
+      scenarioTextEl.textContent = "";
+      choiceBoxEl.textContent = "Click “Start Day” to begin your self-care adventure.";
+      feedbackEl.style.display = "none";
+      progressTextEl.textContent = "Make 4 choices: Morning, Midday, Afternoon, Evening.";
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if(currentStepIndex >= timeSteps.length - 1){
+        finishDay();
+      } else {
+        loadNextStep();
+      }
+    });
+
+    // Initial UI
+    updateMeters();
+    scenarioTextEl.textContent = "";
+    choiceBoxEl.textContent = "Click “Start Day” to begin your self-care adventure.";
+  </script>
+</body>
+</html>
