@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gratitude Tree – Daily Thankfulness Builder</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #fef9c3 0%, #fef9c3 40%, #bfdbfe 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: linear-gradient(135deg, #e0f2fe 0%, #fee2e2 50%, #fef3c7 100%);
+      border-radius: 20px;
+      border: 3px solid #fb923c;
+      box-shadow: 0 0 40px rgba(248, 171, 60, 0.55);
+      overflow: hidden;
+    }
+
+    .header {
+      position: relative;
+      padding: 18px 16px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #f97316 100%);
+      color: #022c22;
+      box-shadow: 0 4px 16px rgba(34, 197, 94, 0.7);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.6) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.7) 0, transparent 55%);
+      opacity: 0.8;
+      animation: floatClouds 18s linear infinite;
+    }
+    @keyframes floatClouds {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-80px,40px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 26px;
+      letter-spacing: 1.5px;
+      text-shadow: 0 0 10px rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 14px;
+      font-weight: bold;
+      color: #fefce8;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      border-radius: 18px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid #fee2e2;
+      color: #fef2f2;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(248, 171, 60, 0.8);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #fef3c7, #e0f2fe);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 16px;
+      gap: 16px;
+      background:
+        radial-gradient(circle at 20% 0%, #f9a8d4 0%, transparent 45%),
+        radial-gradient(circle at 80% 0%, #a5b4fc 0%, transparent 45%),
+        linear-gradient(to bottom, #dbeafe, #bbf7d0);
+    }
+
+    .tree-panel {
+      flex: 1.4;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(129,140,248,0.9);
+      background: radial-gradient(circle at top, #fef9c3 0%, #bbf7d0 35%, #4ade80 80%);
+      padding: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tree-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: #1f2937;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .tree-scene {
+      position: relative;
+      height: 260px;
+      border-radius: 16px;
+      margin-top: 6px;
+      overflow: hidden;
+      background:
+        linear-gradient(to top, #bbf7d0 0%, #bef264 40%, #fef3c7 100%);
+      box-shadow: inset 0 0 18px rgba(34,197,94,0.5);
+    }
+
+    .sun {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #facc15 0%, #f97316 70%);
+      box-shadow: 0 0 20px rgba(250, 204, 21, 0.9);
+    }
+
+    .cloud {
+      position: absolute;
+      top: 12px;
+      right: 30px;
+      width: 80px;
+      height: 40px;
+      background: #e5f0ff;
+      border-radius: 999px;
+      box-shadow:
+        -26px 6px 0 #e5f0ff,
+        26px 6px 0 #e5f0ff;
+      opacity: 0.9;
+    }
+
+    .grass {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          #16a34a,
+          #16a34a 10px,
+          #22c55e 10px,
+          #22c55e 18px
+        );
+    }
+
+    /* Tree trunk and branches */
+    .tree-trunk {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 120px;
+      background: linear-gradient(to right, #7c2d12, #b45309);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(124,45,18,0.7);
+    }
+    .tree-branch {
+      position: absolute;
+      width: 90px;
+      height: 18px;
+      background: linear-gradient(to right, #7c2d12, #b45309);
+      border-radius: 999px;
+    }
+    .tree-branch.left {
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-90px) rotate(-10deg);
+    }
+    .tree-branch.right {
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(0px) rotate(10deg);
+    }
+
+    /* Drop zone canopy */
+    .canopy-zone {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      height: 150px;
+      border-radius: 50%;
+      border: 2px dashed rgba(254,249,195,0.6);
+      background: radial-gradient(circle at 50% 30%, #bbf7d0 0%, #4ade80 70%);
+      box-shadow: 0 0 16px rgba(34,197,94,0.5);
+    }
+
+    .canopy-hint {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      text-align: center;
+      color: #022c22;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 48px;
+      height: 28px;
+      border-radius: 50px 50px 50px 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      font-size: 9px;
+      text-align: center;
+      color: #0f172a;
+      cursor: default;
+      box-shadow: 0 2px 6px rgba(15,23,42,0.3);
+    }
+
+    .leaf-type-1 { background: #facc15; }
+    .leaf-type-2 { background: #fb7185; }
+    .leaf-type-3 { background: #a5b4fc; }
+    .leaf-type-4 { background: #f97316; }
+    .leaf-type-5 { background: #22c55e; }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(129,140,248,0.9);
+      padding: 12px;
+      background: radial-gradient(circle at top, #fee2e2 0%, #e0f2fe 70%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: #fefce8;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      box-shadow: 0 3px 7px rgba(148,163,184,0.5);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #4b5563;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .prompt-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #7c2d12;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+
+    .prompt-text {
+      font-size: 13px;
+      color: #374151;
+      text-align: center;
+      min-height: 40px;
+    }
+
+    .prompt-box {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 6px 8px;
+      background: #fefee7;
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .leaf-bank-label {
+      font-size: 13px;
+      font-weight: bold;
+      color: #7c2d12;
+      margin-top: 4px;
+    }
+
+    .leaf-bank {
+      min-height: 52px;
+      border-radius: 10px;
+      border: 1px dashed rgba(148,163,184,0.8);
+      padding: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      background: #eff6ff;
+    }
+
+    .leaf-card {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: grab;
+      box-shadow: 0 2px 6px rgba(148,163,184,0.8);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      background: linear-gradient(135deg, #bfdbfe, #fef3c7);
+      color: #111827;
+      white-space: nowrap;
+    }
+    .leaf-card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+    }
+
+    .custom-input {
+      margin-top: 4px;
+      display: flex;
+      gap: 4px;
+    }
+    .custom-input input {
+      flex: 1;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+    }
+    .btn-small {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      color: #111827;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(248,171,60,0.8);
+    }
+    .btn-small:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(248,171,60,0.9);
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(134,239,172,0.5);
+      border: 1px solid #16a34a;
+      color: #14532d;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #facc15);
+      color: #111827;
+      box-shadow: 0 3px 10px rgba(248,171,60,0.8);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(248,171,60,0.9);
+    }
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      font-size: 12px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn-secondary:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+    .final-badge { font-size: 46px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
+    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
+    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 22px; }
+      .layout { flex-direction: column; }
+      .tree-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🌳 Gratitude Tree 🌳</h1>
+        <div class="subtitle">Chapter 2 – Gratitude · Grade 6</div>
+        <div class="stage-indicator" id="stageIndicator">Leaves added: 0 / 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Gratitude means noticing the good things in your life and being thankful for them.[file:34]</div>
+      <div>As you add grateful leaves, your tree grows happier and brighter.[file:34]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="tree-panel">
+        <div class="tree-title">Grow Your Gratitude Tree</div>
+        <div class="tree-scene" id="treeScene">
+          <div class="sun"></div>
+          <div class="cloud"></div>
+          <div class="grass"></div>
+
+          <div class="tree-trunk"></div>
+          <div class="tree-branch left"></div>
+          <div class="tree-branch right"></div>
+
+          <div class="canopy-zone" id="canopyZone">
+            <div class="canopy-hint" id="canopyHint">Drag thankful leaves here<br>to grow your tree.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Leaves on Tree</div>
+            <div class="score-value" id="leafCount">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Gratitude Level</div>
+            <div class="score-value" id="gratitudeLevel">0%</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Today’s Mood</div>
+            <div class="score-value" id="moodText">Growing...</div>
+          </div>
+        </div>
+
+        <div class="prompt-title">Today’s Gratitude Prompt</div>
+        <div class="prompt-text" id="promptText"></div>
+
+        <div class="prompt-box" id="promptBox">
+          Every evening, you can write down some good things about your day, like a gratitude journal.[file:34]
+        </div>
+
+        <div class="leaf-bank-label">Leaves to place</div>
+        <div class="leaf-bank" id="leafBank"></div>
+
+        <div class="custom-input">
+          <input type="text" id="customText" placeholder="Or type your own: I am thankful for..." />
+          <button class="btn-small" id="addCustomBtn">Add leaf</button>
+        </div>
+
+        <div class="feedback good" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Clear tree</button>
+          <div id="progressText">Drag a leaf onto the tree canopy. Try to reach at least 5 grateful leaves.</div>
+          <button class="btn-primary" id="newPromptBtn">New prompt</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Sounds</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio (same assets folder as other games)
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    const prompts = [
+      {
+        text: "Write one simple thing about today that made you happy. It can be very small, like a good meal or a joke.[file:34]",
+        suggestions: [
+          "A tasty lunch I ate",
+          "Laughing with my friend",
+          "Finishing my homework",
+          "Playing my favourite game"
+        ]
+      },
+      {
+        text: "Think of people you are thankful for. Who supported you or made you smile today?[file:34]",
+        suggestions: [
+          "My mother waking me up kindly",
+          "My teacher helping me understand",
+          "My friend listening to me",
+          "My grandparents"
+        ]
+      },
+      {
+        text: "Be thankful for your body and your abilities. What can you do that you are grateful for?[file:34]",
+        suggestions: [
+          "I can walk and run",
+          "I can read stories",
+          "I can draw and colour",
+          "I can play my favourite sport"
+        ]
+      },
+      {
+        text: "Think of 3 things you love about yourself. These can be about your character, not just appearance.[file:34]",
+        suggestions: [
+          "I am kind to others",
+          "I try again after mistakes",
+          "I am a good friend",
+          "I like helping at home"
+        ]
+      },
+      {
+        text: "Look around your home or school. What things are you grateful for having in your life?[file:34]",
+        suggestions: [
+          "A safe home",
+          "My school and books",
+          "My favourite toy",
+          "My bed to rest in"
+        ]
+      }
+    ];
+
+    const canopyZone = document.getElementById("canopyZone");
+    const canopyHint = document.getElementById("canopyHint");
+    const leafBank = document.getElementById("leafBank");
+    const treeScene = document.getElementById("treeScene");
+
+    const leafCountEl = document.getElementById("leafCount");
+    const gratitudeLevelEl = document.getElementById("gratitudeLevel");
+    const moodTextEl = document.getElementById("moodText");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const promptTextEl = document.getElementById("promptText");
+    const promptBoxEl = document.getElementById("promptBox");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+
+    const resetBtn = document.getElementById("resetBtn");
+    const newPromptBtn = document.getElementById("newPromptBtn");
+    const addCustomBtn = document.getElementById("addCustomBtn");
+    const customTextInput = document.getElementById("customText");
+
+    let currentPromptIndex = 0;
+    let draggingCard = null;
+    let leavesOnTree = 0;
+    const maxLeaves = 8;
+
+    function updateScoreUI(){
+      leafCountEl.textContent = String(leavesOnTree);
+      const percent = Math.round((leavesOnTree / maxLeaves) * 100);
+      const finalPercent = percent > 100 ? 100 : percent;
+      gratitudeLevelEl.textContent = finalPercent + "%";
+      stageIndicator.textContent = `Leaves added: ${leavesOnTree} / ${maxLeaves}`;
+      if(leavesOnTree === 0){
+        moodTextEl.textContent = "Growing...";
+      } else if(leavesOnTree < 3){
+        moodTextEl.textContent = "Warming up";
+      } else if(leavesOnTree < 6){
+        moodTextEl.textContent = "Sunny";
+      } else {
+        moodTextEl.textContent = "Super thankful!";
+      }
+    }
+
+    function setPrompt(index){
+      currentPromptIndex = index;
+      const p = prompts[index];
+      promptTextEl.textContent = p.text;
+      promptBoxEl.textContent = "You can use the ready-made leaves or type your own special gratitude.";
+      fillLeafBank(p.suggestions);
+      feedbackEl.style.display = "none";
+    }
+
+    function shuffle(arr){
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function fillLeafBank(suggestions){
+      leafBank.innerHTML = "";
+      const shuffled = shuffle([...suggestions]);
+      shuffled.forEach((text, idx) => {
+        const card = document.createElement("div");
+        card.className = "leaf-card";
+        card.textContent = text;
+        card.draggable = true;
+        card.dataset.index = idx;
+        card.addEventListener("dragstart", handleDragStart);
+        card.addEventListener("dragend", handleDragEnd);
+        leafBank.appendChild(card);
+      });
+    }
+
+    function handleDragStart(e){
+      draggingCard = e.target;
+      draggingCard.classList.add("dragging");
+    }
+
+    function handleDragEnd(e){
+      if(draggingCard){
+        draggingCard.classList.remove("dragging");
+      }
+      draggingCard = null;
+    }
+
+    function setupDropZone(){
+      canopyZone.addEventListener("dragover", e => {
+        e.preventDefault();
+      });
+      canopyZone.addEventListener("drop", e => {
+        e.preventDefault();
+        if(!draggingCard) return;
+        addLeafToTree(draggingCard.textContent);
+        draggingCard.remove();
+        draggingCard = null;
+      });
+    }
+
+    function randomLeafType(){
+      const n = Math.floor(Math.random() * 5) + 1;
+      return "leaf-type-" + n;
+    }
+
+    function addLeafToTree(text){
+      if(leavesOnTree >= maxLeaves){
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = "Your tree is already full of gratitude leaves for today!";
+        feedbackEl.style.display = "block";
+        return;
+      }
+
+      const leaf = document.createElement("div");
+      leaf.className = "leaf " + randomLeafType();
+      leaf.textContent = text;
+
+      // random position inside canopy
+      const rect = canopyZone.getBoundingClientRect();
+      const treeRect = treeScene.getBoundingClientRect();
+
+      const relLeft = rect.left - treeRect.left;
+      const relTop = rect.top - treeRect.top;
+
+      const x = relLeft + 20 + Math.random() * (rect.width - 60);
+      const y = relTop + 20 + Math.random() * (rect.height - 60);
+
+      leaf.style.left = x + "px";
+      leaf.style.top = y + "px";
+
+      treeScene.appendChild(leaf);
+      leavesOnTree++;
+      canopyHint.style.display = "none";
+      updateScoreUI();
+      playGood();
+
+      feedbackEl.className = "feedback good";
+      feedbackEl.textContent = "Nice! You just noticed something good in your life. Gratitude helps you feel happier and more peaceful.[file:34]";
+      feedbackEl.style.display = "block";
+
+      if(leavesOnTree === 5){
+        promptBoxEl.textContent = "You reached 5 leaves! This is like writing in a gratitude journal every day.[file:34]";
+      } else if(leavesOnTree === maxLeaves){
+        playCelebrate();
+        showFinalMessage();
+      }
+    }
+
+    function showFinalMessage(){
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Your Gratitude Tree is Blooming!</div>
+          <div class="final-badge">🌳</div>
+          <div class="final-rank">Grateful Gardener</div>
+          <div class="final-score">Leaves today: ${leavesOnTree}</div>
+          <div class="final-text">
+            You are training your mind to look for good things. Just like a gratitude journal, this habit makes you calmer, kinder and stronger.[file:34]
+          </div>
+          <button class="btn-primary" id="playAgainBtn">Grow a New Tree</button>
+        </div>
+      `;
+      const wrapper = document.getElementById("gameWrapper");
+      wrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => {
+        location.reload();
+      });
+    }
+
+    resetBtn.addEventListener("click", () => {
+      // clear leaves on tree
+      const leaves = document.querySelectorAll(".leaf");
+      leaves.forEach(l => l.remove());
+      leavesOnTree = 0;
+      canopyHint.style.display = "block";
+      updateScoreUI();
+      feedbackEl.style.display = "none";
+      setPrompt(0);
+    });
+
+    newPromptBtn.addEventListener("click", () => {
+      const nextIndex = (currentPromptIndex + 1) % prompts.length;
+      setPrompt(nextIndex);
+      progressTextEl.textContent = "Try a new way to be thankful. Each prompt shows a different side of gratitude.";
+    });
+
+    addCustomBtn.addEventListener("click", () => {
+      const text = customTextInput.value.trim();
+      if(!text) return;
+      addLeafToTree(text);
+      customTextInput.value = "";
+    });
+
+    // Initial setup
+    updateScoreUI();
+    setPrompt(0);
+    setupDropZone();
+    scenarioText.innerHTML = ""; // not used but keeps structure consistent
+  </script>
+</body>
+</html>
