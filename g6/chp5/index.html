@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Box Breaker – Breaking Gender Stereotypes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #e0f2fe 0%, #fef3c7 40%, #fee2e2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #0f172a;
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #f9fafb;
+      border-radius: 20px;
+      border: 3px solid #f97316;
+      box-shadow: 0 0 40px rgba(248, 171, 60, 0.55);
+      overflow: hidden;
+    }
+
+    .header {
+      position: relative;
+      padding: 16px 16px 18px;
+      text-align: center;
+      background: linear-gradient(135deg, #f97316 0%, #f97316 40%, #ec4899 80%);
+      color: #111827;
+      box-shadow: 0 4px 16px rgba(248,171,60,0.8);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
+      opacity: 0.7;
+      animation: headerGlow 18s linear infinite;
+    }
+    @keyframes headerGlow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-70px,35px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 24px;
+      letter-spacing: 1.3px;
+      text-shadow: 0 0 9px rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fffbeb;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.92);
+      border: 2px solid #fed7aa;
+      color: #fefce8;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(248,171,60,0.9);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #fee2e2, #e0f2fe);
+      border-bottom: 1px solid rgba(148,163,184,0.7);
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 14px;
+      gap: 14px;
+      background:
+        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
+        radial-gradient(circle at 90% 0%, #fecaca 0%, transparent 40%),
+        #f9fafb;
+    }
+
+    /* Left panel: boxes */
+    .left-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(248,113,113,0.9);
+      padding: 10px;
+      background: #fee2e2;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .panel-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #7c2d12;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .boxes-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .box {
+      flex: 1;
+      border-radius: 14px;
+      border: 2px solid rgba(239,68,68,0.9);
+      background: #fee2e2;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .box-header {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .box-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: #fecaca;
+      border: 1px solid #f97316;
+    }
+    .box-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #7c2d12;
+    }
+    .box-desc {
+      font-size: 11px;
+      color: #4b5563;
+    }
+
+    .card-list {
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 52px;
+    }
+
+    .stereotype-card {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: grab;
+      background: #fecaca;
+      border: 1px solid rgba(248,113,113,0.9);
+      color: #7c2d12;
+      box-shadow: 0 2px 6px rgba(248,113,113,0.7);
+      max-width: 100%;
+    }
+    .stereotype-card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(248,113,113,0.9);
+    }
+
+    /* Right panel: Real People Zone */
+    .right-panel {
+      flex: 1.4;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(34,197,94,0.9);
+      padding: 10px;
+      background: #ecfdf5;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .status-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: #fefce8;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
+    }
+    .status-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #4b5563;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .status-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .zone-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #065f46;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      text-align: center;
+    }
+    .zone-subtitle {
+      font-size: 12px;
+      color: #065f46;
+      text-align: center;
+    }
+
+    .real-zone {
+      flex: 1;
+      border-radius: 14px;
+      border: 2px dashed rgba(34,197,94,0.9);
+      background: #d1fae5;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .zone-hint {
+      font-size: 12px;
+      color: #047857;
+      text-align: center;
+    }
+
+    .belief-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      min-height: 52px;
+    }
+
+    .belief-chip {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      background: #bbf7d0;
+      border: 1px solid #22c55e;
+      color: #064e3b;
+      box-shadow: 0 2px 6px rgba(34,197,94,0.7);
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(134,239,172,0.6);
+      border: 1px solid #16a34a;
+      color: #064e3b;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(34,197,94,1);
+    }
+
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn-secondary:hover {
+      border-color: #f97316;
+      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+    .final-badge { font-size: 40px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
+    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
+    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 20px; }
+      .layout { flex-direction: column-reverse; }
+      .left-panel, .right-panel { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧱 Box Breaker – Breaking Gender Stereotypes</h1>
+        <div class="subtitle">Chapter 5 – Breaking Gender Stereotypes · Grade 6</div>
+        <div class="stage-indicator" id="stageIndicator">Cards freed: 0 / 10</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Gender stereotypes are “boxes” like “act like a man” or “good girls are always quiet”.[file:35]</div>
+      <div>Drag each card out of the boxes into the Real People Zone to rewrite it as a healthy belief.[file:35]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="panel-title">Stereotype Boxes</div>
+        <div class="boxes-row">
+          <div class="box" id="boyBox">
+            <div class="box-header">
+              <div class="box-icon">🧍‍♂️</div>
+              <div>
+                <div class="box-name">“Act Like a Man” Box</div>
+                <div class="box-desc">Harsh rules boys are told to follow, even when they hurt them.[file:35]</div>
+              </div>
+            </div>
+            <div class="card-list">
+              <div class="stereotype-card" data-id="boys_dont_cry">Boys should never cry</div>
+              <div class="stereotype-card" data-id="boys_tough">Boys must always be tough</div>
+              <div class="stereotype-card" data-id="boys_no_care">Boys shouldn’t like caring for babies</div>
+              <div class="stereotype-card" data-id="boys_no_art">Boys shouldn’t like art or dance</div>
+              <div class="stereotype-card" data-id="boys_dominate">Boys should be the boss in every group</div>
+            </div>
+          </div>
+
+          <div class="box" id="girlBox">
+            <div class="box-header">
+              <div class="box-icon">🧍‍♀️</div>
+              <div>
+                <div class="box-name">“Good Girl” Box</div>
+                <div class="box-desc">Narrow ideas about how girls “should” behave and feel.[file:35]</div>
+              </div>
+            </div>
+            <div class="card-list">
+              <div class="stereotype-card" data-id="girls_quiet">Girls should always be quiet and polite</div>
+              <div class="stereotype-card" data-id="girls_no_lead">Girls cannot be good leaders</div>
+              <div class="stereotype-card" data-id="girls_weak">Girls are weak and need protection</div>
+              <div class="stereotype-card" data-id="girls_no_sports">Girls shouldn’t play rough sports</div>
+              <div class="stereotype-card" data-id="girls_only_look">Girls’ main job is to look pretty</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="status-row">
+          <div class="status-card">
+            <div class="status-label">Cards Freed</div>
+            <div class="status-value" id="freedCount">0</div>
+          </div>
+          <div class="status-card">
+            <div class="status-label">Box Breaking</div>
+            <div class="status-value" id="progressPercent">0%</div>
+          </div>
+          <div class="status-card">
+            <div class="status-label">Role Rank</div>
+            <div class="status-value" id="rankText">Starter</div>
+          </div>
+        </div>
+
+        <div class="zone-title">Real People Zone</div>
+        <div class="zone-subtitle">Here, everyone is allowed full emotions, skills and dreams – not just box rules.[file:35]</div>
+
+        <div class="real-zone" id="realZone">
+          <div class="zone-hint" id="zoneHint">Drop a stereotype card here to transform it into a healthy belief.</div>
+          <div class="belief-list" id="beliefList"></div>
+        </div>
+
+        <div class="feedback good" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="resetBtn">Reset boxes</button>
+          <div id="progressText">Drag each stereotype card into the Real People Zone to break that box rule.</div>
+          <button class="btn-primary" id="finishBtn">Finish</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Sounds</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio (same assets folder pattern)
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Map stereotype IDs to healthier beliefs (rephrased)
+    const beliefMap = {
+      boys_dont_cry: "Everyone, including boys, can cry and show feelings.",
+      boys_tough: "Everyone can be strong and also gentle when needed.",
+      boys_no_care: "Anyone can care for babies and younger children with love.",
+      boys_no_art: "All genders can enjoy art, music and dance.",
+      boys_dominate: "Anyone can listen, share and lead kindly in a group.",
+      girls_quiet: "Girls can speak up, share ideas and set boundaries.",
+      girls_no_lead: "People of all genders can be great leaders.",
+      girls_weak: "Girls can be physically and emotionally strong.",
+      girls_no_sports: "Anyone can enjoy sports and being active.",
+      girls_only_look: "Girls are valued for their thoughts, talents and character, not just looks."
+    };
+
+    const cards = document.querySelectorAll(".stereotype-card");
+    const realZone = document.getElementById("realZone");
+    const beliefList = document.getElementById("beliefList");
+    const zoneHint = document.getElementById("zoneHint");
+
+    const freedCountEl = document.getElementById("freedCount");
+    const progressPercentEl = document.getElementById("progressPercent");
+    const rankTextEl = document.getElementById("rankText");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const resetBtn = document.getElementById("resetBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    const totalCards = cards.length;
+    let freedCount = 0;
+    let draggingCard = null;
+    let freedIds = new Set();
+
+    function updateScore(){
+      freedCountEl.textContent = freedCount;
+      const percent = Math.round((freedCount / totalCards) * 100);
+      progressPercentEl.textContent = percent + "%";
+      stageIndicator.textContent = "Cards freed: " + freedCount + " / " + totalCards;
+
+      if(percent >= 80){
+        rankTextEl.textContent = "Box Breaker";
+      } else if(percent >= 50){
+        rankTextEl.textContent = "Questioner";
+      } else {
+        rankTextEl.textContent = "Starter";
+      }
+    }
+
+    function handleDragStart(e){
+      draggingCard = e.target;
+      draggingCard.classList.add("dragging");
+    }
+
+    function handleDragEnd(e){
+      if(draggingCard){
+        draggingCard.classList.remove("dragging");
+      }
+      draggingCard = null;
+    }
+
+    cards.forEach(card => {
+      card.draggable = true;
+      card.addEventListener("dragstart", handleDragStart);
+      card.addEventListener("dragend", handleDragEnd);
+    });
+
+    realZone.addEventListener("dragover", e => {
+      e.preventDefault();
+    });
+
+    realZone.addEventListener("drop", e => {
+      e.preventDefault();
+      if(!draggingCard) return;
+
+      const id = draggingCard.dataset.id;
+      if(freedIds.has(id)){
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = "This card is already in the Real People Zone. Try breaking another box rule.";
+        feedbackEl.style.display = "block";
+        draggingCard = null;
+        return;
+      }
+
+      // Break stereotype
+      freedIds.add(id);
+      draggingCard.style.opacity = 0.3;
+      draggingCard.draggable = false;
+
+      const beliefText = beliefMap[id] || "Everyone can be themselves without strict gender rules.";
+      const chip = document.createElement("div");
+      chip.className = "belief-chip";
+      chip.textContent = beliefText;
+      beliefList.appendChild(chip);
+
+      freedCount++;
+      updateScore();
+      playGood();
+
+      zoneHint.style.display = "none";
+      feedbackEl.className = "feedback good";
+      feedbackEl.textContent = "Good job! You changed a stereotype into a fair belief. Stereotypes can hurt people and limit their potential.[file:35]";
+      feedbackEl.style.display = "block";
+
+      progressTextEl.textContent = "Keep dragging cards until all box rules are turned into Real People beliefs.";
+      draggingCard = null;
+    });
+
+    resetBtn.addEventListener("click", () => {
+      // reset cards
+      cards.forEach(card => {
+        card.style.opacity = 1;
+        card.draggable = true;
+      });
+      // reset beliefs
+      beliefList.innerHTML = "";
+      zoneHint.style.display = "block";
+      freedIds.clear();
+      freedCount = 0;
+      updateScore();
+      feedbackEl.style.display = "none";
+      progressTextEl.textContent = "Drag each stereotype card into the Real People Zone to break that box rule.";
+    });
+
+    finishBtn.addEventListener("click", () => {
+      const percent = Math.round((freedCount / totalCards) * 100);
+      playCelebrate();
+
+      let rank, badge, text;
+      if(percent === 100){
+        rank = "Stereotype Breaker";
+        badge = "💥";
+        text = "You freed all the cards from the gender boxes. You understand that stereotypes are learnt, not natural, and they limit everyone’s potential.[file:35]";
+      } else if(percent >= 60){
+        rank = "Brave Questioner";
+        badge = "🗺";
+        text = "You broke many box rules. Keep noticing and challenging stereotypes in real life to support yourself and others.[file:35]";
+      } else {
+        rank = "New Thinker";
+        badge = "🌱";
+        text = "You started to see how gender stereotypes work. With more practice, you can help create a fairer world for everyone.[file:35]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Box Breaker Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Cards freed: ${freedCount} / ${totalCards} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Break the Boxes Again</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    });
+
+    // Initial score
+    updateScore();
+  </script>
+</body>
+</html>
