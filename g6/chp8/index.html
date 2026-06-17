@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Root Cause Detective – Symptom or Real Problem?</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #fee2e2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #f9fafb;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 16px 16px 18px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
+      color: #022c22;
+      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
+      opacity: 0.7;
+      animation: headerGlow 20s linear infinite;
+    }
+    @keyframes headerGlow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-70px,35px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 24px;
+      letter-spacing: 1.3px;
+      text-shadow: 0 0 9px rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fefce8;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.9);
+      border: 2px solid #fef3c7;
+      color: #fefce8;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(59,130,246,0.9);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #fef3c7, #e0f2fe);
+      border-bottom: 1px solid rgba(148,163,184,0.7);
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 14px;
+      gap: 14px;
+      background:
+        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
+        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
+        #f9fafb;
+    }
+
+    .left-panel {
+      flex: 1.2;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.8);
+      padding: 10px;
+      background: #e0f2fe;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .panel-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .case-card {
+      border-radius: 14px;
+      border: 2px solid rgba(59,130,246,0.9);
+      background: #eff6ff;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .case-name {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+    .case-desc {
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .clue-list {
+      margin-top: 6px;
+      border-radius: 14px;
+      border: 2px solid rgba(148,163,184,0.9);
+      background: #fffbeb;
+      padding: 6px;
+      min-height: 80px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .clue-card {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: grab;
+      background: linear-gradient(135deg, #bfdbfe, #fef3c7);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      color: #111827;
+      box-shadow: 0 2px 6px rgba(148,163,184,0.8);
+    }
+    .clue-card.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.8);
+      padding: 12px;
+      background: #fefce8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #4b5563;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #374151;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .buckets {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .bucket {
+      border-radius: 14px;
+      border: 2px dashed rgba(148,163,184,0.9);
+      padding: 6px;
+      min-height: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .bucket.symptom {
+      background: #fee2e2;
+    }
+    .bucket.root {
+      background: #dcfce7;
+    }
+    .bucket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .bucket-name {
+      font-size: 12px;
+      font-weight: bold;
+      color: #111827;
+    }
+    .bucket-hint {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: right;
+    }
+    .bucket-items {
+      margin-top: 4px;
+      min-height: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .rewrite-box {
+      margin-top: 4px;
+      border-radius: 14px;
+      border: 2px solid rgba(148,163,184,0.9);
+      padding: 6px;
+      background: #fffbeb;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .rewrite-label {
+      font-size: 12px;
+      font-weight: bold;
+      color: #7c2d12;
+    }
+    .rewrite-hint {
+      font-size: 11px;
+      color: #4b5563;
+    }
+    .rewrite-input {
+      margin-top: 2px;
+      display: flex;
+      gap: 4px;
+    }
+    .rewrite-input input {
+      flex: 1;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(134,239,172,0.6);
+      border: 1px solid #16a34a;
+      color: #064e3b;
+    }
+    .feedback.warn {
+      background: rgba(254,202,202,0.7);
+      border: 1px solid #f97316;
+      color: #7c2d12;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(34,197,94,1);
+    }
+
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn-secondary:hover {
+      border-color: #f97316;
+      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+    .final-badge { font-size: 40px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
+    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
+    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 20px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+      .buckets { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Root Cause Detective...</div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🕵️ Root Cause Detective</h1>
+        <div class="subtitle">Chapter 8 – Problem Solving · Grade 6</div>
+        <div class="stage-indicator" id="stageIndicator">Clues sorted: 0 / 8</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Problem-solving starts by spotting the real problem, not just the effects you can see.[file:36]</div>
+      <div>Sort each clue into “Symptom” (result) or “Root Cause” (main reason) like a detective.[file:36]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="panel-title">Case File</div>
+        <div class="case-card">
+          <div class="case-name" id="caseName"></div>
+          <div class="case-desc" id="caseDesc"></div>
+        </div>
+
+        <div class="clue-list" id="clueList"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Clues Sorted</div>
+            <div class="score-value" id="sortedCount">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Root Clarity</div>
+            <div class="score-value" id="clarityScore">0%</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Detective Rank</div>
+            <div class="score-value" id="rankText">Beginner</div>
+          </div>
+        </div>
+
+        <div class="status-text" id="statusText">
+          Drag each clue into the correct bucket. Remember: symptoms are what you see, root cause is why it really happens.[file:36]
+        </div>
+
+        <div class="buckets">
+          <div class="bucket symptom" data-type="symptom">
+            <div class="bucket-header">
+              <div class="bucket-name">⚠️ Symptom (Effect)</div>
+              <div class="bucket-hint">What we notice or feel</div>
+            </div>
+            <div class="bucket-items" id="symptomBucket"></div>
+          </div>
+
+          <div class="bucket root" data-type="root">
+            <div class="bucket-header">
+              <div class="bucket-name">🔍 Root Cause</div>
+              <div class="bucket-hint">Main reason behind the problem</div>
+            </div>
+            <div class="bucket-items" id="rootBucket"></div>
+          </div>
+        </div>
+
+        <div class="rewrite-box">
+          <div class="rewrite-label">Write a clear problem statement</div>
+          <div class="rewrite-hint">
+            Choose one root cause and rewrite it as a clear problem sentence. This is the “define the problem” step.[file:36]
+          </div>
+          <div class="rewrite-input">
+            <input type="text" id="rewriteInput" placeholder="Example: I often start my homework very late at night." />
+            <button class="btn-primary" id="checkRewriteBtn" style="padding:5px 10px; font-size:11px;">Check</button>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="newCaseBtn">New case</button>
+          <div id="progressText">Sort all clues, then write one clear problem statement and click “Check”.</div>
+          <button class="btn-primary" id="finishBtn">Finish Case</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Sounds</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const mainContainer = document.getElementById("mainContainer");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      mainContainer.classList.add("visible");
+    }, 2500);
+
+    // Audio
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Cases & clues (symptom vs root cause) aligned with the chapter idea: effects vs root cause.[file:36]
+    const cases = [
+      {
+        name: "Case 1 – Late Homework",
+        desc: "A student often submits homework late and feels stressed on school nights.",
+        clues: [
+          { id: "1a", text: "Homework is often submitted after the deadline.", type: "symptom" },
+          { id: "1b", text: "The student scrolls on a phone for a long time after school.", type: "root" },
+          { id: "1c", text: "The student starts homework very late at night.", type: "root" },
+          { id: "1d", text: "The student feels tired and worried before sleep.", type: "symptom" },
+          { id: "1e", text: "The teacher has to remind them many times about homework.", type: "symptom" },
+          { id: "1f", text: "There is no simple homework plan or schedule.", type: "root" },
+          { id: "1g", text: "Marks for homework are going down.", type: "symptom" },
+          { id: "1h", text: "The student often forgets to pack books needed for homework.", type: "root" }
+        ]
+      },
+      {
+        name: "Case 2 – Messy Group Project",
+        desc: "A group project often feels confusing and ends up rushed at the last minute.",
+        clues: [
+          { id: "2a", text: "Parts of the project are unfinished on the last day.", type: "symptom" },
+          { id: "2b", text: "The group never clearly divided who does which task.", type: "root" },
+          { id: "2c", text: "Team members argue that others are not working.", type: "symptom" },
+          { id: "2d", text: "There are no regular check-ins to see progress.", type: "root" },
+          { id: "2e", text: "Some students feel confused about what to do.", type: "symptom" },
+          { id: "2f", text: "The group did not make a simple timeline at the start.", type: "root" },
+          { id: "2g", text: "The presentation looks disorganised.", type: "symptom" },
+          { id: "2h", text: "No one took responsibility to put all parts together.", type: "root" }
+        ]
+      },
+      {
+        name: "Case 3 – Losing Things",
+        desc: "A student keeps losing school items like pencils, notebooks and ID card.",
+        clues: [
+          { id: "3a", text: "The student often cannot find their pencil in class.", type: "symptom" },
+          { id: "3b", text: "They throw things randomly into the bag without a place.", type: "root" },
+          { id: "3c", text: "They feel worried in the morning because something is missing.", type: "symptom" },
+          { id: "3d", text: "There is no fixed routine for packing the bag at night.", type: "root" },
+          { id: "3e", text: "The student borrows items from friends almost every day.", type: "symptom" },
+          { id: "3f", text: "There are too many loose papers and no folders.", type: "root" },
+          { id: "3g", text: "Sometimes the student forgets where they last kept their ID card.", type: "symptom" },
+          { id: "3h", text: "There is no special pocket or place for important items.", type: "root" }
+        ]
+      }
+    ];
+
+    const caseNameEl = document.getElementById("caseName");
+    const caseDescEl = document.getElementById("caseDesc");
+    const clueListEl = document.getElementById("clueList");
+
+    const symptomBucket = document.getElementById("symptomBucket");
+    const rootBucket = document.getElementById("rootBucket");
+
+    const stageIndicator = document.getElementById("stageIndicator");
+    const sortedCountEl = document.getElementById("sortedCount");
+    const clarityScoreEl = document.getElementById("clarityScore");
+    const rankTextEl = document.getElementById("rankText");
+    const statusTextEl = document.getElementById("statusText");
+    const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const newCaseBtn = document.getElementById("newCaseBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const rewriteInput = document.getElementById("rewriteInput");
+    const checkRewriteBtn = document.getElementById("checkRewriteBtn");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let currentCaseIndex = 0;
+    let currentCase = null;
+    let draggingClue = null;
+    let placed = {}; // clueId -> "symptom"/"root"
+    let sortedCount = 0;
+
+    function loadCase(index){
+      currentCaseIndex = index;
+      currentCase = cases[index];
+      caseNameEl.textContent = currentCase.name;
+      caseDescEl.textContent = currentCase.desc;
+      clueListEl.innerHTML = "";
+      symptomBucket.innerHTML = "";
+      rootBucket.innerHTML = "";
+      placed = {};
+      sortedCount = 0;
+      updateScore();
+      feedbackEl.style.display = "none";
+      rewriteInput.value = "";
+      statusTextEl.textContent = "Drag each clue into the correct bucket. Look for why something happens, not just what happens.";
+      progressTextEl.textContent = "After sorting all clues, choose one root cause and rewrite it as a clear problem sentence.";
+      buildClues();
+    }
+
+    function buildClues(){
+      currentCase.clues.forEach(clue => {
+        const card = document.createElement("div");
+        card.className = "clue-card";
+        card.dataset.id = clue.id;
+        card.dataset.type = clue.type;
+        card.textContent = clue.text;
+        card.draggable = true;
+        card.addEventListener("dragstart", handleClueDragStart);
+        card.addEventListener("dragend", handleClueDragEnd);
+        clueListEl.appendChild(card);
+      });
+    }
+
+    function handleClueDragStart(e){
+      draggingClue = e.target;
+      draggingClue.classList.add("dragging");
+    }
+
+    function handleClueDragEnd(e){
+      if(draggingClue){
+        draggingClue.classList.remove("dragging");
+      }
+      draggingClue = null;
+    }
+
+    document.querySelectorAll(".bucket").forEach(bucket => {
+      bucket.addEventListener("dragover", e => e.preventDefault());
+      bucket.addEventListener("drop", e => {
+        e.preventDefault();
+        if(!draggingClue) return;
+        const targetType = bucket.dataset.type;
+        dropClueIntoBucket(draggingClue, targetType);
+        draggingClue = null;
+      });
+    });
+
+    function dropClueIntoBucket(card, targetType){
+      const clueId = card.dataset.id;
+      const actualType = card.dataset.type;
+
+      // Move UI
+      const clone = card.cloneNode(true);
+      clone.draggable = false;
+      clone.classList.remove("dragging");
+      clone.style.cursor = "default";
+
+      const bucketItems = targetType === "symptom" ? symptomBucket : rootBucket;
+      // avoid duplicates
+      const existing = bucketItems.querySelector('[data-id="' + clueId + '"]');
+      if(existing) return;
+      bucketItems.appendChild(clone);
+
+      // mark original as used
+      card.style.opacity = 0.3;
+      card.draggable = false;
+
+      placed[clueId] = targetType;
+      sortedCount = Object.keys(placed).length;
+      updateScore();
+
+      feedbackEl.style.display = "block";
+      if(targetType === actualType){
+        playGood();
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = "Correct! This matches the type. Detecting root causes helps you focus on the real problem instead of only the effects.[file:36]";
+      } else {
+        feedbackEl.className = "feedback warn";
+        feedbackEl.textContent = "Not quite. Ask: Is this something I can see happening (symptom) or is it a main reason that causes other things (root cause)? Try again next clue.";
+      }
+    }
+
+    function updateScore(){
+      const total = currentCase ? currentCase.clues.length : 0;
+      sortedCountEl.textContent = sortedCount;
+      stageIndicator.textContent = "Clues sorted: " + sortedCount + " / " + total;
+
+      // count correct sorts
+      let correct = 0;
+      if(currentCase){
+        currentCase.clues.forEach(clue => {
+          if(placed[clue.id] === clue.type) correct++;
+        });
+      }
+      const clarity = total ? Math.round((correct / total) * 100) : 0;
+      clarityScoreEl.textContent = clarity + "%";
+
+      if(clarity >= 80){
+        rankTextEl.textContent = "Root Detective";
+      } else if(clarity >= 50){
+        rankTextEl.textContent = "Clue Finder";
+      } else {
+        rankTextEl.textContent = "Beginner";
+      }
+    }
+
+    newCaseBtn.addEventListener("click", () => {
+      const nextIndex = (currentCaseIndex + 1) % cases.length;
+      loadCase(nextIndex);
+    });
+
+    checkRewriteBtn.addEventListener("click", () => {
+      const text = rewriteInput.value.trim();
+      if(!text){
+        feedbackEl.className = "feedback warn";
+        feedbackEl.textContent = "Write one sentence that clearly describes the main problem, not just the feelings or marks.";
+        feedbackEl.style.display = "block";
+        return;
+      }
+      // simple guidance, not strict check
+      if(text.toLowerCase().includes("because") || text.toLowerCase().includes("often") || text.length > 20){
+        playGood();
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = "Good! You turned a root cause into a clear problem statement. This matches the “define the problem” step in problem solving.[file:36]";
+        feedbackEl.style.display = "block";
+      } else {
+        feedbackEl.className = "feedback warn";
+        feedbackEl.textContent = "Try to be more specific. What happens again and again? What behaviour or situation is causing the other problems?";
+        feedbackEl.style.display = "block";
+      }
+    });
+
+    finishBtn.addEventListener("click", () => {
+      const total = currentCase.clues.length;
+      let correct = 0;
+      currentCase.clues.forEach(clue => {
+        if(placed[clue.id] === clue.type) correct++;
+      });
+      const clarity = total ? Math.round((correct / total) * 100) : 0;
+      playCelebrate();
+
+      let rank, badge, text;
+      if(clarity >= 80){
+        rank = "Root Cause Expert";
+        badge = "🧠";
+        text = "You can spot the real reasons behind problems and define them clearly. This makes the next steps—planning, organising information and deciding—much easier.[file:36]";
+      } else if(clarity >= 50){
+        rank = "Thinking Detective";
+        badge = "🔎";
+        text = "You can see some root causes, but sometimes focus on symptoms. Keep practising asking “Why is this really happening?” before jumping to a solution.[file:36]";
+      } else {
+        rank = "New Investigator";
+        badge = "📝";
+        text = "You’ve started noticing that there is a difference between what you see and why it happens. With more practice, your problem-solving will become stronger.[file:36]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Root Cause Detective Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correctly sorted clues: ${correct} / ${total} (${clarity}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Investigate Another Case</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    });
+
+    // Initial load
+    loadCase(0);
+  </script>
+</body>
+</html>
