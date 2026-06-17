@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mona's Path – Change Adventure</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: #0f172a;
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .game-shell {
+      max-width: 1000px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34,197,94,0.7);
+      position: relative;
+      background: #020617;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .game-shell.visible { opacity: 1; }
+
+    .top-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: #e5e7eb;
+      background: linear-gradient(to right, #0f172a, #1e3a8a, #0f766e);
+      z-index: 5;
+    }
+
+    .top-strip-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pill {
+      padding: 2px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.6);
+    }
+
+    .top-strip-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-small {
+      width: 14px;
+      height: 14px;
+    }
+
+    .meter {
+      width: 90px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.4s ease-out;
+    }
+
+    .world-wrap {
+      position: absolute;
+      inset: 38px 0 0 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scene {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+    }
+
+    .sky {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, #0f172a, #1e293b);
+      transition: background 0.8s ease-out;
+    }
+
+    .sky.old {
+      background: linear-gradient(to top, #020617, #111827);
+    }
+    .sky.middle {
+      background: linear-gradient(to top, #0f172a, #1d4ed8);
+    }
+    .sky.new {
+      background: linear-gradient(to top, #022c22, #22c55e);
+    }
+
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 90px;
+      background: linear-gradient(to top, #065f46, #166534);
+      box-shadow: 0 -10px 20px rgba(15,23,42,0.9);
+    }
+    .ground.old {
+      background: linear-gradient(to top, #4b5563, #6b7280);
+    }
+    .ground.middle {
+      background: linear-gradient(to top, #14532d, #16a34a);
+    }
+    .ground.new {
+      background: linear-gradient(to top, #166534, #22c55e);
+    }
+
+    .track {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 40px;
+      height: 16px;
+      background: repeating-linear-gradient(
+        to right,
+        rgba(15,23,42,0.9) 0, rgba(15,23,42,0.9) 40px,
+        rgba(55,65,81,0.9) 40px, rgba(55,65,81,0.9) 80px
+      );
+      opacity: 0.9;
+    }
+
+    .world-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 12px 24px;
+      pointer-events: none;
+    }
+
+    .world-objects {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .obj {
+      width: 60px;
+      height: 60px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      font-size: 26px;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.8);
+    }
+    .obj.tree {
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      background: radial-gradient(circle at 30% 20%, #bbf7d0 0, #16a34a 70%);
+    }
+    .obj.tree::after {
+      content: "";
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 26px;
+      border-radius: 999px;
+      background: #4b5563;
+    }
+
+    .obj.suitcase {
+      background: linear-gradient(to bottom, #7c2d12, #b45309);
+    }
+    .obj.book {
+      background: linear-gradient(to bottom, #1d4ed8, #22c55e);
+    }
+    .obj.ball {
+      background: radial-gradient(circle at 30% 30%, #fde68a 0, #f97316 70%);
+    }
+    .obj.palette {
+      background: radial-gradient(circle at 30% 20%, #fecaca 0, #fb923c 70%);
+    }
+
+    /* Mona */
+    .mona {
+      position: absolute;
+      bottom: 56px;
+      left: 50px;
+      width: 52px;
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.25s ease-out;
+      pointer-events: none;
+    }
+
+    .mona-head {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #fee2e2 0, #fecaca 60%);
+      border: 2px solid rgba(148,163,184,0.8);
+      position: relative;
+    }
+    .mona-face-old::before,
+    .mona-face-old::after,
+    .mona-face-mid::before,
+    .mona-face-mid::after,
+    .mona-face-new::before,
+    .mona-face-new::after {
+      content: "";
+      position: absolute;
+      top: 14px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0f172a;
+    }
+    .mona-face-old::before,
+    .mona-face-mid::before,
+    .mona-face-new::before {
+      left: 9px;
+    }
+    .mona-face-old::after,
+    .mona-face-mid::after,
+    .mona-face-new::after {
+      right: 9px;
+    }
+
+    .mona-face-old {
+      position: relative;
+    }
+    .mona-face-old span {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      width: 18px;
+      height: 8px;
+      border-radius: 999px;
+      border: 2px solid #0f172a;
+      border-top: none;
+      transform: translateX(-50%) rotate(180deg);
+    }
+
+    .mona-face-mid {
+      position: relative;
+    }
+    .mona-face-mid span {
+      position: absolute;
+      bottom: 7px;
+      left: 50%;
+      width: 18px;
+      height: 6px;
+      border-radius: 999px;
+      border-bottom: 2px solid #0f172a;
+      transform: translateX(-50%);
+    }
+
+    .mona-face-new {
+      position: relative;
+    }
+    .mona-face-new span {
+      position: absolute;
+      bottom: 6px;
+      left: 50%;
+      width: 20px;
+      height: 8px;
+      border-radius: 999px;
+      border: 2px solid #0f172a;
+      border-top: none;
+      transform: translateX(-50%);
+    }
+
+    .mona-body {
+      width: 30px;
+      height: 36px;
+      border-radius: 14px 14px 6px 6px;
+      background: linear-gradient(to bottom, #6366f1, #22c55e);
+      box-shadow: 0 4px 10px rgba(15,23,42,0.8);
+    }
+
+    .step-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+    }
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 1px solid rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.7);
+    }
+    .step-dot.active {
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34,197,94,0.9);
+    }
+
+    /* Choice bubbles */
+    .choices {
+      position: absolute;
+      bottom: 102px;
+      right: 30px;
+      display: flex;
+      gap: 10px;
+      z-index: 3;
+    }
+    .choice {
+      width: 60px;
+      height: 60px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      border: 2px solid rgba(148,163,184,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(15,23,42,0.9);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+    }
+    .choice:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(15,23,42,0.9);
+    }
+
+    .hint {
+      position: absolute;
+      bottom: 172px;
+      right: 28px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      color: #e5e7eb;
+      font-size: 10px;
+      border: 1px solid rgba(148,163,184,0.6);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .control-hint {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      font-size: 11px;
+      color: rgba(226,232,240,0.85);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .key-pill {
+      border-radius: 6px;
+      border: 1px solid rgba(148,163,184,0.7);
+      padding: 2px 6px;
+      font-size: 10px;
+      background: rgba(15,23,42,0.7);
+    }
+
+    /* End overlay */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.9), rgba(15,23,42,0.98));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      text-align: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .end-title {
+      font-size: 22px;
+    }
+    .end-sub {
+      font-size: 13px;
+      opacity: 0.95;
+    }
+    .end-badge {
+      font-size: 42px;
+    }
+    .end-btn {
+      margin-top: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .end-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    @media (max-width: 768px) {
+      .top-strip { font-size: 10px; }
+      .pill { display: none; }
+      .choices { right: 16px; }
+      .hint { display: none; }
+      .control-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Mona's Path...</div>
+    </div>
+  </div>
+
+  <div class="game-shell" id="gameShell">
+    <div class="top-strip">
+      <div class="top-strip-left">
+        <div class="pill">Chapter 4 · Change</div>
+      </div>
+      <div class="top-strip-right">
+        <span>Old → New</span>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span>🌱</span>
+      </div>
+    </div>
+
+    <div class="world-wrap">
+      <div class="scene">
+        <div class="sky old" id="sky"></div>
+        <div class="ground old" id="ground"></div>
+        <div class="track"></div>
+
+        <div class="world-content" id="worldContent">
+          <!-- left cluster: old school / home -->
+          <div class="world-objects" id="leftObjects">
+            <div class="obj tree" title="Banyan tree"></div>
+            <div class="obj" title="Desk">📚</div>
+          </div>
+
+          <!-- right cluster: new opportunities -->
+          <div class="world-objects" id="rightObjects">
+            <div class="obj book" title="Library">📖</div>
+            <div class="obj ball" title="Sports">🏀</div>
+            <div class="obj palette" title="Art">🎨</div>
+          </div>
+        </div>
+
+        <!-- Mona -->
+        <div class="mona" id="mona">
+          <div class="mona-head mona-face-old" id="monaHead">
+            <span></span>
+          </div>
+          <div class="mona-body"></div>
+        </div>
+
+        <div class="step-indicator" id="stepDots"></div>
+
+        <!-- choice bubbles -->
+        <div class="choices">
+          <div class="choice" id="choiceLeft" title="Hold back / resist">😟</div>
+          <div class="choice" id="choiceRight" title="Try / explore">✨</div>
+        </div>
+
+        <div class="hint">
+          <span>Tap 😟 or ✨ to choose Mona's reaction.</span>
+        </div>
+
+        <div class="control-hint">
+          <div class="key-pill">😟</div><span>stay stuck</span>
+          <div class="key-pill">✨</div><span>try new</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash and shell
+    const splashScreen = document.getElementById("splashScreen");
+    const gameShell = document.getElementById("gameShell");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      gameShell.classList.add("visible");
+    }, 2200);
+
+    // Sounds
+    const goodSound = new Audio("assets/correct.mp3");
+    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
+    goodSound.volume = 0.8;
+    celebrationSound.volume = 0.8;
+
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    const meterFill = document.getElementById("meterFill");
+    const skyEl = document.getElementById("sky");
+    const groundEl = document.getElementById("ground");
+    const mona = document.getElementById("mona");
+    const monaHead = document.getElementById("monaHead");
+    const leftObjects = document.getElementById("leftObjects");
+    const rightObjects = document.getElementById("rightObjects");
+    const stepDots = document.getElementById("stepDots");
+    const choiceLeft = document.getElementById("choiceLeft");
+    const choiceRight = document.getElementById("choiceRight");
+
+    // Steps along Mona's journey (mostly visual, minimal text)
+    const steps = [
+      // Old school – missing old place
+      {
+        world: "old",
+        monaX: 80,
+        face: "old"
+      },
+      {
+        world: "middle",
+        monaX: 260,
+        face: "mid"
+      },
+      {
+        world: "middle",
+        monaX: 420,
+        face: "mid"
+      },
+      {
+        world: "new",
+        monaX: 600,
+        face: "new"
+      }
+    ];
+
+    let currentStep = 0;
+    let progress = 0; // 0-100 based on positive choices
+
+    function renderStepDots(){
+      stepDots.innerHTML = "";
+      steps.forEach((_, i) => {
+        const dot = document.createElement("div");
+        dot.className = "step-dot" + (i === currentStep ? " active" : "");
+        stepDots.appendChild(dot);
+      });
+    }
+
+    function setWorld(world){
+      if(world === "old"){
+        skyEl.className = "sky old";
+        groundEl.className = "ground old";
+      } else if(world === "middle"){
+        skyEl.className = "sky middle";
+        groundEl.className = "ground middle";
+      } else {
+        skyEl.className = "sky new";
+        groundEl.className = "ground new";
+      }
+    }
+
+    function setFace(face){
+      monaHead.className = "mona-head";
+      if(face === "old"){
+        monaHead.classList.add("mona-face-old");
+      } else if(face === "mid"){
+        monaHead.classList.add("mona-face-mid");
+      } else {
+        monaHead.classList.add("mona-face-new");
+      }
+    }
+
+    function updateVisual(){
+      const step = steps[currentStep];
+      setWorld(step.world);
+      setFace(step.face);
+      mona.style.transform = "translateX(" + step.monaX + "px)";
+      renderStepDots();
+
+      // adjust visibility of right-side objects based on progress
+      if(progress < 30){
+        rightObjects.style.opacity = 0.2;
+      } else if(progress < 60){
+        rightObjects.style.opacity = 0.6;
+      } else {
+        rightObjects.style.opacity = 1;
+      }
+    }
+
+    function applyChoice(type){
+      if(type === "open"){ // ✨
+        playGood();
+        progress += 25;
+        if(progress > 100) progress = 100;
+
+        // advance step, brighten world
+        currentStep = Math.min(currentStep + 1, steps.length - 1);
+
+      } else { // hold back 😟
+        progress -= 5;
+        if(progress < 0) progress = 0;
+
+        // small move but no world upgrade
+        currentStep = Math.min(currentStep + 1, steps.length - 1);
+      }
+
+      meterFill.style.width = progress + "%";
+      updateVisual();
+
+      // end if last step reached
+      if(currentStep === steps.length - 1){
+        setTimeout(showEnding, 1300);
+      }
+    }
+
+    function showEnding(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+
+      const isOpen = progress >= 60;
+
+      end.innerHTML = `
+        <div class="end-badge">${isOpen ? "🌈" : "🌥️"}</div>
+        <div class="end-title">${isOpen ? "New Story Unlocked" : "Still Missing the Old"}</div>
+        <div class="end-sub">
+          ${isOpen
+            ? "Mona found new friends and joys while still remembering her old school."
+            : "Mona is still holding tightly to the past. Change can bring new surprises when we try small new steps."}
+        </div>
+        <button class="end-btn" id="playAgainBtn">Play Again</button>
+      `;
+      gameShell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    choiceLeft.addEventListener("click", () => applyChoice("hold"));
+    choiceRight.addEventListener("click", () => applyChoice("open"));
+
+    // Keyboard support: left arrow for 😟, right arrow for ✨
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowLeft"){
+        applyChoice("hold");
+      } else if(e.key === "ArrowRight"){
+        applyChoice("open");
+      }
+    });
+
+    // init
+    updateVisual();
+  </script>
+</body>
+</html>
