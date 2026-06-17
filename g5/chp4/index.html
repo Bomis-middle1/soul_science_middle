@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mona's Path – Change Adventure</title>
+  <title>Mona's Path – Change Adventure (Clear)</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -74,7 +74,7 @@
       top: 0;
       left: 0;
       right: 0;
-      height: 38px;
+      height: 42px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -87,14 +87,16 @@
 
     .top-strip-left {
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 2px;
     }
-    .pill {
-      padding: 2px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      background: rgba(15,23,42,0.6);
+    .top-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .top-instruction {
+      font-size: 11px;
+      opacity: 0.9;
     }
 
     .top-strip-right {
@@ -103,13 +105,8 @@
       gap: 8px;
     }
 
-    .icon-small {
-      width: 14px;
-      height: 14px;
-    }
-
     .meter {
-      width: 90px;
+      width: 100px;
       height: 8px;
       border-radius: 999px;
       background: rgba(15,23,42,0.8);
@@ -126,7 +123,7 @@
 
     .world-wrap {
       position: absolute;
-      inset: 38px 0 0 0;
+      inset: 42px 0 0 0;
       display: flex;
       flex-direction: column;
     }
@@ -142,19 +139,13 @@
     .sky {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, #0f172a, #1e293b);
+      background: linear-gradient(to top, #020617, #111827);
       transition: background 0.8s ease-out;
     }
 
-    .sky.old {
-      background: linear-gradient(to top, #020617, #111827);
-    }
-    .sky.middle {
-      background: linear-gradient(to top, #0f172a, #1d4ed8);
-    }
-    .sky.new {
-      background: linear-gradient(to top, #022c22, #22c55e);
-    }
+    .sky.old { background: linear-gradient(to top, #020617, #111827); }
+    .sky.bus { background: linear-gradient(to top, #0f172a, #1d4ed8); }
+    .sky.new { background: linear-gradient(to top, #022c22, #22c55e); }
 
     .ground {
       position: absolute;
@@ -162,13 +153,11 @@
       right: 0;
       bottom: 0;
       height: 90px;
-      background: linear-gradient(to top, #065f46, #166534);
-      box-shadow: 0 -10px 20px rgba(15,23,42,0.9);
-    }
-    .ground.old {
       background: linear-gradient(to top, #4b5563, #6b7280);
+      box-shadow: 0 -10px 20px rgba(15,23,42,0.9);
+      transition: background 0.8s ease-out;
     }
-    .ground.middle {
+    .ground.bus {
       background: linear-gradient(to top, #14532d, #16a34a);
     }
     .ground.new {
@@ -179,13 +168,9 @@
       position: absolute;
       left: 0;
       right: 0;
-      bottom: 40px;
-      height: 16px;
-      background: repeating-linear-gradient(
-        to right,
-        rgba(15,23,42,0.9) 0, rgba(15,23,42,0.9) 40px,
-        rgba(55,65,81,0.9) 40px, rgba(55,65,81,0.9) 80px
-      );
+      bottom: 42px;
+      height: 6px;
+      background: rgba(15,23,42,0.85);
       opacity: 0.9;
     }
 
@@ -195,64 +180,55 @@
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
-      padding: 12px 24px;
+      padding: 16px 24px;
       pointer-events: none;
     }
 
-    .world-objects {
+    .label-col {
       display: flex;
-      align-items: flex-end;
-      gap: 12px;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .obj {
-      width: 60px;
-      height: 60px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.7);
+    .place-label {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      color: #e5e7eb;
+      font-size: 11px;
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    /* Simple icons */
+    .icon-block {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      background: rgba(15,23,42,0.8);
+      color: #e5e7eb;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #e5e7eb;
-      font-size: 26px;
-      box-shadow: 0 4px 10px rgba(15,23,42,0.8);
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.9);
+      font-size: 28px;
     }
-    .obj.tree {
-      border-radius: 50%;
-      width: 70px;
-      height: 70px;
-      background: radial-gradient(circle at 30% 20%, #bbf7d0 0, #16a34a 70%);
-    }
-    .obj.tree::after {
-      content: "";
-      position: absolute;
-      bottom: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 16px;
-      height: 26px;
-      border-radius: 999px;
-      background: #4b5563;
+    .icon-text {
+      font-size: 10px;
     }
 
-    .obj.suitcase {
-      background: linear-gradient(to bottom, #7c2d12, #b45309);
-    }
-    .obj.book {
-      background: linear-gradient(to bottom, #1d4ed8, #22c55e);
-    }
-    .obj.ball {
-      background: radial-gradient(circle at 30% 30%, #fde68a 0, #f97316 70%);
-    }
-    .obj.palette {
-      background: radial-gradient(circle at 30% 20%, #fecaca 0, #fb923c 70%);
+    .icon-row {
+      display: flex;
+      gap: 10px;
+      pointer-events: none;
     }
 
     /* Mona */
     .mona {
       position: absolute;
-      bottom: 56px;
-      left: 50px;
+      bottom: 50px;
+      left: 70px;
       width: 52px;
       height: 80px;
       display: flex;
@@ -287,18 +263,11 @@
     }
     .mona-face-old::before,
     .mona-face-mid::before,
-    .mona-face-new::before {
-      left: 9px;
-    }
+    .mona-face-new::before { left: 9px; }
     .mona-face-old::after,
     .mona-face-mid::after,
-    .mona-face-new::after {
-      right: 9px;
-    }
+    .mona-face-new::after { right: 9px; }
 
-    .mona-face-old {
-      position: relative;
-    }
     .mona-face-old span {
       position: absolute;
       bottom: 6px;
@@ -311,9 +280,6 @@
       transform: translateX(-50%) rotate(180deg);
     }
 
-    .mona-face-mid {
-      position: relative;
-    }
     .mona-face-mid span {
       position: absolute;
       bottom: 7px;
@@ -325,9 +291,6 @@
       transform: translateX(-50%);
     }
 
-    .mona-face-new {
-      position: relative;
-    }
     .mona-face-new span {
       position: absolute;
       bottom: 6px;
@@ -350,7 +313,7 @@
 
     .step-indicator {
       position: absolute;
-      bottom: 8px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
@@ -371,22 +334,23 @@
     /* Choice bubbles */
     .choices {
       position: absolute;
-      bottom: 102px;
-      right: 30px;
+      bottom: 90px;
+      right: 28px;
       display: flex;
       gap: 10px;
       z-index: 3;
     }
     .choice {
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       border-radius: 999px;
-      background: rgba(15,23,42,0.85);
+      background: rgba(15,23,42,0.9);
       border: 2px solid rgba(148,163,184,0.8);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 30px;
+      font-size: 28px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(15,23,42,0.9);
       transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
@@ -395,38 +359,24 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 14px rgba(15,23,42,0.9);
     }
+    .choice-label {
+      font-size: 10px;
+      color: #e5e7eb;
+      margin-top: 2px;
+    }
 
-    .hint {
+    .bottom-text {
       position: absolute;
-      bottom: 172px;
-      right: 28px;
-      padding: 4px 8px;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #e5e7eb;
+      text-align: center;
+      padding: 2px 8px;
       border-radius: 999px;
       background: rgba(15,23,42,0.85);
-      color: #e5e7eb;
-      font-size: 10px;
-      border: 1px solid rgba(148,163,184,0.6);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .control-hint {
-      position: absolute;
-      left: 12px;
-      bottom: 12px;
-      font-size: 11px;
-      color: rgba(226,232,240,0.85);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .key-pill {
-      border-radius: 6px;
       border: 1px solid rgba(148,163,184,0.7);
-      padding: 2px 6px;
-      font-size: 10px;
-      background: rgba(15,23,42,0.7);
     }
 
     /* End overlay */
@@ -449,6 +399,7 @@
     .end-sub {
       font-size: 13px;
       opacity: 0.95;
+      max-width: 320px;
     }
     .end-badge {
       font-size: 42px;
@@ -470,11 +421,9 @@
     }
 
     @media (max-width: 768px) {
-      .top-strip { font-size: 10px; }
-      .pill { display: none; }
-      .choices { right: 16px; }
-      .hint { display: none; }
-      .control-hint { display: none; }
+      .top-title { font-size: 11px; }
+      .top-instruction { font-size: 10px; }
+      .bottom-text { font-size: 11px; }
     }
   </style>
 </head>
@@ -490,7 +439,10 @@
   <div class="game-shell" id="gameShell">
     <div class="top-strip">
       <div class="top-strip-left">
-        <div class="pill">Chapter 4 · Change</div>
+        <div class="top-title">Mona's Path – Change Adventure</div>
+        <div class="top-instruction" id="topInstruction">
+          Mona is starting a new school. Tap an emoji to choose her reaction.
+        </div>
       </div>
       <div class="top-strip-right">
         <span>Old → New</span>
@@ -504,21 +456,38 @@
     <div class="world-wrap">
       <div class="scene">
         <div class="sky old" id="sky"></div>
-        <div class="ground old" id="ground"></div>
+        <div class="ground" id="ground"></div>
         <div class="track"></div>
 
-        <div class="world-content" id="worldContent">
-          <!-- left cluster: old school / home -->
-          <div class="world-objects" id="leftObjects">
-            <div class="obj tree" title="Banyan tree"></div>
-            <div class="obj" title="Desk">📚</div>
+        <div class="world-content">
+          <div class="label-col">
+            <div class="place-label" id="placeLabelLeft">OLD SCHOOL</div>
+            <div class="icon-block" id="leftIcon1">
+              <span>🏫</span>
+              <span class="icon-text">CLASSROOM</span>
+            </div>
+            <div class="icon-block" id="leftIcon2">
+              <span>🌳</span>
+              <span class="icon-text">LUNCH TREE</span>
+            </div>
           </div>
 
-          <!-- right cluster: new opportunities -->
-          <div class="world-objects" id="rightObjects">
-            <div class="obj book" title="Library">📖</div>
-            <div class="obj ball" title="Sports">🏀</div>
-            <div class="obj palette" title="Art">🎨</div>
+          <div class="label-col" style="align-items:flex-end;">
+            <div class="place-label" id="placeLabelRight">NEW SCHOOL</div>
+            <div class="icon-row" id="rightIcons">
+              <div class="icon-block">
+                <span>👧</span>
+                <span class="icon-text">NEW FRIENDS</span>
+              </div>
+              <div class="icon-block">
+                <span>🏀</span>
+                <span class="icon-text">SPORTS</span>
+              </div>
+              <div class="icon-block">
+                <span>🎨</span>
+                <span class="icon-text">ART CLASS</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -534,24 +503,25 @@
 
         <!-- choice bubbles -->
         <div class="choices">
-          <div class="choice" id="choiceLeft" title="Hold back / resist">😟</div>
-          <div class="choice" id="choiceRight" title="Try / explore">✨</div>
+          <div class="choice" id="choiceLeft">
+            <span>😟</span>
+            <span class="choice-label">STAY SAD</span>
+          </div>
+          <div class="choice" id="choiceRight">
+            <span>✨</span>
+            <span class="choice-label">TRY NEW</span>
+          </div>
         </div>
 
-        <div class="hint">
-          <span>Tap 😟 or ✨ to choose Mona's reaction.</span>
-        </div>
-
-        <div class="control-hint">
-          <div class="key-pill">😟</div><span>stay stuck</span>
-          <div class="key-pill">✨</div><span>try new</span>
+        <div class="bottom-text" id="bottomText">
+          Step 1 of 4 · Tap 😟 to stay stuck or ✨ to try something new.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    // Splash and shell
+    // Splash & container
     const splashScreen = document.getElementById("splashScreen");
     const gameShell = document.getElementById("gameShell");
     setTimeout(() => {
@@ -564,7 +534,6 @@
     const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
     goodSound.volume = 0.8;
     celebrationSound.volume = 0.8;
-
     function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
     function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
 
@@ -573,41 +542,50 @@
     const groundEl = document.getElementById("ground");
     const mona = document.getElementById("mona");
     const monaHead = document.getElementById("monaHead");
-    const leftObjects = document.getElementById("leftObjects");
-    const rightObjects = document.getElementById("rightObjects");
     const stepDots = document.getElementById("stepDots");
     const choiceLeft = document.getElementById("choiceLeft");
     const choiceRight = document.getElementById("choiceRight");
+    const topInstruction = document.getElementById("topInstruction");
+    const bottomText = document.getElementById("bottomText");
+    const placeLabelLeft = document.getElementById("placeLabelLeft");
+    const placeLabelRight = document.getElementById("placeLabelRight");
 
-    // Steps along Mona's journey (mostly visual, minimal text)
+    // Simple steps with short on-screen text cues.[file:38]
     const steps = [
-      // Old school – missing old place
       {
         world: "old",
-        monaX: 80,
-        face: "old"
+        monaX: 60,
+        face: "old",
+        top: "Mona is at her old school. She feels sad about leaving.",
+        bottom: "Step 1 · Tap ✨ if she will try one new thing at the new school."
       },
       {
-        world: "middle",
+        world: "bus",
         monaX: 260,
-        face: "mid"
-      },
-      {
-        world: "middle",
-        monaX: 420,
-        face: "mid"
+        face: "mid",
+        top: "Mona is on the way to the new city.",
+        bottom: "Step 2 · Tap ✨ if she will look out for good things on the way."
       },
       {
         world: "new",
-        monaX: 600,
-        face: "new"
+        monaX: 460,
+        face: "mid",
+        top: "Mona reaches her new school. Everything looks different.",
+        bottom: "Step 3 · Tap ✨ if she will say yes to a new friend or game."
+      },
+      {
+        world: "new",
+        monaX: 640,
+        face: "new",
+        top: "Mona has tried some new things.",
+        bottom: "Step 4 · Tap ✨ if she can see change as a new story, not the end."
       }
     ];
 
     let currentStep = 0;
-    let progress = 0; // 0-100 based on positive choices
+    let progress = 0; // positive choices
 
-    function renderStepDots(){
+    function renderDots(){
       stepDots.innerHTML = "";
       steps.forEach((_, i) => {
         const dot = document.createElement("div");
@@ -619,25 +597,37 @@
     function setWorld(world){
       if(world === "old"){
         skyEl.className = "sky old";
-        groundEl.className = "ground old";
-      } else if(world === "middle"){
-        skyEl.className = "sky middle";
-        groundEl.className = "ground middle";
+        groundEl.className = "ground";
+        placeLabelLeft.textContent = "OLD SCHOOL";
+        placeLabelRight.textContent = "NEW SCHOOL";
+      } else if(world === "bus"){
+        skyEl.className = "sky bus";
+        groundEl.className = "ground bus";
+        placeLabelLeft.textContent = "ON THE WAY";
+        placeLabelRight.textContent = "NEW CITY";
       } else {
         skyEl.className = "sky new";
         groundEl.className = "ground new";
+        placeLabelLeft.textContent = "OLD MEMORIES";
+        placeLabelRight.textContent = "NEW SCHOOL";
       }
     }
 
-    function setFace(face){
+    function setFace(type){
       monaHead.className = "mona-head";
-      if(face === "old"){
+      if(type === "old"){
         monaHead.classList.add("mona-face-old");
-      } else if(face === "mid"){
+      } else if(type === "mid"){
         monaHead.classList.add("mona-face-mid");
       } else {
         monaHead.classList.add("mona-face-new");
       }
+    }
+
+    function updateStepText(){
+      const step = steps[currentStep];
+      topInstruction.textContent = step.top;
+      bottomText.textContent = step.bottom;
     }
 
     function updateVisual(){
@@ -645,59 +635,51 @@
       setWorld(step.world);
       setFace(step.face);
       mona.style.transform = "translateX(" + step.monaX + "px)";
-      renderStepDots();
-
-      // adjust visibility of right-side objects based on progress
-      if(progress < 30){
-        rightObjects.style.opacity = 0.2;
-      } else if(progress < 60){
-        rightObjects.style.opacity = 0.6;
-      } else {
-        rightObjects.style.opacity = 1;
-      }
+      renderDots();
+      updateStepText();
     }
 
-    function applyChoice(type){
-      if(type === "open"){ // ✨
+    function applyChoice(kind){
+      const step = steps[currentStep];
+      if(kind === "open"){ // ✨
         playGood();
         progress += 25;
         if(progress > 100) progress = 100;
-
-        // advance step, brighten world
-        currentStep = Math.min(currentStep + 1, steps.length - 1);
-
-      } else { // hold back 😟
-        progress -= 5;
-        if(progress < 0) progress = 0;
-
-        // small move but no world upgrade
-        currentStep = Math.min(currentStep + 1, steps.length - 1);
+        // upgrade face to happier from mid steps on
+        if(currentStep >= 2){
+          step.face = "new";
+        }
+      } else {
+        // 😟
+        progress = Math.max(progress - 5, 0);
       }
 
       meterFill.style.width = progress + "%";
-      updateVisual();
 
-      // end if last step reached
-      if(currentStep === steps.length - 1){
-        setTimeout(showEnding, 1300);
+      if(currentStep < steps.length - 1){
+        currentStep++;
+        updateVisual();
+      } else {
+        setTimeout(showEndScreen, 1000);
       }
     }
 
-    function showEnding(){
+    function showEndScreen(){
       playCelebrate();
       const end = document.createElement("div");
       end.className = "end-screen";
 
-      const isOpen = progress >= 60;
+      const openEnough = progress >= 60;
+      const title = openEnough ? "New Chances Unlocked" : "Still Missing the Old";
+      const badge = openEnough ? "🌈" : "🌥️";
+      const sub = openEnough
+        ? "Mona still remembers her old school, but she has found new friends and joys too. Change can open new doors."
+        : "Mona is still holding tightly to the past. Taking small steps to try new things can help change feel like a new beginning.";
 
       end.innerHTML = `
-        <div class="end-badge">${isOpen ? "🌈" : "🌥️"}</div>
-        <div class="end-title">${isOpen ? "New Story Unlocked" : "Still Missing the Old"}</div>
-        <div class="end-sub">
-          ${isOpen
-            ? "Mona found new friends and joys while still remembering her old school."
-            : "Mona is still holding tightly to the past. Change can bring new surprises when we try small new steps."}
-        </div>
+        <div class="end-badge">${badge}</div>
+        <div class="end-title">${title}</div>
+        <div class="end-sub">${sub}</div>
         <button class="end-btn" id="playAgainBtn">Play Again</button>
       `;
       gameShell.appendChild(end);
@@ -707,16 +689,13 @@
     choiceLeft.addEventListener("click", () => applyChoice("hold"));
     choiceRight.addEventListener("click", () => applyChoice("open"));
 
-    // Keyboard support: left arrow for 😟, right arrow for ✨
+    // Optional keyboard support
     window.addEventListener("keydown", (e) => {
-      if(e.key === "ArrowLeft"){
-        applyChoice("hold");
-      } else if(e.key === "ArrowRight"){
-        applyChoice("open");
-      }
+      if(e.key === "ArrowLeft"){ applyChoice("hold"); }
+      if(e.key === "ArrowRight"){ applyChoice("open"); }
     });
 
-    // init
+    // Init
     updateVisual();
   </script>
 </body>
