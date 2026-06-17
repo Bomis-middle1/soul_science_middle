@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calm Choice Lab – Self-Management Game</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #fee2e2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .container {
+      max-width: 1100px; width: 100%;
+      background: #f9fafb;
+      border-radius: 20px;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .container.visible { opacity: 1; }
+
+    .header {
+      position: relative;
+      padding: 16px 16px 18px;
+      text-align: center;
+      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
+      color: #022c22;
+      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
+    }
+    .header::before {
+      content: '';
+      position: absolute; inset: -60%;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
+        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
+      opacity: 0.7;
+      animation: headerGlow 20s linear infinite;
+    }
+    @keyframes headerGlow {
+      0% { transform: translate(0,0); }
+      100% { transform: translate(-70px,35px); }
+    }
+    .header-content { position: relative; z-index: 1; }
+    .header h1 {
+      font-size: 24px;
+      letter-spacing: 1.3px;
+      text-shadow: 0 0 9px rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+    .subtitle {
+      font-size: 13px;
+      font-weight: bold;
+      color: #fefce8;
+    }
+    .stage-indicator {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 5px 14px;
+      border-radius: 16px;
+      background: rgba(15,23,42,0.9);
+      border: 2px solid #fef3c7;
+      color: #fefce8;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(59,130,246,0.9);
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      background: linear-gradient(to right, #fef3c7, #e0f2fe);
+      border-bottom: 1px solid rgba(148,163,184,0.7);
+      font-size: 13px;
+      color: #374151;
+    }
+
+    .layout {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 14px;
+      gap: 14px;
+      background:
+        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
+        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
+        #f9fafb;
+    }
+
+    .left-panel {
+      flex: 1.2;
+      min-width: 360px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.8);
+      padding: 10px;
+      background: #e0f2fe;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .panel-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f172a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .situation-card {
+      border-radius: 14px;
+      border: 2px solid rgba(59,130,246,0.9);
+      background: #eff6ff;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .situation-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: #1d4ed8;
+    }
+    .situation-text {
+      font-size: 12px;
+      color: #374151;
+    }
+
+    .actions-bank {
+      margin-top: 6px;
+      border-radius: 14px;
+      border: 2px solid rgba(148,163,184,0.9);
+      background: #fffbeb;
+      padding: 6px;
+      min-height: 80px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .action-chip {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      cursor: grab;
+      background: linear-gradient(135deg, #bfdbfe, #fef3c7);
+      border: 1px solid rgba(148, 163, 184, 0.9);
+      color: #111827;
+      box-shadow: 0 2px 6px rgba(148,163,184,0.8);
+    }
+    .action-chip.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+    }
+
+    .right-panel {
+      flex: 1;
+      min-width: 320px;
+      border-radius: 18px;
+      border: 2px solid rgba(56,189,248,0.8);
+      padding: 12px;
+      background: #fefce8;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .score-card {
+      flex: 1;
+      text-align: center;
+      padding: 6px 5px;
+      border-radius: 12px;
+      background: #eff6ff;
+      border: 1px solid rgba(148, 163, 184, 0.8);
+      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
+    }
+    .score-label {
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      color: #4b5563;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .score-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #374151;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .buckets {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .bucket {
+      border-radius: 14px;
+      border: 2px dashed rgba(148,163,184,0.9);
+      padding: 6px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .bucket.do {
+      background: #dcfce7;
+    }
+    .bucket.dont {
+      background: #fee2e2;
+    }
+
+    .bucket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+    .bucket-name {
+      font-size: 12px;
+      font-weight: bold;
+      color: #111827;
+    }
+    .bucket-hint {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: right;
+    }
+    .bucket-items {
+      margin-top: 4px;
+      min-height: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .feedback {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      border-radius: 10px;
+      padding: 6px 8px;
+      display: none;
+    }
+    .feedback.good {
+      background: rgba(134,239,172,0.6);
+      border: 1px solid #16a34a;
+      color: #064e3b;
+    }
+    .feedback.warn {
+      background: rgba(254,202,202,0.7);
+      border: 1px solid #f97316;
+      color: #7c2d12;
+    }
+
+    .controls {
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #4b5563;
+    }
+
+    .btn-primary {
+      padding: 7px 14px;
+      border-radius: 18px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(34,197,94,1);
+    }
+
+    .btn-secondary {
+      padding: 6px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 12px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn-secondary:hover {
+      border-color: #f97316;
+      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    }
+
+    .volume-control {
+      margin-top: 4px;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #4b5563;
+    }
+    .volume-control input { flex: 1; }
+
+    .final-screen {
+      padding: 20px 16px 16px;
+      text-align: center;
+    }
+    .final-title {
+      font-size: 20px;
+      margin-bottom: 8px;
+      color: #7c2d12;
+    }
+    .final-badge { font-size: 40px; margin: 10px 0; }
+    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
+    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
+    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+
+    @media (max-width: 768px) {
+      .header h1 { font-size: 20px; }
+      .layout { flex-direction: column; }
+      .left-panel, .right-panel { min-width: 100%; }
+      .buckets { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Calm Choice Lab...</div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContainer">
+    <div class="header">
+      <div class="header-content">
+        <h1>🧪 Calm Choice Lab – Do or Don’t?</h1>
+        <div class="subtitle">Grade 5 – Chapter 3: Self-Management</div>
+        <div class="stage-indicator" id="stageIndicator">Situations completed: 0 / 4</div>
+      </div>
+    </div>
+
+    <div class="top-bar">
+      <div>Self-management means choosing healthy ways to handle your thoughts, emotions and behaviour.[file:37]</div>
+      <div>Sort actions into Helpful (Do’s) and Not Helpful (Don’ts) for each situation.[file:37]</div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="left-panel">
+        <div class="panel-title">Lab Situation</div>
+        <div class="situation-card">
+          <div class="situation-title" id="situationTitle"></div>
+          <div class="situation-text" id="situationText"></div>
+        </div>
+
+        <div class="actions-bank" id="actionsBank"></div>
+      </div>
+
+      <div class="right-panel">
+        <div class="score-row">
+          <div class="score-card">
+            <div class="score-label">Correct Choices</div>
+            <div class="score-value" id="correctCount">0</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Calm Skill</div>
+            <div class="score-value" id="calmPercent">0%</div>
+          </div>
+          <div class="score-card">
+            <div class="score-label">Lab Rank</div>
+            <div class="score-value" id="rankText">Beginner</div>
+          </div>
+        </div>
+
+        <div class="status-text" id="statusText">
+          Drag each action into the bucket where it belongs. Think: does this help me calm down or make things worse?
+        </div>
+
+        <div class="buckets">
+          <div class="bucket do" data-type="do">
+            <div class="bucket-header">
+              <div class="bucket-name">✅ Helpful (Do’s)</div>
+              <div class="bucket-hint">Actions that help you manage emotions</div>
+            </div>
+            <div class="bucket-items" id="doBucket"></div>
+          </div>
+
+          <div class="bucket dont" data-type="dont">
+            <div class="bucket-header">
+              <div class="bucket-name">❌ Not Helpful (Don’ts)</div>
+              <div class="bucket-hint">Actions that hurt you or others</div>
+            </div>
+            <div class="bucket-items" id="dontBucket"></div>
+          </div>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="controls">
+          <button class="btn-secondary" id="nextBtn">Next situation</button>
+          <div id="progressText">Finish sorting all actions for each situation. When done, click “Finish Lab”.</div>
+          <button class="btn-primary" id="finishBtn">Finish Lab</button>
+        </div>
+
+        <div class="volume-control">
+          <span>🔊 Sounds</span>
+          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const mainContainer = document.getElementById("mainContainer");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      mainContainer.classList.add("visible");
+    }, 2500);
+
+    // Audio
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    let volume = 0.8;
+    goodSound.volume = volume;
+    celebrationSound.volume = volume;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+    document.getElementById("volumeSlider").addEventListener("input", e => {
+      volume = e.target.value / 100;
+      goodSound.volume = volume;
+      celebrationSound.volume = volume;
+    });
+
+    // Based on chapter list: scream, relax, play with fidget toys, break the rules, show respect,
+    // yell, find a calming area, fight, threaten, chill out, remain calm, read for a while,
+    // close your eyes and focus on your breathing, blame others, talk to someone, listen to music.[file:37]
+    const allActions = [
+      { id: "scream", text: "Scream", type: "dont" },
+      { id: "relax", text: "Relax", type: "do" },
+      { id: "fidget", text: "Play with fidget toys", type: "do" },
+      { id: "break_rules", text: "Break the rules", type: "dont" },
+      { id: "respect", text: "Show respect", type: "do" },
+      { id: "yell", text: "Yell", type: "dont" },
+      { id: "calming_area", text: "Find a calming area", type: "do" },
+      { id: "fight", text: "Fight", type: "dont" },
+      { id: "threaten", text: "Threaten", type: "dont" },
+      { id: "chill", text: "Chill out", type: "do" },
+      { id: "remain_calm", text: "Remain calm", type: "do" },
+      { id: "read", text: "Read for a while", type: "do" },
+      { id: "breathing", text: "Close your eyes and focus on your breathing", type: "do" },
+      { id: "blame", text: "Blame others", type: "dont" },
+      { id: "talk", text: "Talk to someone", type: "do" },
+      { id: "music", text: "Listen to music", type: "do" }
+    ];
+
+    const situations = [
+      {
+        title: "Angry After an Argument",
+        text: "You had an argument with a friend, and you feel very angry and upset.",
+        actions: allActions
+      },
+      {
+        title: "Nervous Before a Test",
+        text: "You have a test tomorrow and your stomach feels tight and worried.",
+        actions: allActions
+      },
+      {
+        title: "Embarrassed by a Mistake",
+        text: "You made a mistake in front of the class and feel hot and embarrassed.",
+        actions: allActions
+      },
+      {
+        title: "Disappointed by a Result",
+        text: "You did not get chosen for an activity you wanted, and you feel sad and frustrated.",
+        actions: allActions
+      }
+    ];
+
+    const situationTitleEl = document.getElementById("situationTitle");
+    const situationTextEl = document.getElementById("situationText");
+    const actionsBankEl = document.getElementById("actionsBank");
+    const doBucket = document.getElementById("doBucket");
+    const dontBucket = document.getElementById("dontBucket");
+    const feedbackEl = document.getElementById("feedback");
+    const correctCountEl = document.getElementById("correctCount");
+    const calmPercentEl = document.getElementById("calmPercent");
+    const rankTextEl = document.getElementById("rankText");
+    const stageIndicator = document.getElementById("stageIndicator");
+    const statusTextEl = document.getElementById("statusText");
+    const progressTextEl = document.getElementById("progressText");
+    const nextBtn = document.getElementById("nextBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const gameWrapper = document.getElementById("gameWrapper");
+
+    let currentSituationIndex = 0;
+    let draggingChip = null;
+    let placed = {}; // actionId -> "do"/"dont"
+    let totalCorrect = 0;
+    const totalActionsPerSituation = allActions.length;
+    const totalSituations = situations.length;
+    const totalPossibleCorrect = totalActionsPerSituation * totalSituations;
+
+    function buildActionsBank(){
+      actionsBankEl.innerHTML = "";
+      placed = {};
+      const actions = situations[currentSituationIndex].actions;
+      actions.forEach(action => {
+        const chip = document.createElement("div");
+        chip.className = "action-chip";
+        chip.dataset.id = action.id;
+        chip.dataset.type = action.type;
+        chip.textContent = action.text;
+        chip.draggable = true;
+        chip.addEventListener("dragstart", handleDragStart);
+        chip.addEventListener("dragend", handleDragEnd);
+        actionsBankEl.appendChild(chip);
+      });
+      doBucket.innerHTML = "";
+      dontBucket.innerHTML = "";
+    }
+
+    function loadSituation(){
+      const s = situations[currentSituationIndex];
+      situationTitleEl.textContent = s.title;
+      situationTextEl.textContent = s.text;
+      feedbackEl.style.display = "none";
+      buildActionsBank();
+      updateScore();
+      stageIndicator.textContent = "Situations completed: " + currentSituationIndex + " / " + totalSituations;
+      statusTextEl.textContent = "Think about this situation. Which actions would help you calm down, and which would not?";
+      progressTextEl.textContent = "Sort as many actions as you can. Then go to the next situation.";
+    }
+
+    function handleDragStart(e){
+      draggingChip = e.target;
+      draggingChip.classList.add("dragging");
+    }
+
+    function handleDragEnd(e){
+      if(draggingChip){
+        draggingChip.classList.remove("dragging");
+      }
+      draggingChip = null;
+    }
+
+    document.querySelectorAll(".bucket").forEach(bucket => {
+      bucket.addEventListener("dragover", e => e.preventDefault());
+      bucket.addEventListener("drop", e => {
+        e.preventDefault();
+        if(!draggingChip) return;
+        const targetType = bucket.dataset.type;
+        dropActionIntoBucket(draggingChip, targetType);
+        draggingChip = null;
+      });
+    });
+
+    function dropActionIntoBucket(chip, targetType){
+      const id = chip.dataset.id;
+      const realType = chip.dataset.type;
+
+      // Avoid placing twice
+      if(placed[id]) return;
+
+      const clone = chip.cloneNode(true);
+      clone.draggable = false;
+      clone.classList.remove("dragging");
+      clone.style.cursor = "default";
+
+      const bucketItems = targetType === "do" ? doBucket : dontBucket;
+      bucketItems.appendChild(clone);
+
+      chip.style.opacity = 0.3;
+      chip.draggable = false;
+
+      placed[id] = targetType;
+
+      feedbackEl.style.display = "block";
+      if(targetType === realType){
+        playGood();
+        totalCorrect++;
+        feedbackEl.className = "feedback good";
+        feedbackEl.textContent = "Good choice. This action belongs in this bucket. Helpful choices show self-control and healthy coping.[file:37]";
+      } else {
+        feedbackEl.className = "feedback.warn";
+        feedbackEl.textContent = "Think again. Ask yourself: Does this action really help me calm down and act wisely, or could it hurt me or others?[file:37]";
+      }
+      updateScore();
+    }
+
+    function updateScore(){
+      correctCountEl.textContent = totalCorrect;
+      const percent = Math.round((totalCorrect / totalPossibleCorrect) * 100);
+      calmPercentEl.textContent = percent + "%";
+
+      if(percent >= 80){
+        rankTextEl.textContent = "Calm Captain";
+      } else if(percent >= 50){
+        rankTextEl.textContent = "Self-Manager";
+      } else {
+        rankTextEl.textContent = "Beginner";
+      }
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if(currentSituationIndex < totalSituations - 1){
+        currentSituationIndex++;
+        loadSituation();
+      } else {
+        statusTextEl.textContent = "You’ve seen all situations. Click “Finish Lab” to see your self-management report.";
+        progressTextEl.textContent = "Remember: real life will bring new situations where you can reuse these helpful choices.";
+      }
+    });
+
+    finishBtn.addEventListener("click", () => {
+      const percent = Math.round((totalCorrect / totalPossibleCorrect) * 100);
+      playCelebrate();
+
+      let rank, badge, text;
+      if(percent >= 80){
+        rank = "Self-Management Star";
+        badge = "🌟";
+        text = "You can clearly tell which actions help you stay calm and which do not. This is strong self-management and real inner power.[file:37]";
+      } else if(percent >= 50){
+        rank = "Calm Learner";
+        badge = "🌱";
+        text = "You are learning to choose helpful ways to manage emotions. Keep practising to build even stronger habits.[file:37]";
+      } else {
+        rank = "New Explorer";
+        badge = "💧";
+        text = "You’ve started to notice that some actions make situations worse. With more reflection, you can learn to choose calmer, wiser responses.[file:37]";
+      }
+
+      const html = `
+        <div class="final-screen">
+          <div class="final-title">Calm Choice Lab Report</div>
+          <div class="final-badge">${badge}</div>
+          <div class="final-rank">${rank}</div>
+          <div class="final-score">Correct choices: ${totalCorrect} / ${totalPossibleCorrect} (${percent}%)</div>
+          <div class="final-text">${text}</div>
+          <button class="btn-primary" id="playAgainBtn">Restart Lab</button>
+        </div>
+      `;
+      gameWrapper.innerHTML = html;
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    });
+
+    // Initial
+    loadSituation();
+  </script>
+</body>
+</html>
