@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spring's Journey – Adaptability Adventure</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: #e5e7eb;
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .shell {
+      max-width: 1000px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34,197,94,0.7);
+      position: relative;
+      background: #020617;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .shell.visible { opacity: 1; }
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      font-size: 11px;
+      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
+      z-index: 5;
+    }
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .top-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .top-sub {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meter {
+      width: 100px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.3s ease-out;
+    }
+
+    .scene-wrap {
+      position: absolute;
+      inset: 44px 0 0 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .scene {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg {
+      position: absolute;
+      inset: 0;
+      transition: background 0.8s ease-out;
+    }
+    .bg.pen {
+      background: radial-gradient(circle at top, #1f2937 0%, #020617 100%);
+    }
+    .bg.pipes {
+      background: radial-gradient(circle at top, #0f172a 0%, #1d4ed8 40%, #020617 100%);
+    }
+    .bg.river {
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0f766e 40%, #14532d 100%);
+    }
+
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 80px;
+      background: linear-gradient(to top, #111827, #1f2937);
+    }
+    .ground.river {
+      background: linear-gradient(to top, #065f46, #16a34a);
+    }
+
+    /* Pen, pipes, river visuals */
+    .pen-box {
+      position: absolute;
+      width: 140px;
+      height: 80px;
+      border-radius: 10px;
+      border: 2px solid #9ca3af;
+      background: rgba(15,23,42,0.85);
+      top: 50%;
+      left: 10%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .pen-label {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .pipe-tube {
+      position: absolute;
+      top: 30%;
+      left: -10%;
+      width: 120%;
+      height: 40%;
+      border-radius: 40px;
+      border: 6px solid #1f2937;
+      background: radial-gradient(circle at top, #0f172a 0%, #020617 100%);
+      overflow: hidden;
+    }
+
+    .pipe-water {
+      position: absolute;
+      inset: 3px;
+      border-radius: 40px;
+      background: repeating-linear-gradient(
+        -45deg,
+        #0ea5e9 0, #0ea5e9 8px,
+        #0369a1 8px, #0369a1 16px
+      );
+      animation: flow 1.2s linear infinite;
+      opacity: 0.9;
+    }
+    @keyframes flow {
+      from { background-position: 0 0; }
+      to { background-position: 40px 40px; }
+    }
+
+    .river-water {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 40px;
+      height: 80px;
+      background: linear-gradient(to top, #0ea5e9, #38bdf8);
+      box-shadow: 0 -8px 16px rgba(15,23,42,0.8);
+    }
+
+    .fish {
+      position: absolute;
+      width: 32px;
+      height: 16px;
+      border-radius: 16px;
+      background: linear-gradient(to right, #f97316, #fde68a);
+      top: 50%;
+      left: 20%;
+      transform: translateY(-50%);
+    }
+
+    .fish::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      top: 4px;
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid #f97316;
+    }
+
+    .flower {
+      position: absolute;
+      bottom: 80px;
+      right: 16%;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #fecaca 0, #f97316 70%);
+      transform-origin: bottom center;
+    }
+    .flower-stem {
+      position: absolute;
+      bottom: 62px;
+      right: 16.8%;
+      width: 4px;
+      height: 24px;
+      border-radius: 999px;
+      background: #15803d;
+    }
+    .flower.flattened {
+      transform: rotate(75deg);
+      bottom: 72px;
+    }
+
+    /* Spring player */
+    .spring {
+      position: absolute;
+      width: 40px;
+      height: 50px;
+      border-radius: 999px;
+      border: 4px solid #facc15;
+      box-shadow: 0 0 12px rgba(250,204,21,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #facc15;
+      font-size: 18px;
+      transition: transform 0.15s ease-out;
+    }
+    .spring.compact {
+      height: 30px;
+    }
+
+    /* HUD bottom text & buttons */
+    .bottom-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 10px;
+      font-size: 11px;
+      pointer-events: none;
+    }
+    .step-text {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .buttons {
+      display: flex;
+      gap: 6px;
+      pointer-events: auto;
+    }
+    .btn-choice {
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 11px;
+      cursor: pointer;
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+    }
+    .btn-choice:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.8);
+    }
+
+    /* End screen */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      z-index: 20;
+    }
+    .end-title {
+      font-size: 22px;
+    }
+    .end-sub {
+      font-size: 13px;
+      max-width: 360px;
+      opacity: 0.95;
+    }
+    .end-badge {
+      font-size: 44px;
+    }
+    .end-btn {
+      margin-top: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .end-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    @media (max-width: 768px) {
+      .top-title { font-size: 11px; }
+      .top-sub { font-size: 10px; }
+      .step-text { font-size: 10px; }
+      .btn-choice { font-size: 10px; padding: 3px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Spring's Journey...</div>
+    </div>
+  </div>
+
+  <div class="shell" id="shell">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="top-title">Spring's Journey – Adaptability</div>
+        <div class="top-sub" id="topSub">The spring starts in a tiny pen. Will it stay scared or explore?</div>
+      </div>
+      <div class="top-right">
+        <span>Openness to Change</span>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span>🌱</span>
+      </div>
+    </div>
+
+    <div class="scene-wrap">
+      <div class="scene">
+        <div class="bg pen" id="bg"></div>
+        <div class="ground" id="ground"></div>
+
+        <!-- Level visuals -->
+        <div class="pen-box" id="penBox">
+          <div>SPRING<br>IN PEN</div>
+        </div>
+        <div class="pen-label" id="penLabel">Safe, but very small world.</div>
+
+        <div class="pipe-tube" id="pipeTube" style="display:none;">
+          <div class="pipe-water"></div>
+        </div>
+
+        <div class="river-water" id="riverWater" style="display:none;">
+          <div class="fish" id="fish"></div>
+        </div>
+        <div class="flower-stem" id="flowerStem" style="display:none;"></div>
+        <div class="flower flattened" id="flower" style="display:none;"></div>
+
+        <!-- Spring player -->
+        <div class="spring compact" id="spring">🔁</div>
+
+        <!-- Bottom controls -->
+        <div class="bottom-bar">
+          <div class="step-text" id="stepText">Step 1 · Tap a button to choose what the spring does.</div>
+          <div class="buttons">
+            <button class="btn-choice" id="btnHold">Stay closed</button>
+            <button class="btn-choice" id="btnExplore">Open & explore</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const shell = document.getElementById("shell");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      shell.classList.add("visible");
+    }, 2200);
+
+    // Audio
+    const goodSound = new Audio("assets/correct.mp3");
+    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
+    goodSound.volume = 0.8;
+    celebrationSound.volume = 0.8;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    const bg = document.getElementById("bg");
+    const ground = document.getElementById("ground");
+    const spring = document.getElementById("spring");
+    const penBox = document.getElementById("penBox");
+    const penLabel = document.getElementById("penLabel");
+    const pipeTube = document.getElementById("pipeTube");
+    const riverWater = document.getElementById("riverWater");
+    const fish = document.getElementById("fish");
+    const flower = document.getElementById("flower");
+    const flowerStem = document.getElementById("flowerStem");
+    const stepText = document.getElementById("stepText");
+    const topSub = document.getElementById("topSub");
+    const btnHold = document.getElementById("btnHold");
+    const btnExplore = document.getElementById("btnExplore");
+    const meterFill = document.getElementById("meterFill");
+
+    let step = 0; // 0 = pen, 1 = pipes, 2 = river, 3 = flower
+    let openness = 0; // 0–100
+
+    function updateMeter(){
+      meterFill.style.width = openness + "%";
+    }
+
+    function setSpringPosition(x, y, compact){
+      spring.style.transform = "translate(" + x + "px, " + y + "px)";
+      if(compact){
+        spring.classList.add("compact");
+      } else {
+        spring.classList.remove("compact");
+      }
+    }
+
+    function goToStep(newStep){
+      step = newStep;
+      if(step === 0){
+        bg.className = "bg pen";
+        ground.className = "ground";
+        penBox.style.display = "flex";
+        penLabel.style.display = "block";
+        pipeTube.style.display = "none";
+        riverWater.style.display = "none";
+        flower.style.display = "none";
+        flowerStem.style.display = "none";
+        setSpringPosition(80, -10, true);
+        stepText.textContent = "Step 1 · The spring is in the pen. Stay closed or be ready for change?";
+        topSub.textContent = "At first, the spring feels safe in the small pen, even if it is boring.[file:38]";
+      } else if(step === 1){
+        bg.className = "bg pipes";
+        ground.className = "ground";
+        penBox.style.display = "none";
+        penLabel.style.display = "none";
+        pipeTube.style.display = "block";
+        riverWater.style.display = "none";
+        flower.style.display = "none";
+        flowerStem.style.display = "none";
+        setSpringPosition(340, -20, true);
+        stepText.textContent = "Step 2 · The spring is in the pipes. Keep eyes shut or start to look around?";
+        topSub.textContent = "The spring is pushed through pipes. It feels scary and new.[file:38]";
+      } else if(step === 2){
+        bg.className = "bg river";
+        ground.className = "ground river";
+        pipeTube.style.display = "none";
+        riverWater.style.display = "block";
+        flower.style.display = "none";
+        flowerStem.style.display = "none";
+        setSpringPosition(220, -10, false);
+        stepText.textContent = "Step 3 · The spring reaches a river. Ignore it or enjoy the new world?";
+        topSub.textContent = "When the spring opens its eyes, it sees the clear river, fish and sunlight.[file:38]";
+      } else if(step === 3){
+        bg.className = "bg river";
+        ground.className = "ground river";
+        riverWater.style.display = "block";
+        flower.style.display = "block";
+        flowerStem.style.display = "block";
+        setSpringPosition(480, -5, false);
+        stepText.textContent = "Step 4 · The flower is bent. Turn away or help by being support?";
+        topSub.textContent = "The spring realises it can help the flattened flower by being a support.[file:38]";
+        // tilt flower more clearly
+        flower.classList.add("flattened");
+      }
+      updateMeter();
+    }
+
+    function showEndScreen(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+
+      const openEnough = openness >= 60;
+      const title = openEnough ? "Adaptable Spring" : "Still Afraid of Change";
+      const badge = openEnough ? "🌈🔁" : "🌧️🔁";
+      const text = openEnough
+        ? "The spring opened its eyes, enjoyed the bigger world and helped the flower. Change was not bad – it became something positive.[file:38]"
+        : "The spring stayed afraid and did not use the chance to see and help in a bigger world. With more small steps, it can learn to adapt.[file:38]";
+
+      end.innerHTML = `
+        <div class="end-badge">${badge}</div>
+        <div class="end-title">${title}</div>
+        <div class="end-sub">${text}</div>
+        <button class="end-btn" id="playAgainBtn">Play Again</button>
+      `;
+      shell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    function handleChoice(choice){
+      // choice: "hold" or "explore"
+      if(choice === "explore"){
+        openness = Math.min(openness + 30, 100);
+        playGood();
+      } else {
+        openness = Math.max(openness - 5, 0);
+      }
+
+      updateMeter();
+
+      if(step < 3){
+        goToStep(step + 1);
+      } else {
+        setTimeout(showEndScreen, 800);
+      }
+    }
+
+    btnHold.addEventListener("click", () => handleChoice("hold"));
+    btnExplore.addEventListener("click", () => handleChoice("explore"));
+
+    // optional keyboard: left for hold, right for explore
+    window.addEventListener("keydown", (e) => {
+      if(e.key === "ArrowLeft") handleChoice("hold");
+      if(e.key === "ArrowRight") handleChoice("explore");
+    });
+
+    // Initial position
+    goToStep(0);
+  </script>
+</body>
+</html>
