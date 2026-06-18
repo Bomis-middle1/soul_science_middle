@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Team Puzzle – Diversity & Inclusion</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, #1e293b 40%, #020617 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash screen */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .shell {
+      max-width: 1000px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34,197,94,0.7);
+      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 35%, #064e3b 100%);
+      position: relative;
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .shell.visible { opacity: 1; }
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      font-size: 11px;
+      color: #e5e7eb;
+      background: linear-gradient(to right, rgba(15,23,42,0.95), rgba(30,64,175,0.95));
+      z-index: 5;
+    }
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .top-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .top-sub {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meter {
+      width: 100px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.4s ease-out;
+    }
+
+    .layout {
+      position: absolute;
+      inset: 46px 0 0 0;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      padding: 10px;
+      gap: 10px;
+    }
+
+    /* Frame area */
+    .frame-area {
+      border-radius: 18px;
+      background: radial-gradient(circle at top, #e0f2fe 0%, #fef3c7 40%, #bbf7d0 100%);
+      box-shadow: inset 0 0 20px rgba(148,163,184,0.8);
+      position: relative;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .frame-title {
+      text-align: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .frame {
+      flex: 1;
+      border-radius: 16px;
+      border: 3px solid rgba(31,41,55,0.9);
+      background: linear-gradient(to top, #0f172a, #1f2937);
+      padding: 8px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+      position: relative;
+    }
+
+    .frame-slot {
+      border-radius: 10px;
+      border: 2px dashed rgba(148,163,184,0.8);
+      background: rgba(15,23,42,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: rgba(148,163,184,0.9);
+    }
+
+    .frame-slot.filled {
+      border-style: solid;
+      border-color: rgba(34,197,94,0.9);
+      box-shadow: 0 0 10px rgba(34,197,94,0.9);
+    }
+
+    .frame-caption {
+      margin-top: 6px;
+      text-align: center;
+      font-size: 11px;
+      color: #374151;
+    }
+
+    /* Tiles area */
+    .tiles-area {
+      border-radius: 18px;
+      background: rgba(15,23,42,0.9);
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
+      color: #e5e7eb;
+    }
+
+    .tiles-title {
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .tiles-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+    }
+
+    .tile {
+      border-radius: 12px;
+      background: rgba(30,64,175,0.9);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px;
+      cursor: grab;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+      font-size: 11px;
+      user-select: none;
+    }
+    .tile.dragging {
+      opacity: 0.7;
+      box-shadow: 0 0 12px rgba(59,130,246,0.9);
+    }
+    .tile-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: radial-gradient(circle at 30% 20%, #e5e7eb 0%, #9ca3af 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .tile-label {
+      flex: 1;
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+    .tag {
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+    }
+
+    .hint-box {
+      font-size: 11px;
+      text-align: center;
+      padding: 4px 6px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+
+    .footer-text {
+      position: absolute;
+      left: 50%;
+      bottom: 8px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #e5e7eb;
+      text-align: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    /* End screen */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      text-align: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    .end-title {
+      font-size: 22px;
+    }
+    .end-sub {
+      font-size: 13px;
+      max-width: 360px;
+      opacity: 0.95;
+    }
+    .end-badge {
+      font-size: 44px;
+    }
+    .end-btn {
+      margin-top: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .end-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Team Puzzle...</div>
+    </div>
+  </div>
+
+  <div class="shell" id="shell">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="top-title">Team Puzzle – Diversity & Inclusion</div>
+        <div class="top-sub">Drag every different student into the class photo. Every piece matters.</div>
+      </div>
+      <div class="top-right">
+        <span>Team Complete</span>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span>👥</span>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <div class="frame-area">
+        <div class="frame-title">Class Photo</div>
+        <div class="frame" id="frame">
+          <!-- 8 slots -->
+        </div>
+        <div class="frame-caption">
+          Different cultures, abilities and interests make the team stronger together.[file:38]
+        </div>
+      </div>
+
+      <div class="tiles-area">
+        <div class="tiles-title">Drag the students into the frame</div>
+        <div class="tiles-grid" id="tilesGrid"></div>
+        <div class="hint-box">
+          Try to use <strong>all</strong> the students. Everyone belongs in the picture.
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-text">
+      Tip: Look at the icons and tags. Each student brings something unique.
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const shell = document.getElementById("shell");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      shell.classList.add("visible");
+    }, 2200);
+
+    // Sounds
+    const goodSound = new Audio('assets/correct.mp3');
+    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    goodSound.volume = 0.8;
+    celebrationSound.volume = 0.8;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    const frameEl = document.getElementById("frame");
+    const tilesGrid = document.getElementById("tilesGrid");
+    const gameWrapper = document.getElementById("gameWrapper");
+    const meterFill = document.getElementById("meterFill");
+
+    // 8 students with different simple traits (kept short).[file:38]
+    const students = [
+      {
+        id: "s1",
+        emoji: "👧",
+        label: "Loves books",
+        tags: ["different culture", "reader"]
+      },
+      {
+        id: "s2",
+        emoji: "👦",
+        label: "Plays football",
+        tags: ["sports", "teamwork"]
+      },
+      {
+        id: "s3",
+        emoji: "🧕",
+        label: "New to this city",
+        tags: ["new language", "new culture"]
+      },
+      {
+        id: "s4",
+        emoji: "🧑‍🦽",
+        label: "Uses a wheelchair",
+        tags: ["different ability", "strategic thinker"]
+      },
+      {
+        id: "s5",
+        emoji: "👩‍🎨",
+        label: "Loves painting",
+        tags: ["creative", "art"]
+      },
+      {
+        id: "s6",
+        emoji: "👨‍🍳",
+        label: "Shares food",
+        tags: ["different food", "kind"]
+      },
+      {
+        id: "s7",
+        emoji: "👩‍💻",
+        label: "Enjoys coding",
+        tags: ["tech", "problem-solving"]
+      },
+      {
+        id: "s8",
+        emoji: "🧑‍🎤",
+        label: "Sings and dances",
+        tags: ["music", "confidence"]
+      }
+    ];
+
+    const slotCount = 8;
+    let draggingTile = null;
+    let placedCount = 0;
+
+    function buildFrame(){
+      frameEl.innerHTML = "";
+      for(let i = 0; i < slotCount; i++){
+        const slot = document.createElement("div");
+        slot.className = "frame-slot";
+        slot.dataset.slotIndex = i;
+        slot.textContent = "➕";
+
+        slot.addEventListener("dragover", e => e.preventDefault());
+        slot.addEventListener("drop", e => {
+          e.preventDefault();
+          if(!draggingTile) return;
+          placeTileInSlot(draggingTile, slot);
+          draggingTile = null;
+        });
+
+        frameEl.appendChild(slot);
+      }
+    }
+
+    function buildTiles(){
+      tilesGrid.innerHTML = "";
+      students.forEach(st => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.dataset.id = st.id;
+        tile.draggable = true;
+
+        tile.addEventListener("dragstart", e => {
+          draggingTile = tile;
+          tile.classList.add("dragging");
+        });
+        tile.addEventListener("dragend", e => {
+          tile.classList.remove("dragging");
+          draggingTile = null;
+        });
+
+        const icon = document.createElement("div");
+        icon.className = "tile-icon";
+        icon.textContent = st.emoji;
+
+        const info = document.createElement("div");
+        info.className = "tile-label";
+        info.textContent = st.label;
+
+        const tagRow = document.createElement("div");
+        tagRow.className = "tag-row";
+        st.tags.forEach(t => {
+          const span = document.createElement("span");
+          span.className = "tag";
+          span.textContent = t;
+          tagRow.appendChild(span);
+        });
+
+        info.appendChild(tagRow);
+        tile.appendChild(icon);
+        tile.appendChild(info);
+        tilesGrid.appendChild(tile);
+      });
+    }
+
+    function placeTileInSlot(tile, slot){
+      // prevent overwriting filled slot
+      if(slot.classList.contains("filled")) return;
+
+      // move a clone into frame
+      const tileId = tile.dataset.id;
+      const student = students.find(s => s.id === tileId);
+      if(!student) return;
+
+      const inner = document.createElement("div");
+      inner.style.display = "flex";
+      inner.style.flexDirection = "column";
+      inner.style.alignItems = "center";
+      inner.style.justifyContent = "center";
+      inner.style.gap = "2px";
+
+      const face = document.createElement("div");
+      face.style.width = "30px";
+      face.style.height = "30px";
+      face.style.borderRadius = "50%";
+      face.style.display = "flex";
+      face.style.alignItems = "center";
+      face.style.justifyContent = "center";
+      face.style.fontSize = "20px";
+      face.style.background = "radial-gradient(circle at 30% 20%, #e5e7eb 0%, #9ca3af 70%)";
+      face.textContent = student.emoji;
+
+      const label = document.createElement("div");
+      label.style.fontSize = "9px";
+      label.style.color = "#e5e7eb";
+      label.textContent = student.label;
+
+      inner.appendChild(face);
+      inner.appendChild(label);
+
+      slot.innerHTML = "";
+      slot.appendChild(inner);
+      slot.classList.add("filled");
+      placedCount++;
+      playGood();
+      updateMeter();
+
+      // hide original tile so it can't be reused
+      tile.style.opacity = "0.2";
+      tile.draggable = false;
+
+      if(placedCount >= slotCount){
+        setTimeout(showEndScreen, 800);
+      }
+    }
+
+    function updateMeter(){
+      const percent = Math.round((placedCount / slotCount) * 100);
+      meterFill.style.width = percent + "%";
+    }
+
+    function showEndScreen(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+      end.innerHTML = `
+        <div class="end-badge">🌍👥</div>
+        <div class="end-title">Team Complete!</div>
+        <div class="end-sub">
+          You used every different student to finish the class photo.  
+          A diverse, inclusive classroom has many cultures, abilities and talents working together.[file:38]
+        </div>
+        <button class="end-btn" id="playAgainBtn">Build the Team Again</button>
+      `;
+      shell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    // Init
+    buildFrame();
+    buildTiles();
+  </script>
+</body>
+</html>
