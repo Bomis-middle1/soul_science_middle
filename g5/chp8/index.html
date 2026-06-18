@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Positive Talk Mixer – Enthusiasm & Attitude</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .shell {
+      max-width: 1000px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34,197,94,0.7);
+      position: relative;
+      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 40%, #022c22 100%);
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .shell.visible { opacity: 1; }
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 11px;
+      z-index: 5;
+    }
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .top-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .top-sub {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meter {
+      width: 100px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.3s ease-out;
+    }
+
+    .layout {
+      position: absolute;
+      inset: 46px 0 0 0;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Negative / positive columns */
+    .column {
+      border-radius: 18px;
+      background: #e0f2fe;
+      padding: 10px;
+      box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .col-title {
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      color: #1f2937;
+    }
+
+    .cards {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .card {
+      border-radius: 12px;
+      padding: 8px;
+      font-size: 11px;
+      line-height: 1.4;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid transparent;
+    }
+
+    .card-left {
+      background: #fee2e2;
+      border-color: #fca5a5;
+      color: #7f1d1d;
+    }
+    .card-right {
+      background: #dcfce7;
+      border-color: #86efac;
+      color: #064e3b;
+    }
+
+    .card.selected {
+      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+      border-color: #3b82f6;
+    }
+    .card.matched {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .card-icon {
+      font-size: 16px;
+    }
+
+    .hint {
+      font-size: 11px;
+      text-align: center;
+      color: #4b5563;
+      min-height: 26px;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #e5e7eb;
+      text-align: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    .controls {
+      position: absolute;
+      right: 10px;
+      bottom: 40px;
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+    }
+    .btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 11px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn.primary {
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    /* End screen */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      text-align: center;
+      gap: 8px;
+      z-index: 20;
+    }
+    .end-title {
+      font-size: 22px;
+    }
+    .end-sub {
+      font-size: 13px;
+      max-width: 360px;
+      opacity: 0.95;
+    }
+    .end-badge {
+      font-size: 44px;
+    }
+    .end-btn {
+      margin-top: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .end-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .controls {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Positive Talk Mixer...</div>
+    </div>
+  </div>
+
+  <div class="shell" id="shell">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="top-title">Positive Talk Mixer – Enthusiasm & Attitude</div>
+        <div class="top-sub">
+          Turn a negative thought into a positive one. This builds an “I can” attitude and enthusiasm.[file:39]
+        </div>
+      </div>
+      <div class="top-right">
+        <span>Positive Talk Level</span>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span>🙂</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- Negative thoughts -->
+      <div class="column">
+        <div class="col-title">Negative thought</div>
+        <div class="cards" id="negativeCards"></div>
+      </div>
+
+      <!-- Positive thoughts -->
+      <div class="column">
+        <div class="col-title">Positive self-talk</div>
+        <div class="cards" id="positiveCards"></div>
+      </div>
+    </div>
+
+    <div class="hint" id="hint">
+      Step 1: Tap a red negative card. Step 2: Tap the green positive card that best replaces it.
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="resetBtn">Reset</button>
+      <button class="btn primary" id="finishBtn">Finish</button>
+    </div>
+
+    <div class="bottom-bar">
+      Hint: Change “I am no good at this” to “I did my best, and I am skilled in other areas.”[file:39]
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const shell = document.getElementById("shell");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      shell.classList.add("visible");
+    }, 2200);
+
+    // Sounds
+    const goodSound = new Audio("assets/correct.mp3");
+    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
+    goodSound.volume = 0.8;
+    celebrationSound.volume = 0.8;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    const negativeCardsEl = document.getElementById("negativeCards");
+    const positiveCardsEl = document.getElementById("positiveCards");
+    const hintEl = document.getElementById("hint");
+    const resetBtn = document.getElementById("resetBtn");
+    const finishBtn = document.getElementById("finishBtn");
+    const meterFill = document.getElementById("meterFill");
+
+    // Pairs based on turning negative self-talk into positive attitude.[file:39]
+    const pairs = [
+      {
+        id: 1,
+        negative: "I am no good at this.",
+        positive: "Maybe this is not my best skill, but I did my best and I am good at many other things."
+      },
+      {
+        id: 2,
+        negative: "Today is ruined. Everything is bad.",
+        positive: "I am having a bad moment, not a bad life. I can still find one good thing today."
+      },
+      {
+        id: 3,
+        negative: "I always make mistakes.",
+        positive: "Mistakes help me learn. I can try again in a better way."
+      },
+      {
+        id: 4,
+        negative: "No one likes my ideas.",
+        positive: "This idea did not work now, but I can listen, improve it and share again."
+      },
+      {
+        id: 5,
+        negative: "I cannot do this alone.",
+        positive: "I can ask for help and learn how to do it step by step."
+      }
+    ];
+
+    let selectedNegativeId = null;
+    let matchedCount = 0;
+
+    function shuffleArray(arr){
+      const a = arr.slice();
+      for(let i = a.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildCards(){
+      negativeCardsEl.innerHTML = "";
+      positiveCardsEl.innerHTML = "";
+      selectedNegativeId = null;
+      matchedCount = 0;
+      updateMeter();
+
+      const negativeOrder = shuffleArray(pairs);
+      const positiveOrder = shuffleArray(pairs);
+
+      negativeOrder.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card card-left";
+        card.dataset.id = p.id;
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = p.negative;
+
+        const icon = document.createElement("span");
+        icon.className = "card-icon";
+        icon.textContent = "☁";
+
+        card.appendChild(textSpan);
+        card.appendChild(icon);
+
+        card.addEventListener("click", () => handleNegativeClick(card, p.id));
+        negativeCardsEl.appendChild(card);
+      });
+
+      positiveOrder.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "card card-right";
+        card.dataset.id = p.id;
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = p.positive;
+
+        const icon = document.createElement("span");
+        icon.className = "card-icon";
+        icon.textContent = "☀";
+
+        card.appendChild(textSpan);
+        card.appendChild(icon);
+
+        card.addEventListener("click", () => handlePositiveClick(card, p.id));
+        positiveCardsEl.appendChild(card);
+      });
+
+      hintEl.textContent = "Step 1: Tap a red negative card. Step 2: Tap the green positive card that best replaces it.";
+    }
+
+    function updateMeter(){
+      const percent = Math.round((matchedCount / pairs.length) * 100);
+      meterFill.style.width = percent + "%";
+    }
+
+    function clearNegativeSelection(){
+      document.querySelectorAll(".card-left").forEach(c => c.classList.remove("selected"));
+      selectedNegativeId = null;
+    }
+
+    function handleNegativeClick(card, id){
+      if(card.classList.contains("matched")) return;
+      selectedNegativeId = id;
+      document.querySelectorAll(".card-left").forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      hintEl.textContent = "Now tap the green card that turns this thought into a positive one.";
+    }
+
+    function handlePositiveClick(card, id){
+      if(card.classList.contains("matched")) return;
+      if(selectedNegativeId === null){
+        hintEl.textContent = "First choose a red negative card. Then choose a green positive card.";
+        return;
+      }
+
+      const negCard = Array.from(document.querySelectorAll(".card-left"))
+        .find(c => Number(c.dataset.id) === selectedNegativeId);
+
+      const pair = pairs.find(p => p.id === selectedNegativeId);
+
+      if(id === selectedNegativeId){
+        // Correct match
+        playGood();
+        card.classList.add("matched");
+        negCard.classList.add("matched");
+        negCard.classList.remove("selected");
+        matchedCount++;
+        updateMeter();
+
+        hintEl.textContent = "Nice. You changed that thought. Make more matches to grow your positive talk.";
+
+        selectedNegativeId = null;
+
+        if(matchedCount === pairs.length){
+          setTimeout(showEndScreen, 600);
+        }
+      } else {
+        // Not the right match
+        hintEl.textContent = "These two do not fit well. Look for a green card that really answers the red thought.";
+        // small shake effect
+        card.style.transform = "translateX(-3px)";
+        setTimeout(() => card.style.transform = "translateX(0)", 120);
+      }
+    }
+
+    function showEndScreen(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+
+      end.innerHTML = `
+        <div class="end-badge">🌈🙂</div>
+        <div class="end-title">You Flipped Your Talk!</div>
+        <div class="end-sub">
+          You turned every negative thought into positive self-talk.  
+          This kind of attitude keeps your enthusiasm high and helps you push through hard days.[file:39]
+        </div>
+        <button class="end-btn" id="playAgainBtn">Play Again</button>
+      `;
+      shell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    resetBtn.addEventListener("click", () => {
+      buildCards();
+    });
+
+    finishBtn.addEventListener("click", () => {
+      if(matchedCount < pairs.length){
+        hintEl.textContent = "Try to match all pairs first. Each match is one more step toward a positive attitude.";
+      } else {
+        showEndScreen();
+      }
+    });
+
+    // Init
+    buildCards();
+  </script>
+</body>
+</html>
