@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Self-Care Checker – Cobbler's Shoes</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #0f172a;
+      overflow: hidden;
+    }
+
+    /* Splash */
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease-out;
+    }
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .splash-content {
+      text-align: center;
+      color: #e0f2fe;
+    }
+    .splash-content img {
+      max-width: 260px;
+      width: 80%;
+      height: auto;
+      margin-bottom: 12px;
+      animation: logoFloat 2s ease-in-out infinite;
+    }
+    .splash-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      text-shadow: 0 0 12px rgba(15,23,42,0.9);
+    }
+    @keyframes logoFloat {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .shell {
+      max-width: 1000px;
+      width: 100%;
+      aspect-ratio: 16/9;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 3px solid #22c55e;
+      box-shadow: 0 0 40px rgba(34,197,94,0.7);
+      position: relative;
+      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 40%, #022c22 100%);
+      opacity: 0;
+      transition: opacity 0.7s ease-in;
+    }
+    .shell.visible { opacity: 1; }
+
+    .top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 46px;
+      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 11px;
+      z-index: 5;
+    }
+    .top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .top-title {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .top-sub {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meter {
+      width: 110px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      overflow: hidden;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.3s ease-out;
+    }
+
+    .layout {
+      position: absolute;
+      inset: 46px 0 0 0;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 10px;
+    }
+
+    /* Scene panel */
+    .scene-panel {
+      border-radius: 18px;
+      background: #e0f2fe;
+      padding: 10px;
+      box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .scene-title {
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      color: #1f2937;
+    }
+    .scene-text {
+      font-size: 12px;
+      text-align: center;
+      color: #374151;
+      min-height: 32px;
+    }
+
+    .scene-area {
+      flex: 1;
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #bbf7d0 100%);
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 1.3fr 1.3fr 1fr;
+      gap: 6px;
+      align-items: stretch;
+    }
+
+    .cobbler-area, .queue-area, .town-area {
+      border-radius: 14px;
+      background: rgba(255,255,255,0.7);
+      padding: 6px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .area-title {
+      font-weight: bold;
+      color: #111827;
+      text-align: center;
+      margin-bottom: 2px;
+    }
+
+    .cobbler {
+      flex: 1;
+      border-radius: 10px;
+      background: linear-gradient(to top, #0f172a, #1f2937);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      gap: 4px;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.8);
+    }
+
+    .cobbler-face {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #fee2e2 0, #fecaca 60%);
+      border: 2px solid rgba(148,163,184,0.8);
+      position: relative;
+    }
+    .cobbler-health-legs {
+      width: 40px;
+      height: 16px;
+      border-radius: 12px;
+      background: #4b5563;
+      position: relative;
+      margin-top: 2px;
+    }
+    .shoe {
+      position: absolute;
+      bottom: -4px;
+      width: 14px;
+      height: 8px;
+      border-radius: 4px;
+      background: #111827;
+    }
+    .shoe.left { left: 4px; }
+    .shoe.right { right: 4px; }
+    .shoe.cracked {
+      background: #6b7280;
+    }
+
+    .health-bar-wrap {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.7);
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .health-bar-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f97316, #22c55e);
+      transition: width 0.3s ease-out;
+    }
+    .health-label {
+      font-size: 10px;
+      text-align: center;
+      color: #e5e7eb;
+      margin-top: 2px;
+    }
+
+    .queue-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .villager {
+      border-radius: 999px;
+      padding: 2px 6px;
+      background: #bfdbfe;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+    }
+    .villager span:first-child {
+      font-size: 14px;
+    }
+
+    .town-people {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+    .town-row {
+      display: flex;
+      gap: 4px;
+    }
+    .town-person {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #f97316;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #f9fafb;
+    }
+    .town-person.hurt {
+      background: #6b7280;
+    }
+
+    .town-mood {
+      font-size: 11px;
+      text-align: center;
+      color: #374151;
+    }
+
+    /* Choice panel */
+    .choice-panel {
+      border-radius: 18px;
+      background: #0f172a;
+      padding: 10px;
+      color: #e5e7eb;
+      box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-title {
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .round-text {
+      font-size: 11px;
+      text-align: center;
+      min-height: 26px;
+    }
+
+    .buttons-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 4px;
+    }
+    .btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.9);
+      font-size: 11px;
+      cursor: pointer;
+      background: #eff6ff;
+      color: #111827;
+    }
+    .btn.primary {
+      border: none;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .btn.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+    .btn.secondary:hover {
+      border-color: #f97316;
+      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    }
+
+    .round-info {
+      font-size: 11px;
+      text-align: center;
+      color: #cbd5f5;
+    }
+
+    .feedback {
+      margin-top: 4px;
+      border-radius: 10px;
+      padding: 5px 7px;
+      font-size: 11px;
+      min-height: 26px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    .summary {
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      color: #cbd5f5;
+    }
+
+    .footer-text {
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #e5e7eb;
+      text-align: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.8);
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    /* End screen */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+      text-align: center;
+      gap: 8px;
+      z-index: 20;
+    }
+    .end-title {
+      font-size: 22px;
+    }
+    .end-sub {
+      font-size: 13px;
+      max-width: 380px;
+      opacity: 0.95;
+    }
+    .end-badge {
+      font-size: 44px;
+    }
+    .end-btn {
+      margin-top: 8px;
+      padding: 7px 16px;
+      font-size: 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #f9fafb;
+      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
+    }
+    .end-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(15,23,42,1);
+    }
+
+    @media (max-width: 768px) {
+      .layout { grid-template-columns: 1fr; }
+      .scene-text { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Innovine splash -->
+  <div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+      <div class="splash-title">Loading Self-Care Checker...</div>
+    </div>
+  </div>
+
+  <div class="shell" id="shell">
+    <div class="top-bar">
+      <div class="top-left">
+        <div class="top-title">Self-Care Checker – Cobbler's Shoes</div>
+        <div class="top-sub">
+          Help the cobbler choose between only fixing others’ shoes or also fixing his own.[file:39]
+        </div>
+      </div>
+      <div class="top-right">
+        <span>Cobbler Self-Care</span>
+        <div class="meter">
+          <div class="meter-fill" id="meterFill"></div>
+        </div>
+        <span>🥿</span>
+      </div>
+    </div>
+
+    <div class="layout" id="gameWrapper">
+      <!-- Scene panel -->
+      <div class="scene-panel">
+        <div class="scene-title">Cobbler in the Town</div>
+        <div class="scene-text" id="sceneText">
+          Round 1 · The cobbler has many customers. His own shoes are starting to break.
+        </div>
+
+        <div class="scene-area">
+          <div class="cobbler-area">
+            <div class="area-title">Cobbler</div>
+            <div class="cobbler">
+              <div class="cobbler-face" id="cobblerFace"></div>
+              <div class="cobbler-health-legs">
+                <div class="shoe left" id="shoeLeft"></div>
+                <div class="shoe right" id="shoeRight"></div>
+              </div>
+              <div class="health-bar-wrap">
+                <div class="health-bar-fill" id="healthBarFill"></div>
+              </div>
+              <div class="health-label" id="healthLabel">Feet OK</div>
+            </div>
+          </div>
+
+          <div class="queue-area">
+            <div class="area-title">Customers Queue</div>
+            <div class="queue-list" id="queueList"></div>
+          </div>
+
+          <div class="town-area">
+            <div class="area-title">Town</div>
+            <div class="town-people">
+              <div class="town-row">
+                <div class="town-person" id="town1">🙂</div>
+                <div class="town-person" id="town2">🙂</div>
+                <div class="town-person" id="town3">🙂</div>
+              </div>
+              <div class="town-row">
+                <div class="town-person" id="town4">🙂</div>
+                <div class="town-person" id="town5">🙂</div>
+              </div>
+            </div>
+            <div class="town-mood" id="townMood">Town is walking well.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Choice panel -->
+      <div class="choice-panel">
+        <div class="choice-title">What should the cobbler do?</div>
+        <div class="round-text" id="roundText">
+          Click one choice for this round.
+        </div>
+
+        <div class="buttons-row">
+          <button class="btn secondary" id="btnOthers">Only fix others’ shoes</button>
+          <button class="btn primary" id="btnBalance">Fix others and also my shoes</button>
+        </div>
+
+        <div class="feedback" id="feedback">
+          Choose an action to see what happens to the cobbler and the town.
+        </div>
+
+        <div class="summary">
+          <span>Round: <span id="roundCounter">1</span> / 5</span>
+          <span>Self-care choices: <span id="selfCareCount">0</span></span>
+        </div>
+
+        <div class="buttons-row" style="margin-top:6px;">
+          <button class="btn secondary" id="nextBtn">Next Round</button>
+          <button class="btn primary" id="finishBtn">Finish Story</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-text">
+      Moral: You must look after your own health before you can keep helping others.[file:39]
+    </div>
+  </div>
+
+  <script>
+    // Splash
+    const splashScreen = document.getElementById("splashScreen");
+    const shell = document.getElementById("shell");
+    setTimeout(() => {
+      splashScreen.classList.add("hidden");
+      shell.classList.add("visible");
+    }, 2200);
+
+    // Sounds
+    const goodSound = new Audio("assets/correct.mp3");
+    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
+    goodSound.volume = 0.8;
+    celebrationSound.volume = 0.8;
+    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
+    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+
+    // Elements
+    const sceneTextEl = document.getElementById("sceneText");
+    const queueListEl = document.getElementById("queueList");
+    const healthBarFill = document.getElementById("healthBarFill");
+    const healthLabel = document.getElementById("healthLabel");
+    const shoeLeft = document.getElementById("shoeLeft");
+    const shoeRight = document.getElementById("shoeRight");
+    const townMood = document.getElementById("townMood");
+    const townPeopleEls = [
+      document.getElementById("town1"),
+      document.getElementById("town2"),
+      document.getElementById("town3"),
+      document.getElementById("town4"),
+      document.getElementById("town5")
+    ];
+    const meterFill = document.getElementById("meterFill");
+
+    const roundTextEl = document.getElementById("roundText");
+    const feedbackEl = document.getElementById("feedback");
+    const roundCounterEl = document.getElementById("roundCounter");
+    const selfCareCountEl = document.getElementById("selfCareCount");
+    const btnOthers = document.getElementById("btnOthers");
+    const btnBalance = document.getElementById("btnBalance");
+    const nextBtn = document.getElementById("nextBtn");
+    const finishBtn = document.getElementById("finishBtn");
+
+    let round = 1;
+    const maxRounds = 5;
+    let cobblerHealth = 100; // 0–100
+    let selfCareCount = 0;
+    let lastChoice = null; // "others" or "balance"
+
+    // Simple queue labels for flavour
+    const queueNames = [
+      "Farmer's boots",
+      "Teacher's sandals",
+      "Child's school shoes",
+      "Runner's sneakers",
+      "Old man's slippers"
+    ];
+
+    function buildQueue(){
+      queueListEl.innerHTML = "";
+      const itemsToShow = Math.min(round + 1, queueNames.length);
+      for(let i = 0; i < itemsToShow; i++){
+        const v = document.createElement("div");
+        v.className = "villager";
+        v.innerHTML = `<span>👟</span><span>${queueNames[i]}</span>`;
+        queueListEl.appendChild(v);
+      }
+    }
+
+    function updateHealth(delta){
+      cobblerHealth = Math.max(0, Math.min(100, cobblerHealth + delta));
+      healthBarFill.style.width = cobblerHealth + "%";
+
+      if(cobblerHealth > 70){
+        healthLabel.textContent = "Feet strong";
+        shoeLeft.classList.remove("cracked");
+        shoeRight.classList.remove("cracked");
+      } else if(cobblerHealth > 35){
+        healthLabel.textContent = "Feet tired";
+        shoeLeft.classList.add("cracked");
+        shoeRight.classList.remove("cracked");
+      } else {
+        healthLabel.textContent = "Feet hurt";
+        shoeLeft.classList.add("cracked");
+        shoeRight.classList.add("cracked");
+      }
+
+      // Update town mood
+      const hurtThreshold = 35;
+      const manyHurt = cobblerHealth <= hurtThreshold;
+      townPeopleEls.forEach(p => {
+        if(manyHurt){
+          p.classList.add("hurt");
+          p.textContent = "☹";
+        } else {
+          p.classList.remove("hurt");
+          p.textContent = "🙂";
+        }
+      });
+      if(manyHurt){
+        townMood.textContent = "Town is limping. The cobbler cannot keep up.";
+      } else {
+        townMood.textContent = "Town is walking well. Cobbler can still help.";
+      }
+
+      // top meter for self-care choices (not raw health)
+      const percent = Math.round((selfCareCount / maxRounds) * 100);
+      meterFill.style.width = percent + "%";
+    }
+
+    function updateTexts(){
+      roundCounterEl.textContent = round;
+      selfCareCountEl.textContent = selfCareCount;
+
+      if(round === 1){
+        sceneTextEl.textContent = "Round 1 · The cobbler has many customers. His own shoes are starting to break.";
+      } else if(round === 2){
+        sceneTextEl.textContent = "Round 2 · More people arrive. The cobbler feels more tired.";
+      } else if(round === 3){
+        sceneTextEl.textContent = "Round 3 · The cobbler’s feet hurt, but customers still need him.";
+      } else if(round === 4){
+        sceneTextEl.textContent = "Round 4 · The cobbler limps. Will he make time to fix his own shoes?";
+      } else {
+        sceneTextEl.textContent = "Round 5 · This is the last round. Your choices will decide the ending.";
+      }
+
+      roundTextEl.textContent = "Click one choice for this round.";
+      feedbackEl.textContent = "Think: If he never fixes his own shoes, what will happen later?";
+    }
+
+    function applyChoice(choice){
+      lastChoice = choice;
+      if(choice === "others"){
+        // Fix only others’ shoes: town short-term ok, cobbler health drops
+        updateHealth(-20);
+        feedbackEl.textContent = "He worked only on others’ shoes. His feet hurt more, even if others walk for now.";
+      } else {
+        // balance: small boost to self-care
+        selfCareCount++;
+        updateHealth(+5);
+        playGood();
+        feedbackEl.textContent = "He fixed some customers’ shoes and also his own. This self-care keeps him able to help.";
+      }
+    }
+
+    btnOthers.addEventListener("click", () => applyChoice("others"));
+    btnBalance.addEventListener("click", () => applyChoice("balance"));
+
+    nextBtn.addEventListener("click", () => {
+      if(round < maxRounds){
+        round++;
+        buildQueue();
+        updateTexts();
+      } else {
+        feedbackEl.textContent = "You finished all rounds. Click “Finish Story” to see what happens.";
+      }
+    });
+
+    finishBtn.addEventListener("click", () => {
+      showEndScreen();
+    });
+
+    function showEndScreen(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+
+      const enoughSelfCare = selfCareCount >= 3 && cobblerHealth > 35;
+
+      let badge, title, sub;
+      if(enoughSelfCare){
+        badge = "🥿💚";
+        title = "Balanced Helper";
+        sub = "The cobbler looked after his own feet and could keep fixing everyone’s shoes. Self-care is not selfish – it lets you help others for longer.[file:39]";
+      } else {
+        badge = "🥿💔";
+        title = "Forgot Self-Care";
+        sub = "The cobbler never fixed his own shoes. Soon he could not work and the whole town suffered. You must care for your health before you can keep helping others.[file:39]";
+      }
+
+      end.innerHTML = `
+        <div class="end-badge">${badge}</div>
+        <div class="end-title">${title}</div>
+        <div class="end-sub">${sub}</div>
+        <button class="end-btn" id="playAgainBtn">Play Again</button>
+      `;
+      shell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    // Init
+    buildQueue();
+    updateHealth(0);
+    updateTexts();
+  </script>
+</body>
+</html>
