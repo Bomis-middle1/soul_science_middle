@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clay Lab – Many Pots, Many Tries</title>
+  <title>Question Switchboard – Learning Agility</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -102,6 +102,7 @@
       align-items: center;
       gap: 8px;
     }
+
     .meter {
       width: 100px;
       height: 8px;
@@ -121,107 +122,151 @@
     .layout {
       position: absolute;
       inset: 46px 0 0 0;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       padding: 10px;
+      display: grid;
+      grid-template-columns: 1.4fr 1.6fr;
       gap: 10px;
     }
 
-    .lab-panel {
+    /* Scenario panel */
+    .scenario-panel {
       border-radius: 18px;
       background: #e0f2fe;
       padding: 10px;
       box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
-    .lab-title {
+    .scenario-title {
       font-size: 13px;
       font-weight: bold;
       text-align: center;
       color: #1f2937;
     }
-    .lab-sub {
-      font-size: 11px;
+    .scenario-text {
+      font-size: 12px;
       text-align: center;
-      color: #4b5563;
-      min-height: 28px;
+      color: #374151;
+      min-height: 32px;
     }
 
-    .work-area {
+    .scenario-picture {
       flex: 1;
-      border-radius: 14px;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #fecaca 100%);
+      border-radius: 16px;
+      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #bbf7d0 100%);
       padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      justify-content: center;
       align-items: center;
-      justify-content: space-between;
-    }
-
-    .pot-area {
-      display: flex;
       gap: 8px;
-      justify-content: center;
-      align-items: flex-end;
-      flex-wrap: wrap;
     }
 
-    .pot {
-      width: 40px;
-      height: 40px;
-      border-radius: 6px 6px 14px 14px;
-      background: linear-gradient(to top, #7c2d12, #f59e0b);
-      position: relative;
-      box-shadow: 0 3px 8px rgba(15,23,42,0.7);
-    }
-    .pot::before {
-      content: "";
-      position: absolute;
-      top: -6px;
-      left: -4px;
-      right: -4px;
-      height: 6px;
-      border-radius: 8px 8px 2px 2px;
-      background: #b45309;
-    }
-    .pot.cracked::after {
-      content: "";
-      position: absolute;
-      top: 10px;
-      left: 18px;
-      width: 2px;
-      height: 18px;
-      background: #111827;
-      transform: skewX(-15deg);
-    }
-    .pot.good {
-      background: linear-gradient(to top, #92400e, #fbbf24);
-      box-shadow: 0 0 8px rgba(250,204,21,0.9);
-    }
-
-    .shelf {
-      width: 100%;
-      height: 10px;
+    .scenario-icon {
+      width: 60px;
+      height: 60px;
       border-radius: 999px;
-      background: #7c2d12;
-      box-shadow: 0 -2px 6px rgba(15,23,42,0.6);
-    }
-
-    .stats {
+      background: rgba(15,23,42,0.9);
       display: flex;
-      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      color: #e5e7eb;
+      box-shadow: 0 4px 12px rgba(15,23,42,0.8);
+    }
+    .scenario-label {
       font-size: 11px;
+      text-align: center;
       color: #374151;
-      justify-content: center;
     }
 
-    .button-row {
+    /* Switchboard panel */
+    .switchboard-panel {
+      border-radius: 18px;
+      background: #0f172a;
+      padding: 10px;
+      color: #e5e7eb;
+      box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
       display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .switchboard-title {
+      font-size: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .switch-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
       gap: 6px;
-      justify-content: center;
+    }
+
+    .switch {
+      border-radius: 12px;
+      padding: 6px;
+      background: rgba(15,23,42,0.9);
+      border: 1px solid rgba(148,163,184,0.8);
+      cursor: pointer;
+      font-size: 11px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .switch-label {
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .switch-desc {
+      font-size: 10px;
+      color: #cbd5f5;
+    }
+    .switch-tag {
+      margin-top: 2px;
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+      display: inline-block;
+    }
+    .switch:hover {
+      border-color: #22c55e;
+      box-shadow: 0 0 8px rgba(34,197,94,0.8);
+    }
+
+    .questions-list {
+      margin-top: 4px;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(148,163,184,0.8);
+      padding: 6px;
+      font-size: 11px;
+      min-height: 40px;
+    }
+
+    .questions-list div {
+      margin-bottom: 2px;
+    }
+
+    .feedback {
+      margin-top: 4px;
+      border-radius: 10px;
+      padding: 5px 7px;
+      font-size: 11px;
+      min-height: 26px;
+      background: rgba(15,23,42,0.85);
+      border: 1px solid rgba(148,163,184,0.7);
+    }
+
+    .controls {
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
     }
 
     .btn {
@@ -248,7 +293,7 @@
       box-shadow: 0 0 8px rgba(248,171,60,0.6);
     }
 
-    .footer-text {
+    .hint {
       position: absolute;
       left: 50%;
       bottom: 6px;
@@ -260,14 +305,6 @@
       border-radius: 999px;
       background: rgba(15,23,42,0.8);
       border: 1px solid rgba(148,163,184,0.7);
-    }
-
-    .feedback {
-      font-size: 11px;
-      text-align: center;
-      margin-top: 4px;
-      color: #374151;
-      min-height: 26px;
     }
 
     /* End screen */
@@ -289,7 +326,7 @@
     }
     .end-sub {
       font-size: 13px;
-      max-width: 360px;
+      max-width: 380px;
       opacity: 0.95;
     }
     .end-badge {
@@ -313,7 +350,7 @@
 
     @media (max-width: 768px) {
       .layout { grid-template-columns: 1fr; }
-      .lab-sub { font-size: 10px; }
+      .scenario-text { font-size: 11px; }
     }
   </style>
 </head>
@@ -322,71 +359,79 @@
   <div class="splash-screen" id="splashScreen">
     <div class="splash-content">
       <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Clay Lab...</div>
+      <div class="splash-title">Loading Question Switchboard...</div>
     </div>
   </div>
 
   <div class="shell" id="shell">
     <div class="top-bar">
       <div class="top-left">
-        <div class="top-title">Clay Lab – Many Pots, Many Tries</div>
-        <div class="top-sub">Compare “one perfect pot” with “many pots”. See how trying helps you learn.[file:39]</div>
+        <div class="top-title">Question Switchboard – Learning Agility</div>
+        <div class="top-sub">
+          When you face something new, good questions (Why? How? Why not?) help you learn and adapt.[file:40]
+        </div>
       </div>
       <div class="top-right">
-        <span>Learning Agility</span>
+        <span>Curious Learner Level</span>
         <div class="meter">
           <div class="meter-fill" id="meterFill"></div>
         </div>
-        <span>🔁</span>
+        <span>❓</span>
       </div>
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <!-- Group 1: One pot only -->
-      <div class="lab-panel">
-        <div class="lab-title">Group 1 – One Perfect Pot</div>
-        <div class="lab-sub">Tap “Work” to keep fixing the same pot.</div>
+    <div class="layout">
+      <!-- Scenario panel -->
+      <div class="scenario-panel">
+        <div class="scenario-title" id="scenarioTitle">Scenario</div>
+        <div class="scenario-text" id="scenarioText"></div>
 
-        <div class="work-area" id="lab1Area">
-          <div class="pot-area" id="lab1Pots">
-            <!-- main pot -->
-          </div>
-          <div class="shelf"></div>
-          <div class="stats">
-            <div>Tries: <span id="lab1Tries">0</span></div>
-            <div>Good pots: <span id="lab1Good">0</span></div>
-          </div>
-          <div class="button-row">
-            <button class="btn secondary" id="lab1Button">Work on pot</button>
-          </div>
+        <div class="scenario-picture">
+          <div class="scenario-icon" id="scenarioIcon">💡</div>
+          <div class="scenario-label" id="scenarioLabel"></div>
         </div>
       </div>
 
-      <!-- Group 2: Many pots -->
-      <div class="lab-panel">
-        <div class="lab-title">Group 2 – Many Pots & Tries</div>
-        <div class="lab-sub">Tap “Make pot” to make many pots.</div>
+      <!-- Switchboard panel -->
+      <div class="switchboard-panel">
+        <div class="switchboard-title">Tap a switch to see helpful questions</div>
 
-        <div class="work-area" id="lab2Area">
-          <div class="pot-area" id="lab2Pots"></div>
-          <div class="shelf"></div>
-          <div class="stats">
-            <div>Tries: <span id="lab2Tries">0</span></div>
-            <div>Good pots: <span id="lab2Good">0</span></div>
+        <div class="switch-row">
+          <div class="switch" id="switchWhy">
+            <div class="switch-label">WHY?</div>
+            <div class="switch-desc">Understand reasons.</div>
+            <div class="switch-tag">Look back</div>
           </div>
-          <div class="button-row">
-            <button class="btn secondary" id="lab2Button">Make pot</button>
+          <div class="switch" id="switchHow">
+            <div class="switch-label">HOW?</div>
+            <div class="switch-desc">Find a next step.</div>
+            <div class="switch-tag">Plan forward</div>
           </div>
+          <div class="switch" id="switchWhyNot">
+            <div class="switch-label">WHY NOT?</div>
+            <div class="switch-desc">Open new options.</div>
+            <div class="switch-tag">Try different</div>
+          </div>
+        </div>
+
+        <div class="questions-list" id="questionsList">
+          Tap WHY, HOW or WHY NOT to see good questions for this situation.
+        </div>
+
+        <div class="feedback" id="feedback">
+          Try to use all three types of questions across the different scenarios.
+        </div>
+
+        <div class="controls">
+          <button class="btn secondary" id="nextBtn">Next scenario</button>
+          <div id="progressText">Scenario 1 of 4 · Use more than one switch.</div>
+          <button class="btn primary" id="finishBtn">Finish Game</button>
         </div>
       </div>
     </div>
 
-    <div class="footer-text" id="footerText">
-      Tip: Group 2 in the story made many pots and improved through trial and error.[file:39]
-    </div>
-
-    <div class="feedback" id="feedback">
-      After a few taps, look at which group has more good pots.
+    <div class="hint" id="hint">
+      Hint: Agile learners ask Why? How? and Why not? when they meet something new or difficult.[file:40]
     </div>
   </div>
 
@@ -400,97 +445,216 @@
     }, 2200);
 
     // Sounds
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
+    const goodSound = new Audio("assets/correct.mp3");
+    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
     goodSound.volume = 0.8;
     celebrationSound.volume = 0.8;
     function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
     function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
 
-    const meterFill = document.getElementById("meterFill");
+    // Elements
+    const scenarioTitleEl = document.getElementById("scenarioTitle");
+    const scenarioTextEl = document.getElementById("scenarioText");
+    const scenarioIconEl = document.getElementById("scenarioIcon");
+    const scenarioLabelEl = document.getElementById("scenarioLabel");
+    const questionsListEl = document.getElementById("questionsList");
     const feedbackEl = document.getElementById("feedback");
+    const progressTextEl = document.getElementById("progressText");
+    const hintEl = document.getElementById("hint");
+    const meterFill = document.getElementById("meterFill");
 
-    // Group 1 elements
-    const lab1PotsEl = document.getElementById("lab1Pots");
-    const lab1TriesEl = document.getElementById("lab1Tries");
-    const lab1GoodEl = document.getElementById("lab1Good");
-    const lab1Button = document.getElementById("lab1Button");
+    const switchWhyEl = document.getElementById("switchWhy");
+    const switchHowEl = document.getElementById("switchHow");
+    const switchWhyNotEl = document.getElementById("switchWhyNot");
+    const nextBtn = document.getElementById("nextBtn");
+    const finishBtn = document.getElementById("finishBtn");
 
-    // Group 2 elements
-    const lab2PotsEl = document.getElementById("lab2Pots");
-    const lab2TriesEl = document.getElementById("lab2Tries");
-    const lab2GoodEl = document.getElementById("lab2Good");
-    const lab2Button = document.getElementById("lab2Button");
-
-    let lab1Tries = 0;
-    let lab1Good = 0;
-    let lab2Tries = 0;
-    let lab2Good = 0;
-
-    // Build one main pot for group 1
-    const lab1MainPot = document.createElement("div");
-    lab1MainPot.className = "pot cracked";
-    lab1PotsEl.appendChild(lab1MainPot);
-
-    function updateStats(){
-      lab1TriesEl.textContent = lab1Tries;
-      lab1GoodEl.textContent = lab1Good;
-      lab2TriesEl.textContent = lab2Tries;
-      lab2GoodEl.textContent = lab2Good;
-
-      // Simple "learning agility" meter: based on how many tries total and good pots made
-      const totalTries = lab1Tries + lab2Tries;
-      const totalGood = lab1Good + lab2Good;
-      let percent = 0;
-      if(totalTries > 0){
-        percent = Math.min(100, Math.round((totalGood / Math.max(totalTries, 1)) * 100));
+    // Simple scenarios where good questions help learning agility.[file:40]
+    const scenarios = [
+      {
+        title: "New Project Went Wrong",
+        text: "You tried a new way to make a poster for class, but it looks messy and you are not happy with it.",
+        icon: "📄",
+        label: "Project attempt",
+        questions: {
+          why: [
+            "Why did this poster look messy?",
+            "Why did I choose this layout first?",
+            "Why do I feel unhappy about it?"
+          ],
+          how: [
+            "How can I change the layout to be clearer?",
+            "How can I ask a friend or teacher for tips?",
+            "How can I use this try to make the next one better?"
+          ],
+          whynot: [
+            "Why not try a different colour or font style?",
+            "Why not look at one example poster for ideas?",
+            "Why not reuse parts that worked and change the rest?"
+          ]
+        }
+      },
+      {
+        title: "Trying a New Game",
+        text: "Your friends are playing a new game you do not know yet. You feel unsure about joining.",
+        icon: "🎮",
+        label: "New activity",
+        questions: {
+          why: [
+            "Why do I feel unsure about joining?",
+            "Why does this game look confusing to me?",
+            "Why is it okay to not know everything at first?"
+          ],
+          how: [
+            "How can I ask them to explain the rules?",
+            "How can I try one round just to learn?",
+            "How can I watch first and then play?"
+          ],
+          whynot: [
+            "Why not treat this game as a chance to learn something new?",
+            "Why not ask if I can be on someone’s team?",
+            "Why not suggest playing slowly at first?"
+          ]
+        }
+      },
+      {
+        title: "Hard Question in Class",
+        text: "The teacher asks a hard question. You do not know the full answer yet.",
+        icon: "❓",
+        label: "Class question",
+        questions: {
+          why: [
+            "Why is this question hard for me?",
+            "Why do I feel nervous about answering?",
+            "Why do I want to understand this better?"
+          ],
+          how: [
+            "How can I break the question into smaller parts?",
+            "How can I use a similar example I already know?",
+            "How can I write the question down and check later?"
+          ],
+          whynot: [
+            "Why not try giving part of the answer?",
+            "Why not ask the teacher to explain one piece again?",
+            "Why not talk with a classmate after class?"
+          ]
+        }
+      },
+      {
+        title: "Feedback from a Friend",
+        text: "A friend says your drawing could be better if you changed something. You feel a bit hurt.",
+        icon: "🎨",
+        label: "Feedback moment",
+        questions: {
+          why: [
+            "Why do I feel hurt by this comment?",
+            "Why might my friend be trying to help?",
+            "Why could this feedback be useful?"
+          ],
+          how: [
+            "How can I ask my friend to show an example?",
+            "How can I try their idea once and see?",
+            "How can I use this feedback as a gift to improve?"
+          ],
+          whynot: [
+            "Why not thank them and test the suggestion?",
+            "Why not keep both my way and their way as options?",
+            "Why not use this to learn a new drawing style?"
+          ]
+        }
       }
+    ];
+
+    let currentIndex = 0;
+    let usedWhy = 0;
+    let usedHow = 0;
+    let usedWhyNot = 0;
+
+    function updateMeter(){
+      const totalScenarios = scenarios.length;
+      const totalTypesUsed = (usedWhy > 0) + (usedHow > 0) + (usedWhyNot > 0);
+      const percent = Math.round((totalTypesUsed / 3) * 100);
       meterFill.style.width = percent + "%";
-
-      if(totalTries >= 10){
-        feedbackEl.textContent = "You tried many times. Which group has more good pots? Many tries with learning usually win.";
-      }
-      if(totalTries >= 20 && totalGood >= 6){
-        playCelebrate();
-        feedbackEl.textContent = "Just like in the story, making many pots and learning from mistakes gave better results.[file:39]";
-      }
     }
 
-    lab1Button.addEventListener("click", () => {
-      lab1Tries++;
-      // Group 1: chance to improve is small because they keep reworking same pot
-      const chance = Math.random();
-      if(chance > 0.85 && lab1Good === 0){
-        lab1MainPot.classList.remove("cracked");
-        lab1MainPot.classList.add("good");
-        lab1Good = 1;
-        playGood();
+    function loadScenario(){
+      const s = scenarios[currentIndex];
+      scenarioTitleEl.textContent = s.title;
+      scenarioTextEl.textContent = s.text;
+      scenarioIconEl.textContent = s.icon;
+      scenarioLabelEl.textContent = s.label;
+      questionsListEl.textContent = "Tap WHY, HOW or WHY NOT to see good questions for this situation.";
+      feedbackEl.textContent = "Try different switches. Agile learners use more than one type of question.";
+      progressTextEl.textContent = `Scenario ${currentIndex + 1} of ${scenarios.length} · Use WHY, HOW and WHY NOT at least once.`;
+    }
+
+    function showQuestions(type){
+      const s = scenarios[currentIndex];
+      const list = s.questions[type];
+      questionsListEl.innerHTML = "";
+      list.forEach(q => {
+        const line = document.createElement("div");
+        line.textContent = "• " + q;
+        questionsListEl.appendChild(line);
+      });
+
+      if(type === "why") usedWhy++;
+      if(type === "how") usedHow++;
+      if(type === "whynot") usedWhyNot++;
+      playGood();
+      updateMeter();
+
+      feedbackEl.textContent = "These questions help you understand, plan, and open new options. Try another switch too.";
+    }
+
+    switchWhyEl.addEventListener("click", () => showQuestions("why"));
+    switchHowEl.addEventListener("click", () => showQuestions("how"));
+    switchWhyNotEl.addEventListener("click", () => showQuestions("whynot"));
+
+    nextBtn.addEventListener("click", () => {
+      if(currentIndex < scenarios.length - 1){
+        currentIndex++;
+        loadScenario();
       } else {
-        // show small shake by toggling class quickly
-        lab1MainPot.style.transform = "translateY(-3px)";
-        setTimeout(() => lab1MainPot.style.transform = "translateY(0)", 100);
+        feedbackEl.textContent = "You have seen all scenarios. Click “Finish Game” to see your result.";
       }
-      updateStats();
     });
 
-    lab2Button.addEventListener("click", () => {
-      lab2Tries++;
-      const pot = document.createElement("div");
-      pot.className = "pot";
-      const chance = Math.random();
-      if(chance > 0.6){
-        pot.classList.add("good");
-        lab2Good++;
-        playGood();
-      } else {
-        pot.classList.add("cracked");
-      }
-      lab2PotsEl.appendChild(pot);
-      updateStats();
+    finishBtn.addEventListener("click", () => {
+      showEndScreen();
     });
 
-    // Initial message
-    updateStats();
+    function showEndScreen(){
+      playCelebrate();
+      const end = document.createElement("div");
+      end.className = "end-screen";
+
+      const usedAllTypes = usedWhy > 0 && usedHow > 0 && usedWhyNot > 0;
+      let badge, title, sub;
+
+      if(usedAllTypes){
+        badge = "🌈❓";
+        title = "Agile Questioner";
+        sub = "You used Why, How and Why not to explore problems. This kind of questioning helps you learn from new situations and adapt quickly.[file:40]";
+      } else {
+        badge = "☁❓";
+        title = "Still Learning to Question";
+        sub = "You used some questions but not all three types. Practising Why, How and Why not will make your learning agility stronger.[file:40]";
+      }
+
+      end.innerHTML = `
+        <div class="end-badge">${badge}</div>
+        <div class="end-title">${title}</div>
+        <div class="end-sub">${sub}</div>
+        <button class="end-btn" id="playAgainBtn">Play Again</button>
+      `;
+      shell.appendChild(end);
+      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    }
+
+    // Init
+    loadScenario();
+    updateMeter();
   </script>
 </body>
 </html>
