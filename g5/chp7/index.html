@@ -1,660 +1,5352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Question Switchboard – Learning Agility</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #020617;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #0f172a;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    /* Splash */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+<title>Curiosity Switchboard – Learning Agility</title>
 
-    .shell {
-      max-width: 1000px;
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34,197,94,0.7);
-      position: relative;
-      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 40%, #022c22 100%);
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .shell.visible { opacity: 1; }
+<style>
 
-    .top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 46px;
-      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
-      color: #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 12px;
-      font-size: 11px;
-      z-index: 5;
-    }
-    .top-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .top-title {
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .top-sub {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+/* =========================================================
+   RESET + VARIABLES
+========================================================= */
 
-    .meter {
-      width: 100px;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      overflow: hidden;
-      border: 1px solid rgba(148,163,184,0.8);
-    }
-    .meter-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #f97316, #22c55e);
-      transition: width 0.3s ease-out;
-    }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .layout {
-      position: absolute;
-      inset: 46px 0 0 0;
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 1.4fr 1.6fr;
-      gap: 10px;
-    }
+:root {
+  --navy: #17334f;
+  --navy-deep: #10283e;
 
-    /* Scenario panel */
-    .scenario-panel {
-      border-radius: 18px;
-      background: #e0f2fe;
-      padding: 10px;
-      box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      color: #1f2937;
-    }
-    .scenario-text {
-      font-size: 12px;
-      text-align: center;
-      color: #374151;
-      min-height: 32px;
-    }
+  --blue: #4b7bec;
+  --blue-soft: #eaf2ff;
 
-    .scenario-picture {
-      flex: 1;
-      border-radius: 16px;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #bbf7d0 100%);
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-    }
+  --purple: #7f67dc;
+  --purple-soft: #f0ecff;
 
-    .scenario-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      color: #e5e7eb;
-      box-shadow: 0 4px 12px rgba(15,23,42,0.8);
-    }
-    .scenario-label {
-      font-size: 11px;
-      text-align: center;
-      color: #374151;
-    }
+  --green: #28b67a;
+  --green-dark: #128057;
+  --green-soft: #e5f9ef;
 
-    /* Switchboard panel */
-    .switchboard-panel {
-      border-radius: 18px;
-      background: #0f172a;
-      padding: 10px;
-      color: #e5e7eb;
-      box-shadow: inset 0 0 18px rgba(0,0,0,0.9);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .switchboard-title {
-      font-size: 12px;
-      font-weight: bold;
-      text-align: center;
-    }
+  --orange: #ff9e45;
+  --orange-dark: #b75e11;
+  --orange-soft: #fff1df;
 
-    .switch-row {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 6px;
-    }
+  --yellow: #ffd963;
+  --yellow-soft: #fff9d9;
 
-    .switch {
-      border-radius: 12px;
-      padding: 6px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.8);
-      cursor: pointer;
-      font-size: 11px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .switch-label {
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .switch-desc {
-      font-size: 10px;
-      color: #cbd5f5;
-    }
-    .switch-tag {
-      margin-top: 2px;
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      display: inline-block;
-    }
-    .switch:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.8);
-    }
+  --red: #eb6b69;
+  --red-soft: #fff0ef;
 
-    .questions-list {
-      margin-top: 4px;
-      border-radius: 12px;
-      background: rgba(15,23,42,0.85);
-      border: 1px solid rgba(148,163,184,0.8);
-      padding: 6px;
-      font-size: 11px;
-      min-height: 40px;
-    }
+  --white: #ffffff;
+  --grey: #65758a;
+  --line: #e1e8f1;
 
-    .questions-list div {
-      margin-bottom: 2px;
-    }
+  --shadow:
+    0 20px 55px rgba(27, 57, 91, 0.16);
 
-    .feedback {
-      margin-top: 4px;
-      border-radius: 10px;
-      padding: 5px 7px;
-      font-size: 11px;
-      min-height: 26px;
-      background: rgba(15,23,42,0.85);
-      border: 1px solid rgba(148,163,184,0.7);
-    }
+  --small-shadow:
+    0 8px 22px rgba(27, 57, 91, 0.11);
+}
 
-    .controls {
-      margin-top: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-    }
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
 
-    .btn {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 11px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn.primary {
-      border: none;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
-    .btn.secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
-    }
+body {
+  font-family:
+    "Trebuchet MS",
+    "Segoe UI",
+    Arial,
+    sans-serif;
 
-    .hint {
-      position: absolute;
-      left: 50%;
-      bottom: 6px;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: #e5e7eb;
-      text-align: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(148,163,184,0.7);
-    }
+  color: var(--navy);
 
-    /* End screen */
-    .end-screen {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #f9fafb;
-      text-align: center;
-      gap: 8px;
-      z-index: 20;
-    }
-    .end-title {
-      font-size: 22px;
-    }
-    .end-sub {
-      font-size: 13px;
-      max-width: 380px;
-      opacity: 0.95;
-    }
-    .end-badge {
-      font-size: 44px;
-    }
-    .end-btn {
-      margin-top: 8px;
-      padding: 7px 16px;
-      font-size: 12px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .end-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
+  background:
+    radial-gradient(circle at 8% 10%, rgba(255,217,99,.55), transparent 21%),
+    radial-gradient(circle at 92% 11%, rgba(127,103,220,.21), transparent 23%),
+    radial-gradient(circle at 90% 92%, rgba(40,182,122,.20), transparent 24%),
+    linear-gradient(145deg, #e9f7ff 0%, #fff7ea 52%, #f2efff 100%);
 
-    @media (max-width: 768px) {
-      .layout { grid-template-columns: 1fr; }
-      .scenario-text { font-size: 11px; }
-    }
-  </style>
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND DECORATION
+========================================================= */
+
+.bg-blob {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: .45;
+}
+
+.blob-one {
+  width: 180px;
+  height: 180px;
+
+  top: -70px;
+  left: 8%;
+
+  background: #ffdf7a;
+}
+
+.blob-two {
+  width: 230px;
+  height: 230px;
+
+  right: -90px;
+  top: 20%;
+
+  background: #d9d0ff;
+}
+
+.blob-three {
+  width: 160px;
+  height: 160px;
+
+  left: -65px;
+  bottom: 7%;
+
+  background: #bdeed7;
+}
+
+
+/* =========================================================
+   SPLASH
+========================================================= */
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at 50% 20%, #5f8cff, #415ec6 52%, #263b84 100%);
+
+  transition:
+    opacity .6s ease,
+    visibility .6s ease;
+}
+
+.splash.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.splash-inner {
+  text-align: center;
+  color: white;
+}
+
+.splash img {
+  width: min(300px, 72vw);
+  max-height: 170px;
+
+  object-fit: contain;
+
+  margin-bottom: 18px;
+
+  animation:
+    logoFloat 2s ease-in-out infinite;
+}
+
+.splash-title {
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 900;
+
+  letter-spacing: .6px;
+}
+
+.loading-dots {
+  margin-top: 18px;
+
+  display: flex;
+  justify-content: center;
+
+  gap: 8px;
+}
+
+.loading-dots span {
+  width: 10px;
+  height: 10px;
+
+  border-radius: 50%;
+
+  background: white;
+
+  animation:
+    dotBounce .8s ease-in-out infinite alternate;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: .18s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: .36s;
+}
+
+@keyframes logoFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+}
+
+@keyframes dotBounce {
+
+  from {
+    transform: translateY(0);
+    opacity: .45;
+  }
+
+  to {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+
+}
+
+
+/* =========================================================
+   MAIN APP
+========================================================= */
+
+.app {
+  position: relative;
+
+  width:
+    min(1180px, calc(100vw - 20px));
+
+  height:
+    min(760px, calc(100vh - 20px));
+
+  height:
+    min(760px, calc(100dvh - 20px));
+
+  margin: 10px auto;
+
+  display: grid;
+  grid-template-rows:
+    auto auto 1fr;
+
+  border:
+    1px solid rgba(255,255,255,.95);
+
+  border-radius: 28px;
+
+  background:
+    rgba(255,255,255,.97);
+
+  box-shadow: var(--shadow);
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  min-height: 78px;
+
+  display: grid;
+  grid-template-columns:
+    1fr auto;
+
+  align-items: center;
+
+  gap: 16px;
+
+  padding:
+    12px 20px;
+
+  background:
+    radial-gradient(circle at 10% -10%, rgba(255,255,255,.24), transparent 38%),
+    linear-gradient(135deg, #4778ea, #685ad1 65%, #8064dc);
+
+  color: white;
+}
+
+.title-area {
+  min-width: 0;
+}
+
+.game-title {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  font-size:
+    clamp(21px, 3vw, 30px);
+
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+.game-title-icon {
+  font-size: 1.08em;
+}
+
+.game-subtitle {
+  margin-top: 7px;
+
+  font-size:
+    clamp(11px, 1.3vw, 14px);
+
+  font-weight: 700;
+
+  opacity: .93;
+}
+
+.header-tools {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.sound-btn {
+  width: 44px;
+  height: 44px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid rgba(255,255,255,.45);
+
+  border-radius: 14px;
+
+  background:
+    rgba(255,255,255,.16);
+
+  color: white;
+
+  font-size: 20px;
+
+  cursor: pointer;
+
+  transition: .2s ease;
+}
+
+.sound-btn:hover {
+  transform: translateY(-2px);
+
+  background:
+    rgba(255,255,255,.27);
+}
+
+.sound-btn:focus-visible {
+  outline:
+    3px solid white;
+
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   DASHBOARD / PROGRESS
+========================================================= */
+
+.dashboard {
+  display: grid;
+
+  grid-template-columns:
+    auto minmax(180px, 1fr) auto;
+
+  align-items: center;
+
+  gap: 18px;
+
+  padding:
+    9px 18px;
+
+  background: #f8faff;
+
+  border-bottom:
+    1px solid var(--line);
+}
+
+.challenge-label {
+  color: var(--purple);
+
+  font-size: 12px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.progress-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+}
+
+.progress-node {
+  width: 13px;
+  height: 13px;
+
+  border-radius: 50%;
+
+  background: #dce3ec;
+
+  transition:
+    transform .25s ease,
+    background .25s ease;
+}
+
+.progress-node.current {
+  width: 18px;
+  height: 18px;
+
+  border:
+    4px solid #ddd6ff;
+
+  background: var(--purple);
+}
+
+.progress-node.done {
+  background: var(--green);
+
+  transform: scale(1.08);
+}
+
+
+/* =========================================================
+   ENERGY METER
+========================================================= */
+
+.energy-wrap {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.energy-label {
+  color: #59687b;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.energy-meter {
+  width: 105px;
+  height: 10px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e1e7ef;
+}
+
+.energy-fill {
+  width: 0%;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--yellow),
+      var(--orange),
+      var(--green)
+    );
+
+  transition:
+    width .4s ease;
+}
+
+
+/* =========================================================
+   PLAY GRID
+========================================================= */
+
+.play-grid {
+  min-height: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, .88fr)
+    minmax(0, 1.32fr);
+
+  gap: 15px;
+
+  padding: 15px;
+
+  background:
+    radial-gradient(circle at 4% 100%, rgba(75,123,236,.07), transparent 27%),
+    radial-gradient(circle at 100% 0%, rgba(255,158,69,.08), transparent 29%),
+    #fbfcff;
+}
+
+
+/* =========================================================
+   SCENARIO PANEL
+========================================================= */
+
+.scenario-panel {
+  min-height: 0;
+
+  display: grid;
+  grid-template-rows:
+    auto auto 1fr;
+
+  gap: 10px;
+}
+
+.chip {
+  width: max-content;
+
+  padding:
+    6px 12px;
+
+  border-radius: 999px;
+
+  background: var(--purple-soft);
+
+  color: #604cc1;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: .7px;
+}
+
+.scenario-card {
+  padding: 14px;
+
+  display: grid;
+
+  grid-template-columns:
+    62px 1fr;
+
+  align-items: center;
+
+  gap: 12px;
+
+  border:
+    1px solid var(--line);
+
+  border-radius: 19px;
+
+  background: white;
+
+  box-shadow: var(--small-shadow);
+}
+
+.scenario-icon {
+  width: 60px;
+  height: 60px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #e8f3ff,
+      #ece8ff
+    );
+
+  font-size: 31px;
+}
+
+.scenario-title {
+  margin-bottom: 4px;
+
+  font-size:
+    clamp(15px, 1.8vw, 19px);
+
+  font-weight: 900;
+}
+
+.scenario-text {
+  color: var(--grey);
+
+  font-size:
+    clamp(11px, 1.25vw, 13px);
+
+  line-height: 1.42;
+}
+
+
+/* =========================================================
+   MISSION CARD
+========================================================= */
+
+.mission-card {
+  min-height: 0;
+
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding:
+    18px 18px 18px;
+
+  border:
+    2px solid #d7e1ef;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f7fbff,
+      #f7f4ff
+    );
+
+  box-shadow:
+    inset 0 0 35px rgba(75,123,236,.04);
+}
+
+.mission-small {
+  margin-bottom: 6px;
+
+  color: var(--orange-dark);
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+
+  letter-spacing: .75px;
+}
+
+.mission-text {
+  color: var(--navy);
+
+  font-size:
+    clamp(17px, 2vw, 21px);
+
+  font-weight: 900;
+
+  line-height: 1.32;
+}
+
+.mission-help {
+  margin-top: 10px;
+
+  color: var(--grey);
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+.thinking-guide {
+  margin-top: 17px;
+
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 6px;
+}
+
+.guide {
+  padding:
+    7px 5px;
+
+  border-radius: 11px;
+
+  background: white;
+
+  text-align: center;
+
+  border:
+    1px solid #e4e9f1;
+}
+
+.guide-word {
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.guide-desc {
+  margin-top: 2px;
+
+  color: var(--grey);
+
+  font-size: 8px;
+}
+
+
+/* =========================================================
+   SWITCHBOARD
+========================================================= */
+
+.switchboard {
+  min-height: 0;
+
+  position: relative;
+
+  display: grid;
+
+  grid-template-rows:
+    auto auto 1fr auto;
+
+  gap: 9px;
+
+  padding: 14px;
+
+  border-radius: 23px;
+
+  border:
+    1px solid #dce3ed;
+
+  background:
+    linear-gradient(
+      155deg,
+      #ffffff,
+      #f8faff
+    );
+
+  box-shadow: var(--small-shadow);
+
+  overflow: hidden;
+}
+
+
+/* circuit decoration */
+
+.switchboard::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  pointer-events: none;
+
+  opacity: .12;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      transparent 49%,
+      #4b7bec 50%,
+      transparent 51%
+    ),
+    linear-gradient(
+      transparent 49%,
+      #4b7bec 50%,
+      transparent 51%
+    );
+
+  background-size:
+    52px 52px;
+}
+
+.board-header,
+.switch-bank,
+.stage-area,
+.board-bottom {
+  position: relative;
+  z-index: 2;
+}
+
+.board-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.board-title {
+  font-size:
+    clamp(17px, 2vw, 21px);
+
+  font-weight: 900;
+}
+
+.board-step {
+  margin-top: 3px;
+
+  color: var(--grey);
+
+  font-size: 11px;
+}
+
+.step-pill {
+  flex: 0 0 auto;
+
+  padding:
+    6px 10px;
+
+  border-radius: 999px;
+
+  background: var(--blue-soft);
+
+  color: #3560c7;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SWITCHES
+========================================================= */
+
+.switch-bank {
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+}
+
+.switch-btn {
+  position: relative;
+
+  padding:
+    10px 7px 9px;
+
+  border:
+    2px solid #e1e6ee;
+
+  border-radius: 16px;
+
+  background: #fafcff;
+
+  color: var(--navy);
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  text-align: center;
+
+  transition:
+    transform .18s ease,
+    border .18s ease,
+    background .18s ease,
+    box-shadow .18s ease;
+}
+
+.switch-btn:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+
+  border-color: #9db4f1;
+
+  box-shadow:
+    0 7px 18px rgba(55,84,143,.10);
+}
+
+.switch-btn:disabled {
+  cursor: default;
+}
+
+.switch-light {
+  width: 13px;
+  height: 13px;
+
+  margin:
+    0 auto 5px;
+
+  border-radius: 50%;
+
+  background: #cfd7e2;
+
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,.2);
+}
+
+.switch-word {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.switch-purpose {
+  margin-top: 3px;
+
+  color: var(--grey);
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.switch-btn.correct {
+  border-color: #65cda1;
+
+  background: var(--green-soft);
+}
+
+.switch-btn.correct .switch-light {
+  background: #42dd9c;
+
+  box-shadow:
+    0 0 12px rgba(40,182,122,.8);
+}
+
+.switch-btn.wrong {
+  border-color: #eda09b;
+
+  background: var(--red-soft);
+
+  animation:
+    gentleShake .32s ease;
+}
+
+.switch-btn.wrong .switch-light {
+  background: #ef8782;
+}
+
+.switch-btn.hint {
+  animation:
+    hintGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes gentleShake {
+
+  0%,
+  100% {
+    transform:
+      translateX(0);
+  }
+
+  25% {
+    transform:
+      translateX(-5px);
+  }
+
+  50% {
+    transform:
+      translateX(4px);
+  }
+
+  75% {
+    transform:
+      translateX(-2px);
+  }
+
+}
+
+@keyframes hintGlow {
+
+  from {
+    box-shadow:
+      0 0 0 rgba(40,182,122,0);
+  }
+
+  to {
+    box-shadow:
+      0 0 0 4px rgba(40,182,122,.18);
+  }
+
+}
+
+
+/* =========================================================
+   ACTIVE STAGE
+========================================================= */
+
+.stage-area {
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+/* switch instruction */
+
+.switch-question {
+  padding:
+    13px 14px;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f5f8ff,
+      #f8f6ff
+    );
+
+  color: #41536b;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   QUESTION OPTIONS
+========================================================= */
+
+.question-options {
+  display: none;
+
+  grid-template-rows:
+    repeat(3, minmax(0,1fr));
+
+  gap: 7px;
+
+  height: 100%;
+}
+
+.question-options.show {
+  display: grid;
+}
+
+.question-option {
+  display: grid;
+
+  grid-template-columns:
+    34px 1fr 22px;
+
+  align-items: center;
+
+  gap: 8px;
+
+  width: 100%;
+
+  padding:
+    8px 10px;
+
+  border:
+    2px solid #e1e6ee;
+
+  border-radius: 14px;
+
+  background: #fbfcff;
+
+  color: var(--navy);
+
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    .18s ease;
+}
+
+.question-option:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color: #aab9ed;
+
+  background: #f7f8ff;
+}
+
+.question-option:disabled {
+  cursor: default;
+}
+
+.option-letter {
+  width: 30px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 9px;
+
+  background: #edf1f7;
+
+  color: #596a7f;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.option-copy {
+  font-size:
+    clamp(10px, 1.2vw, 12px);
+
+  font-weight: 750;
+
+  line-height: 1.3;
+}
+
+.option-mark {
+  text-align: center;
+
+  font-size: 17px;
+}
+
+.question-option.correct {
+  border-color: #62c99b;
+
+  background: var(--green-soft);
+}
+
+.question-option.correct
+.option-letter {
+  background: #c9f0dd;
+
+  color: var(--green-dark);
+}
+
+.question-option.wrong {
+  border-color: #eea09a;
+
+  background: var(--red-soft);
+
+  animation:
+    gentleShake .32s ease;
+}
+
+.question-option.wrong
+.option-letter {
+  background: #ffd9d7;
+
+  color: #a94743;
+}
+
+.question-option.hint {
+  animation:
+    hintGlow 1s ease-in-out infinite alternate;
+}
+
+
+/* =========================================================
+   FEEDBACK
+========================================================= */
+
+.feedback {
+  min-height: 47px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding:
+    8px 11px;
+
+  border-radius: 13px;
+
+  background: #f3f6fa;
+
+  color: #526378;
+
+  font-size: 10.5px;
+  font-weight: 750;
+
+  line-height: 1.35;
+}
+
+.feedback.good {
+  background: var(--green-soft);
+
+  color: #176c4a;
+}
+
+.feedback.retry {
+  background: var(--orange-soft);
+
+  color: #8f4d18;
+}
+
+.feedback-icon {
+  flex:
+    0 0 auto;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   OPTIONAL QUESTION BUILDER
+========================================================= */
+
+.builder {
+  display: none;
+
+  padding:
+    8px 10px;
+
+  border:
+    1px solid #d9d3f8;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #faf8ff,
+      #f4f0ff
+    );
+}
+
+.builder.show {
+  display: block;
+
+  animation:
+    builderIn .3s ease;
+}
+
+.builder-title {
+  color: #604ec0;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.builder-hint {
+  margin-top: 2px;
+
+  color: var(--grey);
+
+  font-size: 8.5px;
+}
+
+.builder-row {
+  margin-top: 6px;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr auto;
+
+  gap: 6px;
+}
+
+.builder-input {
+  min-width: 0;
+
+  padding:
+    7px 9px;
+
+  border:
+    1px solid #cfd4e0;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+
+  font-size: 10px;
+
+  outline: none;
+}
+
+.builder-input:focus {
+  border-color: var(--purple);
+
+  box-shadow:
+    0 0 0 3px rgba(127,103,220,.11);
+}
+
+.save-question {
+  padding:
+    7px 11px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background: var(--purple);
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.save-question.saved {
+  background: var(--green);
+}
+
+@keyframes builderIn {
+
+  from {
+    opacity: 0;
+    transform:
+      translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+/* =========================================================
+   BOTTOM AREA
+========================================================= */
+
+.board-bottom {
+  display: grid;
+
+  gap: 7px;
+}
+
+.bottom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+}
+
+.first-try-score {
+  color: #667588;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.continue-btn {
+  min-width: 140px;
+
+  padding:
+    10px 16px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--blue),
+      var(--purple)
+    );
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 15px rgba(75,123,236,.23);
+
+  transition: .18s ease;
+}
+
+.continue-btn:hover:not(:disabled) {
+  transform:
+    translateY(-2px);
+}
+
+.continue-btn:disabled {
+  opacity: .34;
+
+  cursor: not-allowed;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   SIGNAL ANIMATION
+========================================================= */
+
+.signal-flash {
+  position: absolute;
+
+  left: 15%;
+  right: 15%;
+  bottom: 6px;
+
+  height: 3px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      #4f87ff,
+      #46dd9e,
+      transparent
+    );
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.signal-flash.active {
+  animation:
+    signalTravel .65s ease;
+}
+
+@keyframes signalTravel {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      scaleX(.1);
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+
+    transform:
+      scaleX(1);
+  }
+
+}
+
+
+/* =========================================================
+   INTRO SCREEN
+========================================================= */
+
+.intro-screen {
+  position: absolute;
+  inset: 0;
+
+  z-index: 50;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    radial-gradient(circle at 8% 8%, #dff4ff, transparent 33%),
+    radial-gradient(circle at 90% 88%, #e9e2ff, transparent 34%),
+    #fbfcff;
+}
+
+.intro-card {
+  width:
+    min(760px, 100%);
+
+  padding:
+    clamp(20px, 4vw, 34px);
+
+  border:
+    1px solid #e2e7ef;
+
+  border-radius: 28px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+
+  text-align: center;
+}
+
+.intro-icon {
+  width: 82px;
+  height: 82px;
+
+  margin:
+    0 auto 12px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #e9f3ff,
+      #eee8ff
+    );
+
+  font-size: 42px;
+}
+
+.intro-title {
+  font-size:
+    clamp(24px, 4vw, 34px);
+
+  font-weight: 900;
+}
+
+.intro-text {
+  max-width: 570px;
+
+  margin:
+    7px auto 0;
+
+  color: var(--grey);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.intro-switches {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+
+  margin:
+    18px 0;
+}
+
+.intro-switch {
+  padding:
+    12px 8px;
+
+  border-radius: 16px;
+
+  background: #f6f8fc;
+}
+
+.intro-switch-icon {
+  font-size: 25px;
+}
+
+.intro-switch-word {
+  margin-top: 4px;
+
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.intro-switch-desc {
+  margin-top: 3px;
+
+  color: var(--grey);
+
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+.how-to-play {
+  margin:
+    0 auto 18px;
+
+  max-width: 580px;
+
+  padding:
+    10px 12px;
+
+  border-radius: 14px;
+
+  background: var(--yellow-soft);
+
+  color: #795b17;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  line-height: 1.45;
+}
+
+.start-btn {
+  padding:
+    12px 24px;
+
+  border: 0;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--blue),
+      var(--purple)
+    );
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(75,123,236,.24);
+}
+
+
+/* =========================================================
+   END SCREEN
+========================================================= */
+
+.end-screen {
+  position: absolute;
+  inset: 0;
+
+  z-index: 60;
+
+  display: none;
+  place-items: center;
+
+  padding: 18px;
+
+  background:
+    radial-gradient(circle at 10% 10%, #def4ff, transparent 28%),
+    radial-gradient(circle at 88% 15%, #eee6ff, transparent 28%),
+    radial-gradient(circle at 85% 90%, #e3f9ed, transparent 26%),
+    #fbfcff;
+}
+
+.end-screen.show {
+  display: grid;
+}
+
+.end-card {
+  width:
+    min(790px, 100%);
+
+  max-height: 100%;
+
+  padding:
+    clamp(17px, 3vw, 27px);
+
+  border-radius: 27px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+
+  text-align: center;
+}
+
+.end-badge {
+  width: 74px;
+  height: 74px;
+
+  display: grid;
+  place-items: center;
+
+  margin:
+    0 auto 9px;
+
+  border-radius: 23px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff2bc,
+      #eee7ff
+    );
+
+  font-size: 39px;
+}
+
+.end-title {
+  font-size:
+    clamp(24px, 4vw, 33px);
+
+  font-weight: 900;
+}
+
+.end-rank {
+  margin-top: 3px;
+
+  color: var(--purple);
+
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.end-message {
+  max-width: 610px;
+
+  margin:
+    6px auto 12px;
+
+  color: var(--grey);
+
+  font-size: 11px;
+
+  line-height: 1.45;
+}
+
+.stats {
+  max-width: 560px;
+
+  margin:
+    0 auto 12px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 8px;
+}
+
+.stat {
+  padding: 9px;
+
+  border-radius: 14px;
+
+  background: #f5f7fb;
+}
+
+.stat-number {
+  color: var(--blue);
+
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.stat-label {
+  margin-top: 2px;
+
+  color: var(--grey);
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   SKILL BADGES
+========================================================= */
+
+.skill-report {
+  max-width: 620px;
+
+  margin:
+    0 auto 11px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 7px;
+}
+
+.skill-card {
+  padding:
+    8px 7px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f8faff,
+      #f6f4ff
+    );
+
+  font-size: 9px;
+
+  color: #58697e;
+
+  line-height: 1.3;
+}
+
+.skill-card strong {
+  display: block;
+
+  margin-bottom: 2px;
+
+  color: var(--navy);
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   TOOLKIT
+========================================================= */
+
+.toolkit {
+  max-width: 650px;
+
+  margin:
+    0 auto 12px;
+
+  padding:
+    10px;
+
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #faf8ff,
+      #f3efff
+    );
+}
+
+.toolkit-title {
+  margin-bottom: 6px;
+
+  color: #604cc1;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.toolkit-list {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0,1fr));
+
+  gap: 6px;
+}
+
+.toolkit-item {
+  padding:
+    7px 8px;
+
+  border-radius: 9px;
+
+  background: white;
+
+  color: #566579;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  line-height: 1.25;
+
+  text-align: left;
+}
+
+.play-again {
+  padding:
+    10px 19px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--green),
+      #269c70
+    );
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti {
+  position: fixed;
+
+  top: -20px;
+
+  width: 9px;
+  height: 14px;
+
+  z-index: 999;
+
+  pointer-events: none;
+
+  animation:
+    confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+
+  to {
+    transform:
+      translateY(110vh)
+      rotate(720deg);
+
+    opacity: 0;
+  }
+
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .app {
+    width:
+      calc(100vw - 10px);
+
+    height:
+      calc(100vh - 10px);
+
+    height:
+      calc(100dvh - 10px);
+
+    margin: 5px auto;
+
+    border-radius: 20px;
+  }
+
+  .header {
+    min-height: 65px;
+
+    padding:
+      9px 13px;
+  }
+
+  .game-subtitle {
+    display: none;
+  }
+
+  .dashboard {
+    padding:
+      7px 10px;
+
+    gap: 9px;
+  }
+
+  .play-grid {
+    padding: 9px;
+
+    gap: 9px;
+
+    grid-template-columns:
+      .8fr 1.2fr;
+  }
+
+  .scenario-card {
+    grid-template-columns:
+      47px 1fr;
+
+    padding: 9px;
+
+    gap: 8px;
+  }
+
+  .scenario-icon {
+    width: 45px;
+    height: 45px;
+
+    border-radius: 13px;
+
+    font-size: 24px;
+  }
+
+  .mission-card {
+    padding: 12px;
+  }
+
+  .switchboard {
+    padding: 10px;
+
+    gap: 6px;
+  }
+
+  .question-option {
+    padding:
+      6px 7px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE PORTRAIT
+========================================================= */
+
+@media (max-width: 620px) {
+
+  .header {
+    min-height: 55px;
+  }
+
+  .game-title {
+    font-size: 17px;
+  }
+
+  .sound-btn {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 10px;
+
+    font-size: 16px;
+  }
+
+  .dashboard {
+    grid-template-columns:
+      auto 1fr;
+
+    padding:
+      5px 8px;
+  }
+
+  .energy-wrap {
+    display: none;
+  }
+
+  .progress-node {
+    width: 9px;
+    height: 9px;
+  }
+
+  .progress-node.current {
+    width: 13px;
+    height: 13px;
+
+    border-width: 3px;
+  }
+
+  .play-grid {
+    grid-template-columns: 1fr;
+
+    grid-template-rows:
+      auto 1fr;
+
+    padding: 6px;
+
+    gap: 5px;
+  }
+
+  .scenario-panel {
+    display: grid;
+
+    grid-template-columns:
+      .9fr 1.1fr;
+
+    grid-template-rows: 1fr;
+
+    gap: 5px;
+  }
+
+  .chip {
+    display: none;
+  }
+
+  .scenario-card {
+    grid-column: 1;
+
+    grid-template-columns:
+      34px 1fr;
+
+    padding: 6px;
+  }
+
+  .scenario-icon {
+    width: 32px;
+    height: 32px;
+
+    font-size: 18px;
+  }
+
+  .scenario-title {
+    font-size: 11px;
+  }
+
+  .scenario-text {
+    font-size: 8px;
+    line-height: 1.22;
+  }
+
+  .mission-card {
+    grid-column: 2;
+
+    padding: 7px;
+
+    border-radius: 12px;
+  }
+
+  .mission-small {
+    font-size: 7px;
+
+    margin-bottom: 2px;
+  }
+
+  .mission-text {
+    font-size: 10px;
+  }
+
+  .mission-help,
+  .thinking-guide {
+    display: none;
+  }
+
+  .switchboard {
+    padding: 7px;
+
+    border-radius: 14px;
+
+    gap: 5px;
+  }
+
+  .board-title {
+    font-size: 13px;
+  }
+
+  .board-step {
+    font-size: 8px;
+  }
+
+  .step-pill {
+    padding:
+      4px 6px;
+
+    font-size: 6px;
+  }
+
+  .switch-bank {
+    gap: 4px;
+  }
+
+  .switch-btn {
+    padding:
+      5px 3px;
+
+    border-radius: 9px;
+  }
+
+  .switch-light {
+    width: 8px;
+    height: 8px;
+
+    margin-bottom: 2px;
+  }
+
+  .switch-word {
+    font-size: 10px;
+  }
+
+  .switch-purpose {
+    font-size: 6px;
+  }
+
+  .switch-question {
+    padding: 7px;
+
+    font-size: 9px;
+  }
+
+  .question-options {
+    gap: 4px;
+  }
+
+  .question-option {
+    grid-template-columns:
+      24px 1fr 17px;
+
+    padding:
+      4px 5px;
+
+    gap: 5px;
+
+    border-radius: 8px;
+  }
+
+  .option-letter {
+    width: 21px;
+    height: 21px;
+
+    font-size: 8px;
+
+    border-radius: 6px;
+  }
+
+  .option-copy {
+    font-size: 8px;
+
+    line-height: 1.18;
+  }
+
+  .option-mark {
+    font-size: 12px;
+  }
+
+  .feedback {
+    min-height: 30px;
+
+    padding:
+      4px 6px;
+
+    font-size: 7px;
+  }
+
+  .feedback-icon {
+    font-size: 12px;
+  }
+
+  .builder {
+    padding: 5px;
+  }
+
+  .builder-title {
+    font-size: 8px;
+  }
+
+  .builder-hint {
+    display: none;
+  }
+
+  .builder-input {
+    padding:
+      5px 6px;
+
+    font-size: 7px;
+  }
+
+  .save-question {
+    padding:
+      5px 7px;
+
+    font-size: 7px;
+  }
+
+  .continue-btn {
+    min-width: 95px;
+
+    padding:
+      6px 8px;
+
+    font-size: 8px;
+  }
+
+  .first-try-score {
+    font-size: 7px;
+  }
+
+  .intro-switches {
+    gap: 5px;
+  }
+
+  .intro-switch {
+    padding:
+      8px 5px;
+  }
+
+  .intro-switch-desc {
+    font-size: 7px;
+  }
+
+  .toolkit-list {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/* =========================================================
+   SHORT SCREENS
+========================================================= */
+
+@media (max-height: 620px) {
+
+  .app {
+    height:
+      calc(100vh - 6px);
+
+    height:
+      calc(100dvh - 6px);
+
+    margin:
+      3px auto;
+  }
+
+  .header {
+    min-height: 56px;
+
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .dashboard {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+
+  .play-grid {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .mission-card {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .builder-hint {
+    display: none;
+  }
+
+}
+
+</style>
 </head>
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Question Switchboard...</div>
+
+<div class="bg-blob blob-one"></div>
+<div class="bg-blob blob-two"></div>
+<div class="bg-blob blob-three"></div>
+
+
+<!-- ======================================================
+     SPLASH
+====================================================== -->
+
+<div class="splash" id="splash">
+
+  <div class="splash-inner">
+
+    <img
+      src="assets/innovine-logo.png"
+      alt="Innovine"
+      onerror="this.style.display='none'"
+    >
+
+    <div class="splash-title">
+      Powering up the Curiosity Switchboard...
     </div>
+
+    <div class="loading-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
   </div>
 
-  <div class="shell" id="shell">
-    <div class="top-bar">
-      <div class="top-left">
-        <div class="top-title">Question Switchboard – Learning Agility</div>
-        <div class="top-sub">
-          When you face something new, good questions (Why? How? Why not?) help you learn and adapt.[file:40]
-        </div>
+</div>
+
+
+<!-- ======================================================
+     APP
+====================================================== -->
+
+<div class="app">
+
+
+  <!-- HEADER -->
+
+  <header class="header">
+
+    <div class="title-area">
+
+      <div class="game-title">
+
+        <span class="game-title-icon">
+          ❓⚡
+        </span>
+
+        <span>
+          Curiosity Switchboard
+        </span>
+
       </div>
-      <div class="top-right">
-        <span>Curious Learner Level</span>
-        <div class="meter">
-          <div class="meter-fill" id="meterFill"></div>
-        </div>
-        <span>❓</span>
+
+      <div class="game-subtitle">
+        Grade 5 • Learning Agility • Ask better questions to learn, adapt and grow
       </div>
+
     </div>
 
-    <div class="layout">
-      <!-- Scenario panel -->
-      <div class="scenario-panel">
-        <div class="scenario-title" id="scenarioTitle">Scenario</div>
-        <div class="scenario-text" id="scenarioText"></div>
 
-        <div class="scenario-picture">
-          <div class="scenario-icon" id="scenarioIcon">💡</div>
-          <div class="scenario-label" id="scenarioLabel"></div>
-        </div>
-      </div>
+    <div class="header-tools">
 
-      <!-- Switchboard panel -->
-      <div class="switchboard-panel">
-        <div class="switchboard-title">Tap a switch to see helpful questions</div>
+      <button
+        class="sound-btn"
+        id="soundBtn"
+        aria-label="Turn sound off"
+        title="Sound"
+      >
+        🔊
+      </button>
 
-        <div class="switch-row">
-          <div class="switch" id="switchWhy">
-            <div class="switch-label">WHY?</div>
-            <div class="switch-desc">Understand reasons.</div>
-            <div class="switch-tag">Look back</div>
-          </div>
-          <div class="switch" id="switchHow">
-            <div class="switch-label">HOW?</div>
-            <div class="switch-desc">Find a next step.</div>
-            <div class="switch-tag">Plan forward</div>
-          </div>
-          <div class="switch" id="switchWhyNot">
-            <div class="switch-label">WHY NOT?</div>
-            <div class="switch-desc">Open new options.</div>
-            <div class="switch-tag">Try different</div>
-          </div>
-        </div>
-
-        <div class="questions-list" id="questionsList">
-          Tap WHY, HOW or WHY NOT to see good questions for this situation.
-        </div>
-
-        <div class="feedback" id="feedback">
-          Try to use all three types of questions across the different scenarios.
-        </div>
-
-        <div class="controls">
-          <button class="btn secondary" id="nextBtn">Next scenario</button>
-          <div id="progressText">Scenario 1 of 4 · Use more than one switch.</div>
-          <button class="btn primary" id="finishBtn">Finish Game</button>
-        </div>
-      </div>
     </div>
 
-    <div class="hint" id="hint">
-      Hint: Agile learners ask Why? How? and Why not? when they meet something new or difficult.[file:40]
+  </header>
+
+
+  <!-- DASHBOARD -->
+
+  <div class="dashboard">
+
+    <div
+      class="challenge-label"
+      id="challengeLabel"
+    >
+      Challenge 1 of 8
     </div>
+
+
+    <div
+      class="progress-nodes"
+      id="progressNodes"
+    ></div>
+
+
+    <div class="energy-wrap">
+
+      <div class="energy-label">
+        Curiosity Energy
+      </div>
+
+      <div class="energy-meter">
+
+        <div
+          class="energy-fill"
+          id="energyFill"
+        ></div>
+
+      </div>
+
+    </div>
+
   </div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const shell = document.getElementById("shell");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      shell.classList.add("visible");
-    }, 2200);
 
-    // Sounds
-    const goodSound = new Audio("assets/correct.mp3");
-    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
-    goodSound.volume = 0.8;
-    celebrationSound.volume = 0.8;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+  <!-- PLAY AREA -->
 
-    // Elements
-    const scenarioTitleEl = document.getElementById("scenarioTitle");
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const scenarioIconEl = document.getElementById("scenarioIcon");
-    const scenarioLabelEl = document.getElementById("scenarioLabel");
-    const questionsListEl = document.getElementById("questionsList");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
-    const hintEl = document.getElementById("hint");
-    const meterFill = document.getElementById("meterFill");
+  <main class="play-grid">
 
-    const switchWhyEl = document.getElementById("switchWhy");
-    const switchHowEl = document.getElementById("switchHow");
-    const switchWhyNotEl = document.getElementById("switchWhyNot");
-    const nextBtn = document.getElementById("nextBtn");
-    const finishBtn = document.getElementById("finishBtn");
 
-    // Simple scenarios where good questions help learning agility.[file:40]
-    const scenarios = [
-      {
-        title: "New Project Went Wrong",
-        text: "You tried a new way to make a poster for class, but it looks messy and you are not happy with it.",
-        icon: "📄",
-        label: "Project attempt",
-        questions: {
-          why: [
-            "Why did this poster look messy?",
-            "Why did I choose this layout first?",
-            "Why do I feel unhappy about it?"
-          ],
-          how: [
-            "How can I change the layout to be clearer?",
-            "How can I ask a friend or teacher for tips?",
-            "How can I use this try to make the next one better?"
-          ],
-          whynot: [
-            "Why not try a different colour or font style?",
-            "Why not look at one example poster for ideas?",
-            "Why not reuse parts that worked and change the rest?"
-          ]
-        }
-      },
-      {
-        title: "Trying a New Game",
-        text: "Your friends are playing a new game you do not know yet. You feel unsure about joining.",
-        icon: "🎮",
-        label: "New activity",
-        questions: {
-          why: [
-            "Why do I feel unsure about joining?",
-            "Why does this game look confusing to me?",
-            "Why is it okay to not know everything at first?"
-          ],
-          how: [
-            "How can I ask them to explain the rules?",
-            "How can I try one round just to learn?",
-            "How can I watch first and then play?"
-          ],
-          whynot: [
-            "Why not treat this game as a chance to learn something new?",
-            "Why not ask if I can be on someone’s team?",
-            "Why not suggest playing slowly at first?"
-          ]
-        }
-      },
-      {
-        title: "Hard Question in Class",
-        text: "The teacher asks a hard question. You do not know the full answer yet.",
-        icon: "❓",
-        label: "Class question",
-        questions: {
-          why: [
-            "Why is this question hard for me?",
-            "Why do I feel nervous about answering?",
-            "Why do I want to understand this better?"
-          ],
-          how: [
-            "How can I break the question into smaller parts?",
-            "How can I use a similar example I already know?",
-            "How can I write the question down and check later?"
-          ],
-          whynot: [
-            "Why not try giving part of the answer?",
-            "Why not ask the teacher to explain one piece again?",
-            "Why not talk with a classmate after class?"
-          ]
-        }
-      },
-      {
-        title: "Feedback from a Friend",
-        text: "A friend says your drawing could be better if you changed something. You feel a bit hurt.",
-        icon: "🎨",
-        label: "Feedback moment",
-        questions: {
-          why: [
-            "Why do I feel hurt by this comment?",
-            "Why might my friend be trying to help?",
-            "Why could this feedback be useful?"
-          ],
-          how: [
-            "How can I ask my friend to show an example?",
-            "How can I try their idea once and see?",
-            "How can I use this feedback as a gift to improve?"
-          ],
-          whynot: [
-            "Why not thank them and test the suggestion?",
-            "Why not keep both my way and their way as options?",
-            "Why not use this to learn a new drawing style?"
-          ]
-        }
-      }
+    <!-- LEFT PANEL -->
+
+    <section class="scenario-panel">
+
+      <div class="chip">
+        Situation
+      </div>
+
+
+      <div class="scenario-card">
+
+        <div
+          class="scenario-icon"
+          id="scenarioIcon"
+        >
+          💡
+        </div>
+
+        <div>
+
+          <div
+            class="scenario-title"
+            id="scenarioTitle"
+          ></div>
+
+          <div
+            class="scenario-text"
+            id="scenarioText"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="mission-card">
+
+        <div class="mission-small">
+          Your learning mission
+        </div>
+
+        <div
+          class="mission-text"
+          id="missionText"
+        ></div>
+
+        <div class="mission-help">
+          Decide whether you need to understand a reason, plan a next step or explore a new possibility.
+        </div>
+
+
+        <div class="thinking-guide">
+
+          <div class="guide">
+
+            <div class="guide-word">
+              WHY?
+            </div>
+
+            <div class="guide-desc">
+              Understand reasons
+            </div>
+
+          </div>
+
+
+          <div class="guide">
+
+            <div class="guide-word">
+              HOW?
+            </div>
+
+            <div class="guide-desc">
+              Plan a next step
+            </div>
+
+          </div>
+
+
+          <div class="guide">
+
+            <div class="guide-word">
+              WHY NOT?
+            </div>
+
+            <div class="guide-desc">
+              Explore possibilities
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- SWITCHBOARD -->
+
+    <section class="switchboard">
+
+      <div class="board-header">
+
+        <div>
+
+          <div
+            class="board-title"
+            id="boardTitle"
+          >
+            Choose a Thinking Switch
+          </div>
+
+          <div
+            class="board-step"
+            id="boardStep"
+          >
+            Which type of question fits the mission best?
+          </div>
+
+        </div>
+
+
+        <div
+          class="step-pill"
+          id="stepPill"
+        >
+          Step 1 of 2
+        </div>
+
+      </div>
+
+
+      <!-- SWITCH BANK -->
+
+      <div class="switch-bank">
+
+
+        <button
+          class="switch-btn"
+          data-type="why"
+        >
+
+          <div class="switch-light"></div>
+
+          <div class="switch-word">
+            WHY?
+          </div>
+
+          <div class="switch-purpose">
+            Understand reasons
+          </div>
+
+        </button>
+
+
+        <button
+          class="switch-btn"
+          data-type="how"
+        >
+
+          <div class="switch-light"></div>
+
+          <div class="switch-word">
+            HOW?
+          </div>
+
+          <div class="switch-purpose">
+            Plan forward
+          </div>
+
+        </button>
+
+
+        <button
+          class="switch-btn"
+          data-type="whynot"
+        >
+
+          <div class="switch-light"></div>
+
+          <div class="switch-word">
+            WHY NOT?
+          </div>
+
+          <div class="switch-purpose">
+            Try another possibility
+          </div>
+
+        </button>
+
+
+      </div>
+
+
+      <!-- ACTIVE STAGE -->
+
+      <div class="stage-area">
+
+
+        <div
+          class="switch-question"
+          id="switchQuestion"
+        >
+          Read the mission, then choose WHY, HOW or WHY NOT.
+        </div>
+
+
+        <div
+          class="question-options"
+          id="questionOptions"
+        ></div>
+
+
+      </div>
+
+
+      <!-- BOTTOM -->
+
+      <div class="board-bottom">
+
+
+        <div
+          class="feedback"
+          id="feedback"
+          aria-live="polite"
+        >
+
+          <div
+            class="feedback-icon"
+            id="feedbackIcon"
+          >
+            💡
+          </div>
+
+          <div id="feedbackText">
+            Good questions help agile learners understand, plan and explore.
+          </div>
+
+        </div>
+
+
+        <!-- OPTIONAL OWN QUESTION -->
+
+        <div
+          class="builder"
+          id="builder"
+        >
+
+          <div class="builder-title">
+            ✨ Create your own question
+          </div>
+
+          <div class="builder-hint">
+            Optional: write another useful question you could ask in this situation.
+          </div>
+
+
+          <div class="builder-row">
+
+            <input
+              type="text"
+              id="builderInput"
+              class="builder-input"
+              maxlength="120"
+              autocomplete="off"
+              placeholder="My question..."
+            >
+
+            <button
+              class="save-question"
+              id="saveQuestionBtn"
+            >
+              Save
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="bottom-controls">
+
+          <div
+            class="first-try-score"
+            id="firstTryScore"
+          >
+            First-try decisions: 0 / 0
+          </div>
+
+
+          <button
+            class="continue-btn"
+            id="continueBtn"
+            disabled
+          >
+            Continue →
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="signal-flash"
+        id="signalFlash"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+  <!-- ====================================================
+       INTRO SCREEN
+  ===================================================== -->
+
+  <div
+    class="intro-screen"
+    id="introScreen"
+  >
+
+    <div class="intro-card">
+
+      <div class="intro-icon">
+        ❓⚡
+      </div>
+
+      <div class="intro-title">
+        Power Up Your Curiosity
+      </div>
+
+      <div class="intro-text">
+        Agile learners do more than wait for answers.
+        They ask useful questions when something is new,
+        difficult or does not go as planned.
+      </div>
+
+
+      <div class="intro-switches">
+
+
+        <div class="intro-switch">
+
+          <div class="intro-switch-icon">
+            🔍
+          </div>
+
+          <div class="intro-switch-word">
+            WHY?
+          </div>
+
+          <div class="intro-switch-desc">
+            Ask WHY when you want to understand a reason or cause.
+          </div>
+
+        </div>
+
+
+        <div class="intro-switch">
+
+          <div class="intro-switch-icon">
+            🛠️
+          </div>
+
+          <div class="intro-switch-word">
+            HOW?
+          </div>
+
+          <div class="intro-switch-desc">
+            Ask HOW when you need a useful next step or plan.
+          </div>
+
+        </div>
+
+
+        <div class="intro-switch">
+
+          <div class="intro-switch-icon">
+            🚪
+          </div>
+
+          <div class="intro-switch-word">
+            WHY NOT?
+          </div>
+
+          <div class="intro-switch-desc">
+            Ask WHY NOT when you want to explore another possibility.
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <div class="how-to-play">
+        Each challenge has two steps:
+        first choose the best thinking switch,
+        then choose the strongest question for the situation.
+        If a choice does not work, use the feedback and try again.
+      </div>
+
+
+      <button
+        class="start-btn"
+        id="startBtn"
+      >
+        Start the Switchboard
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- ====================================================
+       END SCREEN
+  ===================================================== -->
+
+  <div
+    class="end-screen"
+    id="endScreen"
+  >
+
+    <div class="end-card">
+
+      <div
+        class="end-badge"
+        id="endBadge"
+      >
+        🌟
+      </div>
+
+      <div class="end-title">
+        Curiosity Switchboard Complete!
+      </div>
+
+      <div
+        class="end-rank"
+        id="endRank"
+      ></div>
+
+      <div
+        class="end-message"
+        id="endMessage"
+      ></div>
+
+
+      <div class="stats">
+
+
+        <div class="stat">
+
+          <div
+            class="stat-number"
+            id="completeStat"
+          >
+            8/8
+          </div>
+
+          <div class="stat-label">
+            Challenges Completed
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-number"
+            id="accuracyStat"
+          >
+            100%
+          </div>
+
+          <div class="stat-label">
+            First-Try Accuracy
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            class="stat-number"
+            id="questionsStat"
+          >
+            0
+          </div>
+
+          <div class="stat-label">
+            My Questions Saved
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <div class="skill-report">
+
+
+        <div class="skill-card">
+
+          <strong>
+            🔍 WHY?
+          </strong>
+
+          Understand reasons and causes.
+
+        </div>
+
+
+        <div class="skill-card">
+
+          <strong>
+            🛠️ HOW?
+          </strong>
+
+          Find useful next steps.
+
+        </div>
+
+
+        <div class="skill-card">
+
+          <strong>
+            🚪 WHY NOT?
+          </strong>
+
+          Explore another possibility.
+
+        </div>
+
+
+      </div>
+
+
+      <div class="toolkit">
+
+        <div class="toolkit-title">
+          🧰 My Curiosity Toolkit
+        </div>
+
+        <div
+          class="toolkit-list"
+          id="toolkitList"
+        ></div>
+
+      </div>
+
+
+      <button
+        class="play-again"
+        id="playAgainBtn"
+      >
+        ↻ Play Again
+      </button>
+
+    </div>
+
+  </div>
+
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+const TOTAL_CHALLENGES = 8;
+
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+const correctSound =
+  new Audio("assets/correct.mp3");
+
+const wrongSound =
+  new Audio("assets/wrong.mp3");
+
+const clapsSound =
+  new Audio("assets/claps.mp3");
+
+
+correctSound.volume = .8;
+
+wrongSound.volume = .65;
+
+clapsSound.volume = .85;
+
+
+let soundOn = true;
+
+
+function playSound(audio) {
+
+  if (!soundOn) {
+    return;
+  }
+
+  try {
+
+    audio.currentTime = 0;
+
+    audio
+      .play()
+      .catch(() => {});
+
+  } catch (error) {}
+
+}
+
+
+const soundBtn =
+  document.getElementById(
+    "soundBtn"
+  );
+
+
+soundBtn.addEventListener(
+  "click",
+  () => {
+
+    soundOn =
+      !soundOn;
+
+
+    soundBtn.textContent =
+      soundOn
+        ? "🔊"
+        : "🔇";
+
+
+    soundBtn.setAttribute(
+      "aria-label",
+
+      soundOn
+        ? "Turn sound off"
+        : "Turn sound on"
+    );
+
+  }
+);
+
+
+/* =========================================================
+   SPLASH
+========================================================= */
+
+const splash =
+  document.getElementById(
+    "splash"
+  );
+
+
+setTimeout(
+  () => {
+
+    splash.classList.add(
+      "hide"
+    );
+
+  },
+  5000
+);
+
+
+/* =========================================================
+   QUESTION BANK
+========================================================= */
+
+const scenarioBank = [
+
+
+/* ---------------- WHY ---------------- */
+
+
+{
+  type: "why",
+
+  icon: "📄",
+
+  title:
+    "The Poster Did Not Work",
+
+  situation:
+    "You tried a new layout for a class poster, but the information looks crowded and difficult to read.",
+
+  mission:
+    "You want to understand what caused the poster to become confusing.",
+
+  switchFeedback:
+    "Exactly. WHY questions help you look for reasons and understand what happened.",
+
+  questions: [
+
+    {
+      correct: true,
+
+      text:
+        "Why does this layout make the information difficult to read?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "How can I make a new poster tomorrow?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why am I so bad at making posters?"
+    }
+
+  ],
+
+  explanation:
+    "This question focuses on the reason the layout is unclear. Understanding the cause can help you make a better choice next time."
+},
+
+
+{
+  type: "why",
+
+  icon: "🧪",
+
+  title:
+    "The Experiment Changed",
+
+  situation:
+    "Your group's experiment gives a different result from the one you expected.",
+
+  mission:
+    "Before changing anything, you want to understand what may have affected the result.",
+
+  switchFeedback:
+    "Good thinking. WHY helps you investigate causes before rushing to a solution.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why does nothing ever work for our group?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "Why might our result be different from what we expected?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why not forget this result and start something completely different?"
+    }
+
+  ],
+
+  explanation:
+    "The useful WHY question keeps you curious instead of blaming anyone. It helps you investigate what affected the result."
+},
+
+
+{
+  type: "why",
+
+  icon: "🎨",
+
+  title:
+    "Feedback Feels Difficult",
+
+  situation:
+    "A friend suggests changing part of your drawing. You immediately feel upset.",
+
+  mission:
+    "You want to understand your reaction before deciding what to do.",
+
+  switchFeedback:
+    "Correct. WHY can help you understand your feelings and the reason behind your reaction.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "How can I change the whole drawing?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why is my friend always criticising me?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "Why did this feedback make me feel upset?"
+    }
+
+  ],
+
+  explanation:
+    "This question helps you understand your own reaction without assuming that your friend meant something negative."
+},
+
+
+{
+  type: "why",
+
+  icon: "📚",
+
+  title:
+    "A Topic Feels Difficult",
+
+  situation:
+    "You have read the lesson twice but one part still does not make sense.",
+
+  mission:
+    "You want to identify the reason this particular part is difficult for you.",
+
+  switchFeedback:
+    "Yes. WHY helps you identify the source of the difficulty.",
+
+  questions: [
+
+    {
+      correct: true,
+
+      text:
+        "Why is this part harder for me to understand than the earlier part?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why am I terrible at this subject?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "How can I finish all my homework quickly?"
+    }
+
+  ],
+
+  explanation:
+    "A focused WHY question helps you locate the difficulty instead of turning it into a judgement about yourself."
+},
+
+
+
+/* ---------------- HOW ---------------- */
+
+
+{
+  type: "how",
+
+  icon: "🎮",
+
+  title:
+    "A New Game",
+
+  situation:
+    "Your friends are playing a game you have never played before. You would like to join them.",
+
+  mission:
+    "You understand that being new is okay. Now you need a practical way to begin learning the game.",
+
+  switchFeedback:
+    "Exactly. HOW questions turn curiosity into an action or next step.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why does this game have so many rules?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "How can I learn the basic rules and try one round?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "How can I avoid looking like a beginner?"
+    }
+
+  ],
+
+  explanation:
+    "This HOW question gives you a realistic next step: learn the basics and then try."
+},
+
+
+{
+  type: "how",
+
+  icon: "❓",
+
+  title:
+    "A Hard Class Question",
+
+  situation:
+    "The teacher asks a difficult question. You understand part of it but not enough to answer fully.",
+
+  mission:
+    "You want a useful strategy that will help you work towards the answer.",
+
+  switchFeedback:
+    "Correct. HOW is the right switch when you need a strategy or next step.",
+
+  questions: [
+
+    {
+      correct: true,
+
+      text:
+        "How can I break this question into smaller parts I understand?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "How can I make sure nobody notices that I do not know?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why is the teacher asking such a difficult question?"
+    }
+
+  ],
+
+  explanation:
+    "Breaking a difficult problem into smaller parts is a useful learning strategy and gives you somewhere to begin."
+},
+
+
+{
+  type: "how",
+
+  icon: "🎤",
+
+  title:
+    "Nervous About Presenting",
+
+  situation:
+    "You have prepared your presentation, but speaking in front of the class still feels difficult.",
+
+  mission:
+    "You want to find something practical you can do to become more prepared.",
+
+  switchFeedback:
+    "Yes. HOW helps you move from a challenge to a useful action.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why am I nervous when other learners seem confident?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "How can I make sure I never feel nervous?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "How can I practise so I feel more prepared before I present?"
+    }
+
+  ],
+
+  explanation:
+    "You may not be able to remove every nervous feeling, but practice is a useful action you can control."
+},
+
+
+{
+  type: "how",
+
+  icon: "⏰",
+
+  title:
+    "Running Out of Time",
+
+  situation:
+    "You often begin your work but realise too late that you have not left enough time to finish.",
+
+  mission:
+    "You already know what the problem is. Now you need a better plan for the next task.",
+
+  switchFeedback:
+    "Exactly. HOW questions help turn what you have learned into a practical plan.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "How can I finish everything instantly?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "How can I divide the task and plan enough time for each part?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why do assignments always take time?"
+    }
+
+  ],
+
+  explanation:
+    "This question focuses on a realistic strategy that can help you manage a similar task better next time."
+},
+
+
+
+/* ---------------- WHY NOT ---------------- */
+
+
+{
+  type: "whynot",
+
+  icon: "🧩",
+
+  title:
+    "Your First Idea Is Stuck",
+
+  situation:
+    "Your group has tried the same idea twice, but it still does not solve the problem.",
+
+  mission:
+    "You have understood the problem and tried a plan. Now you want to open up a different possibility.",
+
+  switchFeedback:
+    "Exactly. WHY NOT helps you question assumptions and explore another possibility.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why not give up since the first idea did not work?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why did our first idea fail?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "Why not try a completely different approach and compare the results?"
+    }
+
+  ],
+
+  explanation:
+    "This question opens a new option without throwing away what you already learned from the first attempt."
+},
+
+
+{
+  type: "whynot",
+
+  icon: "👥",
+
+  title:
+    "Working in the Same Way",
+
+  situation:
+    "Your group always divides tasks in the same way, but some learners finish much earlier than others.",
+
+  mission:
+    "You want to explore whether a different way of organising the group could work better.",
+
+  switchFeedback:
+    "Correct. WHY NOT is useful when you want to challenge the usual way and explore another option.",
+
+  questions: [
+
+    {
+      correct: true,
+
+      text:
+        "Why not divide the work differently this time and see what happens?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why not let the fastest learner do everything?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "How quickly can everyone finish?"
+    }
+
+  ],
+
+  explanation:
+    "This WHY NOT question opens a sensible alternative that the group can test and learn from."
+},
+
+
+{
+  type: "whynot",
+
+  icon: "📖",
+
+  title:
+    "One Study Method",
+
+  situation:
+    "You keep rereading the same notes, but you are still finding it difficult to remember the information.",
+
+  mission:
+    "You want to explore a different way of learning instead of repeating the same method.",
+
+  switchFeedback:
+    "Yes. WHY NOT invites you to experiment with another reasonable approach.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why am I forgetting these notes?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "Why not try explaining the idea aloud or making a simple diagram?"
+    },
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why not stop studying this topic completely?"
+    }
+
+  ],
+
+  explanation:
+    "Learning agility includes changing your approach when the current one is not helping enough."
+},
+
+
+{
+  type: "whynot",
+
+  icon: "⚽",
+
+  title:
+    "Learning a New Skill",
+
+  situation:
+    "You usually practise a sports skill in exactly the same way, but your improvement has slowed down.",
+
+  mission:
+    "You want to experiment with another sensible way to practise.",
+
+  switchFeedback:
+    "Correct. WHY NOT can help you explore new approaches when the usual one is no longer enough.",
+
+  questions: [
+
+    {
+      correct: false,
+
+      kind: "weak",
+
+      text:
+        "Why not practise for hours without stopping?"
+    },
+
+    {
+      correct: true,
+
+      text:
+        "Why not ask for feedback and try a different practice drill?"
+    },
+
+    {
+      correct: false,
+
+      kind: "wrongType",
+
+      text:
+        "Why has my improvement become slower?"
+    }
+
+  ],
+
+  explanation:
+    "The useful question opens another way to practise while still keeping the goal in mind."
+}
+
+];
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let gameScenarios = [];
+
+let currentIndex = 0;
+
+let currentStep = 1;
+
+let switchMistakes = 0;
+
+let questionMistakes = 0;
+
+let challengeComplete = false;
+
+let totalFirstTry = 0;
+
+let decisionsMade = 0;
+
+let savedQuestions = [];
+
+let completedTypes = {
+  why: 0,
+  how: 0,
+  whynot: 0
+};
+
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const introScreen =
+  document.getElementById(
+    "introScreen"
+  );
+
+const startBtn =
+  document.getElementById(
+    "startBtn"
+  );
+
+const challengeLabel =
+  document.getElementById(
+    "challengeLabel"
+  );
+
+const progressNodes =
+  document.getElementById(
+    "progressNodes"
+  );
+
+const energyFill =
+  document.getElementById(
+    "energyFill"
+  );
+
+const scenarioIcon =
+  document.getElementById(
+    "scenarioIcon"
+  );
+
+const scenarioTitle =
+  document.getElementById(
+    "scenarioTitle"
+  );
+
+const scenarioText =
+  document.getElementById(
+    "scenarioText"
+  );
+
+const missionText =
+  document.getElementById(
+    "missionText"
+  );
+
+const boardTitle =
+  document.getElementById(
+    "boardTitle"
+  );
+
+const boardStep =
+  document.getElementById(
+    "boardStep"
+  );
+
+const stepPill =
+  document.getElementById(
+    "stepPill"
+  );
+
+const switchButtons =
+  document.querySelectorAll(
+    ".switch-btn"
+  );
+
+const switchQuestion =
+  document.getElementById(
+    "switchQuestion"
+  );
+
+const questionOptions =
+  document.getElementById(
+    "questionOptions"
+  );
+
+const feedback =
+  document.getElementById(
+    "feedback"
+  );
+
+const feedbackIcon =
+  document.getElementById(
+    "feedbackIcon"
+  );
+
+const feedbackText =
+  document.getElementById(
+    "feedbackText"
+  );
+
+const builder =
+  document.getElementById(
+    "builder"
+  );
+
+const builderInput =
+  document.getElementById(
+    "builderInput"
+  );
+
+const saveQuestionBtn =
+  document.getElementById(
+    "saveQuestionBtn"
+  );
+
+const firstTryScore =
+  document.getElementById(
+    "firstTryScore"
+  );
+
+const continueBtn =
+  document.getElementById(
+    "continueBtn"
+  );
+
+const signalFlash =
+  document.getElementById(
+    "signalFlash"
+  );
+
+const endScreen =
+  document.getElementById(
+    "endScreen"
+  );
+
+const endBadge =
+  document.getElementById(
+    "endBadge"
+  );
+
+const endRank =
+  document.getElementById(
+    "endRank"
+  );
+
+const endMessage =
+  document.getElementById(
+    "endMessage"
+  );
+
+const completeStat =
+  document.getElementById(
+    "completeStat"
+  );
+
+const accuracyStat =
+  document.getElementById(
+    "accuracyStat"
+  );
+
+const questionsStat =
+  document.getElementById(
+    "questionsStat"
+  );
+
+const toolkitList =
+  document.getElementById(
+    "toolkitList"
+  );
+
+const playAgainBtn =
+  document.getElementById(
+    "playAgainBtn"
+  );
+
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function shuffle(array) {
+
+  const copy =
+    [...array];
+
+  for (
+    let i = copy.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() *
+        (i + 1)
+      );
+
+
+    [
+      copy[i],
+      copy[j]
+    ] =
+    [
+      copy[j],
+      copy[i]
     ];
 
-    let currentIndex = 0;
-    let usedWhy = 0;
-    let usedHow = 0;
-    let usedWhyNot = 0;
+  }
 
-    function updateMeter(){
-      const totalScenarios = scenarios.length;
-      const totalTypesUsed = (usedWhy > 0) + (usedHow > 0) + (usedWhyNot > 0);
-      const percent = Math.round((totalTypesUsed / 3) * 100);
-      meterFill.style.width = percent + "%";
-    }
+  return copy;
+}
 
-    function loadScenario(){
-      const s = scenarios[currentIndex];
-      scenarioTitleEl.textContent = s.title;
-      scenarioTextEl.textContent = s.text;
-      scenarioIconEl.textContent = s.icon;
-      scenarioLabelEl.textContent = s.label;
-      questionsListEl.textContent = "Tap WHY, HOW or WHY NOT to see good questions for this situation.";
-      feedbackEl.textContent = "Try different switches. Agile learners use more than one type of question.";
-      progressTextEl.textContent = `Scenario ${currentIndex + 1} of ${scenarios.length} · Use WHY, HOW and WHY NOT at least once.`;
-    }
 
-    function showQuestions(type){
-      const s = scenarios[currentIndex];
-      const list = s.questions[type];
-      questionsListEl.innerHTML = "";
-      list.forEach(q => {
-        const line = document.createElement("div");
-        line.textContent = "• " + q;
-        questionsListEl.appendChild(line);
-      });
+function escapeHTML(text) {
 
-      if(type === "why") usedWhy++;
-      if(type === "how") usedHow++;
-      if(type === "whynot") usedWhyNot++;
-      playGood();
-      updateMeter();
+  const div =
+    document.createElement(
+      "div"
+    );
 
-      feedbackEl.textContent = "These questions help you understand, plan, and open new options. Try another switch too.";
-    }
+  div.textContent =
+    text;
 
-    switchWhyEl.addEventListener("click", () => showQuestions("why"));
-    switchHowEl.addEventListener("click", () => showQuestions("how"));
-    switchWhyNotEl.addEventListener("click", () => showQuestions("whynot"));
+  return div.innerHTML;
+}
 
-    nextBtn.addEventListener("click", () => {
-      if(currentIndex < scenarios.length - 1){
-        currentIndex++;
-        loadScenario();
-      } else {
-        feedbackEl.textContent = "You have seen all scenarios. Click “Finish Game” to see your result.";
+
+/* =========================================================
+   SELECT BALANCED CHALLENGES
+========================================================= */
+
+function createGameSet() {
+
+  const whyPool =
+    shuffle(
+      scenarioBank.filter(
+        item =>
+          item.type === "why"
+      )
+    );
+
+
+  const howPool =
+    shuffle(
+      scenarioBank.filter(
+        item =>
+          item.type === "how"
+      )
+    );
+
+
+  const whyNotPool =
+    shuffle(
+      scenarioBank.filter(
+        item =>
+          item.type === "whynot"
+      )
+    );
+
+
+  /*
+     3 WHY
+     3 HOW
+     2 WHY NOT
+
+     Ensures all three question
+     types appear every game.
+  */
+
+  const selected = [
+
+    ...whyPool.slice(0, 3),
+
+    ...howPool.slice(0, 3),
+
+    ...whyNotPool.slice(0, 2)
+
+  ];
+
+
+  return shuffle(
+    selected
+  ).map(
+    scenario => ({
+
+      ...scenario,
+
+      questions:
+        shuffle(
+          scenario.questions
+        )
+
+    })
+  );
+
+}
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+startBtn.addEventListener(
+  "click",
+  startGame
+);
+
+
+function startGame() {
+
+  gameScenarios =
+    createGameSet();
+
+
+  currentIndex = 0;
+
+  currentStep = 1;
+
+  totalFirstTry = 0;
+
+  decisionsMade = 0;
+
+  savedQuestions = [];
+
+
+  completedTypes = {
+    why: 0,
+    how: 0,
+    whynot: 0
+  };
+
+
+  buildProgress();
+
+  introScreen.style.display =
+    "none";
+
+
+  loadChallenge();
+
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function buildProgress() {
+
+  progressNodes.innerHTML =
+    "";
+
+
+  for (
+    let i = 0;
+    i < TOTAL_CHALLENGES;
+    i++
+  ) {
+
+    const node =
+      document.createElement(
+        "div"
+      );
+
+    node.className =
+      "progress-node";
+
+
+    progressNodes.appendChild(
+      node
+    );
+
+  }
+
+}
+
+
+function updateProgress() {
+
+  challengeLabel.textContent =
+    `Challenge ${currentIndex + 1} of ${TOTAL_CHALLENGES}`;
+
+
+  const nodes =
+    progressNodes.querySelectorAll(
+      ".progress-node"
+    );
+
+
+  nodes.forEach(
+    (node, index) => {
+
+      node.classList.remove(
+        "done",
+        "current"
+      );
+
+
+      if (
+        index <
+        currentIndex
+      ) {
+
+        node.classList.add(
+          "done"
+        );
+
       }
-    });
 
-    finishBtn.addEventListener("click", () => {
-      showEndScreen();
-    });
 
-    function showEndScreen(){
-      playCelebrate();
-      const end = document.createElement("div");
-      end.className = "end-screen";
+      if (
+        index === currentIndex &&
+        currentIndex <
+        TOTAL_CHALLENGES
+      ) {
 
-      const usedAllTypes = usedWhy > 0 && usedHow > 0 && usedWhyNot > 0;
-      let badge, title, sub;
+        node.classList.add(
+          "current"
+        );
 
-      if(usedAllTypes){
-        badge = "🌈❓";
-        title = "Agile Questioner";
-        sub = "You used Why, How and Why not to explore problems. This kind of questioning helps you learn from new situations and adapt quickly.[file:40]";
-      } else {
-        badge = "☁❓";
-        title = "Still Learning to Question";
-        sub = "You used some questions but not all three types. Practising Why, How and Why not will make your learning agility stronger.[file:40]";
       }
 
-      end.innerHTML = `
-        <div class="end-badge">${badge}</div>
-        <div class="end-title">${title}</div>
-        <div class="end-sub">${sub}</div>
-        <button class="end-btn" id="playAgainBtn">Play Again</button>
+    }
+  );
+
+
+  const completed =
+    currentIndex +
+    (challengeComplete ? 1 : 0);
+
+
+  const energy =
+    Math.round(
+      (
+        completed /
+        TOTAL_CHALLENGES
+      ) * 100
+    );
+
+
+  energyFill.style.width =
+    energy + "%";
+
+
+  firstTryScore.textContent =
+    `First-try decisions: ${totalFirstTry} / ${decisionsMade}`;
+
+}
+
+
+/* =========================================================
+   LOAD CHALLENGE
+========================================================= */
+
+function loadChallenge() {
+
+  currentStep = 1;
+
+  switchMistakes = 0;
+
+  questionMistakes = 0;
+
+  challengeComplete = false;
+
+
+  builder.classList.remove(
+    "show"
+  );
+
+
+  builderInput.value =
+    "";
+
+
+  saveQuestionBtn.textContent =
+    "Save";
+
+
+  saveQuestionBtn.classList.remove(
+    "saved"
+  );
+
+
+  continueBtn.disabled =
+    true;
+
+
+  continueBtn.textContent =
+    currentIndex ===
+    TOTAL_CHALLENGES - 1
+      ? "See My Report →"
+      : "Continue →";
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedbackIcon.textContent =
+    "💡";
+
+
+  feedbackText.textContent =
+    "Good questions help agile learners understand, plan and explore.";
+
+
+  boardTitle.textContent =
+    "Choose a Thinking Switch";
+
+
+  boardStep.textContent =
+    "Which type of question fits the mission best?";
+
+
+  stepPill.textContent =
+    "Step 1 of 2";
+
+
+  switchQuestion.style.display =
+    "block";
+
+
+  switchQuestion.textContent =
+    "Read the mission, then choose WHY, HOW or WHY NOT.";
+
+
+  questionOptions.classList.remove(
+    "show"
+  );
+
+
+  questionOptions.innerHTML =
+    "";
+
+
+  resetSwitches();
+
+
+  const scenario =
+    gameScenarios[
+      currentIndex
+    ];
+
+
+  scenarioIcon.textContent =
+    scenario.icon;
+
+
+  scenarioTitle.textContent =
+    scenario.title;
+
+
+  scenarioText.textContent =
+    scenario.situation;
+
+
+  missionText.textContent =
+    scenario.mission;
+
+
+  updateProgress();
+
+}
+
+
+/* =========================================================
+   RESET SWITCHES
+========================================================= */
+
+function resetSwitches() {
+
+  switchButtons.forEach(
+    button => {
+
+      button.disabled =
+        false;
+
+
+      button.classList.remove(
+        "correct",
+        "wrong",
+        "hint"
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   SWITCH SELECTION
+========================================================= */
+
+switchButtons.forEach(
+  button => {
+
+    button.addEventListener(
+      "click",
+      () => {
+
+        chooseSwitch(
+          button
+        );
+
+      }
+    );
+
+  }
+);
+
+
+function chooseSwitch(button) {
+
+  if (currentStep !== 1) {
+    return;
+  }
+
+
+  if (
+    button.classList.contains(
+      "wrong"
+    )
+  ) {
+    return;
+  }
+
+
+  const scenario =
+    gameScenarios[
+      currentIndex
+    ];
+
+
+  const chosenType =
+    button.dataset.type;
+
+
+  decisionsMade++;
+
+
+  if (
+    chosenType ===
+    scenario.type
+  ) {
+
+    if (
+      switchMistakes === 0
+    ) {
+
+      totalFirstTry++;
+
+    }
+
+
+    playSound(
+      correctSound
+    );
+
+
+    button.classList.add(
+      "correct"
+    );
+
+
+    switchButtons.forEach(
+      btn => {
+
+        btn.disabled =
+          true;
+
+        btn.classList.remove(
+          "hint"
+        );
+
+      }
+    );
+
+
+    feedback.className =
+      "feedback good";
+
+
+    feedbackIcon.textContent =
+      "⚡";
+
+
+    feedbackText.textContent =
+      scenario.switchFeedback;
+
+
+    flashSignal();
+
+
+    setTimeout(
+      () => {
+
+        beginQuestionStage();
+
+      },
+      650
+    );
+
+  } else {
+
+    switchMistakes++;
+
+
+    playSound(
+      wrongSound
+    );
+
+
+    button.classList.add(
+      "wrong"
+    );
+
+
+    button.disabled =
+      true;
+
+
+    feedback.className =
+      "feedback retry";
+
+
+    feedbackIcon.textContent =
+      "🧠";
+
+
+    if (
+      chosenType === "why"
+    ) {
+
+      feedbackText.textContent =
+        "WHY looks for a reason or cause. Check the mission again. Is the learner trying to understand what happened?";
+
+    }
+
+    else if (
+      chosenType === "how"
+    ) {
+
+      feedbackText.textContent =
+        "HOW looks for a practical next step. Check whether the mission is asking for a plan or action.";
+
+    }
+
+    else {
+
+      feedbackText.textContent =
+        "WHY NOT opens a different possibility. Check whether the learner wants to try another approach.";
+
+    }
+
+
+    if (
+      switchMistakes >= 2
+    ) {
+
+      const correct =
+        document.querySelector(
+          `.switch-btn[data-type="${scenario.type}"]`
+        );
+
+
+      if (correct) {
+
+        correct.classList.add(
+          "hint"
+        );
+
+      }
+
+
+      feedbackText.textContent +=
+        " The glowing switch can help you.";
+
+    }
+
+  }
+
+
+  updateProgress();
+
+}
+
+
+/* =========================================================
+   QUESTION STAGE
+========================================================= */
+
+function beginQuestionStage() {
+
+  currentStep = 2;
+
+
+  boardTitle.textContent =
+    "Choose the Strongest Question";
+
+
+  boardStep.textContent =
+    "Not every question is equally useful.";
+
+
+  stepPill.textContent =
+    "Step 2 of 2";
+
+
+  switchQuestion.style.display =
+    "none";
+
+
+  renderQuestionOptions();
+
+
+  questionOptions.classList.add(
+    "show"
+  );
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedbackIcon.textContent =
+    "❓";
+
+
+  feedbackText.textContent =
+    "Choose the question that is curious, useful and connected to the learning mission.";
+
+
+  updateProgress();
+
+}
+
+
+/* =========================================================
+   RENDER QUESTION OPTIONS
+========================================================= */
+
+function renderQuestionOptions() {
+
+  questionOptions.innerHTML =
+    "";
+
+
+  const scenario =
+    gameScenarios[
+      currentIndex
+    ];
+
+
+  const letters =
+    ["A", "B", "C"];
+
+
+  scenario.questions.forEach(
+    (question, index) => {
+
+      const button =
+        document.createElement(
+          "button"
+        );
+
+
+      button.className =
+        "question-option";
+
+
+      button.dataset.correct =
+        question.correct
+          ? "true"
+          : "false";
+
+
+      button.dataset.kind =
+        question.kind || "";
+
+
+      button.innerHTML = `
+
+        <span class="option-letter">
+          ${letters[index]}
+        </span>
+
+        <span class="option-copy">
+          ${escapeHTML(question.text)}
+        </span>
+
+        <span class="option-mark"></span>
+
       `;
-      shell.appendChild(end);
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          chooseQuestion(
+            button,
+            question
+          );
+
+        }
+      );
+
+
+      questionOptions.appendChild(
+        button
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   CHOOSE QUESTION
+========================================================= */
+
+function chooseQuestion(
+  button,
+  question
+) {
+
+  if (
+    currentStep !== 2 ||
+    challengeComplete
+  ) {
+    return;
+  }
+
+
+  if (
+    button.classList.contains(
+      "wrong"
+    )
+  ) {
+    return;
+  }
+
+
+  decisionsMade++;
+
+
+  if (question.correct) {
+
+    if (
+      questionMistakes === 0
+    ) {
+
+      totalFirstTry++;
+
     }
 
-    // Init
-    loadScenario();
-    updateMeter();
-  </script>
+
+    challengeComplete =
+      true;
+
+
+    currentStep = 3;
+
+
+    playSound(
+      correctSound
+    );
+
+
+    button.classList.add(
+      "correct"
+    );
+
+
+    button.querySelector(
+      ".option-mark"
+    ).textContent =
+      "✓";
+
+
+    const buttons =
+      questionOptions.querySelectorAll(
+        ".question-option"
+      );
+
+
+    buttons.forEach(
+      btn => {
+
+        btn.disabled =
+          true;
+
+        btn.classList.remove(
+          "hint"
+        );
+
+      }
+    );
+
+
+    const scenario =
+      gameScenarios[
+        currentIndex
+      ];
+
+
+    completedTypes[
+      scenario.type
+    ]++;
+
+
+    feedback.className =
+      "feedback good";
+
+
+    feedbackIcon.textContent =
+      "🌟";
+
+
+    feedbackText.textContent =
+      "Strong question! " +
+      scenario.explanation;
+
+
+    builder.classList.add(
+      "show"
+    );
+
+
+    continueBtn.disabled =
+      false;
+
+
+    flashSignal();
+
+
+  } else {
+
+    questionMistakes++;
+
+
+    playSound(
+      wrongSound
+    );
+
+
+    button.classList.add(
+      "wrong"
+    );
+
+
+    button.disabled =
+      true;
+
+
+    button.querySelector(
+      ".option-mark"
+    ).textContent =
+      "↻";
+
+
+    feedback.className =
+      "feedback retry";
+
+
+    feedbackIcon.textContent =
+      "🧠";
+
+
+    if (
+      question.kind ===
+      "wrongType"
+    ) {
+
+      feedbackText.textContent =
+        "That is a reasonable question, but it does not match this learning mission closely enough. Look for the question that uses the selected switch most effectively.";
+
+    }
+
+    else {
+
+      feedbackText.textContent =
+        "This question sounds related, but it is not very useful for learning. Strong questions help you understand, improve or explore rather than blame, avoid or exaggerate.";
+
+    }
+
+
+    if (
+      questionMistakes >= 2
+    ) {
+
+      const correctButton =
+        questionOptions.querySelector(
+          '[data-correct="true"]'
+        );
+
+
+      if (correctButton) {
+
+        correctButton.classList.add(
+          "hint"
+        );
+
+      }
+
+
+      feedbackText.textContent +=
+        " Look for the glowing question.";
+
+    }
+
+  }
+
+
+  updateProgress();
+
+}
+
+
+/* =========================================================
+   SIGNAL EFFECT
+========================================================= */
+
+function flashSignal() {
+
+  signalFlash.classList.remove(
+    "active"
+  );
+
+
+  void signalFlash.offsetWidth;
+
+
+  signalFlash.classList.add(
+    "active"
+  );
+
+}
+
+
+/* =========================================================
+   SAVE OWN QUESTION
+========================================================= */
+
+saveQuestionBtn.addEventListener(
+  "click",
+  saveOwnQuestion
+);
+
+
+builderInput.addEventListener(
+  "keydown",
+  event => {
+
+    if (
+      event.key === "Enter"
+    ) {
+
+      event.preventDefault();
+
+      saveOwnQuestion();
+
+    }
+
+  }
+);
+
+
+function saveOwnQuestion() {
+
+  const value =
+    builderInput.value.trim();
+
+
+  if (!value) {
+
+    builderInput.focus();
+
+    return;
+  }
+
+
+  const existingIndex =
+    savedQuestions.findIndex(
+      item =>
+        item.challenge ===
+        currentIndex
+    );
+
+
+  const item = {
+
+    challenge:
+      currentIndex,
+
+    text:
+      value
+
+  };
+
+
+  if (
+    existingIndex >= 0
+  ) {
+
+    savedQuestions[
+      existingIndex
+    ] = item;
+
+  }
+
+  else {
+
+    savedQuestions.push(
+      item
+    );
+
+  }
+
+
+  saveQuestionBtn.textContent =
+    "Saved ✓";
+
+
+  saveQuestionBtn.classList.add(
+    "saved"
+  );
+
+}
+
+
+/* =========================================================
+   CONTINUE
+========================================================= */
+
+continueBtn.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !challengeComplete
+    ) {
+      return;
+    }
+
+
+    if (
+      currentIndex <
+      TOTAL_CHALLENGES - 1
+    ) {
+
+      currentIndex++;
+
+      loadChallenge();
+
+    }
+
+    else {
+
+      showEndScreen();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   END SCREEN
+========================================================= */
+
+function showEndScreen() {
+
+  const possibleDecisions =
+    TOTAL_CHALLENGES * 2;
+
+
+  const accuracy =
+    Math.round(
+      (
+        totalFirstTry /
+        possibleDecisions
+      ) * 100
+    );
+
+
+  let rank;
+  let badge;
+  let message;
+
+
+  if (accuracy >= 85) {
+
+    rank =
+      "Agile Questioner";
+
+    badge =
+      "🌟";
+
+    message =
+      "You showed strong learning agility. You could recognise when to investigate a reason, plan a next step and explore a new possibility. Keep using WHY, HOW and WHY NOT whenever learning becomes new or challenging.";
+
+  }
+
+  else if (
+    accuracy >= 60
+  ) {
+
+    rank =
+      "Curiosity Navigator";
+
+    badge =
+      "🧭";
+
+    message =
+      "You are learning to choose questions that match what you need. Keep checking whether you need a reason, a next step or another possibility.";
+
+  }
+
+  else {
+
+    rank =
+      "Question Explorer";
+
+    badge =
+      "🔍";
+
+    message =
+      "You practised changing your questions when the first choice did not fit. That flexibility is part of learning agility. Keep using the three question switches as you learn.";
+
+  }
+
+
+  endBadge.textContent =
+    badge;
+
+
+  endRank.textContent =
+    rank;
+
+
+  endMessage.textContent =
+    message;
+
+
+  completeStat.textContent =
+    `${TOTAL_CHALLENGES}/${TOTAL_CHALLENGES}`;
+
+
+  accuracyStat.textContent =
+    accuracy + "%";
+
+
+  questionsStat.textContent =
+    savedQuestions.length;
+
+
+  buildToolkit();
+
+
+  endScreen.classList.add(
+    "show"
+  );
+
+
+  playSound(
+    clapsSound
+  );
+
+
+  launchConfetti();
+
+}
+
+
+/* =========================================================
+   TOOLKIT
+========================================================= */
+
+function buildToolkit() {
+
+  toolkitList.innerHTML =
+    "";
+
+
+  let items = [];
+
+
+  if (
+    savedQuestions.length > 0
+  ) {
+
+    items =
+      savedQuestions
+        .slice(0, 4)
+        .map(
+          item =>
+            item.text
+        );
+
+  }
+
+  else {
+
+    items = [
+
+      "WHY? What might be causing this?",
+
+      "HOW? What useful step can I try next?",
+
+      "WHY NOT? What other approach could I explore?",
+
+      "What can I learn from this attempt?"
+
+    ];
+
+  }
+
+
+  items.forEach(
+    text => {
+
+      const item =
+        document.createElement(
+          "div"
+        );
+
+
+      item.className =
+        "toolkit-item";
+
+
+      item.textContent =
+        "❓ " + text;
+
+
+      toolkitList.appendChild(
+        item
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function launchConfetti() {
+
+  const colours = [
+
+    "#4b7bec",
+    "#28b67a",
+    "#ff9e45",
+    "#7f67dc",
+    "#ffd963",
+    "#ef6b88"
+
+  ];
+
+
+  for (
+    let i = 0;
+    i < 90;
+    i++
+  ) {
+
+    const piece =
+      document.createElement(
+        "div"
+      );
+
+
+    piece.className =
+      "confetti";
+
+
+    piece.style.left =
+      Math.random() *
+      100 +
+      "vw";
+
+
+    piece.style.backgroundColor =
+      colours[
+        Math.floor(
+          Math.random() *
+          colours.length
+        )
+      ];
+
+
+    piece.style.animationDuration =
+      (
+        2.2 +
+        Math.random() * 2.4
+      ) +
+      "s";
+
+
+    piece.style.animationDelay =
+      (
+        Math.random() *
+        .8
+      ) +
+      "s";
+
+
+    document.body.appendChild(
+      piece
+    );
+
+
+    setTimeout(
+      () => {
+
+        piece.remove();
+
+      },
+      5400
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   PLAY AGAIN
+========================================================= */
+
+playAgainBtn.addEventListener(
+  "click",
+  () => {
+
+    endScreen.classList.remove(
+      "show"
+    );
+
+
+    startGame();
+
+  }
+);
+
+</script>
+
 </body>
 </html>
