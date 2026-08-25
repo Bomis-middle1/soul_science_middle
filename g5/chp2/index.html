@@ -1,751 +1,3594 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self-Talk Switch – Inner Voice Game</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #fee2e2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Talk Switch | Grade 5</title>
 
-    /* Splash screen */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+<style>
+/* =========================================================
+   RESET
+========================================================= */
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .container.visible { opacity: 1; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
-      color: #022c22;
-      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: headerGlow 20s linear infinite;
-    }
-    @keyframes headerGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fefce8;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.9);
-      border: 2px solid #fef3c7;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(59,130,246,0.9);
-    }
+:root {
+  --ink: #17324d;
+  --muted: #65758b;
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fef3c7, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
-    }
+  --blue: #4f7cff;
+  --blue-dark: #3157cc;
+  --sky: #dff3ff;
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
-        #f9fafb;
-    }
+  --purple: #8268e8;
+  --purple-soft: #eee9ff;
 
-    .left-panel {
-      flex: 1.2;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 10px;
-      background: #e0f2fe;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .panel-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
-    }
+  --green: #31b980;
+  --green-dark: #16855a;
+  --green-soft: #e7fbf2;
 
-    .situation-card {
-      border-radius: 14px;
-      border: 2px solid rgba(59,130,246,0.9);
-      background: #eff6ff;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .situation-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #1d4ed8;
-    }
-    .situation-text {
-      font-size: 12px;
-      color: #374151;
-    }
+  --orange: #ff9d47;
+  --orange-soft: #fff0dc;
 
-    .thought-display {
-      margin-top: 6px;
-      border-radius: 14px;
-      border: 2px solid rgba(248,113,113,0.9);
-      background: #fee2e2;
-      padding: 6px;
-      position: relative;
-    }
-    .thought-label {
-      font-size: 11px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .thought-text {
-      font-size: 12px;
-      color: #7c2d12;
-    }
+  --red: #e96a67;
+  --red-soft: #fff0ef;
 
-    .switch-panel {
-      margin-top: 6px;
-      border-radius: 14px;
-      border: 2px solid rgba(34,197,94,0.9);
-      background: #ecfdf5;
-      padding: 6px;
-    }
-    .switch-title {
-      font-size: 12px;
-      font-weight: bold;
-      color: #065f46;
-      margin-bottom: 2px;
-    }
-    .switch-hint {
-      font-size: 11px;
-      color: #047857;
-    }
+  --yellow: #ffd96a;
 
-    .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 12px;
-      background: #fefce8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+  --white: #ffffff;
+  --panel: rgba(255, 255, 255, 0.96);
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
-    }
+  --shadow:
+    0 18px 55px rgba(32, 62, 106, 0.16);
 
-    .status-text {
-      font-size: 12px;
-      color: #374151;
-      text-align: center;
-      margin-top: 2px;
-    }
+  --shadow-small:
+    0 8px 24px rgba(32, 62, 106, 0.12);
+}
 
-    .options-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
-    }
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
 
-    .option-list {
-      border-radius: 14px;
-      border: 2px solid rgba(148,163,184,0.9);
-      background: #fffbeb;
-      padding: 6px;
-      min-height: 70px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .option-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-      text-align: left;
-    }
-    .option-btn:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.6);
-    }
+body {
+  font-family:
+    "Trebuchet MS",
+    "Segoe UI",
+    Arial,
+    sans-serif;
 
-    .custom-box {
-      margin-top: 6px;
-      border-radius: 14px;
-      border: 2px solid rgba(148,163,184,0.9);
-      padding: 6px;
-      background: #fffbeb;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .custom-label {
-      font-size: 12px;
-      font-weight: bold;
-      color: #7c2d12;
-    }
-    .custom-hint {
-      font-size: 11px;
-      color: #4b5563;
-    }
-    .custom-input {
-      display: flex;
-      gap: 4px;
-      margin-top: 2px;
-    }
-    .custom-input input {
-      flex: 1;
-      padding: 5px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-    }
+  color: var(--ink);
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
-    }
-    .feedback.warn {
-      background: rgba(254,202,202,0.7);
-      border: 1px solid #f97316;
-      color: #7c2d12;
-    }
+  background:
+    radial-gradient(circle at 7% 8%, rgba(255, 217, 106, 0.55), transparent 22%),
+    radial-gradient(circle at 90% 8%, rgba(130, 104, 232, 0.20), transparent 23%),
+    radial-gradient(circle at 91% 92%, rgba(49, 185, 128, 0.20), transparent 24%),
+    linear-gradient(145deg, #e9f7ff 0%, #fff7e9 52%, #f2efff 100%);
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
-    }
+  overflow: hidden;
+}
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(34,197,94,1);
-    }
+/* =========================================================
+   DECORATIVE BACKGROUND
+========================================================= */
 
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
-    }
+.bg-shape {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.5;
+  filter: blur(1px);
+}
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
-    }
-    .volume-control input { flex: 1; }
+.shape-1 {
+  width: 170px;
+  height: 170px;
+  top: -65px;
+  left: 8%;
+  background: #ffdf7e;
+}
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
-    }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+.shape-2 {
+  width: 220px;
+  height: 220px;
+  right: -85px;
+  top: 18%;
+  background: #d9d0ff;
+}
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column; }
-      .left-panel, .right-panel { min-width: 100%; }
-    }
-  </style>
+.shape-3 {
+  width: 150px;
+  height: 150px;
+  left: -60px;
+  bottom: 8%;
+  background: #bdeed7;
+}
+
+/* =========================================================
+   SPLASH
+========================================================= */
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(circle at 50% 25%, #5585ff, #3d5dc8 55%, #263b87 100%);
+
+  transition:
+    opacity 0.6s ease,
+    visibility 0.6s ease;
+}
+
+.splash-screen.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.splash-inner {
+  text-align: center;
+  color: white;
+  padding: 30px;
+}
+
+.splash-inner img {
+  width: min(300px, 72vw);
+  max-height: 170px;
+  object-fit: contain;
+  margin-bottom: 20px;
+
+  animation: logoFloat 2s ease-in-out infinite;
+}
+
+.splash-text {
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.splash-dots {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.splash-dots span {
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  animation: dotBounce 1s infinite alternate;
+}
+
+.splash-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.splash-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes dotBounce {
+  from {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: translateY(-8px);
+    opacity: 1;
+  }
+}
+
+/* =========================================================
+   APP SHELL
+========================================================= */
+
+.game-shell {
+  position: relative;
+
+  width: min(1180px, calc(100vw - 22px));
+  height: min(760px, calc(100dvh - 22px));
+
+  margin: 11px auto;
+
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+
+  background: var(--panel);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.9);
+
+  border-radius: 28px;
+
+  box-shadow: var(--shadow);
+
+  overflow: hidden;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header {
+  min-height: 84px;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 14px 22px;
+
+  color: white;
+
+  background:
+    radial-gradient(circle at 15% 0%, rgba(255,255,255,.22), transparent 33%),
+    linear-gradient(135deg, #527dff, #765edf 68%, #8c68e8);
+}
+
+.brand-area {
+  min-width: 0;
+}
+
+.game-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: clamp(22px, 3vw, 31px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.title-icon {
+  font-size: 1.1em;
+}
+
+.game-subtitle {
+  margin-top: 7px;
+  font-size: clamp(12px, 1.3vw, 14px);
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+
+  display: grid;
+  place-items: center;
+
+  border: 1px solid rgba(255,255,255,0.45);
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.18);
+  color: white;
+
+  font-size: 20px;
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.icon-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.28);
+}
+
+.icon-button:focus-visible {
+  outline: 3px solid white;
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   PROGRESS BAR
+========================================================= */
+
+.progress-zone {
+  padding: 10px 20px;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+
+  gap: 18px;
+
+  background: rgba(247, 250, 255, 0.96);
+  border-bottom: 1px solid #e5eaf3;
+}
+
+.challenge-number {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--purple);
+  white-space: nowrap;
+}
+
+.progress-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+}
+
+.progress-dot {
+  width: 13px;
+  height: 13px;
+
+  border-radius: 50%;
+
+  background: #dbe1ec;
+
+  transition: 0.3s ease;
+}
+
+.progress-dot.active {
+  width: 18px;
+  height: 18px;
+
+  border: 4px solid #dcd5ff;
+  background: var(--purple);
+}
+
+.progress-dot.done {
+  background: var(--green);
+  transform: scale(1.08);
+}
+
+.score-mini {
+  min-width: 126px;
+
+  padding: 7px 12px;
+
+  border-radius: 13px;
+
+  background: var(--green-soft);
+  color: var(--green-dark);
+
+  font-size: 12px;
+  font-weight: 900;
+
+  text-align: center;
+}
+
+/* =========================================================
+   MAIN GAME AREA
+========================================================= */
+
+.game-area {
+  min-height: 0;
+
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.18fr);
+
+  gap: 18px;
+
+  padding: 18px;
+
+  background:
+    radial-gradient(circle at 5% 100%, rgba(79,124,255,0.06), transparent 27%),
+    radial-gradient(circle at 100% 0%, rgba(255,157,71,0.09), transparent 30%),
+    #fbfcff;
+}
+
+.story-side,
+.challenge-side {
+  min-height: 0;
+}
+
+/* =========================================================
+   LEFT SIDE
+========================================================= */
+
+.story-side {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+}
+
+.section-chip {
+  width: max-content;
+
+  padding: 7px 13px;
+
+  border-radius: 999px;
+
+  background: var(--purple-soft);
+  color: #5e4bc4;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.situation-card {
+  position: relative;
+
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 16px;
+
+  border: 1px solid #dfe6f3;
+  border-radius: 20px;
+
+  background: white;
+
+  box-shadow: var(--shadow-small);
+}
+
+.situation-emoji {
+  width: 66px;
+  height: 66px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 20px;
+
+  background:
+    linear-gradient(145deg, #eef6ff, #e8e4ff);
+
+  font-size: 34px;
+}
+
+.situation-title {
+  margin-bottom: 5px;
+
+  color: var(--ink);
+
+  font-size: clamp(16px, 2vw, 20px);
+  font-weight: 900;
+}
+
+.situation-text {
+  color: var(--muted);
+
+  font-size: clamp(12px, 1.4vw, 14px);
+  line-height: 1.45;
+}
+
+/* =========================================================
+   THOUGHT SWITCH VISUAL
+========================================================= */
+
+.thought-zone {
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 4px 4px 0;
+}
+
+.thought-caption {
+  margin-bottom: 7px;
+
+  color: #a14e48;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+}
+
+.thought-bubble {
+  position: relative;
+
+  min-height: 132px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px 24px;
+
+  border: 2px solid #f4b2ae;
+  border-radius:
+    28px 28px 28px 10px;
+
+  background:
+    linear-gradient(145deg, #fff5f4, #ffe7e5);
+
+  color: #933e3d;
+
+  box-shadow:
+    0 12px 28px rgba(233, 106, 103, 0.14);
+
+  transition:
+    background 0.45s ease,
+    border-color 0.45s ease,
+    color 0.45s ease,
+    transform 0.45s ease;
+}
+
+.thought-bubble::after {
+  content: "";
+
+  position: absolute;
+  left: 18px;
+  bottom: -18px;
+
+  width: 25px;
+  height: 25px;
+
+  border-radius: 4px 0 20px 20px;
+
+  background: #ffe7e5;
+
+  transform:
+    rotate(30deg)
+    skew(8deg);
+
+  transition: background 0.45s ease;
+}
+
+.thought-bubble.switching {
+  animation: switchPulse 0.55s ease;
+}
+
+.thought-bubble.helpful {
+  border-color: #8fdbbb;
+
+  background:
+    linear-gradient(145deg, #ecfff7, #dff8ed);
+
+  color: #176c4b;
+
+  transform: translateY(-2px);
+}
+
+.thought-bubble.helpful::after {
+  background: #dff8ed;
+}
+
+.thought-text {
+  position: relative;
+  z-index: 2;
+
+  max-width: 470px;
+
+  text-align: center;
+
+  font-size: clamp(16px, 2vw, 21px);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.switch-flash {
+  margin-top: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  color: var(--purple);
+
+  font-size: 12px;
+  font-weight: 900;
+
+  letter-spacing: 0.5px;
+}
+
+.bolt {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 50%;
+
+  background: #fff3c8;
+
+  font-size: 20px;
+}
+
+@keyframes switchPulse {
+  0% {
+    transform: scale(1);
+  }
+
+  35% {
+    transform: scale(0.95) rotate(-1deg);
+  }
+
+  70% {
+    transform: scale(1.04) rotate(1deg);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   RIGHT SIDE
+========================================================= */
+
+.challenge-side {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 10px;
+
+  padding: 16px;
+
+  border: 1px solid #e1e6f0;
+  border-radius: 22px;
+
+  background: white;
+
+  box-shadow: var(--shadow-small);
+}
+
+.challenge-heading {
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.challenge-instruction {
+  color: var(--muted);
+
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.criteria-row {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+.criteria {
+  padding: 6px 10px;
+
+  border-radius: 999px;
+
+  background: #f0f4fb;
+  color: #506178;
+
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.criteria span {
+  margin-right: 4px;
+}
+
+/* =========================================================
+   OPTIONS
+========================================================= */
+
+.option-list {
+  min-height: 0;
+
+  display: grid;
+  grid-template-rows:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.option-btn {
+  position: relative;
+
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  border: 2px solid #e3e7ef;
+  border-radius: 16px;
+
+  background: #fbfcff;
+  color: var(--ink);
+
+  font-family: inherit;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.option-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+
+  border-color: #a9b9ef;
+
+  background: #f7f8ff;
+
+  box-shadow:
+    0 7px 18px rgba(61, 87, 153, 0.09);
+}
+
+.option-btn:focus-visible {
+  outline: 3px solid #8aa5ff;
+  outline-offset: 2px;
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.option-letter {
+  width: 34px;
+  height: 34px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 11px;
+
+  background: #edf1f8;
+  color: #53647a;
+
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.option-text {
+  font-size: clamp(12px, 1.4vw, 14px);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.option-icon {
+  width: 25px;
+
+  text-align: center;
+
+  font-size: 18px;
+}
+
+.option-btn.wrong {
+  border-color: #ef9b96;
+  background: var(--red-soft);
+
+  animation: gentleShake 0.34s ease;
+}
+
+.option-btn.wrong .option-letter {
+  background: #ffd9d7;
+  color: #a44541;
+}
+
+.option-btn.correct {
+  border-color: #63c99d;
+  background: var(--green-soft);
+}
+
+.option-btn.correct .option-letter {
+  background: #c9f0dd;
+  color: #14724d;
+}
+
+.option-btn.hint {
+  animation: hintGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes gentleShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-6px);
+  }
+
+  50% {
+    transform: translateX(5px);
+  }
+
+  75% {
+    transform: translateX(-3px);
+  }
+}
+
+@keyframes hintGlow {
+  from {
+    box-shadow:
+      0 0 0 rgba(49, 185, 128, 0);
+  }
+
+  to {
+    box-shadow:
+      0 0 0 4px rgba(49, 185, 128, 0.20);
+  }
+}
+
+/* =========================================================
+   FEEDBACK
+========================================================= */
+
+.bottom-area {
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-box {
+  min-height: 49px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 9px 12px;
+
+  border-radius: 14px;
+
+  background: #f5f7fb;
+  color: #53647a;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+
+  transition: 0.25s ease;
+}
+
+.feedback-box.good {
+  background: var(--green-soft);
+  color: #176847;
+}
+
+.feedback-box.retry {
+  background: var(--orange-soft);
+  color: #934f17;
+}
+
+.feedback-icon {
+  flex: 0 0 auto;
+  font-size: 20px;
+}
+
+/* =========================================================
+   REFLECTION
+========================================================= */
+
+.reflection-box {
+  display: none;
+
+  padding: 10px 12px;
+
+  border: 1px solid #d8d2fb;
+  border-radius: 15px;
+
+  background:
+    linear-gradient(145deg, #faf8ff, #f3efff);
+}
+
+.reflection-box.show {
+  display: block;
+  animation: slideUp 0.35s ease;
+}
+
+.reflection-title {
+  margin-bottom: 3px;
+
+  color: #624fc2;
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.reflection-help {
+  margin-bottom: 7px;
+
+  color: #6a7180;
+
+  font-size: 11px;
+}
+
+.reflection-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+
+  gap: 7px;
+}
+
+.reflection-input {
+  min-width: 0;
+
+  padding: 9px 11px;
+
+  border: 1px solid #cbcde0;
+  border-radius: 11px;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  outline: none;
+}
+
+.reflection-input:focus {
+  border-color: var(--purple);
+
+  box-shadow:
+    0 0 0 3px rgba(130,104,232,0.12);
+}
+
+.save-btn {
+  padding: 8px 13px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: var(--purple);
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.save-btn.saved {
+  background: var(--green);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   CONTINUE
+========================================================= */
+
+.continue-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.continue-btn {
+  min-width: 150px;
+
+  padding: 11px 18px;
+
+  border: none;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(135deg, var(--blue), var(--purple));
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 17px rgba(79, 124, 255, 0.25);
+
+  transition: 0.2s ease;
+}
+
+.continue-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.continue-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* =========================================================
+   INTRO SCREEN
+========================================================= */
+
+.intro-screen {
+  position: absolute;
+  inset: 0;
+
+  z-index: 40;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 22px;
+
+  background:
+    radial-gradient(circle at top left, #e0f3ff, transparent 35%),
+    radial-gradient(circle at bottom right, #eee8ff, transparent 36%),
+    #fbfcff;
+}
+
+.intro-card {
+  width: min(720px, 100%);
+
+  padding: clamp(20px, 4vw, 36px);
+
+  border: 1px solid #e3e5ef;
+  border-radius: 28px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+
+  text-align: center;
+}
+
+.intro-icon {
+  width: 82px;
+  height: 82px;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto 14px;
+
+  border-radius: 26px;
+
+  background:
+    linear-gradient(145deg, #e7efff, #eee8ff);
+
+  font-size: 45px;
+}
+
+.intro-card h2 {
+  margin-bottom: 8px;
+
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 900;
+}
+
+.intro-card > p {
+  max-width: 560px;
+
+  margin: 0 auto;
+
+  color: var(--muted);
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.switch-rule {
+  margin: 20px 0;
+
+  display: grid;
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.rule-card {
+  padding: 13px 8px;
+
+  border-radius: 17px;
+
+  background: #f6f8fc;
+}
+
+.rule-emoji {
+  margin-bottom: 5px;
+
+  font-size: 27px;
+}
+
+.rule-title {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rule-text {
+  margin-top: 3px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  line-height: 1.3;
+}
+
+.start-btn {
+  padding: 13px 26px;
+
+  border: none;
+  border-radius: 15px;
+
+  background:
+    linear-gradient(135deg, #4f7cff, #785fe0);
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 9px 20px rgba(79,124,255,0.26);
+}
+
+/* =========================================================
+   FINAL SCREEN
+========================================================= */
+
+.final-screen {
+  position: absolute;
+  inset: 0;
+
+  z-index: 50;
+
+  display: none;
+
+  padding: 18px;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at 15% 15%, #dff5ff, transparent 27%),
+    radial-gradient(circle at 86% 20%, #eee6ff, transparent 26%),
+    radial-gradient(circle at 82% 92%, #e0f9ec, transparent 26%),
+    #fbfcff;
+}
+
+.final-screen.show {
+  display: grid;
+  place-items: center;
+}
+
+.final-card {
+  width: min(800px, 100%);
+  max-height: 100%;
+
+  padding: clamp(18px, 3vw, 28px);
+
+  border-radius: 27px;
+
+  background: white;
+
+  box-shadow: var(--shadow);
+
+  text-align: center;
+}
+
+.final-badge {
+  width: 78px;
+  height: 78px;
+
+  display: grid;
+  place-items: center;
+
+  margin: 0 auto 10px;
+
+  border-radius: 25px;
+
+  background:
+    linear-gradient(145deg, #fff2bc, #f2eaff);
+
+  font-size: 42px;
+}
+
+.final-title {
+  font-size: clamp(25px, 4vw, 34px);
+  font-weight: 900;
+}
+
+.final-subtitle {
+  margin-top: 3px;
+
+  color: var(--purple);
+
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.final-message {
+  max-width: 600px;
+
+  margin: 7px auto 14px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.final-stats {
+  display: grid;
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 10px;
+
+  max-width: 460px;
+
+  margin: 0 auto 14px;
+}
+
+.stat-card {
+  padding: 11px;
+
+  border-radius: 15px;
+
+  background: #f5f7fb;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--blue-dark);
+}
+
+.stat-label {
+  margin-top: 2px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.toolkit {
+  max-width: 650px;
+
+  margin: 0 auto 14px;
+
+  padding: 12px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(145deg, #faf8ff, #f2efff);
+
+  text-align: left;
+}
+
+.toolkit-title {
+  margin-bottom: 8px;
+
+  color: #5f4bbe;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  text-align: center;
+}
+
+.toolkit-list {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0,1fr));
+
+  gap: 7px;
+}
+
+.toolkit-item {
+  padding: 8px 9px;
+
+  border-radius: 11px;
+
+  background: white;
+
+  color: #526176;
+
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.final-actions {
+  display: flex;
+  justify-content: center;
+
+  gap: 9px;
+}
+
+.play-again-btn {
+  padding: 11px 21px;
+
+  border: none;
+  border-radius: 13px;
+
+  background:
+    linear-gradient(135deg, var(--green), #2ba878);
+
+  color: white;
+
+  font-family: inherit;
+
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti {
+  position: fixed;
+
+  width: 9px;
+  height: 14px;
+
+  top: -20px;
+
+  z-index: 999;
+
+  pointer-events: none;
+
+  animation:
+    confettiFall linear forwards;
+}
+
+@keyframes confettiFall {
+  to {
+    transform:
+      translateY(110vh)
+      rotate(760deg);
+
+    opacity: 0;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 860px) {
+
+  .game-shell {
+    width: calc(100vw - 10px);
+    height: calc(100dvh - 10px);
+
+    margin: 5px auto;
+
+    border-radius: 20px;
+  }
+
+  .header {
+    min-height: 70px;
+
+    padding: 10px 14px;
+  }
+
+  .game-subtitle {
+    display: none;
+  }
+
+  .progress-zone {
+    padding: 8px 12px;
+
+    gap: 8px;
+  }
+
+  .score-mini {
+    min-width: auto;
+
+    padding: 6px 8px;
+  }
+
+  .game-area {
+    grid-template-columns: 0.82fr 1.18fr;
+
+    gap: 10px;
+
+    padding: 10px;
+  }
+
+  .situation-card {
+    grid-template-columns: 48px 1fr;
+
+    padding: 10px;
+
+    gap: 9px;
+  }
+
+  .situation-emoji {
+    width: 48px;
+    height: 48px;
+
+    border-radius: 15px;
+
+    font-size: 26px;
+  }
+
+  .thought-bubble {
+    min-height: 110px;
+
+    padding: 15px;
+  }
+
+  .challenge-side {
+    padding: 11px;
+  }
+
+  .option-btn {
+    grid-template-columns: 31px 1fr 22px;
+
+    padding: 8px;
+
+    gap: 7px;
+  }
+
+  .option-letter {
+    width: 29px;
+    height: 29px;
+  }
+
+  .reflection-box {
+    padding: 8px;
+  }
+}
+
+@media (max-width: 640px) {
+
+  .header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .game-title {
+    font-size: 18px;
+  }
+
+  .progress-zone {
+    grid-template-columns: auto 1fr;
+  }
+
+  .score-mini {
+    display: none;
+  }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .progress-dot.active {
+    width: 14px;
+    height: 14px;
+
+    border-width: 3px;
+  }
+
+  .game-area {
+    grid-template-columns: 1fr;
+
+    grid-template-rows: auto 1fr;
+
+    gap: 7px;
+
+    padding: 7px;
+  }
+
+  .story-side {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    grid-template-rows: auto;
+
+    gap: 7px;
+  }
+
+  .section-chip,
+  .switch-flash {
+    display: none;
+  }
+
+  .situation-card {
+    grid-column: 1;
+
+    grid-template-columns: 38px 1fr;
+
+    padding: 8px;
+  }
+
+  .situation-emoji {
+    width: 38px;
+    height: 38px;
+
+    font-size: 20px;
+  }
+
+  .situation-title {
+    font-size: 13px;
+  }
+
+  .situation-text {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  .thought-zone {
+    grid-column: 2;
+
+    padding: 0;
+  }
+
+  .thought-caption {
+    font-size: 9px;
+    margin-bottom: 4px;
+  }
+
+  .thought-bubble {
+    min-height: 85px;
+
+    padding: 10px 12px;
+
+    border-radius:
+      16px 16px 16px 7px;
+  }
+
+  .thought-bubble::after {
+    display: none;
+  }
+
+  .thought-text {
+    font-size: 12px;
+  }
+
+  .challenge-side {
+    gap: 6px;
+
+    padding: 8px;
+
+    border-radius: 15px;
+  }
+
+  .challenge-heading {
+    font-size: 14px;
+  }
+
+  .challenge-instruction {
+    font-size: 10px;
+  }
+
+  .criteria-row {
+    gap: 4px;
+  }
+
+  .criteria {
+    padding: 4px 7px;
+
+    font-size: 9px;
+  }
+
+  .option-list {
+    gap: 5px;
+  }
+
+  .option-btn {
+    padding: 6px 7px;
+
+    border-radius: 11px;
+  }
+
+  .option-text {
+    font-size: 10px;
+    line-height: 1.22;
+  }
+
+  .option-letter {
+    width: 25px;
+    height: 25px;
+
+    border-radius: 8px;
+
+    font-size: 10px;
+  }
+
+  .feedback-box {
+    min-height: 34px;
+
+    padding: 5px 8px;
+
+    font-size: 9px;
+  }
+
+  .feedback-icon {
+    font-size: 15px;
+  }
+
+  .reflection-title {
+    font-size: 10px;
+  }
+
+  .reflection-help {
+    display: none;
+  }
+
+  .reflection-input {
+    padding: 6px 8px;
+
+    font-size: 9px;
+  }
+
+  .save-btn,
+  .continue-btn {
+    padding: 7px 10px;
+
+    font-size: 9px;
+  }
+
+  .continue-btn {
+    min-width: 110px;
+  }
+
+  .switch-rule {
+    gap: 6px;
+  }
+
+  .rule-card {
+    padding: 9px 5px;
+  }
+
+  .rule-text {
+    font-size: 9px;
+  }
+
+  .toolkit-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Very short screens */
+
+@media (max-height: 620px) {
+
+  .game-shell {
+    height: calc(100dvh - 6px);
+    margin: 3px auto;
+  }
+
+  .header {
+    min-height: 60px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .progress-zone {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .game-area {
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .thought-bubble {
+    min-height: 90px;
+  }
+
+  .reflection-help {
+    display: none;
+  }
+}
+</style>
 </head>
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Self-Talk Switch...</div>
+
+<!-- Background decoration -->
+<div class="bg-shape shape-1"></div>
+<div class="bg-shape shape-2"></div>
+<div class="bg-shape shape-3"></div>
+
+<!-- =====================================================
+     SPLASH
+====================================================== -->
+<div class="splash-screen" id="splashScreen">
+  <div class="splash-inner">
+
+    <img
+      src="assets/innovine-logo.png"
+      alt="Innovine"
+      onerror="this.style.display='none'"
+    >
+
+    <div class="splash-text">
+      Getting your inner voice ready...
     </div>
+
+    <div class="splash-dots">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+  </div>
+</div>
+
+<!-- =====================================================
+     GAME
+====================================================== -->
+<div class="game-shell">
+
+  <!-- Header -->
+  <header class="header">
+
+    <div class="brand-area">
+
+      <div class="game-title">
+        <span class="title-icon">💭</span>
+        <span>Self-Talk Switch</span>
+      </div>
+
+      <div class="game-subtitle">
+        Grade 5 • Self-Awareness • Train your inner voice
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <button
+        class="icon-button"
+        id="soundBtn"
+        aria-label="Turn sound off"
+        title="Sound"
+      >
+        🔊
+      </button>
+
+    </div>
+
+  </header>
+
+  <!-- Progress -->
+  <div class="progress-zone">
+
+    <div
+      class="challenge-number"
+      id="challengeNumber"
+    >
+      Challenge 1 of 8
+    </div>
+
+    <div
+      class="progress-dots"
+      id="progressDots"
+    ></div>
+
+    <div
+      class="score-mini"
+      id="scoreMini"
+    >
+      First try: 0
+    </div>
+
   </div>
 
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>💭 Self-Talk Switch – Inner Voice Game</h1>
-        <div class="subtitle">Grade 5 – Chapter 2: Self-Awareness</div>
-        <div class="stage-indicator" id="stageIndicator">Thoughts switched: 0 / 8</div>
-      </div>
-    </div>
+  <!-- Main game -->
+  <main class="game-area">
 
-    <div class="top-bar">
-      <div>Self-awareness means noticing your thoughts and how they affect your feelings and actions.[file:37]</div>
-      <div>Use the Self-Talk Switch to change unhelpful thoughts into kinder, more helpful ones.[file:37]</div>
-    </div>
+    <!-- Left -->
+    <section class="story-side">
 
-    <div class="layout" id="gameWrapper">
-      <div class="left-panel">
-        <div class="panel-title">Current Situation</div>
-        <div class="situation-card">
-          <div class="situation-title" id="situationTitle"></div>
-          <div class="situation-text" id="situationText"></div>
-        </div>
-
-        <div class="thought-display">
-          <div class="thought-label">Unhelpful Thought</div>
-          <div class="thought-text" id="negativeThought"></div>
-        </div>
-
-        <div class="switch-panel">
-          <div class="switch-title">Self-Talk Switch</div>
-          <div class="switch-hint">
-            First, notice what you are saying to yourself. Then, choose or create a thought that is kind, true and helps you move forward.[file:37]
-          </div>
-        </div>
+      <div class="section-chip">
+        Notice the thought
       </div>
 
-      <div class="right-panel">
-        <div class="score-row">
-          <div class="score-card">
-            <div class="score-label">Thoughts Switched</div>
-            <div class="score-value" id="switchedCount">0</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Helpful Self-Talk</div>
-            <div class="score-value" id="helpfulPercent">0%</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Inner Voice Rank</div>
-            <div class="score-value" id="rankText">Beginner</div>
-          </div>
+      <div class="situation-card">
+
+        <div
+          class="situation-emoji"
+          id="situationEmoji"
+        >
+          📝
         </div>
 
-        <div class="status-text" id="statusText">
-          Read the situation and the unhelpful thought. Which new thought would support you better?
+        <div>
+          <div
+            class="situation-title"
+            id="situationTitle"
+          ></div>
+
+          <div
+            class="situation-text"
+            id="situationText"
+          ></div>
         </div>
 
-        <div class="options-title">Choose a New Thought</div>
-        <div class="option-list" id="optionList"></div>
-
-        <div class="custom-box">
-          <div class="custom-label">Or write your own helpful thought</div>
-          <div class="custom-hint">
-            Try to make it encouraging and realistic, like “I can try again” or “This one mistake does not define me.”[file:37]
-          </div>
-          <div class="custom-input">
-            <input type="text" id="customInput" placeholder="Type your own helpful thought here..." />
-            <button class="btn-primary" id="customSubmitBtn" style="padding:5px 10px; font-size:11px;">Use</button>
-          </div>
-        </div>
-
-        <div class="feedback" id="feedback"></div>
-
-        <div class="controls">
-          <button class="btn-secondary" id="nextBtn">Next situation</button>
-          <div id="progressText">Switch the thought for each situation. When you finish all, click “Finish Game”.</div>
-          <button class="btn-primary" id="finishBtn">Finish Game</button>
-        </div>
-
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
       </div>
+
+      <div class="thought-zone">
+
+        <div
+          class="thought-caption"
+          id="thoughtCaption"
+        >
+          My first thought
+        </div>
+
+        <div
+          class="thought-bubble"
+          id="thoughtBubble"
+        >
+
+          <div
+            class="thought-text"
+            id="thoughtText"
+          ></div>
+
+        </div>
+
+        <div class="switch-flash">
+
+          <div class="bolt">
+            ⚡
+          </div>
+
+          <span>
+            Notice it • Check it • Switch it
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- Right -->
+    <section class="challenge-side">
+
+      <div>
+
+        <div class="challenge-heading">
+          Which thought helps you most?
+        </div>
+
+        <div class="challenge-instruction">
+          Choose self-talk that is kind, true and helps you move forward.
+        </div>
+
+      </div>
+
+      <div class="criteria-row">
+
+        <div class="criteria">
+          <span>💛</span> Kind
+        </div>
+
+        <div class="criteria">
+          <span>🔍</span> True
+        </div>
+
+        <div class="criteria">
+          <span>🚀</span> Useful
+        </div>
+
+      </div>
+
+      <div
+        class="option-list"
+        id="optionList"
+      ></div>
+
+      <div class="bottom-area">
+
+        <div
+          class="feedback-box"
+          id="feedbackBox"
+          aria-live="polite"
+        >
+
+          <div
+            class="feedback-icon"
+            id="feedbackIcon"
+          >
+            💡
+          </div>
+
+          <div id="feedbackText">
+            Read all three thoughts before choosing.
+          </div>
+
+        </div>
+
+        <!-- Optional learner reflection -->
+        <div
+          class="reflection-box"
+          id="reflectionBox"
+        >
+
+          <div class="reflection-title">
+            ✨ Make it yours
+          </div>
+
+          <div class="reflection-help">
+            Write your own helpful thought if you would say it differently. This is optional.
+          </div>
+
+          <div class="reflection-row">
+
+            <input
+              type="text"
+              class="reflection-input"
+              id="reflectionInput"
+              maxlength="120"
+              placeholder="My helpful thought..."
+              autocomplete="off"
+            >
+
+            <button
+              class="save-btn"
+              id="saveReflectionBtn"
+            >
+              Save
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="continue-row">
+
+          <button
+            class="continue-btn"
+            id="continueBtn"
+            disabled
+          >
+            Continue →
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ===================================================
+       INTRO
+  ==================================================== -->
+  <div
+    class="intro-screen"
+    id="introScreen"
+  >
+
+    <div class="intro-card">
+
+      <div class="intro-icon">
+        💭⚡
+      </div>
+
+      <h2>
+        Train Your Inner Voice
+      </h2>
+
+      <p>
+        Thoughts can pop into our minds very quickly.
+        In this game, notice an unhelpful thought and
+        switch it to one that supports you better.
+      </p>
+
+      <div class="switch-rule">
+
+        <div class="rule-card">
+
+          <div class="rule-emoji">
+            💛
+          </div>
+
+          <div class="rule-title">
+            KIND
+          </div>
+
+          <div class="rule-text">
+            Would you say it to a good friend?
+          </div>
+
+        </div>
+
+        <div class="rule-card">
+
+          <div class="rule-emoji">
+            🔍
+          </div>
+
+          <div class="rule-title">
+            TRUE
+          </div>
+
+          <div class="rule-text">
+            Is it realistic instead of exaggerated?
+          </div>
+
+        </div>
+
+        <div class="rule-card">
+
+          <div class="rule-emoji">
+            🚀
+          </div>
+
+          <div class="rule-title">
+            USEFUL
+          </div>
+
+          <div class="rule-text">
+            Does it help you take a positive next step?
+          </div>
+
+        </div>
+
+      </div>
+
+      <button
+        class="start-btn"
+        id="startBtn"
+      >
+        Start the Challenge
+      </button>
+
     </div>
+
   </div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const mainContainer = document.getElementById("mainContainer");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      mainContainer.classList.add("visible");
-    }, 2500);
+  <!-- ===================================================
+       FINAL
+  ==================================================== -->
+  <div
+    class="final-screen"
+    id="finalScreen"
+  >
 
-    // Audio
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
+    <div class="final-card">
 
-    // Elements
-    const situationTitleEl = document.getElementById("situationTitle");
-    const situationTextEl = document.getElementById("situationText");
-    const negativeThoughtEl = document.getElementById("negativeThought");
-    const optionListEl = document.getElementById("optionList");
-    const customInput = document.getElementById("customInput");
-    const customSubmitBtn = document.getElementById("customSubmitBtn");
-    const feedbackEl = document.getElementById("feedback");
-    const nextBtn = document.getElementById("nextBtn");
-    const finishBtn = document.getElementById("finishBtn");
-    const switchedCountEl = document.getElementById("switchedCount");
-    const helpfulPercentEl = document.getElementById("helpfulPercent");
-    const rankTextEl = document.getElementById("rankText");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const statusTextEl = document.getElementById("statusText");
-    const progressTextEl = document.getElementById("progressText");
-    const gameWrapper = document.getElementById("gameWrapper");
+      <div
+        class="final-badge"
+        id="finalBadge"
+      >
+        🌟
+      </div>
 
-    // Scenarios: situation, negative thought, suggested helpful options.[file:37]
-    const scenarios = [
+      <div class="final-title">
+        Self-Talk Toolkit Complete!
+      </div>
+
+      <div
+        class="final-subtitle"
+        id="finalLevel"
+      >
+        Self-Talk Star
+      </div>
+
+      <div
+        class="final-message"
+        id="finalMessage"
+      ></div>
+
+      <div class="final-stats">
+
+        <div class="stat-card">
+
+          <div
+            class="stat-value"
+            id="completedStat"
+          >
+            8/8
+          </div>
+
+          <div class="stat-label">
+            Thoughts Switched
+          </div>
+
+        </div>
+
+        <div class="stat-card">
+
+          <div
+            class="stat-value"
+            id="accuracyStat"
+          >
+            100%
+          </div>
+
+          <div class="stat-label">
+            First-Try Choices
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="toolkit">
+
+        <div class="toolkit-title">
+          🧰 My Self-Talk Toolkit
+        </div>
+
+        <div
+          class="toolkit-list"
+          id="toolkitList"
+        ></div>
+
+      </div>
+
+      <div class="final-actions">
+
+        <button
+          class="play-again-btn"
+          id="playAgainBtn"
+        >
+          ↻ Play Again
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   AUDIO
+========================================================= */
+
+const correctSound = new Audio("assets/correct.mp3");
+const wrongSound = new Audio("assets/wrong.mp3");
+const clapsSound = new Audio("assets/claps.mp3");
+
+correctSound.volume = 0.8;
+wrongSound.volume = 0.65;
+clapsSound.volume = 0.85;
+
+let soundOn = true;
+
+function playSound(audio) {
+  if (!soundOn) return;
+
+  try {
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+  } catch (error) {}
+}
+
+const soundBtn =
+  document.getElementById("soundBtn");
+
+soundBtn.addEventListener(
+  "click",
+  () => {
+
+    soundOn = !soundOn;
+
+    soundBtn.textContent =
+      soundOn ? "🔊" : "🔇";
+
+    soundBtn.setAttribute(
+      "aria-label",
+      soundOn
+        ? "Turn sound off"
+        : "Turn sound on"
+    );
+
+  }
+);
+
+/* =========================================================
+   SPLASH
+========================================================= */
+
+const splashScreen =
+  document.getElementById("splashScreen");
+
+setTimeout(
+  () => {
+    splashScreen.classList.add("hide");
+  },
+  5000
+);
+
+/* =========================================================
+   QUESTION BANK
+
+   type:
+   best  = helpful answer
+   harsh = still puts the learner down
+   avoid = avoids / dismisses the situation
+========================================================= */
+
+const scenarioBank = [
+
+  {
+    emoji: "📝",
+
+    title: "After a Difficult Test",
+
+    situation:
+      "You worked hard, but your marks are lower than you hoped.",
+
+    negative:
+      "I always fail. I am just not smart.",
+
+    options: [
+
       {
-        title: "After a Difficult Test",
-        text: "You worked hard, but your marks are lower than you hoped.",
-        negative: "I always fail. I am just not smart.",
-        options: [
-          "This mark is not what I wanted, but I can learn from my mistakes and improve next time.",
-          "One test does not decide my whole future. I can ask for help and practise more."
-        ]
+        type: "best",
+        text:
+          "This mark is lower than I hoped, but I can learn from my mistakes and practise again."
       },
+
       {
-        title: "Making a Mistake in Class",
-        text: "You answered a question incorrectly and some classmates giggled.",
-        negative: "Everyone thinks I am silly. I should never speak in class again.",
-        options: [
-          "Everyone makes mistakes. Speaking up helps me learn and grow.",
-          "It was brave to try. Next time I will try again and that is how I get better."
-        ]
+        type: "harsh",
+        text:
+          "I knew I would fail. I am just bad at tests."
       },
+
       {
-        title: "Being Left Out Once",
-        text: "Your friends played a game without you one day.",
-        negative: "No one likes me. I will always be alone.",
-        options: [
-          "I felt hurt today, but it does not mean no one likes me. I can tell my friends how I felt.",
-          "This one moment does not define all my friendships. I can also invite others to play."
-        ]
-      },
-      {
-        title: "Trying Something New",
-        text: "You are starting a new hobby and you are not very good at it yet.",
-        negative: "I am terrible at this. I should just stop now.",
-        options: [
-          "Everyone is a beginner at first. I can improve step by step with practice.",
-          "It is okay to be new. I can focus on learning, not on being perfect."
-        ]
-      },
-      {
-        title: "Comparing with Others",
-        text: "You see a classmate who seems better than you at many things.",
-        negative: "I am not good at anything. Other people are better than me.",
-        options: [
-          "I have my own strengths, even if they are different. I can use them every day.",
-          "Instead of comparing, I can notice what I do well and what I can learn."
-        ]
-      },
-      {
-        title: "Busy Day Mistake",
-        text: "You forgot an important homework because you were busy.",
-        negative: "I can never do anything right.",
-        options: [
-          "I made a mistake today. I can create a simple checklist so I remember next time.",
-          "I am learning to manage my time. I can try one small change to help myself."
-        ]
-      },
-      {
-        title: "Feeling Shy",
-        text: "You feel shy about answering or sharing your ideas.",
-        negative: "I am too shy. I should stay quiet so no one notices me.",
-        options: [
-          "It is okay to feel shy. I can still share small ideas when I feel ready.",
-          "I can start by speaking once today. Little steps help me grow braver."
-        ]
-      },
-      {
-        title: "Bad Mood Morning",
-        text: "You wake up in a bad mood and feel like the whole day will be awful.",
-        negative: "Today is ruined. Nothing good will happen.",
-        options: [
-          "I am feeling upset right now, but my whole day does not have to be bad.",
-          "I can do one small thing that I enjoy to help my mood a little."
-        ]
+        type: "avoid",
+        text:
+          "Marks do not matter at all, so I do not need to think about what went wrong."
       }
+
+    ],
+
+    explanation:
+      "This thought accepts the disappointing result without turning one test into a judgement about you. It also gives you a useful next step."
+  },
+
+  {
+    emoji: "🙋",
+
+    title: "A Mistake in Class",
+
+    situation:
+      "You answer a question incorrectly and a few classmates giggle.",
+
+    negative:
+      "Everyone thinks I am silly. I should never answer again.",
+
+    options: [
+
+      {
+        type: "harsh",
+        text:
+          "I embarrassed myself. I should keep quiet from now on."
+      },
+
+      {
+        type: "best",
+        text:
+          "Everyone makes mistakes. I was brave to try, and I can answer again."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "They are all wrong and I do not care what anyone thinks."
+      }
+
+    ],
+
+    explanation:
+      "Helpful self-talk does not pretend the moment was easy. It reminds you that mistakes are part of learning and that trying again is possible."
+  },
+
+  {
+    emoji: "⚽",
+
+    title: "Feeling Left Out",
+
+    situation:
+      "Your friends play a game without you one day.",
+
+    negative:
+      "No one likes me. I will always be alone.",
+
+    options: [
+
+      {
+        type: "avoid",
+        text:
+          "I do not need friends anyway. I will just ignore everyone."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "They left me out because there must be something wrong with me."
+      },
+
+      {
+        type: "best",
+        text:
+          "I feel hurt, but one moment does not decide all my friendships. I can talk to them."
+      }
+
+    ],
+
+    explanation:
+      "This thought recognises your feeling without assuming the worst. It also suggests a calm action you can take."
+  },
+
+  {
+    emoji: "🎨",
+
+    title: "Trying Something New",
+
+    situation:
+      "You begin a new hobby, but you are not very good at it yet.",
+
+    negative:
+      "I am terrible at this. I should stop.",
+
+    options: [
+
+      {
+        type: "best",
+        text:
+          "Everyone starts as a beginner. I can improve step by step with practice."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "I am already amazing at this. There is nothing I need to practise."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "If I am not good immediately, this activity is not for me."
+      }
+
+    ],
+
+    explanation:
+      "Being new at something does not mean you cannot learn it. This thought is realistic, encouraging and focused on growth."
+  },
+
+  {
+    emoji: "🏅",
+
+    title: "Comparing Yourself",
+
+    situation:
+      "A classmate seems better than you at several activities.",
+
+    negative:
+      "I am not good at anything. Everyone is better than me.",
+
+    options: [
+
+      {
+        type: "harsh",
+        text:
+          "Other people will always be better than me, so there is no point trying."
+      },
+
+      {
+        type: "best",
+        text:
+          "We have different strengths. I can notice what I do well and keep learning."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "I am better than that person at everything that really matters."
+      }
+
+    ],
+
+    explanation:
+      "Healthy self-talk does not put you or someone else down. It helps you notice your own strengths while still allowing room to grow."
+  },
+
+  {
+    emoji: "📚",
+
+    title: "Forgotten Homework",
+
+    situation:
+      "You forget an important homework task after a very busy day.",
+
+    negative:
+      "I can never do anything right.",
+
+    options: [
+
+      {
+        type: "avoid",
+        text:
+          "It does not matter. I will just forget about the homework."
+      },
+
+      {
+        type: "best",
+        text:
+          "I made a mistake. I can use a checklist or reminder so I remember next time."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "I am so careless. I always ruin everything."
+      }
+
+    ],
+
+    explanation:
+      "The helpful thought separates the mistake from who you are and turns the problem into something you can work on."
+  },
+
+  {
+    emoji: "🎤",
+
+    title: "Feeling Shy",
+
+    situation:
+      "You want to share an idea, but you feel nervous about speaking.",
+
+    negative:
+      "I am too shy. I should stay quiet.",
+
+    options: [
+
+      {
+        type: "best",
+        text:
+          "It is okay to feel nervous. I can start by sharing one small idea."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "If I feel shy, it means I am not good at speaking."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "I should force myself to speak all the time and never feel nervous."
+      }
+
+    ],
+
+    explanation:
+      "Helpful self-talk makes room for the feeling instead of fighting it. A small, realistic step can help confidence grow."
+  },
+
+  {
+    emoji: "🌧️",
+
+    title: "A Bad-Mood Morning",
+
+    situation:
+      "You wake up feeling upset and expect the whole day to go badly.",
+
+    negative:
+      "Today is ruined. Nothing good will happen.",
+
+    options: [
+
+      {
+        type: "harsh",
+        text:
+          "I am always miserable in the morning. This day will be awful."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "I must be happy immediately. Bad feelings are not allowed."
+      },
+
+      {
+        type: "best",
+        text:
+          "I feel upset right now, but one feeling does not decide my whole day."
+      }
+
+    ],
+
+    explanation:
+      "Feelings can change. This thought accepts how you feel now without predicting that the entire day will be bad."
+  },
+
+  {
+    emoji: "🏀",
+
+    title: "Not Chosen First",
+
+    situation:
+      "You are not one of the first learners chosen for a team.",
+
+    negative:
+      "Nobody wants me because I am useless at games.",
+
+    options: [
+
+      {
+        type: "best",
+        text:
+          "I feel disappointed, but being chosen later does not decide my worth or what I can contribute."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "This team is terrible anyway, so I do not care."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "I should stop playing because I am obviously the worst."
+      }
+
+    ],
+
+    explanation:
+      "The helpful thought recognises disappointment but does not turn team selection into a judgement about your worth."
+  },
+
+  {
+    emoji: "👫",
+
+    title: "A Disagreement",
+
+    situation:
+      "You and a close friend disagree about something.",
+
+    negative:
+      "Our friendship is ruined now.",
+
+    options: [
+
+      {
+        type: "harsh",
+        text:
+          "If we disagree, maybe we were never real friends."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "I will pretend nothing happened and never talk about it."
+      },
+
+      {
+        type: "best",
+        text:
+          "Friends can disagree. We can talk calmly when we are ready."
+      }
+
+    ],
+
+    explanation:
+      "One disagreement does not define an entire friendship. Helpful self-talk leaves space for calm communication and repair."
+  },
+
+  {
+    emoji: "🎙️",
+
+    title: "Before a Presentation",
+
+    situation:
+      "You are about to speak in front of the class and your stomach feels nervous.",
+
+    negative:
+      "I am going to mess everything up.",
+
+    options: [
+
+      {
+        type: "avoid",
+        text:
+          "I should not feel nervous at all. I need to be completely confident."
+      },
+
+      {
+        type: "best",
+        text:
+          "I can feel nervous and still do my best. I will focus on one part at a time."
+      },
+
+      {
+        type: "harsh",
+        text:
+          "If I make one mistake, everyone will remember it forever."
+      }
+
+    ],
+
+    explanation:
+      "Confidence does not mean having no nerves. This thought accepts the feeling and brings your attention back to what you can do."
+  },
+
+  {
+    emoji: "🏆",
+
+    title: "Not Winning",
+
+    situation:
+      "You take part in a competition but do not win a prize.",
+
+    negative:
+      "I failed. All that effort was pointless.",
+
+    options: [
+
+      {
+        type: "harsh",
+        text:
+          "If I cannot win, I should stop entering competitions."
+      },
+
+      {
+        type: "best",
+        text:
+          "I wanted to win, but my effort still helped me learn and improve."
+      },
+
+      {
+        type: "avoid",
+        text:
+          "Winning never matters, so there is nothing to learn from the experience."
+      }
+
+    ],
+
+    explanation:
+      "A result can be disappointing without making your effort meaningless. This thought helps you notice growth as well as outcomes."
+  }
+
+];
+
+/* =========================================================
+   GAME SETTINGS
+========================================================= */
+
+const TOTAL_CHALLENGES = 8;
+
+let gameScenarios = [];
+
+let currentIndex = 0;
+
+let switchedCount = 0;
+
+let firstTryCorrect = 0;
+
+let wrongAttemptsThisRound = 0;
+
+let roundCompleted = false;
+
+let reflections = [];
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const introScreen =
+  document.getElementById("introScreen");
+
+const startBtn =
+  document.getElementById("startBtn");
+
+const challengeNumber =
+  document.getElementById("challengeNumber");
+
+const progressDots =
+  document.getElementById("progressDots");
+
+const scoreMini =
+  document.getElementById("scoreMini");
+
+const situationEmoji =
+  document.getElementById("situationEmoji");
+
+const situationTitle =
+  document.getElementById("situationTitle");
+
+const situationText =
+  document.getElementById("situationText");
+
+const thoughtCaption =
+  document.getElementById("thoughtCaption");
+
+const thoughtBubble =
+  document.getElementById("thoughtBubble");
+
+const thoughtText =
+  document.getElementById("thoughtText");
+
+const optionList =
+  document.getElementById("optionList");
+
+const feedbackBox =
+  document.getElementById("feedbackBox");
+
+const feedbackIcon =
+  document.getElementById("feedbackIcon");
+
+const feedbackText =
+  document.getElementById("feedbackText");
+
+const reflectionBox =
+  document.getElementById("reflectionBox");
+
+const reflectionInput =
+  document.getElementById("reflectionInput");
+
+const saveReflectionBtn =
+  document.getElementById("saveReflectionBtn");
+
+const continueBtn =
+  document.getElementById("continueBtn");
+
+const finalScreen =
+  document.getElementById("finalScreen");
+
+const finalBadge =
+  document.getElementById("finalBadge");
+
+const finalLevel =
+  document.getElementById("finalLevel");
+
+const finalMessage =
+  document.getElementById("finalMessage");
+
+const completedStat =
+  document.getElementById("completedStat");
+
+const accuracyStat =
+  document.getElementById("accuracyStat");
+
+const toolkitList =
+  document.getElementById("toolkitList");
+
+const playAgainBtn =
+  document.getElementById("playAgainBtn");
+
+/* =========================================================
+   UTILITIES
+========================================================= */
+
+function shuffle(array) {
+
+  const copy = [...array];
+
+  for (
+    let i = copy.length - 1;
+    i > 0;
+    i--
+  ) {
+
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
+
+    [
+      copy[i],
+      copy[j]
+    ] =
+    [
+      copy[j],
+      copy[i]
     ];
 
-    let currentIndex = 0;
-    let switchedCount = 0;
+  }
 
-    function updateScore(){
-      switchedCountEl.textContent = switchedCount;
-      const total = scenarios.length;
-      const percent = Math.round((switchedCount / total) * 100);
-      helpfulPercentEl.textContent = percent + "%";
-      stageIndicator.textContent = "Thoughts switched: " + switchedCount + " / " + total;
+  return copy;
+}
 
-      if(percent >= 80){
-        rankTextEl.textContent = "Kind Inner Voice";
-      } else if(percent >= 50){
-        rankTextEl.textContent = "Growing Helper";
-      } else {
-        rankTextEl.textContent = "Beginner";
+function escapeHTML(value) {
+
+  const div =
+    document.createElement("div");
+
+  div.textContent = value;
+
+  return div.innerHTML;
+}
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+startBtn.addEventListener(
+  "click",
+  startGame
+);
+
+function startGame() {
+
+  gameScenarios =
+    shuffle(scenarioBank)
+      .slice(0, TOTAL_CHALLENGES)
+      .map(
+        scenario => ({
+          ...scenario,
+          options:
+            shuffle(scenario.options)
+        })
+      );
+
+  currentIndex = 0;
+  switchedCount = 0;
+  firstTryCorrect = 0;
+  reflections = [];
+
+  buildProgressDots();
+
+  introScreen.style.display = "none";
+
+  loadScenario();
+}
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+function buildProgressDots() {
+
+  progressDots.innerHTML = "";
+
+  for (
+    let i = 0;
+    i < TOTAL_CHALLENGES;
+    i++
+  ) {
+
+    const dot =
+      document.createElement("div");
+
+    dot.className =
+      "progress-dot";
+
+    progressDots.appendChild(dot);
+
+  }
+
+}
+
+function updateProgress() {
+
+  const dots =
+    progressDots.querySelectorAll(
+      ".progress-dot"
+    );
+
+  dots.forEach(
+    (dot, index) => {
+
+      dot.classList.remove(
+        "active",
+        "done"
+      );
+
+      if (index < currentIndex) {
+        dot.classList.add("done");
       }
+
+      if (
+        index === currentIndex &&
+        currentIndex < TOTAL_CHALLENGES
+      ) {
+        dot.classList.add("active");
+      }
+
     }
+  );
 
-    function loadScenario(){
-      const s = scenarios[currentIndex];
-      situationTitleEl.textContent = s.title;
-      situationTextEl.textContent = s.text;
-      negativeThoughtEl.textContent = s.negative;
-      feedbackEl.style.display = "none";
-      customInput.value = "";
+  challengeNumber.textContent =
+    `Challenge ${currentIndex + 1} of ${TOTAL_CHALLENGES}`;
 
-      optionListEl.innerHTML = "";
-      s.options.forEach(text => {
-        const btn = document.createElement("button");
-        btn.className = "option-btn";
-        btn.textContent = text;
-        btn.addEventListener("click", () => handleChoice(text, true));
-        optionListEl.appendChild(btn);
-      });
+  scoreMini.textContent =
+    `First try: ${firstTryCorrect}`;
 
-      statusTextEl.textContent = "Situation " + (currentIndex + 1) + " of " + scenarios.length + ". What would you like to tell yourself instead?";
-      progressTextEl.textContent = "You can pick one of the options or write your own helpful thought.";
-      updateScore();
-    }
+}
 
-    function handleChoice(text, fromButton){
-      playGood();
-      switchedCount++;
-      updateScore();
-      feedbackEl.style.display = "block";
-      feedbackEl.className = "feedback good";
-      feedbackEl.textContent = "Great choice. You noticed your self-talk and chose a kinder, more helpful thought. This is self-awareness in action.[file:37]";
+/* =========================================================
+   LOAD SCENARIO
+========================================================= */
 
-      // Auto move to next after short delay (unless last)
-      setTimeout(() => {
-        if(currentIndex < scenarios.length - 1){
-          currentIndex++;
-          loadScenario();
-        } else {
-          statusTextEl.textContent = "You have switched a thought for each situation. Click “Finish Game” to see your inner voice report.";
-          progressTextEl.textContent = "Remember: you can notice unhelpful self-talk any day and gently switch it.";
-        }
-      }, 1500);
-    }
+function loadScenario() {
 
-    customSubmitBtn.addEventListener("click", () => {
-      const text = customInput.value.trim();
-      if(!text){
-        feedbackEl.style.display = "block";
-        feedbackEl.className = "feedback warn";
-        feedbackEl.textContent = "Try writing one sentence that supports you, like you would talk to a good friend.";
-        return;
-      }
-      handleChoice(text, false);
-    });
+  roundCompleted = false;
 
-    nextBtn.addEventListener("click", () => {
-      if(currentIndex < scenarios.length - 1){
-        currentIndex++;
-        loadScenario();
-      } else {
-        statusTextEl.textContent = "You are already at the last situation. Click “Finish Game” to see your report.";
-      }
-    });
+  wrongAttemptsThisRound = 0;
 
-    finishBtn.addEventListener("click", () => {
-      const total = scenarios.length;
-      const percent = Math.round((switchedCount / total) * 100);
-      playCelebrate();
+  reflectionInput.value = "";
 
-      let rank, badge, text;
-      if(percent >= 80){
-        rank = "Inner Voice Hero";
-        badge = "🌟";
-        text = "You are very aware of your thoughts and can switch many unhelpful messages into kind, truthful ones. This helps you feel empowered instead of like a victim.[file:37]";
-      } else if(percent >= 50){
-        rank = "Thought Explorer";
-        badge = "🌱";
-        text = "You are starting to notice what you say to yourself and are learning to change it. Keep practising self-reflection and positive self-talk.[file:37]";
-      } else {
-        rank = "New Listener";
-        badge = "💬";
-        text = "You have taken first steps in listening to your inner voice. With more practice, you will better understand your thoughts and feelings and guide them kindly.[file:37]";
-      }
+  reflectionBox.classList.remove("show");
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Self-Talk Switch Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Thoughts switched: ${switchedCount} / ${total} (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Play Again</button>
-        </div>
+  saveReflectionBtn.textContent = "Save";
+  saveReflectionBtn.classList.remove("saved");
+
+  continueBtn.disabled = true;
+
+  continueBtn.textContent =
+    currentIndex === TOTAL_CHALLENGES - 1
+      ? "See My Toolkit →"
+      : "Continue →";
+
+  feedbackBox.className =
+    "feedback-box";
+
+  feedbackIcon.textContent =
+    "💡";
+
+  feedbackText.textContent =
+    "Read all three thoughts before choosing.";
+
+  const scenario =
+    gameScenarios[currentIndex];
+
+  situationEmoji.textContent =
+    scenario.emoji;
+
+  situationTitle.textContent =
+    scenario.title;
+
+  situationText.textContent =
+    scenario.situation;
+
+  thoughtCaption.textContent =
+    "My first thought";
+
+  thoughtText.textContent =
+    scenario.negative;
+
+  thoughtBubble.classList.remove(
+    "helpful",
+    "switching"
+  );
+
+  renderOptions();
+
+  updateProgress();
+
+}
+
+/* =========================================================
+   RENDER OPTIONS
+========================================================= */
+
+function renderOptions() {
+
+  optionList.innerHTML = "";
+
+  const scenario =
+    gameScenarios[currentIndex];
+
+  const letters =
+    ["A", "B", "C"];
+
+  scenario.options.forEach(
+    (option, index) => {
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "option-btn";
+
+      button.dataset.type =
+        option.type;
+
+      button.dataset.text =
+        option.text;
+
+      button.innerHTML = `
+        <span class="option-letter">
+          ${letters[index]}
+        </span>
+
+        <span class="option-text">
+          ${escapeHTML(option.text)}
+        </span>
+
+        <span class="option-icon"></span>
       `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    });
 
-    // Initial
-    loadScenario();
-  </script>
+      button.addEventListener(
+        "click",
+        () => checkAnswer(
+          button,
+          option
+        )
+      );
+
+      optionList.appendChild(button);
+
+    }
+  );
+
+}
+
+/* =========================================================
+   CHECK ANSWER
+========================================================= */
+
+function checkAnswer(
+  button,
+  option
+) {
+
+  if (roundCompleted) return;
+
+  if (
+    button.classList.contains("wrong")
+  ) {
+    return;
+  }
+
+  if (option.type === "best") {
+
+    handleCorrect(
+      button,
+      option
+    );
+
+  } else {
+
+    handleWrong(
+      button,
+      option
+    );
+
+  }
+
+}
+
+/* =========================================================
+   WRONG
+========================================================= */
+
+function handleWrong(
+  button,
+  option
+) {
+
+  wrongAttemptsThisRound++;
+
+  playSound(wrongSound);
+
+  button.classList.add("wrong");
+
+  button.disabled = true;
+
+  const icon =
+    button.querySelector(
+      ".option-icon"
+    );
+
+  icon.textContent = "↻";
+
+  feedbackBox.className =
+    "feedback-box retry";
+
+  feedbackIcon.textContent =
+    "🧠";
+
+  if (option.type === "harsh") {
+
+    feedbackText.textContent =
+      "Not quite. This thought still turns one difficult moment into a negative judgement about you. Look for something kinder and more realistic.";
+
+  } else {
+
+    feedbackText.textContent =
+      "Almost. This thought avoids or dismisses the problem. Helpful self-talk should accept what happened and help you move forward.";
+
+  }
+
+  if (
+    wrongAttemptsThisRound >= 2
+  ) {
+
+    const correctButton =
+      optionList.querySelector(
+        '[data-type="best"]'
+      );
+
+    if (correctButton) {
+
+      correctButton.classList.add(
+        "hint"
+      );
+
+      feedbackText.textContent +=
+        " Look for the thought that is kind, true AND useful.";
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   CORRECT
+========================================================= */
+
+function handleCorrect(
+  button,
+  option
+) {
+
+  if (roundCompleted) return;
+
+  roundCompleted = true;
+
+  switchedCount++;
+
+  if (
+    wrongAttemptsThisRound === 0
+  ) {
+    firstTryCorrect++;
+  }
+
+  playSound(correctSound);
+
+  const allButtons =
+    optionList.querySelectorAll(
+      ".option-btn"
+    );
+
+  allButtons.forEach(
+    btn => {
+
+      btn.disabled = true;
+
+      btn.classList.remove("hint");
+
+    }
+  );
+
+  button.classList.add("correct");
+
+  button.querySelector(
+    ".option-icon"
+  ).textContent = "✓";
+
+  /* Animate the thought switch */
+
+  thoughtBubble.classList.add(
+    "switching"
+  );
+
+  setTimeout(
+    () => {
+
+      thoughtBubble.classList.add(
+        "helpful"
+      );
+
+      thoughtCaption.textContent =
+        "My helpful thought";
+
+      thoughtText.textContent =
+        option.text;
+
+    },
+    250
+  );
+
+  setTimeout(
+    () => {
+      thoughtBubble.classList.remove(
+        "switching"
+      );
+    },
+    650
+  );
+
+  const scenario =
+    gameScenarios[currentIndex];
+
+  feedbackBox.className =
+    "feedback-box good";
+
+  feedbackIcon.textContent =
+    "🌟";
+
+  feedbackText.textContent =
+    "Great switch! " +
+    scenario.explanation;
+
+  reflectionBox.classList.add(
+    "show"
+  );
+
+  continueBtn.disabled = false;
+
+  scoreMini.textContent =
+    `First try: ${firstTryCorrect}`;
+
+}
+
+/* =========================================================
+   SAVE REFLECTION
+========================================================= */
+
+saveReflectionBtn.addEventListener(
+  "click",
+  saveReflection
+);
+
+reflectionInput.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Enter") {
+
+      event.preventDefault();
+
+      saveReflection();
+
+    }
+
+  }
+);
+
+function saveReflection() {
+
+  const value =
+    reflectionInput.value.trim();
+
+  if (!value) {
+
+    reflectionInput.focus();
+
+    return;
+
+  }
+
+  const existingIndex =
+    reflections.findIndex(
+      item =>
+        item.challenge ===
+        currentIndex
+    );
+
+  const reflection = {
+
+    challenge:
+      currentIndex,
+
+    text:
+      value
+
+  };
+
+  if (existingIndex >= 0) {
+
+    reflections[existingIndex] =
+      reflection;
+
+  } else {
+
+    reflections.push(
+      reflection
+    );
+
+  }
+
+  saveReflectionBtn.textContent =
+    "Saved ✓";
+
+  saveReflectionBtn.classList.add(
+    "saved"
+  );
+
+}
+
+/* =========================================================
+   CONTINUE
+========================================================= */
+
+continueBtn.addEventListener(
+  "click",
+  () => {
+
+    if (!roundCompleted) return;
+
+    if (
+      currentIndex <
+      TOTAL_CHALLENGES - 1
+    ) {
+
+      currentIndex++;
+
+      loadScenario();
+
+    } else {
+
+      showFinalScreen();
+
+    }
+
+  }
+);
+
+/* =========================================================
+   FINAL SCREEN
+========================================================= */
+
+function showFinalScreen() {
+
+  const accuracy =
+    Math.round(
+      (
+        firstTryCorrect /
+        TOTAL_CHALLENGES
+      ) * 100
+    );
+
+  let level = "";
+  let badge = "";
+  let message = "";
+
+  if (accuracy >= 80) {
+
+    level =
+      "Self-Talk Star";
+
+    badge =
+      "🌟";
+
+    message =
+      "You are becoming skilled at spotting thoughts that are kind, realistic and useful. Remember: helpful self-talk is not about pretending everything is perfect. It is about speaking to yourself in a way that helps you move forward.";
+
+  } else if (accuracy >= 50) {
+
+    level =
+      "Thought Switcher";
+
+    badge =
+      "⚡";
+
+    message =
+      "You are getting stronger at noticing the difference between helpful self-talk and thoughts that are harsh or avoid the problem. Keep practising the three checks: kind, true and useful.";
+
+  } else {
+
+    level =
+      "Thought Detective";
+
+    badge =
+      "🔍";
+
+    message =
+      "You practised noticing unhelpful thoughts and trying again when a thought was not yet helpful. That is exactly how self-awareness grows. Keep using the three checks: kind, true and useful.";
+
+  }
+
+  finalBadge.textContent =
+    badge;
+
+  finalLevel.textContent =
+    level;
+
+  finalMessage.textContent =
+    message;
+
+  completedStat.textContent =
+    `${switchedCount}/${TOTAL_CHALLENGES}`;
+
+  accuracyStat.textContent =
+    `${accuracy}%`;
+
+  buildToolkit();
+
+  finalScreen.classList.add(
+    "show"
+  );
+
+  playSound(clapsSound);
+
+  launchConfetti();
+
+}
+
+/* =========================================================
+   TOOLKIT
+========================================================= */
+
+function buildToolkit() {
+
+  toolkitList.innerHTML = "";
+
+  let items = [];
+
+  if (reflections.length > 0) {
+
+    items =
+      reflections
+        .slice(0, 4)
+        .map(
+          item => item.text
+        );
+
+  } else {
+
+    items = [
+
+      "One mistake does not define me.",
+
+      "I can feel nervous and still try.",
+
+      "I can learn one step at a time.",
+
+      "I can focus on what I can do next."
+
+    ];
+
+  }
+
+  items.forEach(
+    text => {
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "toolkit-item";
+
+      div.textContent =
+        "💭 " + text;
+
+      toolkitList.appendChild(div);
+
+    }
+  );
+
+}
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+function launchConfetti() {
+
+  const colors = [
+    "#4f7cff",
+    "#31b980",
+    "#ff9d47",
+    "#8268e8",
+    "#ffd96a",
+    "#ef6d88"
+  ];
+
+  for (
+    let i = 0;
+    i < 90;
+    i++
+  ) {
+
+    const piece =
+      document.createElement("div");
+
+    piece.className =
+      "confetti";
+
+    piece.style.left =
+      Math.random() * 100 + "vw";
+
+    piece.style.backgroundColor =
+      colors[
+        Math.floor(
+          Math.random() *
+          colors.length
+        )
+      ];
+
+    piece.style.animationDuration =
+      (
+        2.2 +
+        Math.random() * 2.5
+      ) + "s";
+
+    piece.style.animationDelay =
+      (
+        Math.random() * 0.8
+      ) + "s";
+
+    piece.style.transform =
+      `rotate(${Math.random() * 360}deg)`;
+
+    document.body.appendChild(
+      piece
+    );
+
+    setTimeout(
+      () => piece.remove(),
+      5500
+    );
+
+  }
+
+}
+
+/* =========================================================
+   PLAY AGAIN
+========================================================= */
+
+playAgainBtn.addEventListener(
+  "click",
+  () => {
+
+    finalScreen.classList.remove(
+      "show"
+    );
+
+    startGame();
+
+  }
+);
+</script>
+
 </body>
 </html>
