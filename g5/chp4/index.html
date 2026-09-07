@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
 
 <title>Mona's Change Journey – Adaptability Adventure</title>
 
 <style>
 
-/* ===============================
+/* =========================================================
    RESET
-================================ */
+========================================================= */
 
 *{
     margin:0;
@@ -19,37 +22,47 @@
     box-sizing:border-box;
 }
 
+html{
+    scroll-behavior:smooth;
+}
+
 body{
-
     width:100%;
-    height:100vh;
+    min-height:100vh;
+    min-height:100dvh;
 
-    overflow:hidden;
+    overflow-x:hidden;
+    overflow-y:auto;
 
     font-family:
-    "Trebuchet MS",
-    "Segoe UI",
-    Arial,
-    sans-serif;
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
 
     background:
-    linear-gradient(
-        135deg,
-        #dff6ff,
-        #fff4dc,
-        #e9ffe8
-    );
+        linear-gradient(
+            135deg,
+            #dff6ff,
+            #fff4dc,
+            #e9ffe8
+        );
 
     color:#17334f;
+
+    padding:16px;
+}
+
+button{
+    font:inherit;
 }
 
 
-/* ===============================
- SPLASH
-================================ */
+/* =========================================================
+   SPLASH SCREEN
+========================================================= */
 
 .splash{
-
     position:fixed;
     inset:0;
 
@@ -60,77 +73,69 @@ body{
     align-items:center;
 
     background:
-    radial-gradient(
-        circle,
-        #58b8ff,
-        #3559c7
-    );
+        radial-gradient(
+            circle,
+            #58b8ff,
+            #3559c7
+        );
 
-    transition:.6s;
-
+    transition:
+        opacity .6s ease;
 }
 
 .splash.hide{
-
     opacity:0;
     pointer-events:none;
-
 }
 
+.splash-content{
+    text-align:center;
+}
 
 .splash img{
-
-    width:260px;
+    width:min(260px,70vw);
 
     animation:
-    float 2s infinite;
-
+        logoFloat 2s ease-in-out infinite;
 }
 
-
 .splash-text{
-
     margin-top:15px;
 
     color:white;
 
-    text-align:center;
-
     font-size:20px;
-
     font-weight:bold;
-
 }
 
+@keyframes logoFloat{
 
-@keyframes float{
+    0%,100%{
+        transform:translateY(0);
+    }
 
     50%{
         transform:translateY(-12px);
     }
-
 }
 
 
-
-/* ===============================
- GAME WINDOW
-================================ */
-
+/* =========================================================
+   MAIN GAME CARD
+========================================================= */
 
 .game{
+    width:min(1200px,100%);
 
-    width:min(1200px,95vw);
+    min-height:
+        min(
+            720px,
+            calc(100dvh - 32px)
+        );
 
-    height:min(720px,95vh);
-
-    margin:auto;
+    margin:0 auto;
 
     position:relative;
-
-    top:50%;
-
-    transform:translateY(-50%);
 
     background:white;
 
@@ -139,341 +144,302 @@ body{
     overflow:hidden;
 
     box-shadow:
-    0 25px 60px rgba(0,0,0,.18);
-
+        0 25px 60px
+        rgba(0,0,0,.18);
 }
 
 
-
-/* ===============================
- HEADER
-================================ */
-
+/* =========================================================
+   HEADER
+========================================================= */
 
 .header{
-
-    height:70px;
+    min-height:76px;
 
     display:flex;
 
     align-items:center;
-
     justify-content:space-between;
 
-    padding:15px 25px;
+    gap:18px;
 
+    padding:16px 25px;
 
     color:white;
 
-
     background:
-    linear-gradient(
-        135deg,
-        #4b7bec,
-        #7f67dc
-    );
-
+        linear-gradient(
+            135deg,
+            #4b7bec,
+            #7f67dc
+        );
 }
-
 
 .title{
-
     font-size:28px;
 
-    font-weight:900;
+    line-height:1.15;
 
+    font-weight:900;
 }
 
-
 .subtitle{
+    margin-top:5px;
 
     font-size:13px;
 
-    opacity:.9;
+    opacity:.92;
+}
 
+.header-tree{
+    font-size:36px;
+
+    flex-shrink:0;
 }
 
 
-
-/* ===============================
- PROGRESS
-================================ */
-
+/* =========================================================
+   PROGRESS
+========================================================= */
 
 .progress-area{
-
-    padding:10px 25px;
-
-    background:#f7faff;
-
     display:flex;
 
     align-items:center;
 
     gap:15px;
 
+    padding:11px 25px;
+
+    background:#f7faff;
+
+    border-bottom:
+        1px solid #e7edf6;
 }
 
+.level{
+    font-size:13px;
+
+    font-weight:bold;
+
+    white-space:nowrap;
+}
 
 .tree-meter{
-
     flex:1;
 
+    min-width:80px;
+
     height:15px;
+
+    overflow:hidden;
 
     background:#dce6ef;
 
     border-radius:20px;
-
-    overflow:hidden;
-
 }
-
 
 .tree-fill{
-
+    width:0%;
     height:100%;
 
-    width:0%;
-
     background:
-    linear-gradient(
-        90deg,
-        #ffd93d,
-        #28b67a
-    );
+        linear-gradient(
+            90deg,
+            #ffd93d,
+            #28b67a
+        );
 
-    transition:.5s;
-
+    transition:
+        width .5s ease;
 }
 
-
-.level{
-
-    font-weight:bold;
-
+.question-count{
     font-size:13px;
 
+    font-weight:900;
+
+    color:#5a6d82;
+
+    white-space:nowrap;
 }
 
 
-
-/* ===============================
- MAIN AREA
-================================ */
-
+/* =========================================================
+   MAIN LAYOUT
+========================================================= */
 
 .main{
-
-    height:calc(100% - 120px);
-
     display:grid;
 
     grid-template-columns:
-    .9fr
-    1.3fr;
-
+        .9fr 1.3fr;
 
     gap:15px;
 
     padding:15px;
-
 }
 
 
-/* ===============================
- LEFT JOURNEY
-================================ */
-
+/* =========================================================
+   LEFT JOURNEY AREA
+========================================================= */
 
 .journey{
-
-    border-radius:25px;
-
-    padding:15px;
-
-    background:
-    linear-gradient(
-        180deg,
-        #eff8ff,
-        #ffffff
-    );
-
     display:flex;
 
     flex-direction:column;
 
     gap:12px;
 
+    padding:15px;
+
+    border-radius:25px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #eff8ff,
+            #ffffff
+        );
 }
 
 
+/* =========================================================
+   MONA CARD
+========================================================= */
 
 .character-card{
-
-    background:white;
-
-    border-radius:20px;
-
-    padding:12px;
-
     display:flex;
 
     align-items:center;
 
     gap:15px;
 
-    box-shadow:
-    0 8px 20px rgba(0,0,0,.08);
+    padding:12px;
 
+    background:white;
+
+    border-radius:20px;
+
+    box-shadow:
+        0 8px 20px
+        rgba(0,0,0,.08);
 }
 
-
-
 .mona{
-
     width:75px;
-
     height:75px;
+
+    flex-shrink:0;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
 
     border-radius:50%;
 
     background:
-
-    radial-gradient(
-        circle at 30% 25%,
-        #ffd7b5,
-        #e8a87c
-    );
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
+        radial-gradient(
+            circle at 30% 25%,
+            #ffd7b5,
+            #e8a87c
+        );
 
     font-size:45px;
-
 }
-
-
 
 .mona-text{
-
     font-size:14px;
 
-    line-height:1.4;
-
+    line-height:1.45;
 }
 
 
-
-/* ===============================
- CHANGE MAP
-================================ */
-
+/* =========================================================
+   CHANGE MAP
+========================================================= */
 
 .map{
-
     flex:1;
-
-    background:
-
-    linear-gradient(
-        180deg,
-        #dff5ff,
-        #d9f5d0
-    );
-
-    border-radius:20px;
 
     padding:15px;
 
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #dff5ff,
+            #d9f5d0
+        );
 }
 
-
 .map-title{
+    margin-bottom:12px;
 
     font-size:15px;
 
     font-weight:900;
-
-    margin-bottom:12px;
-
 }
 
-
-
 .locations{
-
     display:flex;
 
     flex-direction:column;
 
-    gap:9px;
-
+    gap:8px;
 }
 
-
 .location{
-
     display:flex;
 
     align-items:center;
 
     gap:10px;
 
-    padding:9px;
+    padding:9px 10px;
 
     background:white;
 
+    border:
+        2px solid transparent;
+
     border-radius:14px;
 
-    opacity:.5;
+    opacity:.48;
 
+    transition:.25s ease;
 }
-
 
 .location.active{
-
     opacity:1;
 
-    border:
+    border-color:#4b7bec;
 
-    3px solid #4b7bec;
-
+    box-shadow:
+        0 5px 14px
+        rgba(75,123,236,.14);
 }
 
-
 .location.done{
-
     opacity:1;
 
     background:#e5faef;
-
 }
-
 
 .location-icon{
-
     font-size:22px;
-
 }
 
 
-
-/* ===============================
- RIGHT GAME AREA
-================================ */
-
+/* =========================================================
+   PLAY AREA
+========================================================= */
 
 .play-area{
-
-    background:#fbfcff;
-
-    border-radius:25px;
-
-    padding:18px;
+    min-width:0;
 
     display:flex;
 
@@ -481,166 +447,188 @@ body{
 
     gap:12px;
 
+    padding:18px;
+
+    background:#fbfcff;
+
+    border-radius:25px;
 }
 
 
+/* =========================================================
+   SCENE
+========================================================= */
 
 .scene{
-
-    height:150px;
-
-    border-radius:20px;
-
-    background:
-
-    linear-gradient(
-        180deg,
-        #bce6ff,
-        #dff6d8
-    );
+    min-height:150px;
 
     display:flex;
 
     align-items:center;
-
     justify-content:center;
 
-    font-size:80px;
+    border-radius:20px;
 
+    background:
+        linear-gradient(
+            180deg,
+            #bce6ff,
+            #dff6d8
+        );
+
+    font-size:80px;
 }
 
 
+/* =========================================================
+   CHALLENGE
+========================================================= */
 
 .challenge{
-
-    padding:15px;
+    padding:16px;
 
     background:white;
 
     border-radius:18px;
 
     box-shadow:
-    0 6px 18px rgba(0,0,0,.08);
-
+        0 6px 18px
+        rgba(0,0,0,.08);
 }
 
-
-
 .challenge-title{
+    color:#7f67dc;
 
     font-size:12px;
 
-    color:#7f67dc;
+    font-weight:900;
 
-    font-weight:bold;
+    text-transform:uppercase;
 
+    letter-spacing:.5px;
 }
 
-
-
 .challenge-text{
-
     margin-top:8px;
 
     font-size:20px;
 
-    font-weight:900;
+    line-height:1.35;
 
+    font-weight:900;
 }
 
 
-
-/* ===============================
- OPTIONS
-================================ */
-
+/* =========================================================
+   OPTIONS
+========================================================= */
 
 .options{
-
     display:grid;
 
     grid-template-columns:
-    repeat(3,1fr);
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
 
     gap:10px;
-
 }
 
-
 .option{
+    min-height:88px;
 
-    min-height:80px;
+    padding:13px;
+
+    border:
+        2px solid #dde5ef;
 
     border-radius:18px;
 
-    border:
-
-    2px solid #dde5ef;
-
     background:white;
 
+    color:#17334f;
+
     cursor:pointer;
-
-    padding:12px;
-
-    font-family:inherit;
 
     font-size:13px;
 
     font-weight:bold;
 
-    transition:.2s;
+    line-height:1.4;
 
+    transition:
+        transform .2s,
+        border-color .2s,
+        background .2s,
+        box-shadow .2s;
 }
 
-
-.option:hover{
-
-    transform:translateY(-4px);
+.option:hover:not(:disabled){
+    transform:
+        translateY(-3px);
 
     border-color:#4b7bec;
 
+    box-shadow:
+        0 7px 16px
+        rgba(75,123,236,.12);
 }
 
+.option:disabled{
+    cursor:default;
+}
 
 .option.correct{
-
     background:#e4faef;
 
     border-color:#28b67a;
-
 }
 
-
 .option.wrong{
-
     background:#ffe9e8;
 
     border-color:#eb6b69;
 
-    animation:shake .3s;
-
+    animation:
+        shake .3s;
 }
 
+.option:focus-visible,
+.next:focus-visible,
+.play-again:focus-visible{
+    outline:
+        3px solid #ffd93d;
+
+    outline-offset:3px;
+}
 
 @keyframes shake{
 
-25%{transform:translateX(-6px);}
-50%{transform:translateX(6px);}
-75%{transform:translateX(-4px);}
+    25%{
+        transform:
+            translateX(-6px);
+    }
+
+    50%{
+        transform:
+            translateX(6px);
+    }
+
+    75%{
+        transform:
+            translateX(-4px);
+    }
 
 }
 
 
-
-/* ===============================
- FEEDBACK
-================================ */
-
+/* =========================================================
+   FEEDBACK
+========================================================= */
 
 .feedback{
-
-    padding:12px;
+    padding:13px 14px;
 
     border-radius:15px;
 
@@ -650,145 +638,127 @@ body{
 
     font-weight:bold;
 
+    line-height:1.45;
 }
 
-
-
 .feedback.good{
-
     background:#e5faef;
 
     color:#16704d;
-
 }
 
-
 .feedback.try{
-
     background:#fff3df;
 
     color:#99540f;
-
 }
 
 
-
-/* ===============================
- BUTTON
-================================ */
-
+/* =========================================================
+   NEXT BUTTON
+========================================================= */
 
 .next{
-
-    margin-top:auto;
+    min-width:140px;
 
     align-self:flex-end;
 
-    padding:
+    margin-top:auto;
 
-    12px 25px;
+    padding:13px 28px;
 
     border:0;
 
     border-radius:30px;
 
     background:
-
-    linear-gradient(
-        135deg,
-        #4b7bec,
-        #7f67dc
-    );
+        linear-gradient(
+            135deg,
+            #4b7bec,
+            #7f67dc
+        );
 
     color:white;
 
-    font-weight:900;
-
     cursor:pointer;
 
+    font-weight:900;
+
+    box-shadow:
+        0 8px 18px
+        rgba(75,123,236,.22);
 }
-
-
 
 .next:disabled{
+    opacity:.42;
 
-    opacity:.4;
+    cursor:not-allowed;
 
+    box-shadow:none;
 }
 
 
-/* ===============================
- FINAL SCREEN
-================================ */
-
+/* =========================================================
+   FINAL SCREEN
+========================================================= */
 
 .final{
-
-    position:absolute;
+    position:fixed;
 
     inset:0;
 
-    background:
-
-    rgba(255,255,255,.96);
+    z-index:200;
 
     display:none;
 
     justify-content:center;
-
     align-items:center;
 
-    z-index:20;
+    padding:20px;
 
+    overflow-y:auto;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .97
+        );
 }
 
-
+.final.show{
+    display:flex;
+}
 
 .final-card{
-
-    width:600px;
+    width:min(600px,100%);
 
     padding:30px;
 
     text-align:center;
 
+    background:white;
+
     border-radius:30px;
 
     box-shadow:
-
-    0 20px 50px rgba(0,0,0,.15);
-
+        0 20px 50px
+        rgba(0,0,0,.15);
 }
 
-
-.final.show{
-
-    display:flex;
-
-}
-
-
-.final h1{
-
+.final-card h1{
     font-size:36px;
-
 }
 
-
-.final p{
-
-    margin:15px;
+.final-card p{
+    margin:15px 0;
 
     line-height:1.6;
-
 }
 
-
 .play-again{
-
-    padding:
-
-    12px 30px;
+    padding:13px 30px;
 
     border:0;
 
@@ -798,1265 +768,1784 @@ body{
 
     color:white;
 
-    font-weight:bold;
-
     cursor:pointer;
 
+    font-weight:bold;
 }
 
 
+/* =========================================================
+   TABLET
+========================================================= */
 
-/* ===============================
- MOBILE
-================================ */
+@media(max-width:900px){
 
+    body{
+        padding:10px;
+    }
 
-@media(max-width:800px){
+    .main{
+        grid-template-columns:1fr;
+    }
 
-.main{
+    .journey{
+        display:none;
+    }
 
-    grid-template-columns:1fr;
+    .options{
+        grid-template-columns:1fr;
+    }
 
-}
-
-
-.journey{
-
-    display:none;
-
-}
-
-
-.options{
-
-    grid-template-columns:1fr;
-
-}
-
-
-.game{
-
-    height:95vh;
+    .option{
+        min-height:70px;
+    }
 
 }
 
 
-.challenge-text{
+/* =========================================================
+   MOBILE
+========================================================= */
 
-    font-size:16px;
+@media(max-width:600px){
+
+    html,
+    body{
+        width:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
+    }
+
+    body{
+        display:block;
+
+        min-height:100dvh;
+
+        padding:0;
+
+        background:#f4f8ff;
+    }
+
+
+    /* Remove desktop fixed-card feeling */
+
+    .game{
+        width:100%;
+
+        min-height:100dvh;
+
+        margin:0;
+
+        overflow:visible;
+
+        border-radius:0;
+
+        box-shadow:none;
+    }
+
+
+    /* HEADER */
+
+    .header{
+        min-height:auto;
+
+        align-items:flex-start;
+
+        padding:15px 16px;
+    }
+
+    .title{
+        font-size:22px;
+    }
+
+    .subtitle{
+        font-size:12px;
+
+        line-height:1.35;
+    }
+
+    .header-tree{
+        font-size:30px;
+    }
+
+
+    /* STICKY PROGRESS */
+
+    .progress-area{
+        position:sticky;
+
+        top:0;
+
+        z-index:20;
+
+        flex-wrap:wrap;
+
+        gap:8px;
+
+        padding:10px 14px;
+
+        box-shadow:
+            0 4px 12px
+            rgba(0,0,0,.06);
+    }
+
+    .level{
+        width:100%;
+
+        font-size:12px;
+    }
+
+    .question-count{
+        font-size:12px;
+    }
+
+    .tree-meter{
+        height:12px;
+    }
+
+
+    /* MAIN */
+
+    .main{
+        display:block;
+
+        padding:10px;
+    }
+
+    .play-area{
+        padding:12px;
+
+        gap:11px;
+
+        overflow:visible;
+
+        border-radius:18px;
+
+        /*
+        Extra space prevents sticky Next
+        button from covering content.
+        */
+        padding-bottom:
+            calc(
+                92px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+
+    /* SCENE */
+
+    .scene{
+        min-height:105px;
+
+        font-size:54px;
+
+        border-radius:16px;
+    }
+
+
+    /* QUESTION */
+
+    .challenge{
+        padding:14px;
+
+        border-radius:16px;
+    }
+
+    .challenge-title{
+        font-size:11px;
+    }
+
+    .challenge-text{
+        font-size:17px;
+
+        line-height:1.4;
+    }
+
+
+    /* OPTIONS */
+
+    .options{
+        grid-template-columns:1fr;
+
+        gap:9px;
+    }
+
+    .option{
+        width:100%;
+
+        min-height:0;
+
+        padding:14px;
+
+        text-align:left;
+
+        border-radius:15px;
+
+        font-size:14px;
+
+        line-height:1.45;
+    }
+
+
+    /* FEEDBACK */
+
+    .feedback{
+        padding:13px;
+
+        font-size:13px;
+    }
+
+
+    /*
+    =====================================================
+       IMPORTANT MOBILE FIX
+       NEXT BUTTON REMAINS ACCESSIBLE
+    =====================================================
+    */
+
+    .next{
+        position:sticky;
+
+        bottom:
+            calc(
+                10px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+
+        z-index:30;
+
+        width:100%;
+
+        min-height:52px;
+
+        align-self:stretch;
+
+        margin-top:5px;
+
+        padding:14px 22px;
+
+        border:
+            3px solid white;
+
+        border-radius:18px;
+
+        font-size:16px;
+
+        box-shadow:
+            0 8px 24px
+            rgba(38,55,105,.28);
+    }
+
+
+    /* FINAL */
+
+    .final{
+        align-items:flex-start;
+
+        padding:
+            24px 14px
+            calc(
+                24px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+    .final-card{
+        margin:auto;
+
+        padding:25px 18px;
+
+        border-radius:22px;
+    }
+
+    .final-card h1{
+        font-size:28px;
+    }
+
+    .play-again{
+        width:100%;
+
+        min-height:50px;
+    }
 
 }
 
 
-.scene{
+/* =========================================================
+   VERY SMALL PHONE
+========================================================= */
 
-    height:110px;
+@media(max-width:380px){
 
-    font-size:55px;
+    .title{
+        font-size:19px;
+    }
+
+    .header-tree{
+        font-size:27px;
+    }
+
+    .challenge-text{
+        font-size:16px;
+    }
+
+    .option{
+        font-size:13px;
+    }
 
 }
 
-}
 
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media(
+    prefers-reduced-motion:
+    reduce
+){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:
+            .01ms !important;
+
+        transition-duration:
+            .01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+
+}
 
 </style>
-
 </head>
+
+
 <body>
 
 
-<!-- SPLASH -->
+<!-- =======================================================
+     SPLASH
+======================================================= -->
 
-<div class="splash" id="splash">
+<div
+    class="splash"
+    id="splash"
+>
 
-<div>
+    <div class="splash-content">
 
-<img src="assets/innovine-logo.png">
+        <img
+            src="assets/innovine-logo.png"
+            alt="Innovine Logo"
+        >
 
-<div class="splash-text">
-Loading Mona's Change Journey...
+        <div class="splash-text">
+            Loading Mona's Change Journey...
+        </div>
+
+    </div>
+
 </div>
 
-</div>
 
-</div>
-
-
-
-<!-- GAME -->
+<!-- =======================================================
+     GAME
+======================================================= -->
 
 <div class="game">
 
 
-<div class="header">
+    <!-- HEADER -->
 
-<div>
+    <div class="header">
 
-<div class="title">
-🌱 Mona's Change Journey
-</div>
+        <div>
 
-<div class="subtitle">
-Grade 5 Soul Science • Adaptability Adventure
-</div>
+            <div class="title">
+                🌱 Mona's Change Journey
+            </div>
 
-</div>
+            <div class="subtitle">
+                Soul Science • Adaptability Adventure
+            </div>
 
+        </div>
 
-<div>
-🌳
-</div>
+        <div class="header-tree">
+            🌳
+        </div>
 
-</div>
+    </div>
 
 
+    <!-- PROGRESS -->
 
-<div class="progress-area">
+    <div class="progress-area">
 
-<div class="level" id="level">
-Adaptability Level: Seed 🌱
-</div>
+        <div
+            class="level"
+            id="level"
+        >
+            Adaptability Level: Seed 🌱
+        </div>
 
+        <div class="tree-meter">
 
-<div class="tree-meter">
+            <div
+                class="tree-fill"
+                id="treeFill"
+            ></div>
 
-<div class="tree-fill" id="treeFill"></div>
+        </div>
 
-</div>
+        <div
+            class="question-count"
+            id="questionCount"
+        >
+            1 of 8
+        </div>
 
-</div>
+    </div>
 
 
+    <!-- MAIN -->
 
+    <div class="main">
 
 
-<div class="main">
+        <!-- LEFT JOURNEY -->
 
+        <div class="journey">
 
+            <div class="character-card">
 
-<!-- LEFT -->
+                <div class="mona">
+                    👧
+                </div>
 
-<div class="journey">
+                <div
+                    class="mona-text"
+                    id="monaMessage"
+                >
+                    Mona is learning that change can bring new opportunities.
+                </div>
 
+            </div>
 
-<div class="character-card">
 
-<div class="mona">
-👧
-</div>
+            <div class="map">
 
-<div class="mona-text" id="monaMessage">
+                <div class="map-title">
+                    🗺️ Mona's Change Map
+                </div>
 
-Mona is learning that change can bring new opportunities.
+                <div
+                    class="locations"
+                    id="locations"
+                ></div>
 
-</div>
+            </div>
 
-</div>
+        </div>
 
 
+        <!-- PLAY AREA -->
 
-<div class="map">
+        <div
+            class="play-area"
+            id="playArea"
+        >
 
-<div class="map-title">
-🗺️ Mona's Change Map
-</div>
 
+            <div
+                class="scene"
+                id="scene"
+            >
+                🏫
+            </div>
 
-<div class="locations" id="locations">
 
-<div class="location active">
-<span class="location-icon">🏫</span>
-New School
-</div>
+            <div class="challenge">
 
+                <div
+                    class="challenge-title"
+                    id="challengeTitle"
+                >
+                    Mona's Challenge
+                </div>
 
-<div class="location">
-<span class="location-icon">👥</span>
-New Friends
-</div>
+                <div
+                    class="challenge-text"
+                    id="question"
+                ></div>
 
+            </div>
 
-<div class="location">
-<span class="location-icon">🎨</span>
-New Activity
-</div>
 
+            <div
+                class="options"
+                id="options"
+            ></div>
 
-<div class="location">
-<span class="location-icon">📚</span>
-Learning Challenge
-</div>
 
+            <div
+                class="feedback"
+                id="feedback"
+                aria-live="polite"
+            >
+                Choose the response that helps Mona adapt.
+            </div>
 
-<div class="location">
-<span class="location-icon">🌳</span>
-Growing Through Change
-</div>
 
+            <button
+                class="next"
+                id="next"
+                type="button"
+                disabled
+            >
+                Next →
+            </button>
 
-</div>
 
+        </div>
 
-</div>
-
-</div>
-
-
-
-
-
-<!-- RIGHT -->
-
-<div class="play-area">
-
-
-<div class="scene" id="scene">
-
-🏫
-
-</div>
-
-
-
-<div class="challenge">
-
-
-<div class="challenge-title">
-Mona's Challenge
-</div>
-
-
-<div class="challenge-text" id="question">
-
-</div>
-
-
-</div>
-
-
-
-<div class="options" id="options">
-
-</div>
-
-
-
-<div class="feedback" id="feedback">
-
-Choose the response that helps Mona adapt.
-
-</div>
-
-
-
-<button class="next" id="next" disabled>
-
-Next →
-
-</button>
+    </div>
 
 
 </div>
 
 
-</div>
+<!-- =======================================================
+     FINAL SCREEN
+======================================================= -->
 
+<div
+    class="final"
+    id="final"
+>
 
+    <div class="final-card">
 
-<!-- FINAL -->
+        <h1>
+            🌳 Change Champion!
+        </h1>
 
-<div class="final" id="final">
+        <p id="finalText"></p>
 
+        <button
+            class="play-again"
+            type="button"
+            onclick="restartGame()"
+        >
+            Play Again
+        </button>
 
-<div class="final-card">
-
-<h1>
-🌳 Change Champion!
-</h1>
-
-<p id="finalText">
-
-</p>
-
-
-<button class="play-again" onclick="location.reload()">
-
-Play Again
-
-</button>
-
-
-</div>
-
+    </div>
 
 </div>
 
-
-
-</div>
 
 
 <script>
 
-/* ==========================================
-   MONA'S CHANGE JOURNEY
-   GAME ENGINE
-========================================== */
-
-
-/* ==========================================
+/* =========================================================
    AUDIO
-========================================== */
+========================================================= */
 
 const correctSound =
-new Audio("assets/correct.mp3");
+    new Audio(
+        "assets/correct.mp3"
+    );
 
 const wrongSound =
-new Audio("assets/wrong.mp3");
+    new Audio(
+        "assets/wrong.mp3"
+    );
 
 const clapSound =
-new Audio("assets/claps.mp3");
+    new Audio(
+        "assets/claps.mp3"
+    );
+
+let soundOn = true;
 
 
-let soundOn=true;
+function playSound(
+    sound
+){
 
+    if(!soundOn){
+        return;
+    }
 
-function playSound(sound){
+    sound.currentTime = 0;
 
-if(soundOn){
-
-sound.currentTime=0;
-
-sound.play()
-.catch(()=>{});
+    sound
+        .play()
+        .catch(
+            ()=>{}
+        );
 
 }
 
-}
 
-
-
-
-/* ==========================================
+/* =========================================================
    GAME DATA
-========================================== */
+========================================================= */
 
+const challenges = [
 
-const challenges=[
 
+    /* 1 */
 
-{
-emoji:"🏫",
+    {
 
-location:"New School",
+        emoji:"🏫",
 
-question:
-"Mona moved to a new school. She misses her old classroom and feels nervous.",
+        location:"New School",
 
-message:
-"Everything feels unfamiliar right now. What should Mona do?",
+        question:
+            "Mona moved to a new school. She misses her old classroom and feels nervous.",
 
+        message:
+            "Everything feels unfamiliar right now. What should Mona do?",
 
-options:[
+        options:[
 
-{
-text:
-"Stay away from everyone because the old school was better.",
+            {
+                text:
+                    "Stay away from everyone because the old school was better.",
 
-correct:false,
+                correct:false,
 
-feedback:
-"Mona may continue feeling lonely. Avoiding change makes it harder to adjust."
-},
+                feedback:
+                    "Mona may continue feeling lonely. Avoiding change makes it harder to adjust."
+            },
 
+            {
+                text:
+                    "Talk to new classmates and slowly explore her new school.",
 
-{
-text:
-"Talk to new classmates and slowly explore her new school.",
+                correct:true,
 
-correct:true,
+                feedback:
+                    "Mona discovers that new places can bring new friendships and experiences."
+            },
 
-feedback:
-"Mona discovers that new places can bring new friendships and experiences."
-},
+            {
+                text:
+                    "Wait until the new school becomes exactly like her old school.",
 
+                correct:false,
 
-{
-text:
-"Wait until the new school becomes exactly like her old school.",
+                feedback:
+                    "Change does not always look like the past. Learning to accept it helps us grow."
+            }
 
-correct:false,
+        ]
 
-feedback:
-"Change does not always look like the past. Learning to accept it helps us grow."
-}
+    },
 
-]
 
-},
+    /* 2 */
 
+    {
 
+        emoji:"👥",
 
+        location:"New Friends",
 
-{
-emoji:"👥",
+        question:
+            "Mona sees a group of learners playing together but she does not know them yet.",
 
-location:"New Friends",
+        message:
+            "How can Mona build confidence?",
 
-question:
-"Mona sees a group of learners playing together but she does not know them yet.",
+        options:[
 
-message:
-"How can Mona build confidence?",
+            {
+                text:
+                    "Introduce herself and ask if she can join the activity.",
 
+                correct:true,
 
-options:[
+                feedback:
+                    "Trying something new helps Mona create opportunities for friendship."
+            },
 
-{
-text:
-"Introduce herself and ask if she can join the activity.",
+            {
+                text:
+                    "Decide that nobody will like her.",
 
-correct:true,
+                correct:false,
 
-feedback:
-"Trying something new helps Mona create opportunities for friendship."
-},
+                feedback:
+                    "Assuming the worst can stop us from discovering new possibilities."
+            },
 
+            {
+                text:
+                    "Wait forever without speaking to anyone.",
 
-{
-text:
-"Decide that nobody will like her.",
+                correct:false,
 
-correct:false,
+                feedback:
+                    "Sometimes we need to take a small step towards change."
+            }
 
-feedback:
-"Assuming the worst can stop us from discovering new possibilities."
-},
+        ]
 
+    },
 
-{
-text:
-"Wait forever without speaking to anyone.",
 
-correct:false,
+    /* 3 */
 
-feedback:
-"Sometimes we need to take a small step towards change."
-}
+    {
 
-]
+        emoji:"🎨",
 
-},
+        location:"New Activity",
 
+        question:
+            "Mona joins an art club but the activity is different from what she usually does.",
 
+        message:
+            "What is the best way to respond?",
 
+        options:[
 
-{
-emoji:"🎨",
+            {
+                text:
+                    "Say she cannot do it and stop trying.",
 
-location:"New Activity",
+                correct:false,
 
-question:
-"Mona joins an art club but the activity is different from what she usually does.",
+                feedback:
+                    "New skills take practice. Mistakes are part of learning."
+            },
 
-message:
-"What is the best way to respond?",
+            {
+                text:
+                    "Try the activity and learn step by step.",
 
+                correct:true,
 
-options:[
+                feedback:
+                    "Mona learns that trying new things helps her discover new abilities."
+            },
 
-{
-text:
-"Say she cannot do it and stop trying.",
+            {
+                text:
+                    "Ask someone else to complete the whole activity.",
 
-correct:false,
+                correct:false,
 
-feedback:
-"New skills take practice. Mistakes are part of learning."
-},
+                feedback:
+                    "Getting help is useful, but trying yourself helps you grow."
+            }
 
+        ]
 
-{
-text:
-"Try the activity and learn step by step.",
+    },
 
-correct:true,
 
-feedback:
-"Mona learns that trying new things helps her discover new abilities."
-},
+    /* 4 */
 
+    {
 
-{
-text:
-"Ask someone else to complete the whole activity.",
+        emoji:"📚",
 
-correct:false,
+        location:"Learning Challenge",
 
-feedback:
-"Getting help is useful, but trying yourself helps you grow."
-}
+        question:
+            "Mona finds a new topic difficult to understand.",
 
-]
+        message:
+            "What can help Mona adapt?",
 
-},
+        options:[
 
+            {
+                text:
+                    "Break the topic into smaller parts and ask questions.",
 
+                correct:true,
 
+                feedback:
+                    "Mona uses a growth mindset and finds a way forward."
+            },
 
-{
-emoji:"📚",
+            {
+                text:
+                    "Decide that she can never learn it.",
 
-location:"Learning Challenge",
+                correct:false,
 
-question:
-"Mona finds a new topic difficult to understand.",
+                feedback:
+                    "Difficult does not mean impossible. Learning takes patience."
+            },
 
-message:
-"What can help Mona adapt?",
+            {
+                text:
+                    "Ignore the topic completely.",
 
+                correct:false,
 
-options:[
+                feedback:
+                    "Avoiding challenges prevents us from improving."
+            }
 
-{
-text:
-"Break the topic into smaller parts and ask questions.",
+        ]
 
-correct:true,
+    },
 
-feedback:
-"Mona uses a growth mindset and finds a way forward."
-},
 
+    /* 5 */
 
-{
-text:
-"Decide that she can never learn it.",
+    {
 
-correct:false,
+        emoji:"💬",
 
-feedback:
-"Difficult does not mean impossible. Learning takes patience."
-},
+        location:"Feedback",
 
+        question:
+            "Mona's teacher suggests a small improvement in her work.",
 
-{
-text:
-"Ignore the topic completely.",
+        message:
+            "How should Mona react?",
 
-correct:false,
+        options:[
 
-feedback:
-"Avoiding challenges prevents us from improving."
-}
+            {
+                text:
+                    "Feel upset and refuse to change anything.",
 
-]
+                correct:false,
 
-},
+                feedback:
+                    "Feedback helps us improve when we listen openly."
+            },
 
+            {
+                text:
+                    "Think about the feedback and use it to improve.",
 
+                correct:true,
 
+                feedback:
+                    "Accepting feedback helps Mona learn and become better."
+            },
 
-{
-emoji:"💬",
+            {
+                text:
+                    "Throw away her work and start again angrily.",
 
-location:"Feedback",
+                correct:false,
 
-question:
-"Mona's teacher suggests a small improvement in her work.",
+                feedback:
+                    "Small improvements are often better than giving up."
+            }
 
-message:
-"How should Mona react?",
+        ]
 
+    },
 
-options:[
 
-{
-text:
-"Feel upset and refuse to change anything.",
+    /* 6 */
 
-correct:false,
+    {
 
-feedback:
-"Feedback helps us improve when we listen openly."
-},
+        emoji:"🚌",
 
+        location:"New Journey",
 
-{
-text:
-"Think about the feedback and use it to improve.",
+        question:
+            "Mona has to travel through a new route to reach school.",
 
-correct:true,
+        message:
+            "What should Mona do?",
 
-feedback:
-"Accepting feedback helps Mona learn and become better."
-},
+        options:[
 
+            {
+                text:
+                    "Learn the route and ask for help if needed.",
 
-{
-text:
-"Throw away her work and start again angrily.",
+                correct:true,
 
-correct:false,
+                feedback:
+                    "Mona adapts by learning and preparing for the new situation."
+            },
 
-feedback:
-"Small improvements are often better than giving up."
-}
+            {
+                text:
+                    "Refuse to travel because the old route was easier.",
 
-]
+                correct:false,
 
-},
+                feedback:
+                    "Change often requires us to learn new ways."
+            },
 
+            {
+                text:
+                    "Get worried and never try the route.",
 
+                correct:false,
 
+                feedback:
+                    "Confidence grows when we try carefully."
+            }
 
-{
-emoji:"🚌",
+        ]
 
-location:"New Journey",
+    },
 
-question:
-"Mona has to travel through a new route to reach school.",
 
-message:
-"What should Mona do?",
+    /* 7 */
 
+    {
 
-options:[
+        emoji:"😔",
 
-{
-text:
-"Learn the route and ask for help if needed.",
+        location:"Missing the Past",
 
-correct:true,
+        question:
+            "Mona remembers her old friends and feels sad.",
 
-feedback:
-"Mona adapts by learning and preparing for the new situation."
-},
+        message:
+            "What can help Mona handle this change?",
 
+        options:[
 
-{
-text:
-"Refuse to travel because the old route was easier.",
+            {
+                text:
+                    "Remember old memories while also making new ones.",
 
-correct:false,
+                correct:true,
 
-feedback:
-"Change often requires us to learn new ways."
-},
+                feedback:
+                    "Mona learns that new experiences can exist along with old memories."
+            },
 
+            {
+                text:
+                    "Forget everything about the past.",
 
-{
-text:
-"Get worried and never try the route.",
+                correct:false,
 
-correct:false,
+                feedback:
+                    "Our memories are valuable. Change does not mean forgetting."
+            },
 
-feedback:
-"Confidence grows when we try carefully."
-}
+            {
+                text:
+                    "Believe that nothing good will happen again.",
 
-]
+                correct:false,
 
-},
+                feedback:
+                    "Positive thinking helps us discover new opportunities."
+            }
 
+        ]
 
+    },
 
 
-{
-emoji:"😔",
+    /* 8 */
 
-location:"Missing the Past",
+    {
 
-question:
-"Mona remembers her old friends and feels sad.",
+        emoji:"🌳",
 
-message:
-"What can help Mona handle this change?",
+        location:
+            "Growing Through Change",
 
+        question:
+            "Mona looks back at everything she learned after many changes.",
 
-options:[
+        message:
+            "What lesson has Mona discovered?",
 
-{
-text:
-"Remember old memories while also making new ones.",
+        options:[
 
-correct:true,
+            {
+                text:
+                    "Change can help us learn, grow and become stronger.",
 
-feedback:
-"Mona learns that new experiences can exist along with old memories."
-},
+                correct:true,
 
+                feedback:
+                    "Mona has developed adaptability and resilience."
+            },
 
-{
-text:
-"Forget everything about the past.",
+            {
+                text:
+                    "Change should always be avoided.",
 
-correct:false,
+                correct:false,
 
-feedback:
-"Our memories are valuable. Change does not mean forgetting."
-},
+                feedback:
+                    "Avoiding every change limits our growth."
+            },
 
+            {
+                text:
+                    "Only easy situations help us improve.",
 
-{
-text:
-"Believe that nothing good will happen again.",
+                correct:false,
 
-correct:false,
+                feedback:
+                    "Challenges often teach us important lessons."
+            }
 
-feedback:
-"Positive thinking helps us discover new opportunities."
-}
+        ]
 
-]
-
-},
-
-
-
-
-{
-emoji:"🌳",
-
-location:"Growing Through Change",
-
-question:
-"Mona looks back at everything she learned after many changes.",
-
-message:
-"What lesson has Mona discovered?",
-
-
-options:[
-
-{
-text:
-"Change can help us learn, grow and become stronger.",
-
-correct:true,
-
-feedback:
-"Mona has developed adaptability and resilience."
-},
-
-
-{
-text:
-"Change should always be avoided.",
-
-correct:false,
-
-feedback:
-"Avoiding every change limits our growth."
-},
-
-
-{
-text:
-"Only easy situations help us improve.",
-
-correct:false,
-
-feedback:
-"Challenges often teach us important lessons."
-}
-
-]
-
-}
+    }
 
 ];
 
 
-
-
-/* ==========================================
+/* =========================================================
    VARIABLES
-========================================== */
+========================================================= */
+
+let current = 0;
+
+let points = 0;
+
+let answered = false;
+
+let attempts = 0;
 
 
-let current=0;
-
-let points=0;
-
-let answered=false;
-
-let attempts=0;
-
-
-
-/* ==========================================
+/* =========================================================
    ELEMENTS
-========================================== */
+========================================================= */
+
+const questionBox =
+    document.getElementById(
+        "question"
+    );
+
+const optionsBox =
+    document.getElementById(
+        "options"
+    );
+
+const scene =
+    document.getElementById(
+        "scene"
+    );
+
+const feedback =
+    document.getElementById(
+        "feedback"
+    );
+
+const next =
+    document.getElementById(
+        "next"
+    );
+
+const treeFill =
+    document.getElementById(
+        "treeFill"
+    );
+
+const level =
+    document.getElementById(
+        "level"
+    );
+
+const locationsBox =
+    document.getElementById(
+        "locations"
+    );
+
+const monaMessage =
+    document.getElementById(
+        "monaMessage"
+    );
+
+const final =
+    document.getElementById(
+        "final"
+    );
+
+const finalText =
+    document.getElementById(
+        "finalText"
+    );
+
+const questionCount =
+    document.getElementById(
+        "questionCount"
+    );
+
+const challengeTitle =
+    document.getElementById(
+        "challengeTitle"
+    );
+
+const playArea =
+    document.getElementById(
+        "playArea"
+    );
 
 
-const questionBox=
-document.getElementById("question");
+/* =========================================================
+   SPLASH SCREEN
+========================================================= */
+
+setTimeout(
+    ()=>{
+
+        document
+            .getElementById(
+                "splash"
+            )
+            .classList
+            .add(
+                "hide"
+            );
+
+    },
+    5000
+);
 
 
-const optionsBox=
-document.getElementById("options");
+/* =========================================================
+   CREATE JOURNEY MAP
+========================================================= */
+
+function buildMap(){
+
+    locationsBox.innerHTML =
+        "";
+
+    challenges.forEach(
+        (
+            challenge,
+            index
+        )=>{
+
+            const item =
+                document
+                    .createElement(
+                        "div"
+                    );
+
+            item.className =
+                "location";
+
+            item.dataset.index =
+                index;
+
+            item.innerHTML = `
+                <span
+                    class="location-icon"
+                >
+                    ${challenge.emoji}
+                </span>
+
+                <span>
+                    ${challenge.location}
+                </span>
+            `;
+
+            locationsBox
+                .appendChild(
+                    item
+                );
+
+        }
+    );
+
+}
 
 
-const scene=
-document.getElementById("scene");
-
-
-const feedback=
-document.getElementById("feedback");
-
-
-const next=
-document.getElementById("next");
-
-
-const treeFill=
-document.getElementById("treeFill");
-
-
-const level=
-document.getElementById("level");
-
-
-const locations=
-document.querySelectorAll(".location");
-
-
-const monaMessage=
-document.getElementById("monaMessage");
-
-
-const final=
-document.getElementById("final");
-
-
-const finalText=
-document.getElementById("finalText");
-
-
-
-
-
-/* ==========================================
-   SPLASH
-========================================== */
-
-
-setTimeout(()=>{
-
-document
-.getElementById("splash")
-.classList
-.add("hide");
-
-},5000);
-
-
-
-
-
-/* ==========================================
+/* =========================================================
    LOAD QUESTION
-========================================== */
-
+========================================================= */
 
 function loadQuestion(){
 
+    answered = false;
 
-answered=false;
+    attempts = 0;
 
-attempts=0;
-
-
-next.disabled=true;
+    next.disabled = true;
 
 
-let data=
-challenges[current];
+    const data =
+        challenges[
+            current
+        ];
 
 
-
-scene.innerHTML=
-data.emoji;
-
-
-questionBox.innerHTML=
-data.question;
+    scene.textContent =
+        data.emoji;
 
 
-
-monaMessage.innerHTML=
-data.message;
-
+    questionBox.textContent =
+        data.question;
 
 
-feedback.className=
-"feedback";
-
-feedback.innerHTML=
-"Choose the response that helps Mona adapt.";
+    monaMessage.textContent =
+        data.message;
 
 
-
-optionsBox.innerHTML="";
-
-
-
-let shuffled=
-[...data.options]
-.sort(
-()=>Math.random()-.5
-);
+    challengeTitle.textContent =
+        "Mona's Challenge • " +
+        data.location;
 
 
-
-shuffled.forEach(option=>{
-
-
-let btn=
-document.createElement("button");
+    questionCount.textContent =
+        `${current + 1} of ${challenges.length}`;
 
 
-btn.className=
-"option";
+    feedback.className =
+        "feedback";
 
 
-btn.innerHTML=
-option.text;
+    feedback.textContent =
+        "Choose the response that helps Mona adapt.";
 
 
-
-btn.onclick=()=>{
-
-checkAnswer(
-btn,
-option
-);
-
-};
+    optionsBox.innerHTML =
+        "";
 
 
+    /*
+    Randomise answer order
+    */
 
-optionsBox.appendChild(btn);
+    const shuffled =
+        [...data.options]
+            .sort(
+                () =>
+                    Math.random() -
+                    .5
+            );
 
 
-});
+    shuffled.forEach(
+        option=>{
+
+            const button =
+                document
+                    .createElement(
+                        "button"
+                    );
 
 
+            button.className =
+                "option";
 
-updateMap();
 
+            button.type =
+                "button";
+
+
+            button.textContent =
+                option.text;
+
+
+            button.onclick =
+                ()=>{
+
+                    checkAnswer(
+                        button,
+                        option
+                    );
+
+                };
+
+
+            optionsBox
+                .appendChild(
+                    button
+                );
+
+        }
+    );
+
+
+    updateMap();
+
+
+    /*
+    On phones, bring the learner
+    back to the activity when the
+    next challenge loads.
+    */
+
+    if(
+        window
+            .matchMedia(
+                "(max-width: 600px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            ()=>{
+
+                playArea
+                    .scrollIntoView(
+                        {
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "start"
+                        }
+                    );
+
+            },
+            100
+        );
+
+    }
 
 }
 
 
-
-
-
-/* ==========================================
-   ANSWER CHECK
-========================================== */
-
+/* =========================================================
+   CHECK ANSWER
+========================================================= */
 
 function checkAnswer(
-button,
-option
+    button,
+    option
 ){
 
+    /*
+    Do nothing after the question
+    has already been answered.
+    */
 
-if(answered)
-return;
+    if(
+        answered ||
+        button.disabled
+    ){
 
+        return;
 
-
-if(option.correct){
-
-
-answered=true;
-
-
-points+=10;
-
-
-playSound(
-correctSound
-);
+    }
 
 
-button.classList.add(
-"correct"
-);
+    /* CORRECT */
+
+    if(
+        option.correct
+    ){
+
+        answered = true;
+
+        points += 10;
 
 
-feedback.className=
-"feedback good";
+        playSound(
+            correctSound
+        );
 
 
-feedback.innerHTML=
-"🌱 "
-+
-option.feedback;
+        button
+            .classList
+            .add(
+                "correct"
+            );
 
 
+        /*
+        Lock all options once
+        correct answer is selected.
+        */
 
-next.disabled=false;
+        document
+            .querySelectorAll(
+                ".option"
+            )
+            .forEach(
+                optionButton=>{
+
+                    optionButton.disabled =
+                        true;
+
+                }
+            );
 
 
+        feedback.className =
+            "feedback good";
 
-updateGrowth();
+
+        feedback.innerHTML =
+            "🌱 " +
+            option.feedback;
 
 
+        next.disabled =
+            false;
+
+
+        updateGrowth();
+
+
+        /*
+        On phones make sure
+        Next is immediately reachable.
+        */
+
+        if(
+            window
+                .matchMedia(
+                    "(max-width: 600px)"
+                )
+                .matches
+        ){
+
+            setTimeout(
+                ()=>{
+
+                    next.scrollIntoView(
+                        {
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "nearest"
+                        }
+                    );
+
+                },
+                150
+            );
+
+        }
+
+    }
+
+
+    /* WRONG */
+
+    else{
+
+        attempts++;
+
+
+        playSound(
+            wrongSound
+        );
+
+
+        button
+            .classList
+            .add(
+                "wrong"
+            );
+
+
+        /*
+        Disable only this incorrect
+        option so learner cannot
+        select it repeatedly.
+        */
+
+        button.disabled =
+            true;
+
+
+        feedback.className =
+            "feedback try";
+
+
+        feedback.innerHTML =
+            "💡 " +
+            option.feedback;
+
+
+        if(
+            attempts >= 2
+        ){
+
+            feedback.innerHTML +=
+                "<br><br>" +
+                "<b>Hint:</b> " +
+                "Choose the response that shows acceptance, learning and a positive attitude towards change.";
+
+        }
+
+    }
 
 }
 
 
-else{
+/* =========================================================
+   NEXT
+========================================================= */
+
+next.onclick =
+    ()=>{
+
+        current++;
 
 
-attempts++;
+        if(
+            current <
+            challenges.length
+        ){
+
+            loadQuestion();
+
+        }
+
+        else{
+
+            showFinal();
+
+        }
+
+    };
 
 
-playSound(
-wrongSound
-);
-
-
-button.classList.add(
-"wrong"
-);
-
-
-
-feedback.className=
-"feedback try";
-
-
-feedback.innerHTML=
-"💡 "
-+
-option.feedback;
-
-
-
-if(attempts>=2){
-
-
-feedback.innerHTML+=
-"<br><br>Hint: Choose the response that shows acceptance, learning and a positive attitude towards change.";
-
-
-}
-
-
-
-}
-
-
-}
-
-
-
-
-
-/* ==========================================
-   NEXT BUTTON
-========================================== */
-
-
-next.onclick=()=>{
-
-
-current++;
-
-
-if(current<
-challenges.length){
-
-
-loadQuestion();
-
-
-}
-
-else{
-
-
-showFinal();
-
-
-}
-
-
-};
-
-
-
-
-
-/* ==========================================
-   GROWTH
-========================================== */
-
+/* =========================================================
+   GROWTH METER
+========================================================= */
 
 function updateGrowth(){
 
+    const percent =
+        (
+            points /
+            (
+                challenges.length *
+                10
+            )
+        ) *
+        100;
 
-let percent=
-(points/(challenges.length*10))
-*100;
+
+    treeFill.style.width =
+        percent + "%";
 
 
-treeFill.style.width=
-percent+"%";
+    if(
+        points < 30
+    ){
 
+        level.textContent =
+            "Adaptability Level: Seed 🌱";
 
+    }
 
-if(points<30){
+    else if(
+        points < 60
+    ){
 
-level.innerHTML=
-"Adaptability Level: Seed 🌱";
+        level.textContent =
+            "Adaptability Level: Growing Plant 🌿";
+
+    }
+
+    else{
+
+        level.textContent =
+            "Adaptability Level: Strong Tree 🌳";
+
+    }
 
 }
 
-else if(points<60){
 
-level.innerHTML=
-"Adaptability Level: Growing Plant 🌿";
-
-}
-
-else{
-
-level.innerHTML=
-"Adaptability Level: Strong Tree 🌳";
-
-}
-
-
-}
-
-
-
-
-
-/* ==========================================
-   MAP UPDATE
-========================================== */
-
+/* =========================================================
+   MAP
+========================================================= */
 
 function updateMap(){
 
+    document
+        .querySelectorAll(
+            ".location"
+        )
+        .forEach(
+            (
+                item,
+                index
+            )=>{
 
-locations.forEach(
-(item,index)=>{
+                item.classList.remove(
+                    "active",
+                    "done"
+                );
 
 
-item.classList.remove(
-"active"
-);
+                if(
+                    index <
+                    current
+                ){
+
+                    item.classList.add(
+                        "done"
+                    );
+
+                }
 
 
-if(index<current){
+                if(
+                    index ===
+                    current
+                ){
 
-item.classList.add(
-"done"
-);
+                    item.classList.add(
+                        "active"
+                    );
+
+                }
+
+            }
+        );
 
 }
 
 
-if(index===current){
-
-item.classList.add(
-"active"
-);
-
-}
-
-
-});
-
-
-}
-
-
-
-
-
-
-/* ==========================================
-   FINAL REPORT
-========================================== */
-
+/* =========================================================
+   FINAL SCREEN
+========================================================= */
 
 function showFinal(){
 
-
-final.classList.add(
-"show"
-);
-
+    final.classList.add(
+        "show"
+    );
 
 
-let message;
+    let message;
 
 
-if(points>=70){
+    if(
+        points >= 70
+    ){
 
-message=
+        message =
+            "🌳 Excellent! Mona became a Change Champion. You understand that adapting to change helps us learn, grow and discover new opportunities.";
 
-"🌳 Excellent! Mona became a Change Champion. You understand that adapting to change helps us learn, grow and discover new opportunities.";
+    }
+
+    else if(
+        points >= 50
+    ){
+
+        message =
+            "🌿 Well done! You are growing your adaptability skills. Keep practising positive ways to handle change.";
+
+    }
+
+    else{
+
+        message =
+            "🌱 Every challenge teaches us something. Keep trying new experiences and learning from them.";
+
+    }
+
+
+    finalText.innerHTML = `
+
+        You earned
+        <b>${points}</b>
+        adaptability points.
+
+        <br><br>
+
+        ${message}
+
+        <br><br>
+
+        <b>Remember:</b>
+
+        <br>
+
+        Change does not take away our past.
+
+        <br>
+
+        It helps us create new experiences.
+
+    `;
+
+
+    playSound(
+        clapSound
+    );
 
 }
 
-else if(points>=50){
 
-message=
+/* =========================================================
+   RESTART
+========================================================= */
 
-"🌿 Well done! You are growing your adaptability skills. Keep practising positive ways to handle change.";
+function restartGame(){
+
+    current = 0;
+
+    points = 0;
+
+    answered = false;
+
+    attempts = 0;
+
+
+    final.classList.remove(
+        "show"
+    );
+
+
+    treeFill.style.width =
+        "0%";
+
+
+    level.textContent =
+        "Adaptability Level: Seed 🌱";
+
+
+    loadQuestion();
+
+
+    window.scrollTo(
+        {
+            top:0,
+
+            behavior:
+                "smooth"
+        }
+    );
 
 }
 
-else{
 
-message=
+/* =========================================================
+   START GAME
+========================================================= */
 
-"🌱 Every challenge teaches us something. Keep trying new experiences and learning from them.";
-
-}
-
-
-
-finalText.innerHTML=
-`
-You earned <b>${points}</b> adaptability points.
-
-<br><br>
-
-${message}
-
-<br><br>
-
-Remember:
-Change does not take away our past.
-It helps us create new experiences.
-`;
-
-
-
-clapSound.play()
-.catch(()=>{});
-
-
-
-}
-
-
-/* START */
+buildMap();
 
 loadQuestion();
-
 
 </script>
 
