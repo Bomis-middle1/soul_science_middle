@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Motivation Maze Runner - Grade 8 Soul Science</title>
+
     <style>
         * {
             margin: 0;
@@ -49,8 +50,9 @@
 
         @keyframes logoFloat {
             0%, 100% {
-                transform: translateY(0px);
+                transform: translateY(0);
             }
+
             50% {
                 transform: translateY(-20px);
             }
@@ -124,6 +126,11 @@
             display: flex;
             justify-content: center;
             margin-top: 20px;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
             gap: 10px;
         }
 
@@ -143,12 +150,6 @@
 
         .control-btn:active {
             transform: scale(0.95);
-        }
-
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            gap: 10px;
         }
 
         .control-grid .control-btn:nth-child(1) {
@@ -200,6 +201,7 @@
                 transform: translateY(-50px);
                 opacity: 0;
             }
+
             to {
                 transform: translateY(0);
                 opacity: 1;
@@ -257,14 +259,27 @@
         }
 
         @keyframes correctPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
         }
 
         .feedback {
@@ -329,6 +344,7 @@
                 transform: translate(-50%, -50%) scale(0) rotate(0deg);
                 opacity: 1;
             }
+
             100% {
                 transform: translate(-50%, -50%) scale(2) rotate(360deg);
                 opacity: 0;
@@ -376,32 +392,45 @@
         }
     </style>
 </head>
+
 <body>
-    <!-- Splash Screen with Logo -->
+
     <div class="splash-screen" id="splashScreen">
-        <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'">
+        <img
+            src="assets/innovine-logo.png"
+            alt="Innovine Logo"
+            onerror="this.style.display='none'"
+        >
     </div>
 
     <div class="container" id="mainContainer">
+
         <div class="header">
+
             <h1>🌟 Motivation Maze Runner 🌟</h1>
+
             <div class="score-board">
+
                 <div class="score-item">
                     <div>Stars</div>
                     <span id="stars">0</span>
                 </div>
+
                 <div class="score-item">
                     <div>Questions</div>
                     <span id="questionsAnswered">0/10</span>
                 </div>
+
                 <div class="score-item">
                     <div>Correct</div>
                     <span id="correctCount">0</span>
                 </div>
+
             </div>
         </div>
 
         <div class="game-container">
+
             <div class="instructions">
                 <p><strong>How to Play:</strong></p>
                 <p>🎮 Use arrow keys or on-screen buttons to move</p>
@@ -412,566 +441,2019 @@
             <canvas id="gameCanvas"></canvas>
 
             <div class="controls">
+
                 <div class="control-grid">
                     <button class="control-btn" id="upBtn">↑</button>
                     <button class="control-btn" id="leftBtn">←</button>
                     <button class="control-btn" id="rightBtn">→</button>
                     <button class="control-btn" id="downBtn">↓</button>
                 </div>
+
             </div>
 
             <div class="volume-control">
-                <label for="volumeSlider">🔊 Volume: <span id="volumeLabel">80%</span></label><br>
-                <input type="range" id="volumeSlider" min="0" max="100" value="80">
+                <label for="volumeSlider">
+                    🔊 Volume:
+                    <span id="volumeLabel">80%</span>
+                </label>
+                <br>
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    min="0"
+                    max="100"
+                    value="80"
+                >
             </div>
 
-            <button class="restart-btn" id="restartBtn">🔄 Play Again</button>
+            <button class="restart-btn" id="restartBtn">
+                🔄 Play Again
+            </button>
+
         </div>
     </div>
 
     <div class="question-modal" id="questionModal">
+
         <div class="question-box">
-            <h2>Question <span id="questionNumber">1</span> of 10</h2>
-            <div class="question-text" id="questionText"></div>
-            <div class="options" id="optionsContainer"></div>
-            <div class="feedback" id="feedback"></div>
+
+            <h2>
+                Question
+                <span id="questionNumber">1</span>
+                of 10
+            </h2>
+
+            <div
+                class="question-text"
+                id="questionText">
+            </div>
+
+            <div
+                class="options"
+                id="optionsContainer">
+            </div>
+
+            <div
+                class="feedback"
+                id="feedback">
+            </div>
+
         </div>
     </div>
 
-    <script>
-        // Hide splash screen and show game after 5 seconds
-        setTimeout(() => {
-            document.getElementById('splashScreen').classList.add('hidden');
-            document.getElementById('mainContainer').classList.add('visible');
-            initGame();
-            draw();
-        }, 5000);
 
-        // Audio elements for external sound files
-        const correctSound = new Audio('assets/correct.mp3');
-        const wrongSound = new Audio('assets/wrong.mp3');
-        const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-        
-        let volume = 0.8;
+<script>
 
-        // Set initial volume
-        correctSound.volume = volume;
-        wrongSound.volume = volume;
-        celebrationSound.volume = volume;
+    /* ======================================================
+       SPLASH SCREEN
+    ====================================================== */
 
-        function playCorrectSound() {
-            correctSound.currentTime = 0;
-            correctSound.play().catch(e => console.log('Audio play failed:', e));
+    setTimeout(() => {
+
+        document
+            .getElementById('splashScreen')
+            .classList.add('hidden');
+
+        document
+            .getElementById('mainContainer')
+            .classList.add('visible');
+
+        initGame();
+        draw();
+
+    }, 5000);
+
+
+    /* ======================================================
+       AUDIO
+    ====================================================== */
+
+    const correctSound =
+        new Audio('assets/correct.mp3');
+
+    const wrongSound =
+        new Audio('assets/wrong.mp3');
+
+    const celebrationSound =
+        new Audio('assets/freesound_community-claps-44774.mp3');
+
+    let volume = 0.8;
+
+    correctSound.volume = volume;
+    wrongSound.volume = volume;
+    celebrationSound.volume = volume;
+
+
+    function playCorrectSound() {
+
+        correctSound.currentTime = 0;
+
+        correctSound
+            .play()
+            .catch(error => {
+                console.log(
+                    'Audio play failed:',
+                    error
+                );
+            });
+    }
+
+
+    function playWrongSound() {
+
+        wrongSound.currentTime = 0;
+
+        wrongSound
+            .play()
+            .catch(error => {
+                console.log(
+                    'Audio play failed:',
+                    error
+                );
+            });
+    }
+
+
+    function playCelebrationSound() {
+
+        celebrationSound.currentTime = 0;
+
+        celebrationSound
+            .play()
+            .catch(error => {
+                console.log(
+                    'Audio play failed:',
+                    error
+                );
+            });
+    }
+
+
+    function playStarSound() {
+
+        const AudioContextClass =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        if (!AudioContextClass) {
+            return;
         }
 
-        function playWrongSound() {
-            wrongSound.currentTime = 0;
-            wrongSound.play().catch(e => console.log('Audio play failed:', e));
+        const audioContext =
+            new AudioContextClass();
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gainNode =
+            audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.setValueAtTime(
+            800,
+            audioContext.currentTime
+        );
+
+        gainNode.gain.setValueAtTime(
+            volume * 0.2,
+            audioContext.currentTime
+        );
+
+        gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioContext.currentTime + 0.2
+        );
+
+        oscillator.start(
+            audioContext.currentTime
+        );
+
+        oscillator.stop(
+            audioContext.currentTime + 0.2
+        );
+    }
+
+
+    document
+        .getElementById('volumeSlider')
+        .addEventListener(
+            'input',
+            function(event) {
+
+                volume =
+                    event.target.value / 100;
+
+                correctSound.volume = volume;
+                wrongSound.volume = volume;
+                celebrationSound.volume = volume;
+
+                document
+                    .getElementById('volumeLabel')
+                    .textContent =
+                    event.target.value + '%';
+            }
+        );
+
+
+    /* ======================================================
+       QUESTIONS
+    ====================================================== */
+
+    const questions = [
+
+        {
+            question:
+                "You have an important exam next week, but you feel demotivated to study. According to self-motivation tips, what should you do first?",
+
+            options: [
+                "Wait until you feel motivated naturally",
+                "Remind yourself about your goals and make a study schedule",
+                "Skip studying and hope for the best",
+                "Only study the night before the exam"
+            ],
+
+            correct: 1
+        },
+
+        {
+            question:
+                "Your friend is struggling to complete a project and feels like giving up. Which would be the BEST way to motivate them?",
+
+            options: [
+                "Tell them their project is not good enough",
+                "Do the project for them",
+                "Give them emotional support and help them set smaller achievable goals",
+                "Ignore their struggle"
+            ],
+
+            correct: 2
+        },
+
+        {
+            question:
+                "You completed your weekly study goals successfully. What should you do according to self-motivation tips?",
+
+            options: [
+                "Immediately set higher expectations for next week",
+                "Reward yourself for achieving your goals",
+                "Feel guilty for taking a break",
+                "Ignore your achievement and keep working"
+            ],
+
+            correct: 1
+        },
+
+        {
+            question:
+                "What type of motivation are you experiencing when you study hard because you want to learn and understand the subject?",
+
+            options: [
+                "Negative motivation driven by fear",
+                "External motivation from others",
+                "Positive motivation driven by personal interest and growth",
+                "No motivation at all"
+            ],
+
+            correct: 2
+        },
+
+        {
+            question:
+                "Your classmate always compares themselves to others and feels demotivated. What advice would help them the most?",
+
+            options: [
+                "Keep comparing to improve faster",
+                "Focus on their own progress and growth, not others",
+                "Give up trying altogether",
+                "Only compete with the best students"
+            ],
+
+            correct: 1
+        },
+
+        {
+            question:
+                "You want to motivate your younger sibling to develop a reading habit. What is the MOST effective approach?",
+
+            options: [
+                "Force them to read for hours daily",
+                "Punish them if they don't read",
+                "Share interesting stories and help them set small, achievable reading goals",
+                "Tell them reading is boring but necessary"
+            ],
+
+            correct: 2
+        },
+
+        {
+            question:
+                "Which of these is an example of a motivating factor that inspires personal growth?",
+
+            options: [
+                "Fear of punishment",
+                "Achievement, independence, and gratitude",
+                "Avoiding responsibilities",
+                "Comparing yourself negatively to others"
+            ],
+
+            correct: 1
+        },
+
+        {
+            question:
+                "You set a goal to exercise daily, but after three days you feel like quitting. What should you do?",
+
+            options: [
+                "Quit because it's too hard",
+                "Set realistic expectations, take breaks, and remind yourself why you started",
+                "Feel guilty and give up completely",
+                "Exercise for 5 hours to make up for lost time"
+            ],
+
+            correct: 1
+        },
+
+        {
+            question:
+                "A team member in your group project is not participating. How can you motivate them effectively?",
+
+            options: [
+                "Complain about them to others",
+                "Do all their work for them",
+                "Appreciate their strengths, give them specific tasks, and offer support",
+                "Exclude them from the group"
+            ],
+
+            correct: 2
+        },
+
+        {
+            question:
+                "Which affirmation reflects positive self-motivation?",
+
+            options: [
+                "I will probably fail anyway",
+                "I am capable of achieving anything I set my mind to",
+                "I need others to push me constantly",
+                "Success only comes from luck"
+            ],
+
+            correct: 1
+        }
+    ];
+
+
+    let shuffledQuestions =
+        [...questions].sort(
+            () => Math.random() - 0.5
+        );
+
+    let currentQuestionIndex = 0;
+    let correctAnswers = 0;
+
+
+    /* ======================================================
+       CANVAS
+    ====================================================== */
+
+    const canvas =
+        document.getElementById('gameCanvas');
+
+    const ctx =
+        canvas.getContext('2d');
+
+
+    function resizeCanvas() {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+        canvas.width =
+            rect.width;
+
+        canvas.height =
+            rect.height;
+    }
+
+
+    let gameReady = false;
+
+    resizeCanvas();
+
+
+    /* ======================================================
+       RESIZE SAFETY
+    ====================================================== */
+
+    let resizeTimer;
+
+
+    window.addEventListener(
+        'resize',
+        () => {
+
+            clearTimeout(resizeTimer);
+
+            resizeTimer =
+                setTimeout(() => {
+
+                    resizeCanvas();
+
+                    if (gameReady) {
+
+                        player.x = 1;
+                        player.y = 1;
+
+                        generateMaze();
+                        generateStars();
+                    }
+
+                }, 150);
+        }
+    );
+
+
+    /* ======================================================
+       GAME SETTINGS
+    ====================================================== */
+
+    const gridSize = 40;
+
+    const MAX_STARS = 3;
+
+    const RANDOM_WALL_COUNT = 15;
+
+
+    let player = {
+        x: 1,
+        y: 1,
+        speed: 1,
+        speedBoost: false
+    };
+
+
+    let stars = [];
+
+    let walls = [];
+
+    let starsCollected = 0;
+
+    let totalStarsCollected = 0;
+
+
+    /*
+        IMPORTANT
+
+        This Set contains WALL cells only.
+
+        Stars are NOT stored here because
+        stars must remain traversable.
+    */
+
+    let occupiedCells =
+        new Set();
+
+
+    function cellKey(x, y) {
+
+        return `${x},${y}`;
+    }
+
+
+    function getGridDimensions() {
+
+        return {
+
+            cols:
+                Math.floor(
+                    canvas.width /
+                    gridSize
+                ),
+
+            rows:
+                Math.floor(
+                    canvas.height /
+                    gridSize
+                )
+        };
+    }
+
+
+    function addWall(x, y) {
+
+        const key =
+            cellKey(x, y);
+
+        if (!occupiedCells.has(key)) {
+
+            occupiedCells.add(key);
+
+            walls.push({
+                x,
+                y
+            });
+        }
+    }
+
+
+    /* ======================================================
+       REACHABILITY CHECK
+
+       This is the main fix.
+
+       It explores the maze starting from
+       the player's position and returns
+       ONLY squares that the player can
+       actually travel to.
+    ====================================================== */
+
+    function getReachableCells(
+        startX,
+        startY
+    ) {
+
+        const {
+            cols,
+            rows
+        } = getGridDimensions();
+
+
+        if (
+            startX < 0 ||
+            startX >= cols ||
+            startY < 0 ||
+            startY >= rows ||
+            occupiedCells.has(
+                cellKey(
+                    startX,
+                    startY
+                )
+            )
+        ) {
+
+            return [];
         }
 
-        function playCelebrationSound() {
-            celebrationSound.currentTime = 0;
-            celebrationSound.play().catch(e => console.log('Audio play failed:', e));
-        }
 
-        function playStarSound() {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            
-            gainNode.gain.setValueAtTime(volume * 0.2, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        }
-
-        // Volume control
-        document.getElementById('volumeSlider').addEventListener('input', function(e) {
-            volume = e.target.value / 100;
-            correctSound.volume = volume;
-            wrongSound.volume = volume;
-            celebrationSound.volume = volume;
-            document.getElementById('volumeLabel').textContent = e.target.value + '%';
-        });
-
-        // Questions array
-        const questions = [
+        const queue = [
             {
-                question: "You have an important exam next week, but you feel demotivated to study. According to self-motivation tips, what should you do first?",
-                options: [
-                    "Wait until you feel motivated naturally",
-                    "Remind yourself about your goals and make a study schedule",
-                    "Skip studying and hope for the best",
-                    "Only study the night before the exam"
-                ],
-                correct: 1
-            },
-            {
-                question: "Your friend is struggling to complete a project and feels like giving up. Which would be the BEST way to motivate them?",
-                options: [
-                    "Tell them their project is not good enough",
-                    "Do the project for them",
-                    "Give them emotional support and help them set smaller achievable goals",
-                    "Ignore their struggle"
-                ],
-                correct: 2
-            },
-            {
-                question: "You completed your weekly study goals successfully. What should you do according to self-motivation tips?",
-                options: [
-                    "Immediately set higher expectations for next week",
-                    "Reward yourself for achieving your goals",
-                    "Feel guilty for taking a break",
-                    "Ignore your achievement and keep working"
-                ],
-                correct: 1
-            },
-            {
-                question: "What type of motivation are you experiencing when you study hard because you want to learn and understand the subject?",
-                options: [
-                    "Negative motivation driven by fear",
-                    "External motivation from others",
-                    "Positive motivation driven by personal interest and growth",
-                    "No motivation at all"
-                ],
-                correct: 2
-            },
-            {
-                question: "Your classmate always compares themselves to others and feels demotivated. What advice would help them the most?",
-                options: [
-                    "Keep comparing to improve faster",
-                    "Focus on their own progress and growth, not others",
-                    "Give up trying altogether",
-                    "Only compete with the best students"
-                ],
-                correct: 1
-            },
-            {
-                question: "You want to motivate your younger sibling to develop a reading habit. What is the MOST effective approach?",
-                options: [
-                    "Force them to read for hours daily",
-                    "Punish them if they don't read",
-                    "Share interesting stories and help them set small, achievable reading goals",
-                    "Tell them reading is boring but necessary"
-                ],
-                correct: 2
-            },
-            {
-                question: "Which of these is an example of a motivating factor that inspires personal growth?",
-                options: [
-                    "Fear of punishment",
-                    "Achievement, independence, and gratitude",
-                    "Avoiding responsibilities",
-                    "Comparing yourself negatively to others"
-                ],
-                correct: 1
-            },
-            {
-                question: "You set a goal to exercise daily, but after three days you feel like quitting. What should you do?",
-                options: [
-                    "Quit because it's too hard",
-                    "Set realistic expectations, take breaks, and remind yourself why you started",
-                    "Feel guilty and give up completely",
-                    "Exercise for 5 hours to make up for lost time"
-                ],
-                correct: 1
-            },
-            {
-                question: "A team member in your group project is not participating. How can you motivate them effectively?",
-                options: [
-                    "Complain about them to others",
-                    "Do all their work for them",
-                    "Appreciate their strengths, give them specific tasks, and offer support",
-                    "Exclude them from the group"
-                ],
-                correct: 2
-            },
-            {
-                question: "Which affirmation reflects positive self-motivation?",
-                options: [
-                    "I will probably fail anyway",
-                    "I am capable of achieving anything I set my mind to",
-                    "I need others to push me constantly",
-                    "Success only comes from luck"
-                ],
-                correct: 1
+                x: startX,
+                y: startY
             }
         ];
 
-        let shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-        let currentQuestionIndex = 0;
-        let correctAnswers = 0;
 
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
+        const visited =
+            new Set([
+                cellKey(
+                    startX,
+                    startY
+                )
+            ]);
+
+
+        const reachable = [];
+
+
+        const directions = [
+
+            {
+                x: 0,
+                y: -1
+            },
+
+            {
+                x: 0,
+                y: 1
+            },
+
+            {
+                x: -1,
+                y: 0
+            },
+
+            {
+                x: 1,
+                y: 0
+            }
+        ];
+
+
+        while (
+            queue.length > 0
+        ) {
+
+            const current =
+                queue.shift();
+
+            reachable.push(
+                current
+            );
+
+
+            for (
+                const direction
+                of directions
+            ) {
+
+                const nextX =
+                    current.x +
+                    direction.x;
+
+                const nextY =
+                    current.y +
+                    direction.y;
+
+                const nextKey =
+                    cellKey(
+                        nextX,
+                        nextY
+                    );
+
+
+                if (
+                    nextX < 0 ||
+                    nextX >= cols ||
+                    nextY < 0 ||
+                    nextY >= rows ||
+                    visited.has(nextKey) ||
+                    occupiedCells.has(nextKey)
+                ) {
+
+                    continue;
+                }
+
+
+                visited.add(
+                    nextKey
+                );
+
+                queue.push({
+                    x: nextX,
+                    y: nextY
+                });
+            }
         }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
 
-        const gridSize = 40;
-        const MAX_STARS = 3;
-        let player = {
-            x: 1,
-            y: 1,
-            speed: 1,
-            speedBoost: false
-        };
 
-        let stars = [];
-        let walls = [];
-        let starsCollected = 0;
-        let totalStarsCollected = 0;
-        let occupiedCells = new Set();
+        return reachable;
+    }
 
-        function generateMaze() {
+
+    /* ======================================================
+       MAZE GENERATION
+    ====================================================== */
+
+    function generateMaze() {
+
+        const {
+            cols,
+            rows
+        } = getGridDimensions();
+
+
+        /*
+            Try several layouts.
+
+            A maze is accepted only when
+            the player's connected area
+            contains enough accessible
+            spaces for all stars.
+        */
+
+        for (
+            let mazeAttempt = 0;
+            mazeAttempt < 100;
+            mazeAttempt++
+        ) {
+
             walls = [];
+
             occupiedCells.clear();
-            const cols = Math.floor(canvas.width / gridSize);
-            const rows = Math.floor(canvas.height / gridSize);
 
-            for (let i = 0; i < cols; i++) {
-                walls.push({x: i, y: 0});
-                walls.push({x: i, y: rows - 1});
-                occupiedCells.add(`${i},0`);
-                occupiedCells.add(`${i},${rows - 1}`);
+
+            /* OUTER BORDER */
+
+            for (
+                let x = 0;
+                x < cols;
+                x++
+            ) {
+
+                addWall(
+                    x,
+                    0
+                );
+
+                addWall(
+                    x,
+                    rows - 1
+                );
             }
-            for (let i = 0; i < rows; i++) {
-                walls.push({x: 0, y: i});
-                walls.push({x: cols - 1, y: i});
-                occupiedCells.add(`0,${i}`);
-                occupiedCells.add(`${cols - 1},${i}`);
+
+
+            for (
+                let y = 0;
+                y < rows;
+                y++
+            ) {
+
+                addWall(
+                    0,
+                    y
+                );
+
+                addWall(
+                    cols - 1,
+                    y
+                );
             }
 
-            occupiedCells.add('1,1');
 
-            for (let i = 0; i < 15; i++) {
-                const wallX = Math.floor(Math.random() * (cols - 2)) + 1;
-                const wallY = Math.floor(Math.random() * (rows - 2)) + 1;
-                const cellKey = `${wallX},${wallY}`;
-                if (!occupiedCells.has(cellKey)) {
-                    walls.push({x: wallX, y: wallY});
-                    occupiedCells.add(cellKey);
+            /* RANDOM WALLS */
+
+            let wallsAdded = 0;
+
+            let placementAttempts = 0;
+
+            const maxPlacementAttempts =
+                300;
+
+
+            while (
+                wallsAdded <
+                    RANDOM_WALL_COUNT &&
+                placementAttempts <
+                    maxPlacementAttempts
+            ) {
+
+                placementAttempts++;
+
+
+                const wallX =
+                    Math.floor(
+                        Math.random() *
+                        (cols - 2)
+                    ) + 1;
+
+
+                const wallY =
+                    Math.floor(
+                        Math.random() *
+                        (rows - 2)
+                    ) + 1;
+
+
+                const key =
+                    cellKey(
+                        wallX,
+                        wallY
+                    );
+
+
+                /*
+                    Never put a wall
+                    on the player's
+                    starting square.
+                */
+
+                if (
+                    (
+                        wallX === 1 &&
+                        wallY === 1
+                    ) ||
+                    occupiedCells.has(key)
+                ) {
+
+                    continue;
                 }
+
+
+                addWall(
+                    wallX,
+                    wallY
+                );
+
+                wallsAdded++;
+            }
+
+
+            const reachable =
+                getReachableCells(
+                    1,
+                    1
+                );
+
+
+            /*
+                We need the player's
+                position plus at least
+                three different reachable
+                cells for stars.
+            */
+
+            if (
+                reachable.length >=
+                MAX_STARS + 1
+            ) {
+
+                return;
             }
         }
 
-        function isValidPosition(x, y) {
-            const cellKey = `${x},${y}`;
-            if (occupiedCells.has(cellKey)) {
-                return false;
-            }
-            for (let star of stars) {
-                if (star.x === x && star.y === y) {
-                    return false;
-                }
-            }
-            return true;
+
+        /*
+            SAFE FALLBACK
+
+            If random generation somehow
+            cannot produce a suitable maze,
+            remove internal walls and keep
+            only the outside boundary.
+        */
+
+        walls = [];
+
+        occupiedCells.clear();
+
+
+        for (
+            let x = 0;
+            x < cols;
+            x++
+        ) {
+
+            addWall(
+                x,
+                0
+            );
+
+            addWall(
+                x,
+                rows - 1
+            );
         }
 
-        function generateSingleStar() {
-            const cols = Math.floor(canvas.width / gridSize);
-            const rows = Math.floor(canvas.height / gridSize);
-            let attempts = 0;
-            const maxAttempts = 100;
 
-            while (attempts < maxAttempts) {
-                const starX = Math.floor(Math.random() * (cols - 2)) + 1;
-                const starY = Math.floor(Math.random() * (rows - 2)) + 1;
-                
-                if (isValidPosition(starX, starY)) {
-                    return {x: starX, y: starY};
-                }
-                attempts++;
-            }
-            
-            for (let y = 1; y < rows - 1; y++) {
-                for (let x = 1; x < cols - 1; x++) {
-                    if (isValidPosition(x, y)) {
-                        return {x, y};
-                    }
-                }
-            }
-            
+        for (
+            let y = 0;
+            y < rows;
+            y++
+        ) {
+
+            addWall(
+                0,
+                y
+            );
+
+            addWall(
+                cols - 1,
+                y
+            );
+        }
+    }
+
+
+    /* ======================================================
+       STAR GENERATION
+    ====================================================== */
+
+    function isValidStarPosition(
+        x,
+        y
+    ) {
+
+        const key =
+            cellKey(
+                x,
+                y
+            );
+
+
+        /*
+            A star cannot appear
+            on a wall.
+        */
+
+        if (
+            occupiedCells.has(key)
+        ) {
+
+            return false;
+        }
+
+
+        /*
+            A star cannot appear
+            underneath the player.
+        */
+
+        if (
+            player.x === x &&
+            player.y === y
+        ) {
+
+            return false;
+        }
+
+
+        /*
+            Do not overlap stars.
+        */
+
+        if (
+            stars.some(
+                star =>
+                    star.x === x &&
+                    star.y === y
+            )
+        ) {
+
+            return false;
+        }
+
+
+        return true;
+    }
+
+
+    function generateSingleStar() {
+
+        /*
+            CRITICAL FIX:
+
+            Instead of choosing ANY empty
+            square, we first calculate all
+            squares that are reachable from
+            the player's CURRENT position.
+
+            The star is then selected only
+            from this reachable list.
+
+            Therefore an inaccessible star
+            cannot be generated.
+        */
+
+        const reachableCells =
+            getReachableCells(
+                player.x,
+                player.y
+            )
+            .filter(
+                cell =>
+                    isValidStarPosition(
+                        cell.x,
+                        cell.y
+                    )
+            );
+
+
+        if (
+            reachableCells.length === 0
+        ) {
+
             return null;
         }
 
-        // FIXED: Maintain exactly 3 stars at all times
-        function maintainStarCount() {
-            while (stars.length < MAX_STARS) {
-                const newStar = generateSingleStar();
-                if (newStar) {
-                    stars.push(newStar);
-                } else {
-                    break;
-                }
-            }
-        }
 
-        function generateStars() {
-            stars = [];
-            maintainStarCount();
-        }
-
-        function initGame() {
-            player.x = 1;
-            player.y = 1;
-            generateMaze();
-            generateStars();
-            starsCollected = 0;
-            totalStarsCollected = 0;
-            currentQuestionIndex = 0;
-            correctAnswers = 0;
-            shuffledQuestions = [...questions].sort(() => Math.random() - 0.5);
-            updateScoreboard();
-        }
-
-        function checkCollision(x, y) {
-            return walls.some(wall => wall.x === x && wall.y === y);
-        }
-
-        function movePlayer(dx, dy) {
-            const newX = player.x + dx;
-            const newY = player.y + dy;
-
-            if (!checkCollision(newX, newY)) {
-                player.x = newX;
-                player.y = newY;
-
-                const starIndex = stars.findIndex(star => star.x === player.x && star.y === player.y);
-                if (starIndex !== -1) {
-                    stars.splice(starIndex, 1);
-                    starsCollected++;
-                    totalStarsCollected++;
-                    playStarSound();
-                    updateScoreboard();
-
-                    // FIXED: Regenerate star after 1 second to maintain 3 stars
-                    setTimeout(() => {
-                        maintainStarCount();
-                    }, 1000);
-
-                    if (starsCollected >= 3) {
-                        if (currentQuestionIndex < shuffledQuestions.length) {
-                            showQuestion();
-                        } else {
-                            endGame();
-                        }
-                    }
-                }
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#667eea';
-            walls.forEach(wall => {
-                ctx.fillRect(wall.x * gridSize, wall.y * gridSize, gridSize - 2, gridSize - 2);
-            });
-
-            stars.forEach(star => {
-                ctx.fillStyle = '#ffd700';
-                ctx.beginPath();
-                const centerX = star.x * gridSize + gridSize / 2;
-                const centerY = star.y * gridSize + gridSize / 2;
-                const radius = gridSize / 3;
-                
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
-                    const x = centerX + radius * Math.cos(angle);
-                    const y = centerY + radius * Math.sin(angle);
-                    if (i === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.closePath();
-                ctx.fill();
-            });
-
-            ctx.fillStyle = player.speedBoost ? '#4CAF50' : '#f5576c';
-            ctx.beginPath();
-            ctx.arc(
-                player.x * gridSize + gridSize / 2,
-                player.y * gridSize + gridSize / 2,
-                gridSize / 2.5,
-                0,
-                2 * Math.PI
+        const randomIndex =
+            Math.floor(
+                Math.random() *
+                reachableCells.length
             );
-            ctx.fill();
 
-            ctx.fillStyle = 'white';
-            ctx.beginPath();
-            ctx.arc(player.x * gridSize + gridSize / 2 - 5, player.y * gridSize + gridSize / 2 - 3, 3, 0, 2 * Math.PI);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.arc(player.x * gridSize + gridSize / 2 + 5, player.y * gridSize + gridSize / 2 - 3, 3, 0, 2 * Math.PI);
-            ctx.fill();
 
-            requestAnimationFrame(draw);
-        }
+        const chosenCell =
+            reachableCells[
+                randomIndex
+            ];
 
-        function updateScoreboard() {
-            document.getElementById('stars').textContent = totalStarsCollected;
-            document.getElementById('questionsAnswered').textContent = currentQuestionIndex + '/' + shuffledQuestions.length;
-            document.getElementById('correctCount').textContent = correctAnswers;
-        }
 
-        function showQuestion() {
-            const modal = document.getElementById('questionModal');
-            const questionText = document.getElementById('questionText');
-            const optionsContainer = document.getElementById('optionsContainer');
-            const questionNumber = document.getElementById('questionNumber');
-            const feedback = document.getElementById('feedback');
+        return {
+            x: chosenCell.x,
+            y: chosenCell.y
+        };
+    }
 
-            const currentQuestion = shuffledQuestions[currentQuestionIndex];
-            
-            questionNumber.textContent = currentQuestionIndex + 1;
-            questionText.textContent = currentQuestion.question;
-            optionsContainer.innerHTML = '';
-            feedback.style.display = 'none';
-            feedback.className = 'feedback';
 
-            currentQuestion.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'option-btn';
-                button.textContent = option;
-                button.onclick = () => checkAnswer(index, button);
-                optionsContainer.appendChild(button);
-            });
+    /*
+        Keep three stars visible.
 
-            modal.style.display = 'flex';
-        }
+        Every replacement star also passes
+        through the accessibility check.
+    */
 
-        function checkAnswer(selectedIndex, button) {
-            const currentQuestion = shuffledQuestions[currentQuestionIndex];
-            const feedback = document.getElementById('feedback');
-            const allButtons = document.querySelectorAll('.option-btn');
+    function maintainStarCount() {
 
-            allButtons.forEach(btn => btn.disabled = true);
+        while (
+            stars.length <
+            MAX_STARS
+        ) {
 
-            if (selectedIndex === currentQuestion.correct) {
-                button.classList.add('correct');
-                feedback.textContent = '🎉 Excellent! That\'s correct!';
-                feedback.className = 'feedback correct';
-                feedback.style.display = 'block';
-                correctAnswers++;
-                playCorrectSound();
-                showCelebration();
-                
-                player.speedBoost = true;
-                setTimeout(() => {
-                    player.speedBoost = false;
-                }, 5000);
+            const newStar =
+                generateSingleStar();
+
+
+            if (newStar) {
+
+                stars.push(
+                    newStar
+                );
 
             } else {
-                button.classList.add('wrong');
-                allButtons[currentQuestion.correct].classList.add('correct');
-                feedback.textContent = '❌ Not quite right. The correct answer is highlighted above.';
-                feedback.className = 'feedback wrong';
-                feedback.style.display = 'block';
-                playWrongSound();
+
+                break;
             }
+        }
+    }
 
-            updateScoreboard();
 
-            setTimeout(() => {
-                document.getElementById('questionModal').style.display = 'none';
+    function generateStars() {
+
+        stars = [];
+
+        maintainStarCount();
+    }
+
+
+    /* ======================================================
+       INITIALISE GAME
+    ====================================================== */
+
+    function initGame() {
+
+        player.x = 1;
+        player.y = 1;
+
+        player.speedBoost = false;
+
+        generateMaze();
+
+        generateStars();
+
+        starsCollected = 0;
+
+        totalStarsCollected = 0;
+
+        currentQuestionIndex = 0;
+
+        correctAnswers = 0;
+
+
+        shuffledQuestions =
+            [...questions].sort(
+                () =>
+                    Math.random() - 0.5
+            );
+
+
+        updateScoreboard();
+
+        gameReady = true;
+    }
+
+
+    /* ======================================================
+       COLLISION
+    ====================================================== */
+
+    function checkCollision(
+        x,
+        y
+    ) {
+
+        return walls.some(
+            wall =>
+                wall.x === x &&
+                wall.y === y
+        );
+    }
+
+
+    /* ======================================================
+       PLAYER MOVEMENT
+    ====================================================== */
+
+    function movePlayer(
+        dx,
+        dy
+    ) {
+
+        if (
+            document
+                .getElementById(
+                    'questionModal'
+                )
+                .style.display ===
+            'flex'
+        ) {
+
+            return;
+        }
+
+
+        const newX =
+            player.x + dx;
+
+        const newY =
+            player.y + dy;
+
+
+        if (
+            !checkCollision(
+                newX,
+                newY
+            )
+        ) {
+
+            player.x = newX;
+
+            player.y = newY;
+
+
+            const starIndex =
+                stars.findIndex(
+                    star =>
+                        star.x ===
+                            player.x &&
+                        star.y ===
+                            player.y
+                );
+
+
+            if (
+                starIndex !== -1
+            ) {
+
+                stars.splice(
+                    starIndex,
+                    1
+                );
+
+                starsCollected++;
+
+                totalStarsCollected++;
+
+                playStarSound();
+
+                updateScoreboard();
+
+
+                /*
+                    Replace collected star.
+
+                    generateSingleStar()
+                    guarantees that this
+                    replacement is reachable.
+                */
+
+                setTimeout(
+                    () => {
+
+                        maintainStarCount();
+
+                    },
+                    1000
+                );
+
+
+                /*
+                    Three collected stars
+                    unlock one question.
+                */
+
+                if (
+                    starsCollected >= 3
+                ) {
+
+                    if (
+                        currentQuestionIndex <
+                        shuffledQuestions.length
+                    ) {
+
+                        showQuestion();
+
+                    } else {
+
+                        endGame();
+                    }
+                }
+            }
+        }
+    }
+
+
+    /* ======================================================
+       DRAW GAME
+    ====================================================== */
+
+    function draw() {
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        /* WALLS */
+
+        ctx.fillStyle =
+            '#667eea';
+
+
+        walls.forEach(
+            wall => {
+
+                ctx.fillRect(
+                    wall.x *
+                        gridSize,
+
+                    wall.y *
+                        gridSize,
+
+                    gridSize - 2,
+
+                    gridSize - 2
+                );
+            }
+        );
+
+
+        /* STARS */
+
+        stars.forEach(
+            star => {
+
+                ctx.fillStyle =
+                    '#ffd700';
+
+                ctx.beginPath();
+
+
+                const centerX =
+                    star.x *
+                    gridSize +
+                    gridSize / 2;
+
+
+                const centerY =
+                    star.y *
+                    gridSize +
+                    gridSize / 2;
+
+
+                const radius =
+                    gridSize / 3;
+
+
+                for (
+                    let i = 0;
+                    i < 5;
+                    i++
+                ) {
+
+                    const angle =
+                        (
+                            i *
+                            4 *
+                            Math.PI
+                        ) / 5 -
+                        Math.PI / 2;
+
+
+                    const x =
+                        centerX +
+                        radius *
+                        Math.cos(angle);
+
+
+                    const y =
+                        centerY +
+                        radius *
+                        Math.sin(angle);
+
+
+                    if (i === 0) {
+
+                        ctx.moveTo(
+                            x,
+                            y
+                        );
+
+                    } else {
+
+                        ctx.lineTo(
+                            x,
+                            y
+                        );
+                    }
+                }
+
+
+                ctx.closePath();
+
+                ctx.fill();
+            }
+        );
+
+
+        /* PLAYER */
+
+        ctx.fillStyle =
+            player.speedBoost
+                ? '#4CAF50'
+                : '#f5576c';
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+
+            player.x *
+                gridSize +
+                gridSize / 2,
+
+            player.y *
+                gridSize +
+                gridSize / 2,
+
+            gridSize / 2.5,
+
+            0,
+
+            2 * Math.PI
+        );
+
+
+        ctx.fill();
+
+
+        /* PLAYER EYES */
+
+        ctx.fillStyle =
+            'white';
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            player.x *
+                gridSize +
+                gridSize / 2 -
+                5,
+
+            player.y *
+                gridSize +
+                gridSize / 2 -
+                3,
+
+            3,
+
+            0,
+
+            2 * Math.PI
+        );
+
+        ctx.fill();
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+
+            player.x *
+                gridSize +
+                gridSize / 2 +
+                5,
+
+            player.y *
+                gridSize +
+                gridSize / 2 -
+                3,
+
+            3,
+
+            0,
+
+            2 * Math.PI
+        );
+
+        ctx.fill();
+
+
+        requestAnimationFrame(
+            draw
+        );
+    }
+
+
+    /* ======================================================
+       SCOREBOARD
+    ====================================================== */
+
+    function updateScoreboard() {
+
+        document
+            .getElementById('stars')
+            .textContent =
+            totalStarsCollected;
+
+
+        document
+            .getElementById(
+                'questionsAnswered'
+            )
+            .textContent =
+            currentQuestionIndex +
+            '/' +
+            shuffledQuestions.length;
+
+
+        document
+            .getElementById(
+                'correctCount'
+            )
+            .textContent =
+            correctAnswers;
+    }
+
+
+    /* ======================================================
+       QUESTION MODAL
+    ====================================================== */
+
+    function showQuestion() {
+
+        const modal =
+            document.getElementById(
+                'questionModal'
+            );
+
+
+        const questionText =
+            document.getElementById(
+                'questionText'
+            );
+
+
+        const optionsContainer =
+            document.getElementById(
+                'optionsContainer'
+            );
+
+
+        const questionNumber =
+            document.getElementById(
+                'questionNumber'
+            );
+
+
+        const feedback =
+            document.getElementById(
+                'feedback'
+            );
+
+
+        const currentQuestion =
+            shuffledQuestions[
+                currentQuestionIndex
+            ];
+
+
+        questionNumber.textContent =
+            currentQuestionIndex + 1;
+
+
+        questionText.textContent =
+            currentQuestion.question;
+
+
+        optionsContainer.innerHTML =
+            '';
+
+
+        feedback.style.display =
+            'none';
+
+
+        feedback.className =
+            'feedback';
+
+
+        currentQuestion.options
+            .forEach(
+                (
+                    option,
+                    index
+                ) => {
+
+                    const button =
+                        document
+                            .createElement(
+                                'button'
+                            );
+
+
+                    button.className =
+                        'option-btn';
+
+
+                    button.textContent =
+                        option;
+
+
+                    button.onclick =
+                        () =>
+                            checkAnswer(
+                                index,
+                                button
+                            );
+
+
+                    optionsContainer
+                        .appendChild(
+                            button
+                        );
+                }
+            );
+
+
+        modal.style.display =
+            'flex';
+    }
+
+
+    /* ======================================================
+       ANSWER CHECKING
+    ====================================================== */
+
+    function checkAnswer(
+        selectedIndex,
+        button
+    ) {
+
+        const currentQuestion =
+            shuffledQuestions[
+                currentQuestionIndex
+            ];
+
+
+        const feedback =
+            document.getElementById(
+                'feedback'
+            );
+
+
+        const allButtons =
+            document
+                .querySelectorAll(
+                    '.option-btn'
+                );
+
+
+        allButtons.forEach(
+            btn =>
+                btn.disabled = true
+        );
+
+
+        if (
+            selectedIndex ===
+            currentQuestion.correct
+        ) {
+
+            button
+                .classList
+                .add('correct');
+
+
+            feedback.textContent =
+                '🎉 Excellent! That\'s correct!';
+
+
+            feedback.className =
+                'feedback correct';
+
+
+            feedback.style.display =
+                'block';
+
+
+            correctAnswers++;
+
+
+            playCorrectSound();
+
+            showCelebration();
+
+
+            player.speedBoost =
+                true;
+
+
+            setTimeout(
+                () => {
+
+                    player.speedBoost =
+                        false;
+
+                },
+                5000
+            );
+
+        } else {
+
+            button
+                .classList
+                .add('wrong');
+
+
+            allButtons[
+                currentQuestion.correct
+            ]
+                .classList
+                .add('correct');
+
+
+            feedback.textContent =
+                '❌ Not quite right. The correct answer is highlighted above.';
+
+
+            feedback.className =
+                'feedback wrong';
+
+
+            feedback.style.display =
+                'block';
+
+
+            playWrongSound();
+        }
+
+
+        updateScoreboard();
+
+
+        setTimeout(
+            () => {
+
+                document
+                    .getElementById(
+                        'questionModal'
+                    )
+                    .style.display =
+                    'none';
+
+
                 currentQuestionIndex++;
+
+
                 starsCollected = 0;
-            }, 3000);
-        }
 
-        function showCelebration() {
-            const celebration = document.createElement('div');
-            celebration.className = 'celebration';
-            celebration.textContent = '⭐';
-            document.body.appendChild(celebration);
-            setTimeout(() => {
+
+                updateScoreboard();
+
+
+                /*
+                    End immediately after
+                    question 10 instead of
+                    requiring another
+                    three stars.
+                */
+
+                if (
+                    currentQuestionIndex >=
+                    shuffledQuestions.length
+                ) {
+
+                    endGame();
+
+                } else {
+
+                    maintainStarCount();
+                }
+
+            },
+            3000
+        );
+    }
+
+
+    /* ======================================================
+       CELEBRATION
+    ====================================================== */
+
+    function showCelebration() {
+
+        const celebration =
+            document.createElement(
+                'div'
+            );
+
+
+        celebration.className =
+            'celebration';
+
+
+        celebration.textContent =
+            '⭐';
+
+
+        document.body
+            .appendChild(
+                celebration
+            );
+
+
+        setTimeout(
+            () => {
+
                 celebration.remove();
-            }, 1000);
+
+            },
+            1000
+        );
+    }
+
+
+    /* ======================================================
+       END GAME
+    ====================================================== */
+
+    function endGame() {
+
+        const modal =
+            document.getElementById(
+                'questionModal'
+            );
+
+
+        const questionBox =
+            document.querySelector(
+                '.question-box'
+            );
+
+
+        const percentage =
+            Math.round(
+                (
+                    correctAnswers /
+                    shuffledQuestions.length
+                ) *
+                100
+            );
+
+
+        let message = '';
+
+
+        if (
+            percentage >= 80
+        ) {
+
+            message =
+                '🌟 Outstanding! You have excellent understanding of Motivation!';
+
+            playCelebrationSound();
+
+        } else if (
+            percentage >= 60
+        ) {
+
+            message =
+                '👍 Great job! You have a good grasp of Motivation concepts!';
+
+        } else {
+
+            message =
+                '💪 Keep practising! Review the chapter and try again!';
         }
 
-        function endGame() {
-            const modal = document.getElementById('questionModal');
-            const questionBox = document.querySelector('.question-box');
-            
-            const percentage = Math.round((correctAnswers / shuffledQuestions.length) * 100);
-            let message = '';
-            
-            if (percentage >= 80) {
-                message = '🌟 Outstanding! You have excellent understanding of Motivation!';
-                playCelebrationSound();
-            } else if (percentage >= 60) {
-                message = '👍 Great job! You have a good grasp of Motivation concepts!';
-            } else {
-                message = '💪 Keep practicing! Review the chapter and try again!';
-            }
 
-            questionBox.innerHTML = `
-                <h2>🎯 Game Complete!</h2>
-                <div class="question-text">
-                    <p style="font-size: 24px; text-align: center; margin: 20px 0;">
-                        <strong>Your Score: ${correctAnswers}/${shuffledQuestions.length}</strong>
-                    </p>
-                    <p style="font-size: 20px; text-align: center; margin: 20px 0;">
-                        ${percentage}% Correct
-                    </p>
-                    <p style="text-align: center; font-size: 18px; color: #667eea;">
-                        ${message}
-                    </p>
+        questionBox.innerHTML = `
+
+            <h2>
+                🎯 Game Complete!
+            </h2>
+
+            <div class="question-text">
+
+                <p style="
+                    font-size:24px;
+                    text-align:center;
+                    margin:20px 0;
+                ">
+                    <strong>
+                        Your Score:
+                        ${correctAnswers}/
+                        ${shuffledQuestions.length}
+                    </strong>
+                </p>
+
+                <p style="
+                    font-size:20px;
+                    text-align:center;
+                    margin:20px 0;
+                ">
+                    ${percentage}% Correct
+                </p>
+
+                <p style="
+                    text-align:center;
+                    font-size:18px;
+                    color:#667eea;
+                ">
+                    ${message}
+                </p>
+
+                <div style="
+                    text-align:center;
+                    margin-top:30px;
+                ">
+
+                    <button
+                        onclick="restartGame()"
+                        style="
+                            padding:15px 35px;
+                            border:none;
+                            border-radius:10px;
+                            background:
+                                linear-gradient(
+                                    135deg,
+                                    #f093fb 0%,
+                                    #f5576c 100%
+                                );
+                            color:white;
+                            font-size:18px;
+                            font-weight:bold;
+                            cursor:pointer;
+                        "
+                    >
+                        🔄 Play Again
+                    </button>
+
                 </div>
-            `;
-            
-            modal.style.display = 'flex';
-            document.getElementById('restartBtn').style.display = 'block';
-        }
 
-        document.addEventListener('keydown', (e) => {
-            if (document.getElementById('questionModal').style.display === 'flex') return;
+            </div>
+        `;
 
-            switch(e.key) {
+
+        modal.style.display =
+            'flex';
+    }
+
+
+    /* ======================================================
+       RESTART
+    ====================================================== */
+
+    function restartGame() {
+
+        location.reload();
+    }
+
+
+    /* ======================================================
+       KEYBOARD CONTROLS
+    ====================================================== */
+
+    document.addEventListener(
+        'keydown',
+        event => {
+
+            if (
+                document
+                    .getElementById(
+                        'questionModal'
+                    )
+                    .style.display ===
+                'flex'
+            ) {
+
+                return;
+            }
+
+
+            switch (
+                event.key
+            ) {
+
                 case 'ArrowUp':
-                    e.preventDefault();
-                    movePlayer(0, -1);
+
+                    event.preventDefault();
+
+                    movePlayer(
+                        0,
+                        -1
+                    );
+
                     break;
+
+
                 case 'ArrowDown':
-                    e.preventDefault();
-                    movePlayer(0, 1);
+
+                    event.preventDefault();
+
+                    movePlayer(
+                        0,
+                        1
+                    );
+
                     break;
+
+
                 case 'ArrowLeft':
-                    e.preventDefault();
-                    movePlayer(-1, 0);
+
+                    event.preventDefault();
+
+                    movePlayer(
+                        -1,
+                        0
+                    );
+
                     break;
+
+
                 case 'ArrowRight':
-                    e.preventDefault();
-                    movePlayer(1, 0);
+
+                    event.preventDefault();
+
+                    movePlayer(
+                        1,
+                        0
+                    );
+
                     break;
             }
-        });
+        }
+    );
 
-        document.getElementById('upBtn').addEventListener('click', () => movePlayer(0, -1));
-        document.getElementById('downBtn').addEventListener('click', () => movePlayer(0, 1));
-        document.getElementById('leftBtn').addEventListener('click', () => movePlayer(-1, 0));
-        document.getElementById('rightBtn').addEventListener('click', () => movePlayer(1, 0));
 
-        document.getElementById('restartBtn').addEventListener('click', () => {
-            document.getElementById('questionModal').style.display = 'none';
-            document.getElementById('restartBtn').style.display = 'none';
-            initGame();
-        });
-    </script>
+    /* ======================================================
+       ON-SCREEN CONTROLS
+    ====================================================== */
+
+    document
+        .getElementById('upBtn')
+        .addEventListener(
+            'click',
+            () =>
+                movePlayer(
+                    0,
+                    -1
+                )
+        );
+
+
+    document
+        .getElementById('downBtn')
+        .addEventListener(
+            'click',
+            () =>
+                movePlayer(
+                    0,
+                    1
+                )
+        );
+
+
+    document
+        .getElementById('leftBtn')
+        .addEventListener(
+            'click',
+            () =>
+                movePlayer(
+                    -1,
+                    0
+                )
+        );
+
+
+    document
+        .getElementById('rightBtn')
+        .addEventListener(
+            'click',
+            () =>
+                movePlayer(
+                    1,
+                    0
+                )
+        );
+
+
+    document
+        .getElementById('restartBtn')
+        .addEventListener(
+            'click',
+            restartGame
+        );
+
+</script>
+
 </body>
 </html>
