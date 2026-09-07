@@ -1,686 +1,3634 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Five Senses Safari – Mindfulness Explorer</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #fef9c3 0%, #bfdbfe 45%, #e0f2fe 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<title>Five Senses Safari – Mindfulness Explorer</title>
+
+<style>
+
+/* ======================================================
+   RESET
+====================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --ink:#24374b;
+    --muted:#667b8f;
+    --blue:#5e91e8;
+    --blue-dark:#3566b4;
+    --sky:#e8f6ff;
+    --green:#42aa75;
+    --mint:#eaf8ef;
+    --sand:#fff3cf;
+    --yellow:#ffd66b;
+    --red:#d96a67;
+    --red-bg:#fff0ef;
+    --line:#dce7ef;
+    --soft:#f6f9fc;
+    --white:#ffffff;
+}
+
+html{
+    width:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+}
+
+body{
+    width:100%;
+    min-height:100vh;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:var(--ink);
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(120,198,255,.18),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(115,218,164,.18),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            #f8fcff 0%,
+            #eef8ff 54%,
+            #f7fbef 100%
+        );
+
+    padding:16px;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:3px solid #ffd564;
+    outline-offset:3px;
+}
+
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+.splash{
+    position:fixed;
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#fff;
+
+    transition:opacity .45s ease;
+}
+
+.splash.hide{
+    opacity:0;
+    pointer-events:none;
+}
+
+.splash img{
+    width:min(430px,82vw);
+    height:auto;
+
+    animation:
+        floatLogo
+        2s
+        ease-in-out
+        infinite;
+}
+
+@keyframes floatLogo{
+
+    0%,
+    100%{
+        transform:translateY(0);
     }
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      overflow: hidden;
+    50%{
+        transform:translateY(-10px);
     }
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
-      color: #022c22;
-      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: headerGlow 20s linear infinite;
-    }
-    @keyframes headerGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fefce8;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.9);
-      border: 2px solid #fef3c7;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(129,140,248,0.9);
+}
+
+
+/* ======================================================
+   GAME SHELL
+====================================================== */
+
+.game{
+    width:min(1160px,100%);
+
+    margin:0 auto;
+
+    overflow:hidden;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #dbe7ef;
+
+    border-radius:28px;
+
+    box-shadow:
+        0 18px 46px
+        rgba(57,87,118,.14);
+
+    opacity:0;
+
+    transition:opacity .45s ease;
+}
+
+.game.visible{
+    opacity:1;
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.header{
+    padding:
+        22px
+        18px
+        18px;
+
+    text-align:center;
+
+    background:
+        radial-gradient(
+            circle at 14% 18%,
+            rgba(255,255,255,.8),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #dff4ff 0%,
+            #e6f9ed 52%,
+            #fff1c8 100%
+        );
+
+    border-bottom:
+        1px solid
+        #dae7ef;
+}
+
+.header h1{
+    font-size:
+        clamp(
+            27px,
+            4vw,
+            38px
+        );
+
+    line-height:1.12;
+
+    color:#2c4d66;
+
+    margin-bottom:6px;
+}
+
+.subtitle{
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#5d7488;
+}
+
+.stage{
+    display:inline-block;
+
+    margin-top:10px;
+
+    padding:
+        7px
+        15px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #ccdae6;
+
+    color:var(--blue-dark);
+
+    font-size:13px;
+
+    font-weight:900;
+
+    box-shadow:
+        0 4px 10px
+        rgba(55,88,120,.07);
+}
+
+
+/* ======================================================
+   INTRO
+====================================================== */
+
+.intro{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+
+    padding:
+        12px
+        18px;
+
+    background:#fbfdff;
+
+    border-bottom:
+        1px solid
+        #e8eef4;
+}
+
+.intro-card{
+    min-width:0;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:14px;
+
+    border:
+        1px solid
+        #e3ebf2;
+
+    background:#f5f9fc;
+
+    color:#5f7286;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   PROGRESS BAR
+====================================================== */
+
+.progress-area{
+    display:grid;
+
+    grid-template-columns:
+        auto
+        minmax(0,1fr)
+        auto;
+
+    gap:10px;
+
+    align-items:center;
+
+    padding:
+        11px
+        18px;
+
+    background:#fff;
+}
+
+.progress-label,
+.progress-number{
+    font-size:11px;
+
+    font-weight:900;
+
+    color:#65798d;
+}
+
+.progress-bar{
+    min-width:0;
+
+    height:13px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#e6ecef;
+}
+
+.progress-fill{
+    height:100%;
+
+    width:0%;
+
+    border-radius:inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #68aaf0,
+            #54c187
+        );
+
+    transition:
+        width .35s ease;
+}
+
+
+/* ======================================================
+   MAIN LAYOUT
+====================================================== */
+
+.layout{
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1.12fr)
+        minmax(0,.88fr);
+
+    gap:18px;
+
+    padding:18px;
+
+    align-items:start;
+}
+
+.panel{
+    min-width:0;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+
+    box-shadow:
+        0 8px 22px
+        rgba(54,81,107,.07);
+}
+
+
+/* ======================================================
+   SAFARI PANEL
+====================================================== */
+
+.safari-panel{
+    padding:16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fcfeff 0%,
+            #f7fbff 100%
+        );
+}
+
+.panel-title{
+    margin-bottom:4px;
+
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    letter-spacing:.7px;
+
+    text-transform:uppercase;
+
+    color:#527089;
+}
+
+.panel-subtitle{
+    margin-bottom:12px;
+
+    text-align:center;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:#748597;
+}
+
+
+/* ======================================================
+   SAFARI LANDSCAPE
+====================================================== */
+
+.safari-scene{
+    position:relative;
+
+    overflow:hidden;
+
+    min-height:150px;
+
+    margin-bottom:12px;
+
+    border:
+        1px solid
+        #d5e8ef;
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #ccecff 0%,
+            #e9f8ff 52%,
+            #e2f4d8 53%,
+            #b9dfa6 100%
+        );
+}
+
+.sun{
+    position:absolute;
+
+    top:20px;
+    right:28px;
+
+    width:45px;
+    height:45px;
+
+    border-radius:50%;
+
+    background:#ffd965;
+
+    box-shadow:
+        0 0 0 8px
+        rgba(255,217,101,.16);
+}
+
+.hill{
+    position:absolute;
+
+    bottom:-45px;
+    left:-8%;
+
+    width:62%;
+    height:120px;
+
+    border-radius:50%;
+
+    background:#79be69;
+}
+
+.hill.two{
+    left:auto;
+    right:-8%;
+
+    width:58%;
+
+    background:#8acd77;
+}
+
+.path{
+    position:absolute;
+
+    bottom:-25px;
+    left:44%;
+
+    width:90px;
+    height:105px;
+
+    transform:
+        rotate(4deg);
+
+    border-radius:
+        50% 50% 0 0;
+
+    background:
+        #efd096;
+}
+
+.scene-message{
+    position:absolute;
+
+    left:18px;
+    top:18px;
+
+    max-width:58%;
+
+    padding:
+        9px
+        11px;
+
+    border-radius:13px;
+
+    background:
+        rgba(255,255,255,.9);
+
+    border:
+        1px solid
+        rgba(255,255,255,.9);
+
+    color:#436078;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    font-weight:800;
+}
+
+
+/* ======================================================
+   ITEM GRID
+====================================================== */
+
+.item-grid{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:9px;
+}
+
+.item-card{
+    min-width:0;
+
+    min-height:72px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:9px;
+
+    padding:
+        10px;
+
+    text-align:left;
+
+    border:
+        2px solid
+        #dce6ee;
+
+    border-radius:15px;
+
+    background:#fff;
+
+    color:#31495f;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+
+    box-shadow:
+        0 4px 10px
+        rgba(54,81,107,.06);
+}
+
+.item-card:hover:not(:disabled){
+    transform:
+        translateY(-2px);
+
+    border-color:
+        #85aceb;
+
+    box-shadow:
+        0 7px 16px
+        rgba(68,102,140,.11);
+}
+
+.item-card.selected{
+    border-color:
+        var(--blue);
+
+    background:#eff6ff;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(94,145,232,.12);
+}
+
+.item-card.placed{
+    border-color:
+        #a9d8bc;
+
+    background:#eef9f2;
+
+    opacity:.68;
+}
+
+.item-card:disabled{
+    cursor:default;
+}
+
+.item-icon{
+    flex-shrink:0;
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    border-radius:13px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #eef7ff,
+            #eefaf3
+        );
+
+    font-size:23px;
+}
+
+.item-name{
+    min-width:0;
+
+    font-size:12px;
+
+    line-height:1.3;
+
+    font-weight:900;
+
+    overflow-wrap:anywhere;
+}
+
+.placed-tick{
+    margin-left:auto;
+
+    color:#27925d;
+
+    font-size:17px;
+
+    font-weight:900;
+}
+
+
+/* ======================================================
+   SELECTION PANEL
+====================================================== */
+
+.selection-panel{
+    display:none;
+
+    margin-top:12px;
+
+    padding:13px;
+
+    border-radius:16px;
+
+    background:#f2f7ff;
+
+    border:
+        1px solid
+        #d7e5f4;
+}
+
+.selection-panel.active{
+    display:block;
+}
+
+.selected-label{
+    margin-bottom:3px;
+
+    font-size:10px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+    font-weight:900;
+
+    color:#6c8197;
+}
+
+.selected-item{
+    margin-bottom:10px;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    color:#365a80;
+}
+
+.sense-question{
+    margin-bottom:8px;
+
+    font-size:12px;
+
+    color:#607489;
+
+    line-height:1.4;
+}
+
+.quick-senses{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            5,
+            minmax(0,1fr)
+        );
+
+    gap:6px;
+}
+
+.quick-sense{
+    min-width:0;
+
+    min-height:52px;
+
+    padding:
+        6px 4px;
+
+    border:
+        1px solid
+        #cfdeea;
+
+    border-radius:12px;
+
+    background:#fff;
+
+    color:#415b74;
+
+    cursor:pointer;
+
+    font-size:10px;
+
+    font-weight:900;
+
+    line-height:1.2;
+}
+
+.quick-sense span{
+    display:block;
+
+    margin-bottom:2px;
+
+    font-size:18px;
+}
+
+.quick-sense:hover{
+    border-color:
+        #6c9ce7;
+
+    background:#edf5ff;
+}
+
+.quick-sense.wrong-flash{
+    animation:
+        wrongFlash
+        .35s ease;
+}
+
+@keyframes wrongFlash{
+
+    50%{
+        background:#ffe8e7;
+        border-color:#dd6b67;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fef3c7, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
+}
+
+
+/* ======================================================
+   RIGHT PANEL
+====================================================== */
+
+.right-panel{
+    padding:16px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    background:#fffefa;
+}
+
+
+/* ======================================================
+   SCORE
+====================================================== */
+
+.score-row{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:7px;
+}
+
+.score-card{
+    min-width:0;
+
+    padding:
+        9px
+        5px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        #dce6ef;
+
+    border-radius:14px;
+
+    background:#f8fbff;
+}
+
+.score-label{
+    font-size:9px;
+
+    line-height:1.2;
+
+    font-weight:900;
+
+    text-transform:uppercase;
+
+    color:#738598;
+
+    overflow-wrap:anywhere;
+}
+
+.score-value{
+    margin-top:3px;
+
+    font-size:17px;
+
+    font-weight:900;
+
+    color:#3f69b2;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   INSTRUCTIONS
+====================================================== */
+
+.instructions{
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    background:var(--sand);
+
+    border:
+        1px solid
+        #ecdda9;
+
+    color:#66562e;
+
+    font-size:12px;
+
+    line-height:1.45;
+}
+
+.instructions strong{
+    color:#8d6815;
+}
+
+
+/* ======================================================
+   BUCKET GRID
+====================================================== */
+
+.bucket-title{
+    font-size:12px;
+
+    font-weight:900;
+
+    color:#586f84;
+
+    text-transform:uppercase;
+
+    letter-spacing:.55px;
+}
+
+.buckets{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap:8px;
+}
+
+.bucket{
+    min-width:0;
+
+    min-height:96px;
+
+    padding:9px;
+
+    border:
+        2px dashed
+        #cedce7;
+
+    border-radius:15px;
+
+    background:#fbfdff;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+}
+
+.bucket:last-child{
+    grid-column:1/-1;
+}
+
+.bucket:hover,
+.bucket.drag-over{
+    border-color:#73a4eb;
+
+    background:#f2f7ff;
+}
+
+.bucket.complete{
+    border-style:solid;
+
+    border-color:#8fd0ac;
+
+    background:#f0faf4;
+}
+
+.bucket-head{
+    display:flex;
+
+    justify-content:
+        space-between;
+
+    align-items:center;
+
+    gap:6px;
+
+    margin-bottom:7px;
+}
+
+.bucket-name{
+    font-size:12px;
+
+    font-weight:900;
+
+    color:#31495f;
+}
+
+.bucket-count{
+    flex-shrink:0;
+
+    padding:
+        3px
+        6px;
+
+    border-radius:999px;
+
+    background:#edf2f6;
+
+    color:#697b8d;
+
+    font-size:9px;
+
+    font-weight:900;
+}
+
+.bucket.complete
+.bucket-count{
+    background:#daf2e4;
+
+    color:#26754e;
+}
+
+.bucket-items{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:4px;
+}
+
+.bucket-chip{
+    max-width:100%;
+
+    padding:
+        4px
+        6px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #d9e4ec;
+
+    color:#566c80;
+
+    font-size:9px;
+
+    line-height:1.25;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   FEEDBACK
+====================================================== */
+
+.feedback{
+    display:none;
+
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+.feedback.good{
+    display:block;
+
+    background:#ebf9f1;
+
+    border:
+        1px solid
+        #b4e0c5;
+
+    color:#286a49;
+}
+
+.feedback.warn{
+    display:block;
+
+    background:#fff3e9;
+
+    border:
+        1px solid
+        #edc69f;
+
+    color:#835224;
+}
+
+
+/* ======================================================
+   CONTROLS
+====================================================== */
+
+.controls{
+    display:grid;
+
+    grid-template-columns:
+        auto
+        1fr
+        auto;
+
+    gap:8px;
+
+    align-items:center;
+}
+
+.btn{
+    min-height:44px;
+
+    border-radius:14px;
+
+    cursor:pointer;
+
+    font-weight:900;
+
+    transition:.18s ease;
+}
+
+.btn-secondary{
+    padding:
+        9px
+        12px;
+
+    border:
+        1px solid
+        #d3dee7;
+
+    background:#f5f8fb;
+
+    color:#586d82;
+}
+
+.btn-primary{
+    padding:
+        10px
+        16px;
+
+    border:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6093ea,
+            #4eba82
+        );
+
+    color:#fff;
+
+    box-shadow:
+        0 6px 15px
+        rgba(66,120,161,.17);
+}
+
+.btn:hover:not(:disabled){
+    transform:
+        translateY(-1px);
+}
+
+.btn:disabled{
+    opacity:.42;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+}
+
+#progressText{
+    min-width:0;
+
+    text-align:center;
+
+    color:#708195;
+
+    font-size:10px;
+
+    line-height:1.4;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   VOLUME
+====================================================== */
+
+.volume{
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:#7b8998;
+
+    font-size:11px;
+}
+
+.volume input{
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* ======================================================
+   FINAL REPORT
+====================================================== */
+
+.final{
+    grid-column:1/-1;
+
+    padding:
+        36px
+        22px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+}
+
+.final-title{
+    font-size:27px;
+
+    font-weight:900;
+
+    color:#3e67ad;
+
+    margin-bottom:8px;
+}
+
+.final-badge{
+    margin:
+        10px 0;
+
+    font-size:58px;
+}
+
+.final-rank{
+    font-size:22px;
+
+    font-weight:900;
+
+    margin-bottom:6px;
+}
+
+.final-score{
+    margin:
+        8px 0;
+
+    color:#576c81;
+
+    font-size:16px;
+
+    font-weight:800;
+}
+
+.final-text{
+    max-width:660px;
+
+    margin:
+        0 auto 18px;
+
+    color:#67798b;
+
+    font-size:14px;
+
+    line-height:1.55;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media(max-width:900px){
+
+    .layout{
+        grid-template-columns:1fr;
     }
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
-        #f9fafb;
+    .intro{
+        grid-template-columns:1fr;
     }
 
-    .scene-panel {
-      flex: 1.4;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 10px;
-      background: #e0f2fe;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .scene-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media(max-width:640px){
+
+    html,
+    body{
+        width:100%;
+        max-width:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
     }
 
-    .scene {
-      flex: 1;
-      border-radius: 14px;
-      background:
-        linear-gradient(to top, #bbf7d0 0%, #fef9c3 45%, #7dd3fc 80%);
-      padding: 8px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: inset 0 0 18px rgba(148,163,184,0.7);
+    body{
+        padding:0;
+
+        background:#f7fbff;
     }
 
-    .scene-sun {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fde68a 0%, #facc15 70%);
-      box-shadow: 0 0 16px rgba(251,191,36,0.9);
+    .game{
+        width:100%;
+        max-width:100%;
+
+        margin:0;
+
+        border:0;
+        border-radius:0;
+
+        box-shadow:none;
+
+        overflow:visible;
     }
 
-    .scene-hill {
-      position: absolute;
-      bottom: 0;
-      left: -20px;
-      width: 70%;
-      height: 80px;
-      background: radial-gradient(circle at 50% 0%, #22c55e 0%, #16a34a 60%);
-      border-radius: 50%;
-    }
-    .scene-hill2 {
-      position: absolute;
-      bottom: 0;
-      right: -20px;
-      width: 60%;
-      height: 70px;
-      background: radial-gradient(circle at 50% 0%, #4ade80 0%, #16a34a 60%);
-      border-radius: 50%;
+    .header{
+        padding:
+            16px
+            13px
+            14px;
     }
 
-    .scene-path {
-      position: absolute;
-      bottom: 0;
-      left: 40%;
-      width: 80px;
-      height: 80px;
-      background: radial-gradient(circle at 50% 100%, #fed7aa 0%, #fdba74 50%, transparent 60%);
+    .header h1{
+        font-size:23px;
     }
 
-    .item {
-      position: absolute;
-      border-radius: 12px;
-      background: #f9fafb;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 4px 6px;
-      font-size: 11px;
-      color: #111827;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      cursor: grab;
-      box-shadow: 0 2px 6px rgba(148,163,184,0.7);
-    }
-    .item-icon {
-      font-size: 14px;
-    }
-    .item.dragging {
-      opacity: 0.7;
-      box-shadow: 0 0 10px rgba(59,130,246,0.9);
+    .subtitle{
+        font-size:12px;
     }
 
-    /* Right panel: buckets */
-    .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 12px;
-      background: #fefce8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .intro{
+        padding:10px;
+
+        gap:7px;
     }
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
+    .intro-card{
+        padding:
+            9px
+            10px;
+
+        font-size:11px;
     }
 
-    .instructions-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
-    }
-    .instructions-text {
-      font-size: 13px;
-      color: #374151;
-      text-align: center;
+    .progress-area{
+        position:sticky;
+
+        top:0;
+
+        z-index:20;
+
+        padding:
+            9px
+            10px;
+
+        background:
+            rgba(255,255,255,.97);
+
+        box-shadow:
+            0 3px 10px
+            rgba(55,78,102,.06);
     }
 
-    .buckets {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
-      margin-top: 4px;
-    }
-    .bucket {
-      border-radius: 12px;
-      border: 2px dashed rgba(148,163,184,0.9);
-      background: #fffbeb;
-      padding: 6px;
-      min-height: 56px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .bucket-label-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 4px;
-    }
-    .bucket-name {
-      font-size: 12px;
-      font-weight: bold;
-      color: #111827;
-    }
-    .bucket-target {
-      font-size: 11px;
-      color: #4b5563;
-    }
-    .bucket-items {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 4px;
-      min-height: 20px;
+    .layout{
+        display:block;
+
+        width:100%;
+
+        padding:10px;
     }
 
-    .bucket.single {
-      grid-column: span 2;
+    .panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        border-radius:16px;
     }
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
+    .safari-panel{
+        padding:11px;
+
+        margin-bottom:12px;
     }
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
+    .safari-scene{
+        min-height:125px;
     }
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #38bdf8, #22c55e);
-      color: #111827;
-      box-shadow: 0 3px 10px rgba(59,130,246,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(59,130,246,1);
+    .scene-message{
+        left:10px;
+        top:10px;
+
+        max-width:62%;
+
+        padding:
+            7px
+            8px;
+
+        font-size:10px;
     }
 
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    .sun{
+        width:34px;
+        height:34px;
+
+        top:15px;
+        right:18px;
     }
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
-    }
-    .volume-control input { flex: 1; }
+    .item-grid{
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
+        gap:7px;
     }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column; }
-      .scene-panel, .right-panel { min-width: 100%; }
+    .item-card{
+        min-width:0;
+
+        min-height:68px;
+
+        padding:
+            8px
+            7px;
+
+        gap:6px;
     }
-  </style>
+
+    .item-icon{
+        width:36px;
+        height:36px;
+
+        font-size:20px;
+    }
+
+    .item-name{
+        font-size:11px;
+    }
+
+    .selection-panel{
+        padding:10px;
+    }
+
+    .quick-senses{
+        grid-template-columns:
+            repeat(
+                5,
+                minmax(0,1fr)
+            );
+
+        gap:4px;
+    }
+
+    .quick-sense{
+        min-height:48px;
+
+        padding:
+            5px 2px;
+
+        font-size:8px;
+    }
+
+    .quick-sense span{
+        font-size:17px;
+    }
+
+    .right-panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        padding:12px;
+    }
+
+    .score-row{
+        gap:5px;
+    }
+
+    .score-card{
+        padding:
+            8px
+            4px;
+    }
+
+    .score-label{
+        font-size:8px;
+    }
+
+    .score-value{
+        font-size:14px;
+    }
+
+    .buckets{
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+        gap:6px;
+    }
+
+    .bucket{
+        min-width:0;
+
+        min-height:91px;
+
+        padding:7px;
+    }
+
+    .bucket-name{
+        font-size:10px;
+    }
+
+    .bucket-count{
+        font-size:8px;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+
+    .controls .btn{
+        width:100%;
+    }
+
+    #progressText{
+        order:-1;
+
+        text-align:left;
+
+        font-size:10px;
+    }
+
+    .finish-ready{
+        position:sticky;
+
+        bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+
+        z-index:30;
+
+        border:
+            3px solid #fff;
+
+        box-shadow:
+            0 8px 20px
+            rgba(58,90,123,.2);
+    }
+
+    .volume{
+        padding-bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+}
+
+
+/* ======================================================
+   VERY SMALL PHONES
+====================================================== */
+
+@media(max-width:360px){
+
+    .header h1{
+        font-size:20px;
+    }
+
+    .progress-area{
+        grid-template-columns:1fr;
+        gap:4px;
+    }
+
+    .progress-label,
+    .progress-number{
+        text-align:center;
+    }
+
+    .score-row{
+        grid-template-columns:1fr;
+    }
+
+    .score-card{
+        display:flex;
+
+        align-items:center;
+
+        justify-content:
+            space-between;
+
+        text-align:left;
+    }
+
+    .score-value{
+        margin:0;
+    }
+
+    .item-grid{
+        grid-template-columns:1fr;
+    }
+
+    .item-card{
+        min-height:58px;
+    }
+
+    .quick-senses{
+        grid-template-columns:
+            repeat(
+                3,
+                1fr
+            );
+    }
+
+    .buckets{
+        grid-template-columns:1fr;
+    }
+
+    .bucket:last-child{
+        grid-column:auto;
+    }
+
+}
+
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+
+}
+
+</style>
 </head>
+
+
 <body>
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🦒 Five Senses Safari 🦒</h1>
-        <div class="subtitle">Chapter 4 – Mindfulness · Grade 6</div>
-        <div class="stage-indicator" id="stageIndicator">Senses found: 0 / 14</div>
-      </div>
+
+
+<!-- =====================================================
+     SPLASH
+===================================================== -->
+
+<div
+    class="splash"
+    id="splash"
+>
+
+    <img
+        src="assets/innovine-logo.png"
+        alt="Innovine Logo"
+        onerror="this.style.display='none'"
+    >
+
+</div>
+
+
+<!-- =====================================================
+     GAME
+===================================================== -->
+
+<div
+    class="game"
+    id="game"
+>
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>
+            🦒 Five Senses Safari
+        </h1>
+
+        <div class="subtitle">
+            Mindfulness Explorer
+        </div>
+
+        <div
+            class="stage"
+            id="stageIndicator"
+        >
+            Senses found: 0 / 14
+        </div>
+
+    </header>
+
+
+    <!-- INTRO -->
+
+    <div class="intro">
+
+        <div class="intro-card">
+
+            Mindfulness means being fully present and noticing
+            what you can see, hear, feel, smell and taste.
+
+        </div>
+
+        <div class="intro-card">
+
+            <b>Phone:</b>
+            tap an item, then choose a sense.
+            <b>Computer:</b>
+            you can also drag items into the buckets.
+
+        </div>
+
     </div>
 
-    <div class="top-bar">
-      <div>Mindfulness means being fully present and noticing what you see, hear, feel, smell and taste.[file:35]</div>
-      <div>Use your safari skills to fill each sense bucket with the right items.[file:35]</div>
+
+    <!-- PROGRESS -->
+
+    <div class="progress-area">
+
+        <div class="progress-label">
+            Safari Progress
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                id="progressFill"
+            ></div>
+
+        </div>
+
+        <div
+            class="progress-number"
+            id="progressNumber"
+        >
+            0 / 14
+        </div>
+
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="scene-panel">
-        <div class="scene-title">Safari Scene – Drag items into the sense buckets</div>
-        <div class="scene" id="scene">
-          <div class="scene-sun"></div>
-          <div class="scene-hill"></div>
-          <div class="scene-hill2"></div>
-          <div class="scene-path"></div>
 
-          <!-- Items in scene -->
-          <div class="item" data-sense="see" style="top:80px; left:40px;">
-            <span class="item-icon">🌳</span><span>Tree</span>
-          </div>
-          <div class="item" data-sense="see" style="top:55px; left:130px;">
-            <span class="item-icon">☁️</span><span>Cloud</span>
-          </div>
-          <div class="item" data-sense="see" style="top:90px; left:220px;">
-            <span class="item-icon">🦋</span><span>Butterfly</span>
-          </div>
-          <div class="item" data-sense="see" style="top:130px; left:180px;">
-            <span class="item-icon">🏡</span><span>House</span>
-          </div>
-          <div class="item" data-sense="see" style="top:120px; left:280px;">
-            <span class="item-icon">🪑</span><span>Bench</span>
-          </div>
+    <!-- MAIN -->
 
-          <div class="item" data-sense="feel" style="top:150px; left:40px;">
-            <span class="item-icon">💨</span><span>Cool Breeze</span>
-          </div>
-          <div class="item" data-sense="feel" style="top:170px; left:130px;">
-            <span class="item-icon">🪵</span><span>Rough Bark</span>
-          </div>
-          <div class="item" data-sense="feel" style="top:190px; left:220px;">
-            <span class="item-icon">🪨</span><span>Smooth Stone</span>
-          </div>
-          <div class="item" data-sense="feel" style="top:160px; left:310px;">
-            <span class="item-icon">👣</span><span>Grass on Feet</span>
-          </div>
+    <main
+        class="layout"
+        id="gameWrapper"
+    >
 
-          <div class="item" data-sense="hear" style="top:60px; left:330px;">
-            <span class="item-icon">🐦</span><span>Bird Song</span>
-          </div>
-          <div class="item" data-sense="hear" style="top:100px; left:360px;">
-            <span class="item-icon">💧</span><span>Water Drip</span>
-          </div>
-          <div class="item" data-sense="hear" style="top:135px; left:360px;">
-            <span class="item-icon">🚗</span><span>Far-away Car</span>
-          </div>
 
-          <div class="item" data-sense="smell" style="top:200px; left:260px;">
-            <span class="item-icon">🌸</span><span>Flower Smell</span>
-          </div>
+        <!-- =================================================
+             SAFARI ITEMS
+        ================================================== -->
 
-          <div class="item" data-sense="taste" style="top:200px; left:120px;">
-            <span class="item-icon">🍎</span><span>Apple Taste</span>
-          </div>
-        </div>
-      </div>
+        <section class="panel safari-panel">
 
-      <div class="right-panel">
-        <div class="score-row">
-          <div class="score-card">
-            <div class="score-label">Items Placed</div>
-            <div class="score-value" id="placedCount">0</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Mindful Senses</div>
-            <div class="score-value" id="mindfulPercent">0%</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Safari Rank</div>
-            <div class="score-value" id="rankText">Explorer</div>
-          </div>
-        </div>
-
-        <div class="instructions-title">Five Senses Practice</div>
-        <div class="instructions-text">
-          Find: 5 things you see, 4 things you feel, 3 things you hear, 1 thing you smell, 1 thing you taste.[file:35]
-        </div>
-
-        <div class="buckets">
-          <div class="bucket" data-sense="see">
-            <div class="bucket-label-row">
-              <div class="bucket-name">👀 See</div>
-              <div class="bucket-target">Need: 5</div>
+            <div class="panel-title">
+                Explore the Safari
             </div>
-            <div class="bucket-items" id="seeBucket"></div>
-          </div>
-          <div class="bucket" data-sense="hear">
-            <div class="bucket-label-row">
-              <div class="bucket-name">👂 Hear</div>
-              <div class="bucket-target">Need: 3</div>
+
+            <div class="panel-subtitle">
+                Select each observation and decide which sense helps you notice it.
             </div>
-            <div class="bucket-items" id="hearBucket"></div>
-          </div>
-          <div class="bucket" data-sense="feel">
-            <div class="bucket-label-row">
-              <div class="bucket-name">✋ Feel</div>
-              <div class="bucket-target">Need: 4</div>
+
+
+            <!-- VISUAL LANDSCAPE -->
+
+            <div class="safari-scene">
+
+                <div class="sun"></div>
+
+                <div class="hill"></div>
+
+                <div class="hill two"></div>
+
+                <div class="path"></div>
+
+                <div class="scene-message">
+                    🌿 Slow down, look around and notice the details.
+                </div>
+
             </div>
-            <div class="bucket-items" id="feelBucket"></div>
-          </div>
-          <div class="bucket single" data-sense="smell">
-            <div class="bucket-label-row">
-              <div class="bucket-name">👃 Smell</div>
-              <div class="bucket-target">Need: 1</div>
+
+
+            <!-- ITEMS -->
+
+            <div
+                class="item-grid"
+                id="itemGrid"
+            ></div>
+
+
+            <!-- MOBILE/TAP SELECTION -->
+
+            <div
+                class="selection-panel"
+                id="selectionPanel"
+            >
+
+                <div class="selected-label">
+                    Selected observation
+                </div>
+
+                <div
+                    class="selected-item"
+                    id="selectedItemText"
+                ></div>
+
+                <div class="sense-question">
+                    Which sense would you mainly use to notice this?
+                </div>
+
+
+                <div class="quick-senses">
+
+
+                    <button
+                        class="quick-sense"
+                        type="button"
+                        data-sense="see"
+                    >
+                        <span>👀</span>
+                        See
+                    </button>
+
+
+                    <button
+                        class="quick-sense"
+                        type="button"
+                        data-sense="hear"
+                    >
+                        <span>👂</span>
+                        Hear
+                    </button>
+
+
+                    <button
+                        class="quick-sense"
+                        type="button"
+                        data-sense="feel"
+                    >
+                        <span>✋</span>
+                        Feel
+                    </button>
+
+
+                    <button
+                        class="quick-sense"
+                        type="button"
+                        data-sense="smell"
+                    >
+                        <span>👃</span>
+                        Smell
+                    </button>
+
+
+                    <button
+                        class="quick-sense"
+                        type="button"
+                        data-sense="taste"
+                    >
+                        <span>👅</span>
+                        Taste
+                    </button>
+
+
+                </div>
+
             </div>
-            <div class="bucket-items" id="smellBucket"></div>
-          </div>
-          <div class="bucket single" data-sense="taste">
-            <div class="bucket-label-row">
-              <div class="bucket-name">👅 Taste</div>
-              <div class="bucket-target">Need: 1</div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             BUCKETS
+        ================================================== -->
+
+        <section class="panel right-panel">
+
+
+            <!-- SCORE -->
+
+            <div class="score-row">
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Items Placed
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="placedCount"
+                    >
+                        0 / 14
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Accuracy
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="accuracyText"
+                    >
+                        100%
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Safari Rank
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="rankText"
+                    >
+                        Explorer
+                    </div>
+
+                </div>
+
+
             </div>
-            <div class="bucket-items" id="tasteBucket"></div>
-          </div>
-        </div>
 
-        <div class="feedback good" id="feedback"></div>
 
-        <div class="controls">
-          <button class="btn-secondary" id="resetBtn">Restart Safari</button>
-          <div id="progressText">Drag each item into the sense bucket that matches how you would notice it.</div>
-          <button class="btn-primary" id="finishBtn">Finish</button>
-        </div>
+            <!-- INSTRUCTIONS -->
 
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="instructions">
 
-  <script>
-    // Audio (reuse existing assets folder if you want)
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+                <strong>Five Senses Challenge</strong>
 
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
+                <br>
 
-    const items = document.querySelectorAll(".item");
-    const buckets = document.querySelectorAll(".bucket");
-    const feedbackEl = document.getElementById("feedback");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const placedCountEl = document.getElementById("placedCount");
-    const mindfulPercentEl = document.getElementById("mindfulPercent");
-    const rankTextEl = document.getElementById("rankText");
-    const progressTextEl = document.getElementById("progressText");
-    const resetBtn = document.getElementById("resetBtn");
-    const finishBtn = document.getElementById("finishBtn");
-    const gameWrapper = document.getElementById("gameWrapper");
+                Find
+                <b>5</b> things you see,
+                <b>4</b> things you feel,
+                <b>3</b> things you hear,
+                <b>1</b> thing you smell and
+                <b>1</b> thing you taste.
 
-    const totalNeeded = 5 + 4 + 3 + 1 + 1; // 14
-    let placedCorrect = 0;
-    let draggingItem = null;
-    let usedItems = new Set();
+            </div>
 
-    function updateScore(){
-      placedCountEl.textContent = placedCorrect;
-      const percent = Math.round((placedCorrect / totalNeeded) * 100);
-      mindfulPercentEl.textContent = percent + "%";
-      stageIndicator.textContent = "Senses found: " + placedCorrect + " / " + totalNeeded;
 
-      if(percent >= 80){
-        rankTextEl.textContent = "Mindful Ranger";
-      } else if(percent >= 50){
-        rankTextEl.textContent = "Safari Scout";
-      } else {
-        rankTextEl.textContent = "Explorer";
-      }
+            <div class="bucket-title">
+                Sense Buckets
+            </div>
+
+
+            <!-- BUCKETS -->
+
+            <div class="buckets">
+
+
+                <div
+                    class="bucket"
+                    data-bucket="see"
+                >
+
+                    <div class="bucket-head">
+
+                        <div class="bucket-name">
+                            👀 See
+                        </div>
+
+                        <div
+                            class="bucket-count"
+                            data-count="see"
+                        >
+                            0 / 5
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="bucket-items"
+                        data-items="see"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="bucket"
+                    data-bucket="hear"
+                >
+
+                    <div class="bucket-head">
+
+                        <div class="bucket-name">
+                            👂 Hear
+                        </div>
+
+                        <div
+                            class="bucket-count"
+                            data-count="hear"
+                        >
+                            0 / 3
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="bucket-items"
+                        data-items="hear"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="bucket"
+                    data-bucket="feel"
+                >
+
+                    <div class="bucket-head">
+
+                        <div class="bucket-name">
+                            ✋ Feel
+                        </div>
+
+                        <div
+                            class="bucket-count"
+                            data-count="feel"
+                        >
+                            0 / 4
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="bucket-items"
+                        data-items="feel"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="bucket"
+                    data-bucket="smell"
+                >
+
+                    <div class="bucket-head">
+
+                        <div class="bucket-name">
+                            👃 Smell
+                        </div>
+
+                        <div
+                            class="bucket-count"
+                            data-count="smell"
+                        >
+                            0 / 1
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="bucket-items"
+                        data-items="smell"
+                    ></div>
+
+                </div>
+
+
+                <div
+                    class="bucket"
+                    data-bucket="taste"
+                >
+
+                    <div class="bucket-head">
+
+                        <div class="bucket-name">
+                            👅 Taste
+                        </div>
+
+                        <div
+                            class="bucket-count"
+                            data-count="taste"
+                        >
+                            0 / 1
+                        </div>
+
+                    </div>
+
+                    <div
+                        class="bucket-items"
+                        data-items="taste"
+                    ></div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- FEEDBACK -->
+
+            <div
+                class="feedback"
+                id="feedback"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- CONTROLS -->
+
+            <div class="controls">
+
+
+                <button
+                    class="btn btn-secondary"
+                    id="resetBtn"
+                    type="button"
+                >
+                    Restart Safari
+                </button>
+
+
+                <div id="progressText">
+                    Select an observation to begin.
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    id="finishBtn"
+                    type="button"
+                    disabled
+                >
+                    Finish Safari
+                </button>
+
+
+            </div>
+
+
+            <!-- VOLUME -->
+
+            <div class="volume">
+
+                <span>
+                    🔊 Sounds
+                </span>
+
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    min="0"
+                    max="100"
+                    value="80"
+                >
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+const splash =
+    document.getElementById(
+        "splash"
+    );
+
+const game =
+    document.getElementById(
+        "game"
+    );
+
+setTimeout(
+    () => {
+
+        splash
+            .classList
+            .add(
+                "hide"
+            );
+
+        game
+            .classList
+            .add(
+                "visible"
+            );
+
+    },
+    5000
+);
+
+
+/* ======================================================
+   AUDIO
+====================================================== */
+
+const correctSound =
+    new Audio(
+        "assets/correct.mp3"
+    );
+
+const wrongSound =
+    new Audio(
+        "assets/wrong.mp3"
+    );
+
+const celebrationSound =
+    new Audio(
+        "assets/freesound_community-claps-44774.mp3"
+    );
+
+let volume =
+    .8;
+
+[
+    correctSound,
+    wrongSound,
+    celebrationSound
+]
+.forEach(
+    sound => {
+
+        sound.volume =
+            volume;
+
+    }
+);
+
+function playSound(
+    sound
+){
+
+    sound.currentTime =
+        0;
+
+    sound
+        .play()
+        .catch(
+            () => {}
+        );
+
+}
+
+document
+    .getElementById(
+        "volumeSlider"
+    )
+    .addEventListener(
+        "input",
+        event => {
+
+            volume =
+                event.target.value /
+                100;
+
+            [
+                correctSound,
+                wrongSound,
+                celebrationSound
+            ]
+            .forEach(
+                sound => {
+
+                    sound.volume =
+                        volume;
+
+                }
+            );
+
+        }
+    );
+
+
+/* ======================================================
+   SAFARI DATA
+====================================================== */
+
+const safariItems = [
+
+    {
+        id:"tree",
+        icon:"🌳",
+        name:"Tree",
+        sense:"see"
+    },
+
+    {
+        id:"cloud",
+        icon:"☁️",
+        name:"Cloud",
+        sense:"see"
+    },
+
+    {
+        id:"butterfly",
+        icon:"🦋",
+        name:"Butterfly",
+        sense:"see"
+    },
+
+    {
+        id:"house",
+        icon:"🏡",
+        name:"House",
+        sense:"see"
+    },
+
+    {
+        id:"bench",
+        icon:"🪑",
+        name:"Bench",
+        sense:"see"
+    },
+
+    {
+        id:"breeze",
+        icon:"💨",
+        name:"Cool Breeze",
+        sense:"feel"
+    },
+
+    {
+        id:"bark",
+        icon:"🪵",
+        name:"Rough Bark",
+        sense:"feel"
+    },
+
+    {
+        id:"stone",
+        icon:"🪨",
+        name:"Smooth Stone",
+        sense:"feel"
+    },
+
+    {
+        id:"grass",
+        icon:"👣",
+        name:"Grass on Feet",
+        sense:"feel"
+    },
+
+    {
+        id:"bird",
+        icon:"🐦",
+        name:"Bird Song",
+        sense:"hear"
+    },
+
+    {
+        id:"water",
+        icon:"💧",
+        name:"Water Drip",
+        sense:"hear"
+    },
+
+    {
+        id:"car",
+        icon:"🚗",
+        name:"Far-away Car",
+        sense:"hear"
+    },
+
+    {
+        id:"flower",
+        icon:"🌸",
+        name:"Flower Smell",
+        sense:"smell"
+    },
+
+    {
+        id:"apple",
+        icon:"🍎",
+        name:"Apple Taste",
+        sense:"taste"
     }
 
-    function handleDragStart(e){
-      draggingItem = e.target;
-      draggingItem.classList.add("dragging");
+];
+
+
+const senseTargets = {
+
+    see:5,
+    hear:3,
+    feel:4,
+    smell:1,
+    taste:1
+
+};
+
+
+const senseNames = {
+
+    see:"See",
+    hear:"Hear",
+    feel:"Feel",
+    smell:"Smell",
+    taste:"Taste"
+
+};
+
+
+/* ======================================================
+   ELEMENTS
+====================================================== */
+
+const itemGrid =
+    document.getElementById(
+        "itemGrid"
+    );
+
+const selectionPanel =
+    document.getElementById(
+        "selectionPanel"
+    );
+
+const selectedItemText =
+    document.getElementById(
+        "selectedItemText"
+    );
+
+const quickSenseButtons =
+    [
+        ...document
+            .querySelectorAll(
+                ".quick-sense"
+            )
+    ];
+
+const bucketElements =
+    [
+        ...document
+            .querySelectorAll(
+                ".bucket"
+            )
+    ];
+
+const feedback =
+    document.getElementById(
+        "feedback"
+    );
+
+const placedCount =
+    document.getElementById(
+        "placedCount"
+    );
+
+const accuracyText =
+    document.getElementById(
+        "accuracyText"
+    );
+
+const rankText =
+    document.getElementById(
+        "rankText"
+    );
+
+const stageIndicator =
+    document.getElementById(
+        "stageIndicator"
+    );
+
+const progressFill =
+    document.getElementById(
+        "progressFill"
+    );
+
+const progressNumber =
+    document.getElementById(
+        "progressNumber"
+    );
+
+const progressText =
+    document.getElementById(
+        "progressText"
+    );
+
+const finishBtn =
+    document.getElementById(
+        "finishBtn"
+    );
+
+const resetBtn =
+    document.getElementById(
+        "resetBtn"
+    );
+
+const gameWrapper =
+    document.getElementById(
+        "gameWrapper"
+    );
+
+
+/* ======================================================
+   STATE
+====================================================== */
+
+let placed =
+    new Set();
+
+let selectedId =
+    null;
+
+let draggingId =
+    null;
+
+let wrongAttempts =
+    0;
+
+let itemOrder =
+    [];
+
+
+/* ======================================================
+   SHUFFLE
+====================================================== */
+
+function shuffle(
+    array
+){
+
+    for(
+        let i =
+            array.length - 1;
+
+        i > 0;
+
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (
+                    i + 1
+                )
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
     }
 
-    function handleDragEnd(e){
-      if(draggingItem){
-        draggingItem.classList.remove("dragging");
-      }
-      draggingItem = null;
+    return array;
+
+}
+
+
+/* ======================================================
+   GET ITEM
+====================================================== */
+
+function getItem(
+    id
+){
+
+    return safariItems
+        .find(
+            item =>
+                item.id === id
+        );
+
+}
+
+
+/* ======================================================
+   RENDER ITEMS
+====================================================== */
+
+function renderItems(){
+
+    itemGrid.innerHTML =
+        "";
+
+    itemOrder.forEach(
+        item => {
+
+            const button =
+                document
+                    .createElement(
+                        "button"
+                    );
+
+            button.type =
+                "button";
+
+            button.className =
+                "item-card";
+
+            button.dataset.id =
+                item.id;
+
+            button.draggable =
+                !placed.has(
+                    item.id
+                );
+
+            if(
+                selectedId ===
+                item.id
+            ){
+
+                button
+                    .classList
+                    .add(
+                        "selected"
+                    );
+
+            }
+
+            if(
+                placed.has(
+                    item.id
+                )
+            ){
+
+                button
+                    .classList
+                    .add(
+                        "placed"
+                    );
+
+                button.disabled =
+                    true;
+
+            }
+
+            button.innerHTML =
+                `
+
+                <span class="item-icon">
+                    ${item.icon}
+                </span>
+
+                <span class="item-name">
+                    ${item.name}
+                </span>
+
+                ${
+                    placed.has(
+                        item.id
+                    )
+
+                        ?
+
+                    '<span class="placed-tick">✓</span>'
+
+                        :
+
+                    ""
+                }
+
+                `;
+
+
+            button
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        selectItem(
+                            item.id
+                        );
+
+                    }
+                );
+
+
+            button
+                .addEventListener(
+                    "dragstart",
+                    event => {
+
+                        if(
+                            placed.has(
+                                item.id
+                            )
+                        ){
+
+                            event.preventDefault();
+
+                            return;
+
+                        }
+
+                        draggingId =
+                            item.id;
+
+                        button
+                            .classList
+                            .add(
+                                "dragging"
+                            );
+
+                        if(
+                            event.dataTransfer
+                        ){
+
+                            event.dataTransfer
+                                .setData(
+                                    "text/plain",
+                                    item.id
+                                );
+
+                        }
+
+                    }
+                );
+
+
+            button
+                .addEventListener(
+                    "dragend",
+                    () => {
+
+                        draggingId =
+                            null;
+
+                        button
+                            .classList
+                            .remove(
+                                "dragging"
+                            );
+
+                    }
+                );
+
+
+            itemGrid
+                .appendChild(
+                    button
+                );
+
+        }
+    );
+
+}
+
+
+/* ======================================================
+   SELECT ITEM
+====================================================== */
+
+function selectItem(
+    id
+){
+
+    if(
+        placed.has(
+            id
+        )
+    ){
+
+        return;
+
     }
 
-    items.forEach(item => {
-      item.draggable = true;
-      item.addEventListener("dragstart", handleDragStart);
-      item.addEventListener("dragend", handleDragEnd);
-    });
+    selectedId =
+        id;
 
-    buckets.forEach(bucket => {
-      bucket.addEventListener("dragover", e => {
-        e.preventDefault();
-      });
-      bucket.addEventListener("drop", e => {
-        e.preventDefault();
-        if(!draggingItem) return;
-        const senseTarget = bucket.dataset.sense;
-        const senseItem = draggingItem.dataset.sense;
-        const itemId = draggingItem.textContent.trim() + "_" + senseItem;
+    const item =
+        getItem(
+            id
+        );
 
-        if(usedItems.has(itemId)){
-          feedbackEl.className = "feedback good";
-          feedbackEl.textContent = "You already placed this item. Try using other objects in the scene.";
-          feedbackEl.style.display = "block";
-          draggingItem = null;
-          return;
+    selectedItemText.textContent =
+        `${item.icon} ${item.name}`;
+
+    selectionPanel
+        .classList
+        .add(
+            "active"
+        );
+
+    renderItems();
+
+    progressText.textContent =
+        "Now choose the sense that best matches the selected observation.";
+
+
+    if(
+        window
+            .matchMedia(
+                "(max-width:640px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            () => {
+
+                selectionPanel
+                    .scrollIntoView(
+                        {
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "nearest"
+
+                        }
+                    );
+
+            },
+            80
+        );
+
+    }
+
+}
+
+
+/* ======================================================
+   ACCURACY
+====================================================== */
+
+function getAccuracy(){
+
+    const correct =
+        placed.size;
+
+    const attempts =
+        correct +
+        wrongAttempts;
+
+    if(
+        attempts === 0
+    ){
+
+        return 100;
+
+    }
+
+    return Math.round(
+        (
+            correct /
+            attempts
+        ) *
+        100
+    );
+
+}
+
+
+/* ======================================================
+   UPDATE SCORE
+====================================================== */
+
+function updateScore(){
+
+    const correct =
+        placed.size;
+
+    const progressPercent =
+        Math.round(
+            (
+                correct /
+                safariItems.length
+            ) *
+            100
+        );
+
+    const accuracy =
+        getAccuracy();
+
+
+    placedCount.textContent =
+        `${correct} / ${safariItems.length}`;
+
+    accuracyText.textContent =
+        accuracy +
+        "%";
+
+    stageIndicator.textContent =
+        `Senses found: ${correct} / ${safariItems.length}`;
+
+    progressNumber.textContent =
+        `${correct} / ${safariItems.length}`;
+
+    progressFill.style.width =
+        progressPercent +
+        "%";
+
+
+    if(
+        correct >= 12 &&
+        accuracy >= 80
+    ){
+
+        rankText.textContent =
+            "Mindful Ranger";
+
+    }
+
+    else if(
+        correct >= 7
+    ){
+
+        rankText.textContent =
+            "Safari Scout";
+
+    }
+
+    else{
+
+        rankText.textContent =
+            "Explorer";
+
+    }
+
+
+    finishBtn.disabled =
+        correct !==
+        safariItems.length;
+
+
+    finishBtn
+        .classList
+        .toggle(
+            "finish-ready",
+            correct ===
+            safariItems.length
+        );
+
+
+    if(
+        correct ===
+        safariItems.length
+    ){
+
+        progressText.textContent =
+            "All 14 observations are sorted. Finish your safari!";
+
+    }
+
+}
+
+
+/* ======================================================
+   RENDER BUCKETS
+====================================================== */
+
+function renderBuckets(){
+
+    Object.keys(
+        senseTargets
+    )
+    .forEach(
+        sense => {
+
+            const matchingItems =
+                safariItems
+                    .filter(
+                        item =>
+                            item.sense ===
+                            sense &&
+                            placed.has(
+                                item.id
+                            )
+                    );
+
+            const itemsArea =
+                document
+                    .querySelector(
+                        `[data-items="${sense}"]`
+                    );
+
+            const count =
+                document
+                    .querySelector(
+                        `[data-count="${sense}"]`
+                    );
+
+            const bucket =
+                document
+                    .querySelector(
+                        `[data-bucket="${sense}"]`
+                    );
+
+
+            itemsArea.innerHTML =
+                "";
+
+
+            matchingItems
+                .forEach(
+                    item => {
+
+                        const chip =
+                            document
+                                .createElement(
+                                    "span"
+                                );
+
+                        chip.className =
+                            "bucket-chip";
+
+                        chip.textContent =
+                            `${item.icon} ${item.name}`;
+
+                        itemsArea
+                            .appendChild(
+                                chip
+                            );
+
+                    }
+                );
+
+
+            count.textContent =
+                `${matchingItems.length} / ${senseTargets[sense]}`;
+
+
+            bucket
+                .classList
+                .toggle(
+                    "complete",
+                    matchingItems.length ===
+                    senseTargets[sense]
+                );
+
+        }
+    );
+
+}
+
+
+/* ======================================================
+   TRY PLACEMENT
+====================================================== */
+
+function attemptPlacement(
+    itemId,
+    chosenSense
+){
+
+    const item =
+        getItem(
+            itemId
+        );
+
+    if(
+        !item ||
+        placed.has(
+            itemId
+        )
+    ){
+
+        return;
+
+    }
+
+
+    /* CORRECT */
+
+    if(
+        item.sense ===
+        chosenSense
+    ){
+
+        placed.add(
+            itemId
+        );
+
+        selectedId =
+            null;
+
+        playSound(
+            correctSound
+        );
+
+        feedback.className =
+            "feedback good";
+
+        feedback.innerHTML =
+            `✅ <b>Correct!</b> You would mainly use your sense of ${senseNames[chosenSense].toLowerCase()} to notice ${item.name.toLowerCase()}.`;
+
+        selectionPanel
+            .classList
+            .remove(
+                "active"
+            );
+
+        renderItems();
+
+        renderBuckets();
+
+        updateScore();
+
+
+        if(
+            placed.size <
+            safariItems.length
+        ){
+
+            progressText.textContent =
+                "Great observation. Choose another safari item.";
+
         }
 
-        if(senseTarget === senseItem){
-          usedItems.add(itemId);
-          const clone = draggingItem.cloneNode(true);
-          clone.style.position = "static";
-          clone.style.cursor = "default";
-          clone.draggable = false;
-          clone.classList.remove("dragging");
-          const inner = bucket.querySelector(".bucket-items");
-          inner.appendChild(clone);
-          draggingItem.style.opacity = 0.3;
-          draggingItem.draggable = false;
-          placedCorrect++;
-          updateScore();
-          playGood();
-          feedbackEl.className = "feedback good";
-          feedbackEl.textContent = "Nice! You matched the item to the sense you would use to notice it. This is mindfulness – paying attention to your senses.[file:35]";
-          feedbackEl.style.display = "block";
-        } else {
-          feedbackEl.className = "feedback good";
-          feedbackEl.textContent = "Think again: which sense would you really use to notice this? Try another bucket.";
-          feedbackEl.style.display = "block";
+    }
+
+
+    /* WRONG */
+
+    else{
+
+        wrongAttempts++;
+
+        playSound(
+            wrongSound
+        );
+
+        feedback.className =
+            "feedback warn";
+
+        feedback.innerHTML =
+            `💡 Think again. Which sense would you mainly use to notice <b>${item.name}</b>?`;
+
+        updateScore();
+
+
+        const wrongButton =
+            document
+                .querySelector(
+                    `.quick-sense[data-sense="${chosenSense}"]`
+                );
+
+        if(
+            wrongButton
+        ){
+
+            wrongButton
+                .classList
+                .remove(
+                    "wrong-flash"
+                );
+
+            void wrongButton.offsetWidth;
+
+            wrongButton
+                .classList
+                .add(
+                    "wrong-flash"
+                );
+
         }
-        draggingItem = null;
-      });
-    });
 
-    resetBtn.addEventListener("click", () => {
-      // reset buckets
-      document.querySelectorAll(".bucket-items").forEach(b => b.innerHTML = "");
-      // reset items
-      items.forEach(item => {
-        item.style.opacity = 1;
-        item.draggable = true;
-      });
-      usedItems.clear();
-      placedCorrect = 0;
-      feedbackEl.style.display = "none";
-      updateScore();
-      progressTextEl.textContent = "Drag each item into the sense bucket that matches how you would notice it.";
-    });
+    }
 
-    finishBtn.addEventListener("click", () => {
-      const percent = Math.round((placedCorrect / totalNeeded) * 100);
-      playCelebrate();
-      let rank, badge, text;
-      if(percent >= 80){
-        rank = "Mindfulness Master";
-        badge = "🌟";
-        text = "You used all five senses carefully and noticed many details. This is exactly what mindfulness is about – being present in the moment.[file:35]";
-      } else if(percent >= 50){
-        rank = "Growing Explorer";
-        badge = "🦓";
-        text = "You are learning to pay attention to your senses. Keep practising and you will notice even more around you.[file:35]";
-      } else {
-        rank = "New Safari Walker";
-        badge = "🐾";
-        text = "This is a good start. With more practice, you will get better at noticing what you see, hear, feel, smell and taste.[file:35]";
-      }
+}
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Five Senses Safari Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Mindful senses found: ${placedCorrect} / ${totalNeeded} (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Explore Again</button>
-        </div>
-      `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    });
 
-    // Initial state
+/* ======================================================
+   QUICK SENSE BUTTONS
+====================================================== */
+
+quickSenseButtons
+    .forEach(
+        button => {
+
+            button
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        if(
+                            !selectedId
+                        ){
+
+                            return;
+
+                        }
+
+                        attemptPlacement(
+                            selectedId,
+                            button.dataset.sense
+                        );
+
+                    }
+                );
+
+        }
+    );
+
+
+/* ======================================================
+   BUCKET TAP + DRAG
+====================================================== */
+
+bucketElements
+    .forEach(
+        bucket => {
+
+            const sense =
+                bucket.dataset.bucket;
+
+
+            /* TAP */
+
+            bucket
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        if(
+                            selectedId
+                        ){
+
+                            attemptPlacement(
+                                selectedId,
+                                sense
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            /* DRAG OVER */
+
+            bucket
+                .addEventListener(
+                    "dragover",
+                    event => {
+
+                        event.preventDefault();
+
+                        bucket
+                            .classList
+                            .add(
+                                "drag-over"
+                            );
+
+                    }
+                );
+
+
+            bucket
+                .addEventListener(
+                    "dragleave",
+                    () => {
+
+                        bucket
+                            .classList
+                            .remove(
+                                "drag-over"
+                            );
+
+                    }
+                );
+
+
+            /* DROP */
+
+            bucket
+                .addEventListener(
+                    "drop",
+                    event => {
+
+                        event.preventDefault();
+
+                        bucket
+                            .classList
+                            .remove(
+                                "drag-over"
+                            );
+
+                        const id =
+                            draggingId ||
+                            (
+                                event.dataTransfer
+                                    ?
+                                event.dataTransfer
+                                    .getData(
+                                        "text/plain"
+                                    )
+                                    :
+                                ""
+                            );
+
+                        if(
+                            id
+                        ){
+
+                            attemptPlacement(
+                                id,
+                                sense
+                            );
+
+                        }
+
+                        draggingId =
+                            null;
+
+                    }
+                );
+
+        }
+    );
+
+
+/* ======================================================
+   RESET
+====================================================== */
+
+function resetSafari(){
+
+    placed.clear();
+
+    selectedId =
+        null;
+
+    draggingId =
+        null;
+
+    wrongAttempts =
+        0;
+
+    itemOrder =
+        shuffle(
+            [
+                ...safariItems
+            ]
+        );
+
+    selectionPanel
+        .classList
+        .remove(
+            "active"
+        );
+
+    feedback.className =
+        "feedback";
+
+    feedback.textContent =
+        "";
+
+    progressText.textContent =
+        "Select an observation to begin.";
+
+    renderItems();
+
+    renderBuckets();
+
     updateScore();
-  </script>
+
+}
+
+
+/* ======================================================
+   FINISH
+====================================================== */
+
+function finishSafari(){
+
+    if(
+        placed.size !==
+        safariItems.length
+    ){
+
+        feedback.className =
+            "feedback warn";
+
+        feedback.textContent =
+            "Complete all 14 observations before finishing your safari.";
+
+        return;
+
+    }
+
+
+    playSound(
+        celebrationSound
+    );
+
+
+    const accuracy =
+        getAccuracy();
+
+
+    let rank;
+
+    let badge;
+
+    let text;
+
+
+    if(
+        accuracy >= 90
+    ){
+
+        rank =
+            "Mindfulness Master";
+
+        badge =
+            "🌟";
+
+        text =
+            "Excellent observing. You carefully matched the sights, sounds, sensations, smells and tastes around you. Mindfulness grows when you slow down and notice the present moment.";
+
+    }
+
+    else if(
+        accuracy >= 70
+    ){
+
+        rank =
+            "Mindful Ranger";
+
+        badge =
+            "🦒";
+
+        text =
+            "Well done. You used all five senses successfully. A little more practice will make it even easier to notice which sense is helping you experience each moment.";
+
+    }
+
+    else{
+
+        rank =
+            "Growing Explorer";
+
+        badge =
+            "🐾";
+
+        text =
+            "You completed the safari and used all five senses. Keep practising mindful observation and your accuracy will continue to grow.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+        `
+
+        <section class="final">
+
+            <div class="final-title">
+                Five Senses Safari Report
+            </div>
+
+            <div class="final-badge">
+                ${badge}
+            </div>
+
+            <div class="final-rank">
+                ${rank}
+            </div>
+
+            <div class="final-score">
+                14 / 14 observations completed
+                · Accuracy: ${accuracy}%
+            </div>
+
+            <div class="final-text">
+                ${text}
+            </div>
+
+            <button
+                class="btn btn-primary"
+                id="playAgainBtn"
+                type="button"
+            >
+                Explore Again
+            </button>
+
+        </section>
+
+        `;
+
+
+    document
+        .getElementById(
+            "playAgainBtn"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                location.reload();
+
+            }
+        );
+
+
+    window.scrollTo(
+        {
+
+            top:0,
+
+            behavior:"smooth"
+
+        }
+    );
+
+}
+
+
+/* ======================================================
+   CONTROLS
+====================================================== */
+
+resetBtn
+    .addEventListener(
+        "click",
+        resetSafari
+    );
+
+
+finishBtn
+    .addEventListener(
+        "click",
+        finishSafari
+    );
+
+
+/* ======================================================
+   START
+====================================================== */
+
+resetSafari();
+
+</script>
+
 </body>
 </html>
