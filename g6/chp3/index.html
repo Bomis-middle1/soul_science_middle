@@ -1,762 +1,3224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self-Care Island – Daily Choices Adventure (Clean)</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #fef9c3 0%, #bfdbfe 40%, #e0f2fe 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
-      overflow: hidden;
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Self-Care Island – Daily Choices Adventure</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --ink:#243447;
+    --muted:#66788a;
+    --blue:#5a8dee;
+    --blue2:#dff2ff;
+    --mint:#e8f8ef;
+    --green:#36aa73;
+    --sand:#fff4cf;
+    --orange:#f3a24f;
+    --line:#dce7ef;
+    --card:#fff;
+    --soft:#f7fafc;
+    --bad:#d86767;
+}
+
+html{
+    width:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+}
+
+body{
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:var(--ink);
+
+    background:
+        linear-gradient(
+            180deg,
+            #f7fcff 0%,
+            #eef8ff 55%,
+            #f7fbef 100%
+        );
+
+    padding:16px;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:3px solid #ffd45f;
+    outline-offset:3px;
+}
+
+
+/* =========================================
+   SPLASH
+========================================= */
+
+.splash{
+    position:fixed;
+
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    background:#fff;
+
+    transition:
+        opacity .45s ease;
+}
+
+.splash.hide{
+    opacity:0;
+    pointer-events:none;
+}
+
+.splash img{
+    width:min(430px,82vw);
+
+    height:auto;
+
+    animation:
+        float
+        2s
+        ease-in-out
+        infinite;
+}
+
+@keyframes float{
+
+    0%,
+    100%{
+        transform:
+            translateY(0);
     }
 
-    /* Splash */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+    50%{
+        transform:
+            translateY(-10px);
     }
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .container.visible { opacity: 1; }
+}
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #f97316 80%);
-      color: #022c22;
-      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: sunGlow 20s linear infinite;
-    }
-    @keyframes sunGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fefce8;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.9);
-      border: 2px solid #fef3c7;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(248,171,60,0.9);
+
+/* =========================================
+   GAME SHELL
+========================================= */
+
+.game{
+    width:min(1120px,100%);
+
+    margin:0 auto;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #dce8f1;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 18px 45px
+        rgba(61,92,124,.14);
+
+    opacity:0;
+
+    transition:
+        opacity .45s ease;
+}
+
+.game.visible{
+    opacity:1;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header{
+    padding:
+        22px
+        18px
+        18px;
+
+    text-align:center;
+
+    background:
+        radial-gradient(
+            circle at 15% 15%,
+            rgba(255,255,255,.8),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #d9f2ff 0%,
+            #e7f9ef 52%,
+            #fff2c9 100%
+        );
+
+    border-bottom:
+        1px solid
+        #dbe7ef;
+}
+
+.header h1{
+    font-size:
+        clamp(
+            27px,
+            4vw,
+            38px
+        );
+
+    line-height:1.1;
+
+    margin-bottom:6px;
+
+    color:#274760;
+}
+
+.subtitle{
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#5e7488;
+}
+
+.stage{
+    display:inline-block;
+
+    margin-top:10px;
+
+    padding:
+        7px
+        14px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #cfdde8;
+
+    color:#3f6ab7;
+
+    font-size:13px;
+
+    font-weight:900;
+}
+
+
+/* =========================================
+   INTRODUCTION
+========================================= */
+
+.intro{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+
+    padding:
+        12px
+        18px;
+
+    background:#fbfdff;
+
+    border-bottom:
+        1px solid
+        #e8eef4;
+}
+
+.note{
+    min-width:0;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:14px;
+
+    background:#f5f9fc;
+
+    border:
+        1px solid
+        #e4ebf1;
+
+    color:#5f7184;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   DAY PROGRESS
+========================================= */
+
+.day-progress{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            4,
+            minmax(0,1fr)
+        );
+
+    gap:8px;
+
+    padding:
+        12px
+        18px;
+
+    background:#fff;
+}
+
+.time-chip{
+    min-width:0;
+
+    padding:
+        9px
+        7px;
+
+    border-radius:13px;
+
+    text-align:center;
+
+    background:#f4f7fa;
+
+    border:
+        1px solid
+        #e0e7ee;
+
+    color:#738293;
+
+    font-size:11px;
+
+    font-weight:900;
+
+    transition:.2s;
+}
+
+.time-chip.active{
+    background:#edf5ff;
+
+    border-color:#7da7ef;
+
+    color:#315f9f;
+
+    box-shadow:
+        0 5px 12px
+        rgba(72,112,165,.08);
+}
+
+.time-chip.done{
+    background:#eaf8f0;
+
+    border-color:#9ed8b8;
+
+    color:#27734e;
+}
+
+
+/* =========================================
+   MAIN LAYOUT
+========================================= */
+
+.layout{
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1.1fr)
+        minmax(0,.9fr);
+
+    gap:18px;
+
+    padding:18px;
+
+    align-items:start;
+}
+
+.panel{
+    min-width:0;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+
+    box-shadow:
+        0 8px 22px
+        rgba(56,83,109,.07);
+}
+
+
+/* =========================================
+   ISLAND PANEL
+========================================= */
+
+.island-panel{
+    padding:16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fcfeff 0%,
+            #f6fbff 100%
+        );
+}
+
+.panel-title{
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    letter-spacing:.7px;
+
+    text-transform:uppercase;
+
+    color:#52708a;
+
+    margin-bottom:12px;
+}
+
+
+/* =========================================
+   MAP
+========================================= */
+
+.map{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(0,1fr)
+        );
+
+    gap:10px;
+
+    padding:12px;
+
+    border-radius:18px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #dff4ff 0%,
+            #edfaff 42%,
+            #fff3cf 43%,
+            #e9f7df 100%
+        );
+
+    border:
+        1px solid
+        #d5e8ef;
+}
+
+
+/* =========================================
+   STATIONS
+========================================= */
+
+.station{
+    min-width:0;
+
+    min-height:116px;
+
+    padding:
+        12px
+        10px;
+
+    border:
+        2px solid
+        rgba(255,255,255,.85);
+
+    border-radius:17px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    cursor:pointer;
+
+    text-align:center;
+
+    transition:.2s ease;
+
+    box-shadow:
+        0 5px 12px
+        rgba(64,92,120,.08);
+}
+
+.station:last-child{
+    grid-column:1/-1;
+
+    width:
+        calc(
+            50% - 5px
+        );
+
+    justify-self:center;
+}
+
+.station-icon{
+    width:50px;
+    height:50px;
+
+    margin:
+        0 auto 7px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    font-size:26px;
+
+    background:#eef6ff;
+}
+
+.station-name{
+    font-size:13px;
+
+    font-weight:900;
+
+    color:#2d455d;
+
+    margin-bottom:3px;
+}
+
+.station-desc{
+    font-size:11px;
+
+    line-height:1.35;
+
+    color:#738294;
+
+    overflow-wrap:anywhere;
+}
+
+.station:hover:not(:disabled){
+    transform:
+        translateY(-2px);
+
+    border-color:#7fabef;
+
+    box-shadow:
+        0 8px 18px
+        rgba(78,117,160,.14);
+}
+
+.station.selected{
+    border-color:#36aa73;
+
+    background:#eefaf3;
+
+    box-shadow:
+        0 8px 18px
+        rgba(54,170,115,.14);
+}
+
+.station.dimmed{
+    opacity:.48;
+}
+
+.station:disabled{
+    cursor:default;
+}
+
+
+/* =========================================
+   RIGHT PANEL
+========================================= */
+
+.right-panel{
+    padding:16px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    background:#fffef8;
+}
+
+
+/* =========================================
+   SCORE
+========================================= */
+
+.score-row{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:8px;
+}
+
+.score-card{
+    min-width:0;
+
+    text-align:center;
+
+    padding:
+        10px
+        6px;
+
+    border-radius:14px;
+
+    background:#f8fbff;
+
+    border:
+        1px solid
+        #dce7f1;
+}
+
+.score-label{
+    font-size:10px;
+
+    line-height:1.2;
+
+    text-transform:uppercase;
+
+    font-weight:900;
+
+    color:#728397;
+
+    overflow-wrap:anywhere;
+}
+
+.score-value{
+    margin-top:3px;
+
+    font-size:18px;
+
+    font-weight:900;
+
+    color:#3e65ad;
+}
+
+
+/* =========================================
+   METERS
+========================================= */
+
+.meters{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+
+    padding:12px;
+
+    border-radius:15px;
+
+    background:#f8fbf9;
+
+    border:
+        1px solid
+        #e0ebe4;
+}
+
+.meter-row{
+    display:grid;
+
+    grid-template-columns:
+        62px
+        minmax(0,1fr)
+        34px;
+
+    gap:7px;
+
+    align-items:center;
+
+    font-size:11px;
+
+    font-weight:800;
+
+    color:#5e7181;
+}
+
+.meter-bar{
+    height:14px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#e5ebe8;
+}
+
+.meter-fill{
+    height:100%;
+
+    width:50%;
+
+    border-radius:inherit;
+
+    transition:
+        width .35s ease;
+}
+
+#energyFill{
+    background:
+        linear-gradient(
+            90deg,
+            #ffb05e,
+            #6acb83
+        );
+}
+
+#calmFill{
+    background:
+        linear-gradient(
+            90deg,
+            #70b9f4,
+            #9297ea
+        );
+}
+
+
+/* =========================================
+   SCENARIO
+========================================= */
+
+.scenario{
+    padding:14px;
+
+    border-radius:16px;
+
+    background:var(--sand);
+
+    border:
+        1px solid
+        #ebdba7;
+}
+
+.scenario-label{
+    font-size:11px;
+
+    font-weight:900;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+    color:#956713;
+
+    margin-bottom:5px;
+}
+
+.scenario-text{
+    font-size:14px;
+
+    line-height:1.48;
+
+    color:#51472f;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   PROMPT
+========================================= */
+
+.prompt{
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    background:#f5f8fb;
+
+    border:
+        1px solid
+        #e2e9ef;
+
+    color:#617489;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   FEEDBACK
+========================================= */
+
+.feedback{
+    display:none;
+
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    font-size:12px;
+
+    line-height:1.48;
+
+    overflow-wrap:anywhere;
+}
+
+.feedback.good{
+    display:block;
+
+    background:#ebf9f1;
+
+    border:
+        1px solid
+        #b4e2c7;
+
+    color:#286a49;
+}
+
+.feedback.ok{
+    display:block;
+
+    background:#fff6df;
+
+    border:
+        1px solid
+        #ecd593;
+
+    color:#795b19;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.actions{
+    display:grid;
+
+    grid-template-columns:
+        auto 1fr auto;
+
+    gap:9px;
+
+    align-items:center;
+}
+
+.btn{
+    min-height:44px;
+
+    border-radius:14px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+}
+
+.btn-secondary{
+    padding:
+        9px
+        12px;
+
+    border:
+        1px solid
+        #d4dfe8;
+
+    background:#f6f9fb;
+
+    color:#5b6f83;
+}
+
+.btn-primary{
+    padding:
+        10px
+        16px;
+
+    border:0;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5b88ef,
+            #4dbb84
+        );
+
+    color:#fff;
+
+    box-shadow:
+        0 6px 15px
+        rgba(74,126,166,.17);
+}
+
+.btn:disabled{
+    opacity:.4;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+}
+
+.btn:hover:not(:disabled){
+    transform:
+        translateY(-1px);
+}
+
+#progressText{
+    text-align:center;
+
+    font-size:11px;
+
+    line-height:1.4;
+
+    color:#718296;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   VOLUME
+========================================= */
+
+.volume{
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:11px;
+
+    color:#7a8998;
+}
+
+.volume input{
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+.final{
+    grid-column:1/-1;
+
+    padding:
+        36px
+        22px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+}
+
+.final-title{
+    font-size:27px;
+
+    font-weight:900;
+
+    color:#3e67ad;
+
+    margin-bottom:8px;
+}
+
+.final-badge{
+    font-size:58px;
+
+    margin:
+        10px 0;
+}
+
+.final-rank{
+    font-size:22px;
+
+    font-weight:900;
+
+    margin-bottom:6px;
+}
+
+.final-score{
+    font-size:16px;
+
+    font-weight:800;
+
+    color:#596d82;
+
+    margin:
+        8px 0;
+}
+
+.final-text{
+    max-width:660px;
+
+    margin:
+        0 auto 18px;
+
+    font-size:14px;
+
+    line-height:1.55;
+
+    color:#66788b;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media(max-width:900px){
+
+    .layout{
+        grid-template-columns:1fr;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fef3c7, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
+    .intro{
+        grid-template-columns:1fr;
     }
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
-        #f9fafb;
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:640px){
+
+    html,
+    body{
+        width:100%;
+
+        max-width:100%;
+
+        overflow-x:hidden;
+
+        overflow-y:auto;
     }
 
-    /* Clean map panel */
-    .island-panel {
-      flex: 1.4;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 10px;
-      background: #e0f2fe;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .island-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
+    body{
+        padding:0;
+
+        background:#f7fbff;
     }
 
-    .map {
-      flex: 1;
-      border-radius: 14px;
-      background: linear-gradient(to bottom, #7dd3fc 0%, #bae6fd 40%, #fde68a 70%, #bbf7d0 100%);
-      padding: 10px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 1fr);
-      gap: 8px;
+    .game{
+        width:100%;
+
+        max-width:100%;
+
+        min-height:100dvh;
+
+        margin:0;
+
+        border:0;
+
+        border-radius:0;
+
+        box-shadow:none;
+
+        overflow:visible;
     }
 
-    .station {
-      border-radius: 12px;
-      background: #ecfdf5;
-      border: 2px solid rgba(148,163,184,0.9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 6px;
-      cursor: pointer;
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s;
+    .header{
+        padding:
+            16px
+            13px
+            14px;
     }
 
-    .station:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(148,163,184,0.7);
-      border-color: #22c55e;
+    .header h1{
+        font-size:24px;
     }
 
-    .station-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 4px;
-      font-size: 20px;
+    .subtitle{
+        font-size:12px;
     }
 
-    .station.sleep .station-icon {
-      background: #bfdbfe;
-    }
-    .station.food .station-icon {
-      background: #fee2e2;
-    }
-    .station.exercise .station-icon {
-      background: #bbf7d0;
-    }
-    .station.mindfulness .station-icon {
-      background: #ede9fe;
-    }
-    .station.social .station-icon {
-      background: #fef3c7;
+    .intro{
+        padding:10px;
+
+        gap:8px;
     }
 
-    .station-name {
-      font-size: 12px;
-      font-weight: bold;
-      color: #111827;
-      margin-bottom: 2px;
-      text-align: center;
+    .note{
+        padding:
+            9px
+            10px;
+
+        font-size:11px;
     }
 
-    .station-desc {
-      font-size: 11px;
-      color: #4b5563;
-      text-align: center;
+    .day-progress{
+        padding:
+            9px
+            10px;
+
+        gap:5px;
     }
 
-    /* Right panel */
-    .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 12px;
-      background: #fefce8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .time-chip{
+        padding:
+            8px
+            4px;
+
+        font-size:9px;
     }
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
+    .layout{
+        display:block;
+
+        width:100%;
+
+        padding:10px;
     }
 
-    .meter-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 2px;
-    }
-    .meter-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: #4b5563;
-    }
-    .meter-label {
-      width: 60px;
-      font-weight: bold;
-    }
-    .meter-bar {
-      position: relative;
-      flex: 1;
-      height: 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      overflow: hidden;
-      background: linear-gradient(to right, #e5e7eb, #fefce8);
-    }
-    .meter-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 50%;
-      border-radius: 999px;
-      transition: width 0.3s ease-out;
-    }
-    #energyFill {
-      background: linear-gradient(to right, #f97316, #22c55e);
-      box-shadow: 0 0 10px rgba(248,171,60,0.9);
-    }
-    #calmFill {
-      background: linear-gradient(to right, #38bdf8, #a5b4fc);
-      box-shadow: 0 0 10px rgba(59,130,246,0.8);
+    .panel{
+        width:100%;
+
+        max-width:100%;
+
+        min-width:0;
+
+        border-radius:16px;
     }
 
-    .status-text {
-      font-size: 12px;
-      color: #374151;
-      text-align: center;
-      margin-top: 2px;
+    .island-panel{
+        padding:11px;
+
+        margin-bottom:12px;
     }
 
-    .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
+    .map{
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+        gap:8px;
+
+        padding:9px;
     }
 
-    .scenario-text {
-      font-size: 13px;
-      color: #374151;
-      text-align: center;
-      min-height: 40px;
+    .station{
+        min-width:0;
+
+        min-height:108px;
+
+        padding:
+            10px
+            7px;
     }
 
-    .choice-box {
-      margin-top: 4px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 8px;
-      background: #fffbeb;
-      font-size: 12px;
-      color: #374151;
+    .station:last-child{
+        width:100%;
     }
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
+    .station-icon{
+        width:44px;
+        height:44px;
+
+        font-size:23px;
     }
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
+    .station-name{
+        font-size:12px;
     }
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #f97316, #facc15);
-      color: #111827;
-      box-shadow: 0 3px 10px rgba(248,171,60,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(248,171,60,1);
-    }
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    .station-desc{
+        font-size:10px;
     }
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
-    }
-    .volume-control input { flex: 1; }
+    .right-panel{
+        padding:12px;
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
-    }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
+        width:100%;
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column; }
-      .island-panel, .right-panel { min-width: 100%; }
+        max-width:100%;
+
+        min-width:0;
     }
-  </style>
+
+    .score-row{
+        gap:6px;
+    }
+
+    .score-card{
+        padding:
+            8px
+            4px;
+    }
+
+    .score-label{
+        font-size:9px;
+    }
+
+    .score-value{
+        font-size:16px;
+    }
+
+    .scenario-text{
+        font-size:13px;
+    }
+
+    .actions{
+        grid-template-columns:1fr;
+    }
+
+    .actions .btn{
+        width:100%;
+    }
+
+    #progressText{
+        order:-1;
+
+        text-align:left;
+    }
+
+    .next-ready{
+        position:sticky;
+
+        bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+
+        z-index:30;
+
+        border:
+            3px solid #fff;
+
+        box-shadow:
+            0 8px 20px
+            rgba(61,91,126,.2);
+    }
+
+    .volume{
+        padding-bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+}
+
+
+/* =========================================
+   VERY SMALL PHONES
+========================================= */
+
+@media(max-width:360px){
+
+    .header h1{
+        font-size:21px;
+    }
+
+    .day-progress{
+        grid-template-columns:
+            repeat(
+                2,
+                1fr
+            );
+    }
+
+    .score-row{
+        grid-template-columns:1fr;
+    }
+
+    .score-card{
+        display:flex;
+
+        align-items:center;
+
+        justify-content:
+            space-between;
+
+        text-align:left;
+    }
+
+    .score-value{
+        margin:0;
+    }
+
+    .map{
+        grid-template-columns:1fr;
+    }
+
+    .station:last-child{
+        grid-column:auto;
+    }
+
+    .station{
+        min-height:92px;
+
+        display:grid;
+
+        grid-template-columns:
+            48px 1fr;
+
+        column-gap:8px;
+
+        text-align:left;
+
+        align-items:center;
+    }
+
+    .station-icon{
+        grid-row:1/3;
+
+        margin:0;
+    }
+
+    .station-name,
+    .station-desc{
+        text-align:left;
+    }
+
+}
+
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+
+}
+
+</style>
 </head>
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Self-Care Island...</div>
+
+
+<!-- =========================================
+     SPLASH
+========================================= -->
+
+<div
+    class="splash"
+    id="splash"
+>
+
+    <img
+        src="assets/innovine-logo.png"
+        alt="Innovine Logo"
+        onerror="this.style.display='none'"
+    />
+
+</div>
+
+
+<!-- =========================================
+     GAME
+========================================= -->
+
+<div
+    class="game"
+    id="game"
+>
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>
+            🏝️ Self-Care Island
+        </h1>
+
+        <div class="subtitle">
+            Daily Choices Adventure
+        </div>
+
+        <div
+            class="stage"
+            id="stage"
+        >
+            Ready to begin
+        </div>
+
+    </header>
+
+
+    <!-- INTRO -->
+
+    <div class="intro">
+
+        <div class="note">
+
+            Travel through one day on the island.
+            At each time of day, choose
+            <b>one</b>
+            self-care action that best fits the situation.
+
+        </div>
+
+        <div class="note">
+
+            Your choices affect Energy, Calm and your
+            Self-Care Score. A good routine uses different
+            kinds of care, not the same action every time.
+
+        </div>
+
     </div>
-  </div>
 
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🏝 Self-Care Island 🏝</h1>
-        <div class="subtitle">Chapter 3 – Self-care · Grade 6</div>
-        <div class="stage-indicator" id="stageIndicator">Time of day: Morning</div>
-      </div>
-    </div>
 
-    <div class="top-bar">
-      <div>Self-care means looking after your mind, body and emotions with healthy habits.[file:34]</div>
-      <div>Your choices on the island change your Energy and Calm for the day.[file:34]</div>
-    </div>
+    <!-- DAY PROGRESS -->
 
-    <div class="layout" id="gameWrapper">
-      <div class="island-panel">
-        <div class="island-title">Click a station to choose a self-care activity</div>
-        <div class="map">
-          <div class="station sleep" data-spot="sleep">
-            <div class="station-icon">💤</div>
-            <div class="station-name">Sleep Hut</div>
-            <div class="station-desc">Rest, naps, good sleep</div>
-          </div>
-          <div class="station food" data-spot="food">
-            <div class="station-icon">🍎</div>
-            <div class="station-name">Healthy Café</div>
-            <div class="station-desc">Balanced meals, water</div>
-          </div>
-          <div class="station exercise" data-spot="exercise">
-            <div class="station-icon">⚽</div>
-            <div class="station-name">Play Field</div>
-            <div class="station-desc">Sports, walking, yoga</div>
-          </div>
-          <div class="station mindfulness" data-spot="mindfulness">
-            <div class="station-icon">🧘</div>
-            <div class="station-name">Quiet Cove</div>
-            <div class="station-desc">Breathing, relaxing</div>
-          </div>
-          <div class="station social" data-spot="social">
-            <div class="station-icon">👥</div>
-            <div class="station-name">Friends’ Circle</div>
-            <div class="station-desc">Talking, sharing feelings</div>
-          </div>
-          <!-- Empty cell to keep grid tidy -->
-          <div></div>
-        </div>
-      </div>
+    <div
+        class="day-progress"
+        id="dayProgress"
+    ></div>
 
-      <div class="right-panel">
-        <div class="score-row">
-          <div class="score-card">
-            <div class="score-label">Energy</div>
-            <div class="score-value" id="energyText">50</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Calm</div>
-            <div class="score-value" id="calmText">50</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Self-care Score</div>
-            <div class="score-value" id="scoreText">0%</div>
-          </div>
-        </div>
 
-        <div class="meter-wrapper">
-          <div class="meter-row">
-            <div class="meter-label">Energy</div>
-            <div class="meter-bar"><div class="meter-fill" id="energyFill"></div></div>
-          </div>
-          <div class="meter-row">
-            <div class="meter-label">Calm</div>
-            <div class="meter-bar"><div class="meter-fill" id="calmFill"></div></div>
-          </div>
-        </div>
+    <!-- MAIN -->
 
-        <div class="status-text" id="statusText">Start your day by choosing a healthy self-care action.</div>
+    <main
+        class="layout"
+        id="gameWrapper"
+    >
 
-        <div class="scenario-title">Current Time of Day</div>
-        <div class="scenario-text" id="scenarioText"></div>
 
-        <div class="choice-box" id="choiceBox">
-          Click “Next Time” to move from Morning → Midday → Afternoon → Evening. At each time, pick one station.
-        </div>
+        <!-- =====================================
+             ISLAND
+        ====================================== -->
 
-        <div class="feedback good" id="feedback"></div>
+        <section class="panel island-panel">
 
-        <div class="controls">
-          <button class="btn-secondary" id="resetBtn">New day</button>
-          <div id="progressText">Make 4 choices: Morning, Midday, Afternoon, Evening.</div>
-          <button class="btn-primary" id="nextBtn">Start Day</button>
-        </div>
+            <div class="panel-title">
+                Choose a self-care stop
+            </div>
 
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const mainContainer = document.getElementById("mainContainer");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      mainContainer.classList.add("visible");
-    }, 3000);
+            <div
+                class="map"
+                id="stationMap"
+            >
 
-    // Audio
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
 
-    const timeSteps = [
-      { label: "Morning", description: "You are getting ready for school." },
-      { label: "Midday", description: "It is lunchtime and break at school." },
-      { label: "Afternoon", description: "School is over and you are back home." },
-      { label: "Evening", description: "It is time to wind down and get ready to sleep." }
+                <button
+                    class="station"
+                    type="button"
+                    data-spot="sleep"
+                >
+
+                    <div class="station-icon">
+                        💤
+                    </div>
+
+                    <div class="station-name">
+                        Sleep Hut
+                    </div>
+
+                    <div class="station-desc">
+                        Rest and healthy sleep routines
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="station"
+                    type="button"
+                    data-spot="food"
+                >
+
+                    <div class="station-icon">
+                        🍎
+                    </div>
+
+                    <div class="station-name">
+                        Healthy Café
+                    </div>
+
+                    <div class="station-desc">
+                        Balanced food and hydration
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="station"
+                    type="button"
+                    data-spot="exercise"
+                >
+
+                    <div class="station-icon">
+                        ⚽
+                    </div>
+
+                    <div class="station-name">
+                        Play Field
+                    </div>
+
+                    <div class="station-desc">
+                        Movement, sports and stretching
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="station"
+                    type="button"
+                    data-spot="mindfulness"
+                >
+
+                    <div class="station-icon">
+                        🧘
+                    </div>
+
+                    <div class="station-name">
+                        Quiet Cove
+                    </div>
+
+                    <div class="station-desc">
+                        Breathing, pausing and relaxing
+                    </div>
+
+                </button>
+
+
+                <button
+                    class="station"
+                    type="button"
+                    data-spot="social"
+                >
+
+                    <div class="station-icon">
+                        👥
+                    </div>
+
+                    <div class="station-name">
+                        Friends' Circle
+                    </div>
+
+                    <div class="station-desc">
+                        Talking, sharing and connecting
+                    </div>
+
+                </button>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================
+             RIGHT PANEL
+        ====================================== -->
+
+        <section class="panel right-panel">
+
+
+            <!-- SCORE -->
+
+            <div class="score-row">
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Energy
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="energyText"
+                    >
+                        50
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Calm
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="calmText"
+                    >
+                        50
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Self-Care Score
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="scoreText"
+                    >
+                        0%
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- METERS -->
+
+            <div class="meters">
+
+
+                <div class="meter-row">
+
+                    <span>
+                        Energy
+                    </span>
+
+                    <div class="meter-bar">
+
+                        <div
+                            class="meter-fill"
+                            id="energyFill"
+                        ></div>
+
+                    </div>
+
+                    <span id="energyMini">
+                        50
+                    </span>
+
+                </div>
+
+
+                <div class="meter-row">
+
+                    <span>
+                        Calm
+                    </span>
+
+                    <div class="meter-bar">
+
+                        <div
+                            class="meter-fill"
+                            id="calmFill"
+                        ></div>
+
+                    </div>
+
+                    <span id="calmMini">
+                        50
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- SCENARIO -->
+
+            <div class="scenario">
+
+                <div
+                    class="scenario-label"
+                    id="scenarioLabel"
+                >
+                    Your Day
+                </div>
+
+                <div
+                    class="scenario-text"
+                    id="scenarioText"
+                >
+
+                    Tap Start Day to begin your
+                    self-care adventure.
+
+                </div>
+
+            </div>
+
+
+            <!-- PROMPT -->
+
+            <div
+                class="prompt"
+                id="promptText"
+            >
+
+                You will make four choices:
+                Morning, Midday, Afternoon and Evening.
+
+            </div>
+
+
+            <!-- FEEDBACK -->
+
+            <div
+                class="feedback"
+                id="feedback"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- ACTIONS -->
+
+            <div class="actions">
+
+
+                <button
+                    class="btn btn-secondary"
+                    type="button"
+                    id="resetBtn"
+                >
+                    New Day
+                </button>
+
+
+                <div id="progressText">
+                    Four choices ahead.
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    id="nextBtn"
+                >
+                    Start Day
+                </button>
+
+
+            </div>
+
+
+            <!-- VOLUME -->
+
+            <div class="volume">
+
+                <span>
+                    🔊 Sounds
+                </span>
+
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    min="0"
+                    max="100"
+                    value="80"
+                />
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+
+/* =========================================
+   SPLASH
+========================================= */
+
+const splash =
+    document.getElementById(
+        "splash"
+    );
+
+
+const game =
+    document.getElementById(
+        "game"
+    );
+
+
+setTimeout(
+    () => {
+
+        splash
+            .classList
+            .add(
+                "hide"
+            );
+
+
+        game
+            .classList
+            .add(
+                "visible"
+            );
+
+    },
+    5000
+);
+
+
+/* =========================================
+   AUDIO
+========================================= */
+
+const goodSound =
+    new Audio(
+        "assets/correct.mp3"
+    );
+
+
+const celebrationSound =
+    new Audio(
+        "assets/freesound_community-claps-44774.mp3"
+    );
+
+
+let volume =
+    .8;
+
+
+goodSound.volume =
+    volume;
+
+
+celebrationSound.volume =
+    volume;
+
+
+function play(
+    sound
+){
+
+    sound.currentTime =
+        0;
+
+
+    sound
+        .play()
+        .catch(
+            () => {}
+        );
+
+}
+
+
+document
+    .getElementById(
+        "volumeSlider"
+    )
+    .addEventListener(
+        "input",
+        event => {
+
+            volume =
+                event.target.value /
+                100;
+
+
+            goodSound.volume =
+                volume;
+
+
+            celebrationSound.volume =
+                volume;
+
+        }
+    );
+
+
+/* =========================================
+   TIMES OF DAY
+========================================= */
+
+const times = [
+
+
+    /* MORNING */
+
+    {
+
+        label:
+            "Morning",
+
+        icon:
+            "🌅",
+
+        scenario:
+            "You are getting ready for the day and want to feel alert, steady and prepared.",
+
+        best:[
+            "food"
+        ],
+
+        good:[
+            "mindfulness",
+            "exercise"
+        ],
+
+        okay:[
+            "social",
+            "sleep"
+        ],
+
+        feedback:{
+
+            food:
+                "A balanced breakfast and water give your body useful fuel for the day.",
+
+            mindfulness:
+                "A calm minute of breathing can help you begin the day with focus.",
+
+            exercise:
+                "A little stretching or movement can help you feel awake and ready.",
+
+            social:
+                "Connecting with someone can lift your mood, although your body also needs fuel in the morning.",
+
+            sleep:
+                "Rest matters, but a regular night-time sleep routine is usually more useful than returning to bed after the day has begun."
+
+        }
+
+    },
+
+
+    /* MIDDAY */
+
+    {
+
+        label:
+            "Midday",
+
+        icon:
+            "☀️",
+
+        scenario:
+            "It is lunchtime and break time. You have been concentrating for several hours and need to recharge.",
+
+        best:[
+            "food"
+        ],
+
+        good:[
+            "social",
+            "exercise",
+            "mindfulness"
+        ],
+
+        okay:[
+            "sleep"
+        ],
+
+        feedback:{
+
+            food:
+                "Eating a balanced lunch and drinking water help restore energy for the rest of the day.",
+
+            social:
+                "A friendly conversation can help you feel connected and refreshed.",
+
+            exercise:
+                "A short walk or active break can refresh both body and mind.",
+
+            mindfulness:
+                "A quiet pause can reduce mental overload before you return to work.",
+
+            sleep:
+                "Rest can help when you are genuinely tired, but during a normal school break another form of self-care may fit more naturally."
+
+        }
+
+    },
+
+
+    /* AFTERNOON */
+
+    {
+
+        label:
+            "Afternoon",
+
+        icon:
+            "🌤️",
+
+        scenario:
+            "The day has been busy. You are back home and feel mentally tired after work and responsibilities.",
+
+        best:[
+            "exercise",
+            "social"
+        ],
+
+        good:[
+            "mindfulness",
+            "food",
+            "sleep"
+        ],
+
+        okay:[],
+
+        feedback:{
+
+            exercise:
+                "Movement after a long day can release tension, lift your mood and refresh your energy.",
+
+            social:
+                "Talking to someone you trust can give comfort and help you process your day.",
+
+            mindfulness:
+                "A quiet breathing break can help you shift out of a busy school mindset.",
+
+            food:
+                "A healthy snack and water can support your energy if you are hungry or dehydrated.",
+
+            sleep:
+                "A short rest may help if you are truly tired, but keeping naps brief can protect your night-time sleep routine."
+
+        }
+
+    },
+
+
+    /* EVENING */
+
+    {
+
+        label:
+            "Evening",
+
+        icon:
+            "🌙",
+
+        scenario:
+            "The day is ending. You want to settle your mind and prepare your body for healthy sleep.",
+
+        best:[
+            "sleep",
+            "mindfulness"
+        ],
+
+        good:[
+            "social"
+        ],
+
+        okay:[
+            "food",
+            "exercise"
+        ],
+
+        feedback:{
+
+            sleep:
+                "A consistent wind-down and sleep routine helps your body and mind recover for the next day.",
+
+            mindfulness:
+                "Slow breathing or quiet reflection can help your mind settle before sleep.",
+
+            social:
+                "A calm conversation with someone you trust can help you end the day feeling supported.",
+
+            food:
+                "Healthy eating matters, but a large late meal may not be the best way to wind down.",
+
+            exercise:
+                "Movement is healthy, though vigorous activity very close to bedtime may not be the calmest choice for winding down."
+
+        }
+
+    }
+
+];
+
+
+/* =========================================
+   BASIC EFFECTS
+========================================= */
+
+const effects = {
+
+    sleep:{
+        energy:12,
+        calm:14
+    },
+
+    food:{
+        energy:15,
+        calm:5
+    },
+
+    exercise:{
+        energy:12,
+        calm:10
+    },
+
+    mindfulness:{
+        energy:5,
+        calm:16
+    },
+
+    social:{
+        energy:7,
+        calm:13
+    }
+
+};
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const stationButtons =
+    [
+        ...document
+            .querySelectorAll(
+                ".station"
+            )
     ];
 
-    const actions = {
-      sleep: {
-        name: "Sleep Hut",
-        effects: [
-          { energy: +20, calm: +10, text: "You slept early and got enough rest. Good sleep gives your body and mind time to recover.[file:34]" },
-          { energy: +10, calm: +5, text: "You took a short nap instead of using screens. Rest helps you feel fresh again.[file:34]" }
-        ]
-      },
-      food: {
-        name: "Healthy Café",
-        effects: [
-          { energy: +15, calm: +5, text: "You chose a balanced meal and drank water. Healthy food and hydration support your well-being.[file:34]" },
-          { energy: +10, calm: +5, text: "You added fruit and vegetables to your meal. A balanced diet keeps your body strong.[file:34]" }
-        ]
-      },
-      exercise: {
-        name: "Play Field",
-        effects: [
-          { energy: +10, calm: +10, text: "You played a sport and moved your body. Exercise releases feel-good chemicals and reduces stress.[file:34]" },
-          { energy: +8, calm: +8, text: "You did stretching or simple yoga. Movement plus breathing calms your mind.[file:34]" }
-        ]
-      },
-      mindfulness: {
-        name: "Quiet Cove",
-        effects: [
-          { energy: +5, calm: +15, text: "You sat quietly and did deep breathing. Mindfulness helps you handle emotions and stress.[file:34]" },
-          { energy: +4, calm: +12, text: "You noticed your surroundings and relaxed your muscles. Staying present makes you feel balanced.[file:34]" }
-        ]
-      },
-      social: {
-        name: "Friends’ Circle",
-        effects: [
-          { energy: +8, calm: +12, text: "You talked to a friend about your feelings. Sharing with others gives comfort and support.[file:34]" },
-          { energy: +6, calm: +10, text: "You joined a fun activity with others. Social support helps you feel connected and less stressed.[file:34]" }
-        ]
-      }
-    };
 
-    const stageIndicator = document.getElementById("stageIndicator");
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const choiceBoxEl = document.getElementById("choiceBox");
-    const feedbackEl = document.getElementById("feedback");
-    const statusTextEl = document.getElementById("statusText");
-    const progressTextEl = document.getElementById("progressText");
+const stage =
+    document.getElementById(
+        "stage"
+    );
 
-    const energyTextEl = document.getElementById("energyText");
-    const calmTextEl = document.getElementById("calmText");
-    const scoreTextEl = document.getElementById("scoreText");
-    const energyFill = document.getElementById("energyFill");
-    const calmFill = document.getElementById("calmFill");
 
-    const resetBtn = document.getElementById("resetBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const gameWrapper = document.getElementById("gameWrapper");
+const dayProgress =
+    document.getElementById(
+        "dayProgress"
+    );
 
-    const stations = document.querySelectorAll(".station");
 
-    let currentStepIndex = -1;
-    let energy = 50;
-    let calm = 50;
-    let choicesMade = 0;
-    const totalChoices = timeSteps.length;
+const scenarioLabel =
+    document.getElementById(
+        "scenarioLabel"
+    );
 
-    function updateMeters(){
-      if(energy < 0) energy = 0;
-      if(energy > 100) energy = 100;
-      if(calm < 0) calm = 0;
-      if(calm > 100) calm = 100;
 
-      energyTextEl.textContent = energy;
-      calmTextEl.textContent = calm;
+const scenarioText =
+    document.getElementById(
+        "scenarioText"
+    );
 
-      energyFill.style.width = energy + "%";
-      calmFill.style.width = calm + "%";
 
-      const avg = Math.round((energy + calm) / 2);
-      scoreTextEl.textContent = avg + "%";
+const promptText =
+    document.getElementById(
+        "promptText"
+    );
 
-      if(avg >= 75){
-        statusTextEl.textContent = "Great balance! You are taking good care of yourself.";
-      } else if(avg >= 50){
-        statusTextEl.textContent = "You are doing okay. A few more healthy choices can help even more.";
-      } else {
-        statusTextEl.textContent = "Your mind and body need more care. Small changes can make you feel better.";
-      }
-    }
 
-    function loadNextStep(){
-      currentStepIndex++;
-      if(currentStepIndex >= timeSteps.length){
-        finishDay();
+const feedback =
+    document.getElementById(
+        "feedback"
+    );
+
+
+const progressText =
+    document.getElementById(
+        "progressText"
+    );
+
+
+const nextBtn =
+    document.getElementById(
+        "nextBtn"
+    );
+
+
+const resetBtn =
+    document.getElementById(
+        "resetBtn"
+    );
+
+
+const energyText =
+    document.getElementById(
+        "energyText"
+    );
+
+
+const calmText =
+    document.getElementById(
+        "calmText"
+    );
+
+
+const scoreText =
+    document.getElementById(
+        "scoreText"
+    );
+
+
+const energyMini =
+    document.getElementById(
+        "energyMini"
+    );
+
+
+const calmMini =
+    document.getElementById(
+        "calmMini"
+    );
+
+
+const energyFill =
+    document.getElementById(
+        "energyFill"
+    );
+
+
+const calmFill =
+    document.getElementById(
+        "calmFill"
+    );
+
+
+const gameWrapper =
+    document.getElementById(
+        "gameWrapper"
+    );
+
+
+/* =========================================
+   GAME STATE
+========================================= */
+
+let current =
+    -1;
+
+
+let energy =
+    50;
+
+
+let calm =
+    50;
+
+
+let points =
+    0;
+
+
+let chosenThisStep =
+    false;
+
+
+let started =
+    false;
+
+
+/* =========================================
+   BUILD PROGRESS
+========================================= */
+
+function buildProgress(){
+
+    dayProgress.innerHTML =
+        "";
+
+
+    times.forEach(
+        (
+            time,
+            index
+        ) => {
+
+
+            const chip =
+                document
+                    .createElement(
+                        "div"
+                    );
+
+
+            chip.className =
+                "time-chip";
+
+
+            chip.dataset.index =
+                index;
+
+
+            chip.textContent =
+                `${time.icon} ${time.label}`;
+
+
+            dayProgress
+                .appendChild(
+                    chip
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   UPDATE PROGRESS
+========================================= */
+
+function updateProgress(){
+
+    document
+        .querySelectorAll(
+            ".time-chip"
+        )
+        .forEach(
+            (
+                chip,
+                index
+            ) => {
+
+
+                chip
+                    .classList
+                    .toggle(
+                        "active",
+                        index === current
+                    );
+
+
+                chip
+                    .classList
+                    .toggle(
+                        "done",
+                        index < current ||
+                        (
+                            index === current &&
+                            chosenThisStep
+                        )
+                    );
+
+            }
+        );
+
+}
+
+
+/* =========================================
+   CLAMP
+========================================= */
+
+function clamp(
+    value
+){
+
+    return Math.max(
+        0,
+        Math.min(
+            100,
+            value
+        )
+    );
+
+}
+
+
+/* =========================================
+   UPDATE METERS
+========================================= */
+
+function updateMeters(){
+
+    energy =
+        clamp(
+            energy
+        );
+
+
+    calm =
+        clamp(
+            calm
+        );
+
+
+    energyText.textContent =
+        energy;
+
+
+    calmText.textContent =
+        calm;
+
+
+    energyMini.textContent =
+        energy;
+
+
+    calmMini.textContent =
+        calm;
+
+
+    energyFill.style.width =
+        energy +
+        "%";
+
+
+    calmFill.style.width =
+        calm +
+        "%";
+
+
+    scoreText.textContent =
+        Math.round(
+            (
+                points /
+                (
+                    times.length *
+                    3
+                )
+            ) *
+            100
+        ) +
+        "%";
+
+}
+
+
+/* =========================================
+   STATION AVAILABILITY
+========================================= */
+
+function setStations(
+    enabled
+){
+
+    stationButtons.forEach(
+        button => {
+
+
+            button.disabled =
+                !enabled;
+
+
+            button
+                .classList
+                .remove(
+                    "selected",
+                    "dimmed"
+                );
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   LOAD TIME OF DAY
+========================================= */
+
+function loadTime(){
+
+    const time =
+        times[
+            current
+        ];
+
+
+    chosenThisStep =
+        false;
+
+
+    stage.textContent =
+        `${time.label} · Choice ${current + 1} of ${times.length}`;
+
+
+    scenarioLabel.textContent =
+        `${time.icon} ${time.label}`;
+
+
+    scenarioText.textContent =
+        time.scenario;
+
+
+    promptText.textContent =
+        "Choose the self-care stop that best fits this moment. You can make only one choice for this time of day.";
+
+
+    feedback.className =
+        "feedback";
+
+
+    feedback.textContent =
+        "";
+
+
+    progressText.textContent =
+        "Choose one self-care stop.";
+
+
+    nextBtn.disabled =
+        true;
+
+
+    nextBtn.textContent =
+        current ===
+        times.length - 1
+
+            ?
+
+        "See My Day →"
+
+            :
+
+        "Next Time →";
+
+
+    nextBtn
+        .classList
+        .remove(
+            "next-ready"
+        );
+
+
+    setStations(
+        true
+    );
+
+
+    updateProgress();
+
+}
+
+
+/* =========================================
+   CHOOSE SELF-CARE ACTION
+========================================= */
+
+function choose(
+    spot,
+    button
+){
+
+    if(
+        !started ||
+        current < 0 ||
+        chosenThisStep
+    ){
+
         return;
-      }
-      const step = timeSteps[currentStepIndex];
-      stageIndicator.textContent = "Time of day: " + step.label;
-      scenarioTextEl.textContent = step.description;
-      choiceBoxEl.textContent = "Click one station to choose a self-care activity for the " + step.label.toLowerCase() + ".";
-      feedbackEl.style.display = "none";
-      progressTextEl.textContent = "Choices left: " + (totalChoices - currentStepIndex) + " time(s) of day.";
+
     }
 
-    function handleStationClick(spotKey){
-      if(currentStepIndex < 0 || currentStepIndex >= timeSteps.length) return;
-      const group = actions[spotKey];
-      if(!group) return;
 
-      const effArr = group.effects;
-      const chosen = effArr[Math.floor(Math.random() * effArr.length)];
+    const time =
+        times[
+            current
+        ];
 
-      energy += chosen.energy;
-      calm += chosen.calm;
-      choicesMade++;
-      updateMeters();
-      playGood();
 
-      feedbackEl.className = "feedback good";
-      feedbackEl.textContent = chosen.text;
-      feedbackEl.style.display = "block";
+    chosenThisStep =
+        true;
 
-      progressTextEl.textContent = "Nice choice at the " + group.name + ". Click “Next Time” to move forward in your day.";
+
+    let quality =
+        1;
+
+
+    let label =
+        "A useful choice";
+
+
+    if(
+        time.best
+            .includes(
+                spot
+            )
+    ){
+
+        quality =
+            3;
+
+
+        label =
+            "Excellent fit";
+
     }
 
-    function finishDay(){
-      playCelebrate();
-      const avg = Math.round((energy + calm) / 2);
-      let rank, badge, text;
-      if(avg >= 75){
-        rank = "Self-Care Star";
-        badge = "⭐";
-        text = "You used rest, movement, healthy habits and support from others to look after yourself. This is strong self-care.[file:34]";
-      } else if(avg >= 50){
-        rank = "Growing Explorer";
-        badge = "🏝";
-        text = "You made some good choices, but there is still room to add more self-care. Small daily changes will help you feel even better.[file:34]";
-      } else {
-        rank = "New Visitor";
-        badge = "🌱";
-        text = "This was your first visit to Self-Care Island. Learning to use sleep, food, exercise, relaxation and support will improve your energy and calm.[file:34]";
-      }
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Self-Care Island Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Energy: ${energy} · Calm: ${calm} · Self-care score: ${avg}%</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">New Day on the Island</button>
-        </div>
-      `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    else if(
+        time.good
+            .includes(
+                spot
+            )
+    ){
+
+        quality =
+            2;
+
+
+        label =
+            "Good fit";
+
     }
 
-    stations.forEach(st => {
-      st.addEventListener("click", () => {
-        if(currentStepIndex < 0 || currentStepIndex >= timeSteps.length) return;
-        handleStationClick(st.dataset.spot);
-      });
-    });
 
-    resetBtn.addEventListener("click", () => {
-      energy = 50;
-      calm = 50;
-      choicesMade = 0;
-      currentStepIndex = -1;
-      updateMeters();
-      stageIndicator.textContent = "Time of day: Morning";
-      scenarioTextEl.textContent = "";
-      choiceBoxEl.textContent = "Click “Start Day” to begin your self-care adventure.";
-      feedbackEl.style.display = "none";
-      progressTextEl.textContent = "Make 4 choices: Morning, Midday, Afternoon, Evening.";
-    });
+    points +=
+        quality;
 
-    nextBtn.addEventListener("click", () => {
-      if(currentStepIndex >= timeSteps.length - 1){
-        finishDay();
-      } else {
-        loadNextStep();
-      }
-    });
 
-    // Initial UI
+    const multiplier =
+
+        quality === 3
+
+            ?
+
+        1
+
+            :
+
+        quality === 2
+
+            ?
+
+        .75
+
+            :
+
+        .45;
+
+
+    energy +=
+        Math.round(
+            effects[
+                spot
+            ]
+            .energy *
+            multiplier
+        );
+
+
+    calm +=
+        Math.round(
+            effects[
+                spot
+            ]
+            .calm *
+            multiplier
+        );
+
+
     updateMeters();
-    scenarioTextEl.textContent = "";
-    choiceBoxEl.textContent = "Click “Start Day” to begin your self-care adventure.";
-  </script>
+
+
+    play(
+        goodSound
+    );
+
+
+    stationButtons.forEach(
+        station => {
+
+
+            station.disabled =
+                true;
+
+
+            station
+                .classList
+                .toggle(
+                    "selected",
+                    station === button
+                );
+
+
+            station
+                .classList
+                .toggle(
+                    "dimmed",
+                    station !== button
+                );
+
+        }
+    );
+
+
+    feedback.className =
+
+        quality === 1
+
+            ?
+
+        "feedback ok"
+
+            :
+
+        "feedback good";
+
+
+    feedback.innerHTML =
+        `<b>${label}.</b> ${time.feedback[spot]}`;
+
+
+    progressText.textContent =
+        `Choice recorded for ${time.label}.`;
+
+
+    nextBtn.disabled =
+        false;
+
+
+    nextBtn
+        .classList
+        .add(
+            "next-ready"
+        );
+
+
+    updateProgress();
+
+
+    /*
+       Bring Next button into view
+       on a phone.
+    */
+
+    if(
+        window
+            .matchMedia(
+                "(max-width:640px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            () => {
+
+                nextBtn
+                    .scrollIntoView(
+                        {
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "nearest"
+
+                        }
+                    );
+
+            },
+            100
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   START DAY
+========================================= */
+
+function startDay(){
+
+    started =
+        true;
+
+
+    current =
+        0;
+
+
+    energy =
+        50;
+
+
+    calm =
+        50;
+
+
+    points =
+        0;
+
+
+    updateMeters();
+
+
+    loadTime();
+
+
+    nextBtn.textContent =
+        "Next Time →";
+
+}
+
+
+/* =========================================
+   NEXT STEP
+========================================= */
+
+function nextStep(){
+
+    if(
+        !started
+    ){
+
+        startDay();
+
+        return;
+
+    }
+
+
+    if(
+        !chosenThisStep
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        current >=
+        times.length - 1
+    ){
+
+        finishDay();
+
+        return;
+
+    }
+
+
+    current++;
+
+
+    loadTime();
+
+
+    /*
+       Return to choices on mobile.
+    */
+
+    if(
+        window
+            .matchMedia(
+                "(max-width:640px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            () => {
+
+                document
+                    .querySelector(
+                        ".island-panel"
+                    )
+                    .scrollIntoView(
+                        {
+
+                            behavior:
+                                "smooth",
+
+                            block:
+                                "start"
+
+                        }
+                    );
+
+            },
+            90
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   RESET DAY
+========================================= */
+
+function resetDay(){
+
+    started =
+        false;
+
+
+    current =
+        -1;
+
+
+    energy =
+        50;
+
+
+    calm =
+        50;
+
+
+    points =
+        0;
+
+
+    chosenThisStep =
+        false;
+
+
+    updateMeters();
+
+
+    stage.textContent =
+        "Ready to begin";
+
+
+    scenarioLabel.textContent =
+        "Your Day";
+
+
+    scenarioText.textContent =
+        "Tap Start Day to begin your self-care adventure.";
+
+
+    promptText.textContent =
+        "You will make four choices: Morning, Midday, Afternoon and Evening.";
+
+
+    feedback.className =
+        "feedback";
+
+
+    feedback.textContent =
+        "";
+
+
+    progressText.textContent =
+        "Four choices ahead.";
+
+
+    nextBtn.textContent =
+        "Start Day";
+
+
+    nextBtn.disabled =
+        false;
+
+
+    nextBtn
+        .classList
+        .remove(
+            "next-ready"
+        );
+
+
+    setStations(
+        false
+    );
+
+
+    updateProgress();
+
+}
+
+
+/* =========================================
+   FINISH DAY
+========================================= */
+
+function finishDay(){
+
+    play(
+        celebrationSound
+    );
+
+
+    const percent =
+        Math.round(
+            (
+                points /
+                (
+                    times.length *
+                    3
+                )
+            ) *
+            100
+        );
+
+
+    let rank;
+
+    let badge;
+
+    let text;
+
+
+    if(
+        percent >=
+        85
+    ){
+
+        rank =
+            "Self-Care Star";
+
+
+        badge =
+            "⭐";
+
+
+        text =
+            "You matched self-care strategies thoughtfully to different moments of the day. Strong self-care is about choosing what you need, when you need it.";
+
+    }
+
+
+    else if(
+        percent >=
+        60
+    ){
+
+        rank =
+            "Balanced Explorer";
+
+
+        badge =
+            "🏝️";
+
+
+        text =
+            "You made several strong self-care choices. Keep noticing what your body, mind and emotions need at different times.";
+
+    }
+
+
+    else{
+
+        rank =
+            "Growing Explorer";
+
+
+        badge =
+            "🌱";
+
+
+        text =
+            "You are building your self-care judgement. Try to match each strategy to the situation instead of using the same kind of care every time.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+        `
+
+        <section class="final">
+
+            <div class="final-title">
+                Self-Care Island Report
+            </div>
+
+            <div class="final-badge">
+                ${badge}
+            </div>
+
+            <div class="final-rank">
+                ${rank}
+            </div>
+
+            <div class="final-score">
+
+                Energy:
+                ${energy}
+
+                · Calm:
+                ${calm}
+
+                · Self-Care Score:
+                ${percent}%
+
+            </div>
+
+            <div class="final-text">
+                ${text}
+            </div>
+
+            <button
+                class="btn btn-primary"
+                id="playAgainBtn"
+                type="button"
+            >
+                New Day on the Island
+            </button>
+
+        </section>
+
+        `;
+
+
+    document
+        .getElementById(
+            "playAgainBtn"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                location.reload();
+
+            }
+        );
+
+
+    window.scrollTo(
+        {
+
+            top:0,
+
+            behavior:
+                "smooth"
+
+        }
+    );
+
+}
+
+
+/* =========================================
+   EVENTS
+========================================= */
+
+stationButtons.forEach(
+    button => {
+
+        button
+            .addEventListener(
+                "click",
+                () => {
+
+                    choose(
+                        button.dataset.spot,
+                        button
+                    );
+
+                }
+            );
+
+    }
+);
+
+
+nextBtn
+    .addEventListener(
+        "click",
+        nextStep
+    );
+
+
+resetBtn
+    .addEventListener(
+        "click",
+        resetDay
+    );
+
+
+/* =========================================
+   INITIAL STATE
+========================================= */
+
+buildProgress();
+
+updateMeters();
+
+resetDay();
+
+</script>
+
 </body>
 </html>
