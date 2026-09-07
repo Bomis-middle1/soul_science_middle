@@ -1,912 +1,3666 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EQ Skills Tree – Grow Your Emotional Superpowers</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #fee2e2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
-      overflow: hidden;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EQ Skills Tree – Emotional Superpowers</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+:root{
+    --ink:#26394c;
+    --muted:#6a7d90;
+    --blue:#5f8fe7;
+    --blueDark:#3763ad;
+    --green:#49b17b;
+    --mint:#ecf9f2;
+    --yellow:#fff3cf;
+    --warn:#9a6720;
+    --warnBg:#fff5df;
+    --bad:#d96b67;
+    --badBg:#fff0ef;
+    --line:#dce6ee;
+    --soft:#f7fafc;
+    --white:#fff;
+}
+
+html{
+    width:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+}
+
+body{
+    width:100%;
+    min-height:100vh;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:var(--ink);
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(111,188,255,.18),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(111,215,162,.16),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fcff 0%,
+            #f2f8ff 55%,
+            #fffaf4 100%
+        );
+
+    padding:16px;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:3px solid #ffd465;
+    outline-offset:3px;
+}
+
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+.splash{
+    position:fixed;
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#fff;
+
+    transition:
+        opacity .45s ease;
+}
+
+.splash.hide{
+    opacity:0;
+    pointer-events:none;
+}
+
+.splash img{
+    width:min(430px,82vw);
+    height:auto;
+
+    animation:
+        floatLogo
+        2s
+        ease-in-out
+        infinite;
+}
+
+@keyframes floatLogo{
+
+    0%,
+    100%{
+        transform:translateY(0);
     }
 
-    /* Splash screen */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
+    50%{
+        transform:translateY(-10px);
     }
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .container.visible { opacity: 1; }
+}
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
-      color: #022c22;
-      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: headerGlow 20s linear infinite;
-    }
-    @keyframes headerGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fefce8;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.9);
-      border: 2px solid #fef3c7;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(59,130,246,0.9);
+
+/* ======================================================
+   GAME SHELL
+====================================================== */
+
+.game{
+    width:min(1160px,100%);
+
+    margin:0 auto;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #dbe6ee;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 18px 46px
+        rgba(54,81,108,.14);
+
+    opacity:0;
+
+    transition:
+        opacity .45s ease;
+}
+
+.game.visible{
+    opacity:1;
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.header{
+    padding:
+        22px
+        18px
+        18px;
+
+    text-align:center;
+
+    background:
+        radial-gradient(
+            circle at 14% 18%,
+            rgba(255,255,255,.82),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #e1f3ff 0%,
+            #e8f9ef 50%,
+            #fff0d4 100%
+        );
+
+    border-bottom:
+        1px solid
+        #dce7ef;
+}
+
+.header h1{
+    font-size:
+        clamp(
+            26px,
+            4vw,
+            37px
+        );
+
+    line-height:1.12;
+
+    color:#314e66;
+
+    margin-bottom:6px;
+}
+
+.subtitle{
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#60758a;
+}
+
+.stage{
+    display:inline-block;
+
+    margin-top:10px;
+
+    padding:
+        7px
+        15px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #cfdde8;
+
+    color:var(--blueDark);
+
+    font-size:13px;
+
+    font-weight:900;
+
+    box-shadow:
+        0 4px 10px
+        rgba(55,88,120,.07);
+}
+
+
+/* ======================================================
+   INTRODUCTION
+====================================================== */
+
+.intro{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+
+    padding:
+        12px
+        18px;
+
+    background:#fbfdff;
+
+    border-bottom:
+        1px solid
+        #e8eef4;
+}
+
+.intro-card{
+    min-width:0;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:14px;
+
+    background:#f5f9fc;
+
+    border:
+        1px solid
+        #e3eaf1;
+
+    color:#607286;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   PROGRESS
+====================================================== */
+
+.progress-area{
+    display:grid;
+
+    grid-template-columns:
+        auto
+        minmax(0,1fr)
+        auto;
+
+    gap:10px;
+
+    align-items:center;
+
+    padding:
+        11px
+        18px;
+
+    background:#fff;
+}
+
+.progress-label,
+.progress-number{
+    font-size:11px;
+
+    font-weight:900;
+
+    color:#667a8d;
+}
+
+.progress-bar{
+    height:13px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#e7ecef;
+}
+
+.progress-fill{
+    height:100%;
+
+    width:0;
+
+    border-radius:inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #6898e9,
+            #55be83
+        );
+
+    transition:
+        width .35s ease;
+}
+
+
+/* ======================================================
+   MAIN LAYOUT
+====================================================== */
+
+.layout{
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1.02fr)
+        minmax(0,.98fr);
+
+    gap:18px;
+
+    padding:18px;
+
+    align-items:start;
+}
+
+.panel{
+    min-width:0;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+
+    box-shadow:
+        0 8px 22px
+        rgba(55,82,108,.07);
+}
+
+
+/* ======================================================
+   TREE PANEL
+====================================================== */
+
+.tree-panel{
+    padding:16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fcfeff 0%,
+            #f7fbff 100%
+        );
+}
+
+.panel-title{
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    letter-spacing:.7px;
+
+    text-transform:uppercase;
+
+    color:#527089;
+
+    margin-bottom:5px;
+}
+
+.panel-subtitle{
+    text-align:center;
+
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:#748597;
+
+    margin-bottom:12px;
+}
+
+
+/* ======================================================
+   TREE VISUAL
+====================================================== */
+
+.tree-scene{
+    position:relative;
+
+    min-height:365px;
+
+    overflow:hidden;
+
+    border:
+        1px solid
+        #d5e8ef;
+
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #d4efff 0%,
+            #ecf9ff 52%,
+            #e1f3d6 53%,
+            #bfe0ac 100%
+        );
+}
+
+.sun{
+    position:absolute;
+
+    top:20px;
+    right:24px;
+
+    width:44px;
+    height:44px;
+
+    border-radius:50%;
+
+    background:#ffd866;
+
+    box-shadow:
+        0 0 0 8px
+        rgba(255,216,102,.16);
+}
+
+.ground{
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    height:64px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #87c875,
+            #70b460
+        );
+}
+
+.trunk{
+    position:absolute;
+
+    left:50%;
+    bottom:50px;
+
+    width:72px;
+    height:130px;
+
+    transform:
+        translateX(-50%);
+
+    border-radius:
+        38px 38px 12px 12px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #a86125,
+            #c57b35
+        );
+
+    box-shadow:
+        inset 7px 0 0
+        rgba(93,50,19,.12);
+}
+
+
+/* ======================================================
+   BRANCHES
+====================================================== */
+
+.branch-card{
+    position:absolute;
+
+    width:170px;
+
+    min-height:90px;
+
+    padding:10px;
+
+    border-radius:26px;
+
+    background:
+        rgba(255,255,255,.92);
+
+    border:
+        2px solid
+        rgba(255,255,255,.92);
+
+    box-shadow:
+        0 9px 18px
+        rgba(61,96,88,.10);
+
+    transition:.2s ease;
+}
+
+.branch-card.self{
+    left:18px;
+    bottom:102px;
+}
+
+.branch-card.social{
+    right:18px;
+    bottom:125px;
+}
+
+.branch-card.decision{
+    left:50%;
+    top:25px;
+
+    transform:
+        translateX(-50%);
+}
+
+.branch-card.focus{
+    border-color:#5f8fe7;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(95,143,231,.12),
+        0 9px 18px
+        rgba(61,96,88,.10);
+}
+
+.branch-name{
+    font-size:11px;
+
+    font-weight:900;
+
+    line-height:1.28;
+
+    color:#36566f;
+
+    margin-bottom:7px;
+}
+
+.branch-count{
+    font-size:9px;
+
+    font-weight:900;
+
+    color:#6c7f91;
+
+    margin-bottom:7px;
+}
+
+.leaf-row{
+    display:flex;
+
+    gap:6px;
+}
+
+.leaf{
+    width:25px;
+    height:18px;
+
+    border-radius:
+        70% 30% 70% 30%;
+
+    background:#d9e5dc;
+
+    border:
+        1px solid
+        #c8d7cc;
+
+    transform:
+        rotate(-10deg);
+
+    transition:.25s ease;
+}
+
+.leaf.grown{
+    background:
+        linear-gradient(
+            135deg,
+            #83d397,
+            #44ae73
+        );
+
+    border-color:#54b97c;
+
+    box-shadow:
+        0 3px 7px
+        rgba(66,158,102,.18);
+}
+
+.tree-tip{
+    margin-top:10px;
+
+    padding:
+        10px
+        12px;
+
+    border-radius:14px;
+
+    background:#f4f8fb;
+
+    border:
+        1px solid
+        #e1e9ef;
+
+    color:#66798c;
+
+    font-size:11px;
+
+    line-height:1.4;
+}
+
+
+/* ======================================================
+   RIGHT PANEL
+====================================================== */
+
+.right-panel{
+    padding:16px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    background:#fffefa;
+}
+
+
+/* ======================================================
+   SCORE
+====================================================== */
+
+.score-row{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:7px;
+}
+
+.score-card{
+    min-width:0;
+
+    padding:
+        9px
+        5px;
+
+    text-align:center;
+
+    border-radius:14px;
+
+    background:#f8fbff;
+
+    border:
+        1px solid
+        #dce6ef;
+}
+
+.score-label{
+    font-size:9px;
+
+    line-height:1.2;
+
+    text-transform:uppercase;
+
+    font-weight:900;
+
+    color:#75869a;
+
+    overflow-wrap:anywhere;
+}
+
+.score-value{
+    margin-top:3px;
+
+    font-size:16px;
+
+    font-weight:900;
+
+    color:#3f68b0;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   SCENARIO
+====================================================== */
+
+.scenario-card{
+    padding:14px;
+
+    border-radius:17px;
+
+    background:var(--yellow);
+
+    border:
+        1px solid
+        #eadba8;
+}
+
+.scenario-kicker{
+    font-size:10px;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+    font-weight:900;
+
+    color:#916817;
+
+    margin-bottom:4px;
+}
+
+.scenario-title{
+    font-size:15px;
+
+    font-weight:900;
+
+    color:#5e4f1e;
+
+    margin-bottom:5px;
+}
+
+.scenario-text{
+    font-size:13px;
+
+    line-height:1.48;
+
+    color:#645b3d;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   SKILL TAGS
+====================================================== */
+
+.skill-tags{
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:5px;
+
+    margin-top:9px;
+}
+
+.skill-tag{
+    padding:
+        4px
+        7px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #eadfbf;
+
+    color:#786833;
+
+    font-size:9px;
+
+    font-weight:900;
+}
+
+
+/* ======================================================
+   PROMPT
+====================================================== */
+
+.prompt{
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    background:#f5f8fb;
+
+    border:
+        1px solid
+        #e2e9ef;
+
+    color:#617489;
+
+    font-size:12px;
+
+    line-height:1.45;
+}
+
+
+/* ======================================================
+   CHOICES
+====================================================== */
+
+.choice-list{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:8px;
+}
+
+.choice-btn{
+    width:100%;
+
+    min-height:52px;
+
+    padding:
+        11px
+        12px;
+
+    border:
+        2px solid
+        #dbe5ef;
+
+    border-radius:15px;
+
+    background:#fff;
+
+    color:#354d64;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    font-weight:800;
+
+    transition:.18s ease;
+
+    overflow-wrap:anywhere;
+}
+
+.choice-btn:hover:not(:disabled){
+    border-color:#82a8e6;
+
+    transform:
+        translateY(-1px);
+}
+
+.choice-btn.correct{
+    border-color:#80c69d;
+
+    background:#edf9f2;
+
+    color:#2c704e;
+}
+
+.choice-btn.wrong{
+    border-color:#dc8581;
+
+    background:#fff0ef;
+
+    color:#8a4643;
+}
+
+.choice-btn:disabled{
+    cursor:default;
+}
+
+
+/* ======================================================
+   FEEDBACK
+====================================================== */
+
+.feedback{
+    display:none;
+
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+.feedback.good{
+    display:block;
+
+    background:#ebf9f1;
+
+    border:
+        1px solid
+        #b6e1c7;
+
+    color:#286a49;
+}
+
+.feedback.warn{
+    display:block;
+
+    background:var(--warnBg);
+
+    border:
+        1px solid
+        #ecd293;
+
+    color:#7f5d18;
+}
+
+
+/* ======================================================
+   NEXT BUTTON
+====================================================== */
+
+.next-row{
+    display:none;
+}
+
+.next-row.active{
+    display:block;
+}
+
+.next-row .btn-primary{
+    width:100%;
+}
+
+
+/* ======================================================
+   CONTROLS
+====================================================== */
+
+.controls{
+    display:grid;
+
+    grid-template-columns:
+        auto 1fr;
+
+    gap:8px;
+
+    align-items:center;
+}
+
+.btn{
+    min-height:44px;
+
+    border-radius:14px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+}
+
+.btn-secondary{
+    padding:
+        9px
+        12px;
+
+    border:
+        1px solid
+        #d4dee8;
+
+    background:#f5f8fb;
+
+    color:#5b6f82;
+}
+
+.btn-primary{
+    padding:
+        10px
+        16px;
+
+    border:0;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5f8ee5,
+            #4cb97f
+        );
+
+    box-shadow:
+        0 6px 15px
+        rgba(67,117,158,.17);
+}
+
+.btn:hover:not(:disabled){
+    transform:
+        translateY(-1px);
+}
+
+.btn:disabled{
+    opacity:.42;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+}
+
+#progressText{
+    min-width:0;
+
+    text-align:center;
+
+    color:#708195;
+
+    font-size:10px;
+
+    line-height:1.4;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   VOLUME
+====================================================== */
+
+.volume{
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:11px;
+
+    color:#7a8998;
+}
+
+.volume input{
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* ======================================================
+   FINAL REPORT
+====================================================== */
+
+.final{
+    grid-column:1/-1;
+
+    padding:
+        36px
+        22px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+}
+
+.final-title{
+    font-size:27px;
+
+    font-weight:900;
+
+    color:#3e67ad;
+
+    margin-bottom:8px;
+}
+
+.final-badge{
+    font-size:58px;
+
+    margin:
+        10px 0;
+}
+
+.final-rank{
+    font-size:22px;
+
+    font-weight:900;
+
+    margin-bottom:6px;
+}
+
+.final-score{
+    margin:
+        8px 0;
+
+    font-size:16px;
+
+    font-weight:800;
+
+    color:#586d81;
+}
+
+.final-text{
+    max-width:680px;
+
+    margin:
+        0 auto 18px;
+
+    color:#67798b;
+
+    font-size:14px;
+
+    line-height:1.55;
+}
+
+.branch-summary{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap:8px;
+
+    max-width:680px;
+
+    margin:
+        16px auto;
+}
+
+.summary-card{
+    padding:10px;
+
+    border-radius:14px;
+
+    background:#f6f9fc;
+
+    border:
+        1px solid
+        #e1e8ee;
+
+    font-size:11px;
+
+    color:#607488;
+
+    line-height:1.4;
+}
+
+.summary-card strong{
+    display:block;
+
+    color:#36556f;
+
+    margin-bottom:3px;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media(max-width:900px){
+
+    .layout{
+        grid-template-columns:1fr;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fef3c7, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
+    .intro{
+        grid-template-columns:1fr;
     }
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
-        #f9fafb;
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media(max-width:640px){
+
+    html,
+    body{
+        width:100%;
+        max-width:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
     }
 
-    /* Tree panel */
-    .tree-panel {
-      flex: 1.2;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 10px;
-      background: #e0f2fe;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .panel-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
+    body{
+        padding:0;
+
+        background:#f7fbff;
     }
 
-    .tree-scene {
-      flex: 1;
-      border-radius: 14px;
-      background: linear-gradient(to top, #bbf7d0 0%, #fef9c3 50%, #7dd3fc 90%);
-      padding: 8px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: inset 0 0 18px rgba(148,163,184,0.7);
+    .game{
+        width:100%;
+        max-width:100%;
+
+        margin:0;
+
+        border:0;
+        border-radius:0;
+
+        box-shadow:none;
+
+        overflow:visible;
     }
 
-    .tree-trunk {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 130px;
-      background: linear-gradient(to right, #92400e, #b45309);
-      border-radius: 40px 40px 0 0;
-      box-shadow: 0 0 10px rgba(120,53,15,0.8);
+    .header{
+        padding:
+            16px
+            13px
+            14px;
     }
 
-    .branch {
-      position: absolute;
-      width: 120px;
-      height: 60px;
-      border-radius: 60px;
-      background: radial-gradient(circle at 30% 30%, #bbf7d0 0%, #22c55e 70%);
-      box-shadow: 0 0 12px rgba(34,197,94,0.8);
-      opacity: 0.25;
-      transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-    }
-    .branch.active {
-      opacity: 1;
-      transform: scale(1.03);
+    .header h1{
+        font-size:22px;
     }
 
-    .branch-label {
-      position: absolute;
-      font-size: 11px;
-      font-weight: bold;
-      color: #064e3b;
-      text-align: center;
-      width: 120px;
-      pointer-events: none;
+    .subtitle{
+        font-size:12px;
     }
 
-    .branch-self {
-      left: 50%;
-      bottom: 130px;
-      transform: translateX(-120%);
-    }
-    .branch-self-label {
-      left: 50%;
-      bottom: 150px;
-      transform: translateX(-120%);
+    .intro{
+        padding:10px;
+
+        gap:7px;
     }
 
-    .branch-social {
-      left: 50%;
-      bottom: 160px;
-      transform: translateX(20%);
-    }
-    .branch-social-label {
-      left: 50%;
-      bottom: 180px;
-      transform: translateX(20%);
+    .intro-card{
+        padding:
+            9px
+            10px;
+
+        font-size:11px;
     }
 
-    .branch-decision {
-      left: 50%;
-      bottom: 200px;
-      transform: translateX(-50%);
-    }
-    .branch-decision-label {
-      left: 50%;
-      bottom: 225px;
-      transform: translateX(-50%);
+    .progress-area{
+        position:sticky;
+
+        top:0;
+
+        z-index:20;
+
+        padding:
+            9px
+            10px;
+
+        background:
+            rgba(255,255,255,.97);
+
+        box-shadow:
+            0 3px 10px
+            rgba(55,78,102,.06);
     }
 
-    .leaf-counter {
-      position: absolute;
-      font-size: 11px;
-      color: #065f46;
+    .layout{
+        display:block;
+
+        width:100%;
+
+        padding:10px;
     }
 
-    .leaf-counter-self {
-      left: 12%;
-      bottom: 150px;
-    }
-    .leaf-counter-social {
-      right: 12%;
-      bottom: 180px;
-    }
-    .leaf-counter-decision {
-      left: 50%;
-      bottom: 245px;
-      transform: translateX(-50%);
+    .panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        border-radius:16px;
     }
 
-    /* Right panel */
-    .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 12px;
-      background: #fefce8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .tree-panel{
+        padding:11px;
+
+        margin-bottom:12px;
     }
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
+    .tree-scene{
+        min-height:300px;
     }
 
-    .status-text {
-      font-size: 12px;
-      color: #374151;
-      text-align: center;
-      margin-top: 2px;
+    .trunk{
+        width:58px;
+        height:105px;
+
+        bottom:43px;
     }
 
-    .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
+    .ground{
+        height:52px;
     }
 
-    .scenario-text {
-      font-size: 13px;
-      color: #374151;
-      text-align: center;
-      min-height: 40px;
+    .branch-card{
+        width:138px;
+
+        min-height:80px;
+
+        padding:8px;
+
+        border-radius:20px;
     }
 
-    .skill-tags {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      font-size: 11px;
-      margin-bottom: 2px;
-      color: #6b7280;
+    .branch-card.self{
+        left:8px;
+        bottom:84px;
     }
 
-    .choice-box {
-      margin-top: 4px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 8px;
-      background: #fffbeb;
-      font-size: 12px;
-      color: #374151;
+    .branch-card.social{
+        right:8px;
+        bottom:102px;
     }
 
-    .choice-list {
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .choice-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-      text-align: left;
-    }
-    .choice-btn:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    .branch-card.decision{
+        top:18px;
     }
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
-    }
-    .feedback.warn {
-      background: rgba(254,202,202,0.7);
-      border: 1px solid #f97316;
-      color: #7c2d12;
+    .branch-name{
+        font-size:9px;
     }
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
+    .branch-count{
+        font-size:8px;
     }
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(34,197,94,1);
+    .leaf{
+        width:21px;
+        height:15px;
     }
 
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    .right-panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        padding:12px;
     }
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
+    .score-row{
+        gap:5px;
     }
-    .volume-control input { flex: 1; }
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
+    .score-card{
+        padding:
+            8px
+            4px;
     }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column; }
-      .tree-panel, .right-panel { min-width: 100%; }
+    .score-label{
+        font-size:8px;
     }
-  </style>
+
+    .score-value{
+        font-size:14px;
+    }
+
+    .scenario-title{
+        font-size:14px;
+    }
+
+    .scenario-text,
+    .choice-btn{
+        font-size:12px;
+    }
+
+    .choice-btn{
+        min-height:54px;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+
+    .controls .btn{
+        width:100%;
+    }
+
+    #progressText{
+        order:-1;
+
+        text-align:left;
+    }
+
+    .next-row.active{
+        position:sticky;
+
+        bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+
+        z-index:30;
+
+        padding-top:4px;
+    }
+
+    .next-row .btn-primary{
+        border:
+            3px solid
+            #fff;
+
+        box-shadow:
+            0 8px 20px
+            rgba(58,90,123,.2);
+    }
+
+    .volume{
+        padding-bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+    .branch-summary{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
+/* ======================================================
+   VERY SMALL PHONES
+====================================================== */
+
+@media(max-width:360px){
+
+    .header h1{
+        font-size:19px;
+    }
+
+    .progress-area{
+        grid-template-columns:1fr;
+
+        gap:4px;
+    }
+
+    .progress-label,
+    .progress-number{
+        text-align:center;
+    }
+
+    .score-row{
+        grid-template-columns:1fr;
+    }
+
+    .score-card{
+        display:flex;
+
+        align-items:center;
+
+        justify-content:
+            space-between;
+
+        text-align:left;
+    }
+
+    .score-value{
+        margin:0;
+    }
+
+    .tree-scene{
+        min-height:390px;
+    }
+
+    .branch-card{
+        position:absolute;
+
+        left:12px !important;
+        right:12px !important;
+
+        width:auto;
+
+        transform:none !important;
+    }
+
+    .branch-card.decision{
+        top:12px;
+    }
+
+    .branch-card.self{
+        top:110px;
+        bottom:auto;
+    }
+
+    .branch-card.social{
+        top:208px;
+        bottom:auto;
+    }
+
+    .trunk{
+        display:none;
+    }
+
+}
+
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:.01ms !important;
+        animation-iteration-count:1 !important;
+        transition-duration:.01ms !important;
+        scroll-behavior:auto !important;
+    }
+
+}
+
+</style>
 </head>
+
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading EQ Skills Tree...</div>
+
+
+<!-- ======================================================
+     SPLASH
+====================================================== -->
+
+<div
+    class="splash"
+    id="splash"
+>
+
+    <img
+        src="assets/innovine-logo.png"
+        alt="Innovine Logo"
+        onerror="this.style.display='none'"
+    >
+
+</div>
+
+
+<!-- ======================================================
+     GAME
+====================================================== -->
+
+<div
+    class="game"
+    id="game"
+>
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>
+            🌳 EQ Skills Tree
+        </h1>
+
+        <div class="subtitle">
+            Grow Your Emotional Superpowers
+        </div>
+
+        <div
+            class="stage"
+            id="stageIndicator"
+        >
+            Scenario 1 of 9
+        </div>
+
+    </header>
+
+
+    <!-- INTRO -->
+
+    <div class="intro">
+
+        <div class="intro-card">
+
+            Emotional intelligence helps you notice and manage
+            your own emotions, understand other people, and make
+            thoughtful decisions.
+
+        </div>
+
+
+        <div class="intro-card">
+
+            Choose the most helpful response in each situation.
+            If your first choice is not helpful, use the feedback
+            and try again.
+
+        </div>
+
     </div>
-  </div>
 
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🌳 EQ Skills Tree – Emotional Superpowers</h1>
-        <div class="subtitle">Chapter 9 – Emotional Intelligence · Grade 6</div>
-        <div class="stage-indicator" id="stageIndicator">Scenarios played: 0 / 9</div>
-      </div>
+
+    <!-- PROGRESS -->
+
+    <div class="progress-area">
+
+        <div class="progress-label">
+            EQ Tree Progress
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                id="progressFill"
+            ></div>
+
+        </div>
+
+        <div
+            class="progress-number"
+            id="progressNumber"
+        >
+            0 / 9
+        </div>
+
     </div>
 
-    <div class="top-bar">
-      <div>EQ means being aware of your emotions, understanding others and making responsible decisions.[file:36]</div>
-      <div>Grow three branches: Self‑Awareness, Social Awareness, and Responsible Decision‑Making.[file:36]</div>
-    </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="tree-panel">
-        <div class="panel-title">Your EQ Tree</div>
-        <div class="tree-scene">
-          <div class="tree-trunk"></div>
+    <!-- MAIN -->
 
-          <!-- branches -->
-          <div class="branch branch-self" id="branchSelf"></div>
-          <div class="branch-label branch-self-label">Self‑Awareness &<br>Self‑Management</div>
+    <main
+        class="layout"
+        id="gameWrapper"
+    >
 
-          <div class="branch branch-social" id="branchSocial"></div>
-          <div class="branch-label branch-social-label">Social Awareness &<br>Relationship Skills</div>
 
-          <div class="branch branch-decision" id="branchDecision"></div>
-          <div class="branch-label branch-decision-label">Responsible Decision‑Making &<br>Problem Solving</div>
+        <!-- =================================================
+             TREE
+        ================================================== -->
 
-          <div class="leaf-counter leaf-counter-self" id="leafSelf">Leaves: 0</div>
-          <div class="leaf-counter leaf-counter-social" id="leafSocial">Leaves: 0</div>
-          <div class="leaf-counter leaf-counter-decision" id="leafDecision">Leaves: 0</div>
-        </div>
-      </div>
+        <section class="panel tree-panel">
 
-      <div class="right-panel">
-        <div class="score-row">
-          <div class="score-card">
-            <div class="score-label">Total Leaves</div>
-            <div class="score-value" id="totalLeaves">0 / 15</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">EQ Growth</div>
-            <div class="score-value" id="eqGrowth">0%</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">EQ Rank</div>
-            <div class="score-value" id="eqRank">Beginner</div>
-          </div>
-        </div>
+            <div class="panel-title">
+                Your EQ Tree
+            </div>
 
-        <div class="status-text" id="statusText">
-          Read the situation, think which EQ skill helps most, and choose an action. Good choices grow leaves on the right branch.[file:36]
-        </div>
+            <div class="panel-subtitle">
 
-        <div class="scenario-title" id="scenarioTitle">Scenario</div>
-        <div class="scenario-text" id="scenarioText"></div>
+                Each solved scenario grows one leaf
+                on the skill branch you practised.
 
-        <div class="skill-tags" id="skillTags"></div>
+            </div>
 
-        <div class="choice-box" id="choiceBox">
-          Choose one action. Remember: emotions are not “wrong”, but how you respond matters.
-        </div>
 
-        <div class="choice-list" id="choiceList"></div>
+            <div class="tree-scene">
 
-        <div class="feedback" id="feedback"></div>
+                <div class="sun"></div>
 
-        <div class="controls">
-          <button class="btn-secondary" id="resetBtn">New round</button>
-          <div id="progressText">Play through all the scenarios, then click “Finish Tree” to see your EQ report.</div>
-          <button class="btn-primary" id="finishBtn">Finish Tree</button>
-        </div>
+                <div class="ground"></div>
 
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
-      </div>
-    </div>
-  </div>
+                <div class="trunk"></div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const mainContainer = document.getElementById("mainContainer");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      mainContainer.classList.add("visible");
-    }, 2500);
 
-    // Audio
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
+                <!-- SELF -->
 
-    // Branch elements
-    const branchSelf = document.getElementById("branchSelf");
-    const branchSocial = document.getElementById("branchSocial");
-    const branchDecision = document.getElementById("branchDecision");
-    const leafSelfEl = document.getElementById("leafSelf");
-    const leafSocialEl = document.getElementById("leafSocial");
-    const leafDecisionEl = document.getElementById("leafDecision");
+                <div
+                    class="branch-card self"
+                    id="branchSelf"
+                >
 
-    const totalLeavesEl = document.getElementById("totalLeaves");
-    const eqGrowthEl = document.getElementById("eqGrowth");
-    const eqRankEl = document.getElementById("eqRank");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const statusTextEl = document.getElementById("statusText");
-    const scenarioTitleEl = document.getElementById("scenarioTitle");
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const skillTagsEl = document.getElementById("skillTags");
-    const choiceBoxEl = document.getElementById("choiceBox");
-    const choiceListEl = document.getElementById("choiceList");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
-    const resetBtn = document.getElementById("resetBtn");
-    const finishBtn = document.getElementById("finishBtn");
-    const gameWrapper = document.getElementById("gameWrapper");
+                    <div class="branch-name">
+                        🧠 Self-Awareness & Self-Management
+                    </div>
 
-    // Max leaves per branch
-    const maxLeavesPerBranch = 5;
-    const maxTotalLeaves = maxLeavesPerBranch * 3;
+                    <div
+                        class="branch-count"
+                        id="selfCount"
+                    >
+                        0 / 3 leaves
+                    </div>
 
-    let leavesSelf = 0;
-    let leavesSocial = 0;
-    let leavesDecision = 0;
-    let scenarioIndex = 0;
+                    <div
+                        class="leaf-row"
+                        data-leaves="self"
+                    >
 
-    // Scenarios mapped to EQ areas and textbook ideas.[file:36]
-    const scenarios = [
-      // Self-awareness & self-management
-      {
-        area: "self",
-        title: "Waking Up Worried",
-        text: "You wake up feeling heavy and worried, but you are not sure why.",
-        tags: ["Self-awareness", "Naming emotions"],
-        choices: [
-          {
-            good: true,
-            text: "Pause and ask yourself, “What exactly am I feeling?” Then write a few lines in your journal about it.",
-            feedback: "This builds self-awareness: noticing and naming your feelings, and journaling helps you understand them better.[file:36]"
-          },
-          {
-            good: false,
-            text: "Ignore the feeling completely and tell yourself, “Feelings are useless. I should not feel this way.”",
-            feedback: "There are no “wrong” emotions. Ignoring or judging them makes it harder to manage them in a healthy way.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "self",
-        title: "Stress Before an Exam",
-        text: "You have an important test tomorrow and your heart is beating fast.",
-        tags: ["Stress handling", "Self-management"],
-        choices: [
-          {
-            good: true,
-            text: "Take some deep breaths, admit to yourself “I feel nervous”, and then plan what to revise first.",
-            feedback: "You are learning to notice stress, calm your body, and then act. This is self-management and endurance towards a goal.[file:36]"
-          },
-          {
-            good: false,
-            text: "Keep scrolling on your phone to avoid thinking about it, and do not talk to anyone about your fear.",
-            feedback: "Avoiding the feeling may increase stress later and does not help you reach your goal.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "self",
-        title: "Big Anger at a Friend",
-        text: "You feel very angry at a friend who forgot your birthday.",
-        tags: ["Self-awareness", "Managing emotions"],
-        choices: [
-          {
-            good: true,
-            text: "Notice your anger, take some time to cool down, and think about why this hurts you so much.",
-            feedback: "Being aware of what you feel and why it matters is a key part of self-awareness and self-management.[file:36]"
-          },
-          {
-            good: false,
-            text: "Tell yourself you are wrong to feel that way and force yourself to smile without thinking about it.",
-            feedback: "Denying your real emotion can make it stronger later. Awareness brings power back to your life.[file:36]"
-          }
-        ]
-      },
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
 
-      // Social awareness & relationships
-      {
-        area: "social",
-        title: "Quiet Classmate",
-        text: "A classmate is very quiet and sits alone during break.",
-        tags: ["Empathy", "Social awareness"],
-        choices: [
-          {
-            good: true,
-            text: "Wonder what they might be feeling, then gently invite them to join your game and listen to them.",
-            feedback: "You are practicing empathy by trying to understand their feelings and including them respectfully.[file:36]"
-          },
-          {
-            good: false,
-            text: "Assume they are rude and tell others they think they are better than everyone.",
-            feedback: "Judging before you know the facts and stereotyping others hurts relationships.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "social",
-        title: "Group Discussion",
-        text: "In a group discussion, you notice one friend tries to speak but is interrupted.",
-        tags: ["Listening", "Cooperating"],
-        choices: [
-          {
-            good: true,
-            text: "Say, “Let’s hear what they were trying to say” and give them a chance to talk.",
-            feedback: "This builds relationship skills and shows you value others’ messages and voices.[file:36]"
-          },
-          {
-            good: false,
-            text: "Keep talking over them because you think your ideas are more important.",
-            feedback: "Not listening damages trust and makes it hard to cooperate as a group.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "social",
-        title: "Laughing at a Mistake",
-        text: "Someone mispronounces a word while reading aloud and others start laughing.",
-        tags: ["Empathy", "Understanding differences"],
-        choices: [
-          {
-            good: true,
-            text: "Imagine how you would feel, ask others to stop, and encourage the reader kindly.",
-            feedback: "You are understanding their feelings and supporting them, which strengthens relationships.[file:36]"
-          },
-          {
-            good: false,
-            text: "Join the laughter and make a joke about how they always say things badly.",
-            feedback: "This ignores empathy and can deeply hurt the other person’s confidence.[file:36]"
-          }
-        ]
-      },
+                    </div>
 
-      // Responsible decision-making & problem-solving
-      {
-        area: "decision",
-        title: "After-School Choice",
-        text: "You have homework and also want to play a game for a long time.",
-        tags: ["Goal setting", "Decision-making"],
-        choices: [
-          {
-            good: true,
-            text: "Set a small goal: finish one part of homework first, then take a short, timed break.",
-            feedback: "You are creating and acting on constructive goals, balancing fun and responsibility.[file:36]"
-          },
-          {
-            good: false,
-            text: "Play for hours first and hope there is enough time later somehow.",
-            feedback: "This ignores consequences and makes it hard to reach your goals calmly.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "decision",
-        title: "Rumour or Truth?",
-        text: "You hear a rumour about a friend and feel upset.",
-        tags: ["Problem-solving", "Responsible choice"],
-        choices: [
-          {
-            good: true,
-            text: "Decide to talk to your friend calmly to check the facts before reacting.",
-            feedback: "You are using communication and problem-solving to handle the situation in a constructive way.[file:36]"
-          },
-          {
-            good: false,
-            text: "Immediately believe the rumour and stop talking to them without asking anything.",
-            feedback: "Reacting without checking facts can damage relationships and is not a responsible decision.[file:36]"
-          }
-        ]
-      },
-      {
-        area: "decision",
-        title: "Helping or Teasing",
-        text: "You notice someone struggling with a task in class.",
-        tags: ["Decision-making", "Problem-solving"],
-        choices: [
-          {
-            good: true,
-            text: "Offer help or ask the teacher how you can support them without embarrassing them.",
-            feedback: "You are choosing an action that solves a problem and respects others, a key EQ skill.[file:36]"
-          },
-          {
-            good: false,
-            text: "Point out their mistake loudly so others will laugh.",
-            feedback: "This choice may feel funny for a moment but harms trust and connection in the long term.[file:36]"
-          }
-        ]
-      }
-    ];
+                </div>
 
-    function updateTreeVisual(){
-      branchSelf.style.opacity = 0.25 + (leavesSelf / maxLeavesPerBranch) * 0.75;
-      branchSocial.style.opacity = 0.25 + (leavesSocial / maxLeavesPerBranch) * 0.75;
-      branchDecision.style.opacity = 0.25 + (leavesDecision / maxLeavesPerBranch) * 0.75;
 
-      leafSelfEl.textContent = "Leaves: " + leavesSelf;
-      leafSocialEl.textContent = "Leaves: " + leavesSocial;
-      leafDecisionEl.textContent = "Leaves: " + leavesDecision;
+                <!-- SOCIAL -->
 
-      const totalLeaves = leavesSelf + leavesSocial + leavesDecision;
-      totalLeavesEl.textContent = totalLeaves + " / " + maxTotalLeaves;
+                <div
+                    class="branch-card social"
+                    id="branchSocial"
+                >
 
-      const percent = Math.round((totalLeaves / maxTotalLeaves) * 100);
-      eqGrowthEl.textContent = percent + "%";
+                    <div class="branch-name">
+                        🤝 Social Awareness & Relationships
+                    </div>
 
-      if(percent >= 80){
-        eqRankEl.textContent = "EQ Hero";
-      } else if(percent >= 50){
-        eqRankEl.textContent = "Growing Star";
-      } else {
-        eqRankEl.textContent = "Beginner";
-      }
+                    <div
+                        class="branch-count"
+                        id="socialCount"
+                    >
+                        0 / 3 leaves
+                    </div>
 
-      stageIndicator.textContent = "Scenarios played: " + scenarioIndex + " / " + scenarios.length;
+                    <div
+                        class="leaf-row"
+                        data-leaves="social"
+                    >
+
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DECISION -->
+
+                <div
+                    class="branch-card decision"
+                    id="branchDecision"
+                >
+
+                    <div class="branch-name">
+                        🧭 Responsible Decisions & Problem Solving
+                    </div>
+
+                    <div
+                        class="branch-count"
+                        id="decisionCount"
+                    >
+                        0 / 3 leaves
+                    </div>
+
+                    <div
+                        class="leaf-row"
+                        data-leaves="decision"
+                    >
+
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
+                        <span class="leaf"></span>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="tree-tip">
+
+                A strong EQ tree needs all three branches.
+                The goal is not to avoid emotions, but to
+                understand them and choose helpful responses.
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             SCENARIOS
+        ================================================== -->
+
+        <section class="panel right-panel">
+
+
+            <!-- SCORE -->
+
+            <div class="score-row">
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Leaves Grown
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="totalLeaves"
+                    >
+                        0 / 9
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        First-Try Choices
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="accuracyText"
+                    >
+                        100%
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        EQ Rank
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="eqRank"
+                    >
+                        Beginner
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- SCENARIO -->
+
+            <div
+                class="scenario-card"
+                id="scenarioCard"
+            >
+
+                <div
+                    class="scenario-kicker"
+                    id="scenarioKicker"
+                >
+                    Skill Branch
+                </div>
+
+                <div
+                    class="scenario-title"
+                    id="scenarioTitle"
+                ></div>
+
+                <div
+                    class="scenario-text"
+                    id="scenarioText"
+                ></div>
+
+                <div
+                    class="skill-tags"
+                    id="skillTags"
+                ></div>
+
+            </div>
+
+
+            <div class="prompt">
+
+                Which response shows the strongest
+                emotional intelligence in this situation?
+
+            </div>
+
+
+            <!-- CHOICES -->
+
+            <div
+                class="choice-list"
+                id="choiceList"
+            ></div>
+
+
+            <!-- FEEDBACK -->
+
+            <div
+                class="feedback"
+                id="feedback"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- NEXT -->
+
+            <div
+                class="next-row"
+                id="nextRow"
+            >
+
+                <button
+                    class="btn btn-primary"
+                    id="nextBtn"
+                    type="button"
+                >
+                    Next Scenario →
+                </button>
+
+            </div>
+
+
+            <!-- CONTROLS -->
+
+            <div class="controls">
+
+                <button
+                    class="btn btn-secondary"
+                    id="resetBtn"
+                    type="button"
+                >
+                    New Round
+                </button>
+
+                <div id="progressText">
+
+                    Read the situation, then choose
+                    the most helpful response.
+
+                </div>
+
+            </div>
+
+
+            <!-- VOLUME -->
+
+            <div class="volume">
+
+                <span>
+                    🔊 Sounds
+                </span>
+
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    min="0"
+                    max="100"
+                    value="80"
+                >
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+const splash =
+    document.getElementById(
+        "splash"
+    );
+
+const game =
+    document.getElementById(
+        "game"
+    );
+
+setTimeout(
+    () => {
+
+        splash
+            .classList
+            .add(
+                "hide"
+            );
+
+        game
+            .classList
+            .add(
+                "visible"
+            );
+
+    },
+    5000
+);
+
+
+/* ======================================================
+   AUDIO
+====================================================== */
+
+const correctSound =
+    new Audio(
+        "assets/correct.mp3"
+    );
+
+const wrongSound =
+    new Audio(
+        "assets/wrong.mp3"
+    );
+
+const celebrationSound =
+    new Audio(
+        "assets/freesound_community-claps-44774.mp3"
+    );
+
+let volume =
+    .8;
+
+[
+    correctSound,
+    wrongSound,
+    celebrationSound
+]
+.forEach(
+    sound => {
+
+        sound.volume =
+            volume;
+
     }
+);
 
-    function highlightBranch(area){
-      branchSelf.classList.remove("active");
-      branchSocial.classList.remove("active");
-      branchDecision.classList.remove("active");
-      if(area === "self") branchSelf.classList.add("active");
-      if(area === "social") branchSocial.classList.add("active");
-      if(area === "decision") branchDecision.classList.add("active");
-    }
+function playSound(
+    sound
+){
 
-    function loadScenario(){
-      const s = scenarios[scenarioIndex];
-      highlightBranch(s.area);
-      scenarioTitleEl.textContent = s.title;
-      scenarioTextEl.textContent = s.text;
-      skillTagsEl.innerHTML = "";
-      s.tags.forEach(tag => {
-        const span = document.createElement("span");
-        span.textContent = tag;
-        skillTagsEl.appendChild(span);
-      });
+    sound.currentTime =
+        0;
 
-      feedbackEl.style.display = "none";
-      choiceListEl.innerHTML = "";
-      s.choices.forEach(choice => {
-        const btn = document.createElement("button");
-        btn.className = "choice-btn";
-        btn.textContent = choice.text;
-        btn.addEventListener("click", () => handleChoice(choice, s.area));
-        choiceListEl.appendChild(btn);
-      });
+    sound
+        .play()
+        .catch(
+            () => {}
+        );
 
-      statusTextEl.textContent = "Scenario " + (scenarioIndex + 1) + " of " + scenarios.length + ". Which action grows your EQ most?";
-      progressTextEl.textContent = "Think first, then choose. There are no wrong emotions, only more and less helpful responses.";
-      updateTreeVisual();
-    }
+}
 
-    function handleChoice(choice, area){
-      feedbackEl.style.display = "block";
-      if(choice.good){
-        playGood();
-        feedbackEl.className = "feedback good";
-        feedbackEl.textContent = choice.feedback;
+document
+    .getElementById(
+        "volumeSlider"
+    )
+    .addEventListener(
+        "input",
+        event => {
 
-        if(area === "self" && leavesSelf < maxLeavesPerBranch) leavesSelf++;
-        if(area === "social" && leavesSocial < maxLeavesPerBranch) leavesSocial++;
-        if(area === "decision" && leavesDecision < maxLeavesPerBranch) leavesDecision++;
-      } else {
-        feedbackEl.className = "feedback warn";
-        feedbackEl.textContent = choice.feedback;
-      }
+            volume =
+                event.target.value /
+                100;
 
-      updateTreeVisual();
+            [
+                correctSound,
+                wrongSound,
+                celebrationSound
+            ]
+            .forEach(
+                sound => {
 
-      setTimeout(() => {
-        scenarioIndex++;
-        if(scenarioIndex < scenarios.length){
-          loadScenario();
-        } else {
-          statusTextEl.textContent = "You have played all the scenarios. Click “Finish Tree” to see your EQ report.";
-          progressTextEl.textContent = "Look at which branch grew most. That shows your current strengths.";
+                    sound.volume =
+                        volume;
+
+                }
+            );
+
         }
-      }, 1600);
+    );
+
+
+/* ======================================================
+   SCENARIOS
+====================================================== */
+
+const scenarios = [
+
+
+    /* SELF 1 */
+
+    {
+
+        area:
+            "self",
+
+        title:
+            "Waking Up Worried",
+
+        text:
+            "You wake up feeling heavy and worried, but you are not sure why.",
+
+        tags:[
+            "Self-awareness",
+            "Naming emotions"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Pause and ask yourself what you are feeling, then write a few lines about it.",
+
+                feedback:
+                    "You noticed and named the emotion instead of judging it. That strengthens self-awareness."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Ignore the feeling and tell yourself that you should not feel this way.",
+
+                feedback:
+                    "Emotions are not wrong. Ignoring or judging them can make them harder to understand and manage."
+
+            }
+
+        ]
+
+    },
+
+
+    /* SELF 2 */
+
+    {
+
+        area:
+            "self",
+
+        title:
+            "Stress Before an Exam",
+
+        text:
+            "You have an important test tomorrow and notice that your heart is beating fast.",
+
+        tags:[
+            "Stress handling",
+            "Self-management"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Take a few slow breaths, acknowledge that you feel nervous, then decide what to revise first.",
+
+                feedback:
+                    "You recognised the stress, calmed your body and moved towards a useful action."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Keep scrolling on your phone so you do not have to think about the test.",
+
+                feedback:
+                    "Avoiding the feeling may delay the stress, but it does not help you prepare or manage it."
+
+            }
+
+        ]
+
+    },
+
+
+    /* SELF 3 */
+
+    {
+
+        area:
+            "self",
+
+        title:
+            "Big Anger at a Friend",
+
+        text:
+            "You feel very angry because a friend forgot your birthday.",
+
+        tags:[
+            "Self-awareness",
+            "Managing emotions"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Notice the anger, give yourself time to cool down, and think about why the situation hurt you.",
+
+                feedback:
+                    "Recognising what you feel and why it matters helps you respond rather than react."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Pretend you are not angry and force yourself to smile without thinking about the feeling.",
+
+                feedback:
+                    "Pretending the emotion does not exist may hide it for a while, but it does not help you understand it."
+
+            }
+
+        ]
+
+    },
+
+
+    /* SOCIAL 1 */
+
+    {
+
+        area:
+            "social",
+
+        title:
+            "Quiet Classmate",
+
+        text:
+            "A classmate is very quiet and sits alone during break.",
+
+        tags:[
+            "Empathy",
+            "Social awareness"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Wonder what they might be feeling, gently invite them to join you, and listen if they want to talk.",
+
+                feedback:
+                    "You used empathy without making assumptions and offered respectful connection."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Assume they are rude and tell others that they think they are better than everyone.",
+
+                feedback:
+                    "Making assumptions can damage relationships. Social awareness means being curious before judging."
+
+            }
+
+        ]
+
+    },
+
+
+    /* SOCIAL 2 */
+
+    {
+
+        area:
+            "social",
+
+        title:
+            "Group Discussion",
+
+        text:
+            "During a group discussion, one teammate tries to speak but keeps getting interrupted.",
+
+        tags:[
+            "Listening",
+            "Cooperation"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Say that you would like to hear what they were trying to say and give them space to speak.",
+
+                feedback:
+                    "You supported fair participation and showed that everyone’s contribution matters."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Keep talking because you believe your ideas are more important.",
+
+                feedback:
+                    "Good teamwork depends on listening as well as speaking. Talking over others reduces trust."
+
+            }
+
+        ]
+
+    },
+
+
+    /* SOCIAL 3 */
+
+    {
+
+        area:
+            "social",
+
+        title:
+            "Laughing at a Mistake",
+
+        text:
+            "Someone mispronounces a word while reading aloud and other students start laughing.",
+
+        tags:[
+            "Empathy",
+            "Respect"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Think about how the reader may feel, avoid joining the laughter, and encourage them kindly.",
+
+                feedback:
+                    "You considered another person’s feelings and chose a response that protects confidence and dignity."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Join the laughter and make another joke about the mistake.",
+
+                feedback:
+                    "Joining in may increase embarrassment and weaken trust. Empathy asks you to consider the other person’s experience."
+
+            }
+
+        ]
+
+    },
+
+
+    /* DECISION 1 */
+
+    {
+
+        area:
+            "decision",
+
+        title:
+            "After-School Choice",
+
+        text:
+            "You have homework to complete, but you also want to play a game for a long time.",
+
+        tags:[
+            "Goal setting",
+            "Decision-making"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Finish one planned part of your homework first, then take a short, timed break.",
+
+                feedback:
+                    "You balanced enjoyment with responsibility and made a plan that supports your goal."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Play for hours first and hope there will somehow be enough time later.",
+
+                feedback:
+                    "A responsible decision includes thinking about likely consequences before acting."
+
+            }
+
+        ]
+
+    },
+
+
+    /* DECISION 2 */
+
+    {
+
+        area:
+            "decision",
+
+        title:
+            "Rumour or Truth?",
+
+        text:
+            "You hear an upsetting rumour about a friend.",
+
+        tags:[
+            "Problem solving",
+            "Responsible choice"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Speak to your friend calmly and check the facts before deciding how to react.",
+
+                feedback:
+                    "You slowed down, gathered information and chose communication before reacting."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Believe the rumour immediately and stop speaking to your friend without asking anything.",
+
+                feedback:
+                    "Reacting without checking facts can create a bigger problem and damage the relationship."
+
+            }
+
+        ]
+
+    },
+
+
+    /* DECISION 3 */
+
+    {
+
+        area:
+            "decision",
+
+        title:
+            "Helping or Teasing",
+
+        text:
+            "You notice someone struggling with a task in class.",
+
+        tags:[
+            "Problem solving",
+            "Respectful action"
+        ],
+
+        choices:[
+
+            {
+
+                good:true,
+
+                text:
+                    "Offer help quietly or ask how you can support them without embarrassing them.",
+
+                feedback:
+                    "You chose a practical response that solves a problem while respecting the other person."
+
+            },
+
+            {
+
+                good:false,
+
+                text:
+                    "Point out their mistake loudly so other students will laugh.",
+
+                feedback:
+                    "A responsible choice considers both the immediate action and its effect on other people."
+
+            }
+
+        ]
+
     }
 
-    resetBtn.addEventListener("click", () => {
-      leavesSelf = 0;
-      leavesSocial = 0;
-      leavesDecision = 0;
-      scenarioIndex = 0;
-      loadScenario();
-    });
+];
 
-    finishBtn.addEventListener("click", () => {
-      const totalLeaves = leavesSelf + leavesSocial + leavesDecision;
-      const percent = Math.round((totalLeaves / maxTotalLeaves) * 100);
-      playCelebrate();
 
-      let rank, badge, text;
-      if(percent >= 80){
-        rank = "EQ Champion";
-        badge = "🌟";
-        text = "You grew strong branches in self-awareness, social awareness and responsible decision-making. This helps you manage stress, understand others and make good choices.[file:36]";
-      } else if(percent >= 50){
-        rank = "EQ Explorer";
-        badge = "🌱";
-        text = "Your EQ tree is growing. Keep practising naming emotions, showing empathy and thinking about consequences to grow even more leaves.[file:36]";
-      } else {
-        rank = "EQ Beginner";
-        badge = "💧";
-        text = "You have started noticing how your choices affect your emotions and relationships. With more practice, your EQ tree will become fuller and stronger.[file:36]";
-      }
+/* ======================================================
+   BRANCH NAMES
+====================================================== */
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">EQ Skills Tree Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Leaves grown: ${totalLeaves} / ${maxTotalLeaves} (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Grow the Tree Again</button>
-        </div>
-      `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    });
+const areaNames = {
 
-    // Initial scenario
+    self:
+        "Self-Awareness & Self-Management",
+
+    social:
+        "Social Awareness & Relationships",
+
+    decision:
+        "Responsible Decisions & Problem Solving"
+
+};
+
+
+/* ======================================================
+   ELEMENTS
+====================================================== */
+
+const stageIndicator =
+    document.getElementById(
+        "stageIndicator"
+    );
+
+const progressFill =
+    document.getElementById(
+        "progressFill"
+    );
+
+const progressNumber =
+    document.getElementById(
+        "progressNumber"
+    );
+
+const totalLeavesEl =
+    document.getElementById(
+        "totalLeaves"
+    );
+
+const accuracyText =
+    document.getElementById(
+        "accuracyText"
+    );
+
+const eqRank =
+    document.getElementById(
+        "eqRank"
+    );
+
+const scenarioKicker =
+    document.getElementById(
+        "scenarioKicker"
+    );
+
+const scenarioTitle =
+    document.getElementById(
+        "scenarioTitle"
+    );
+
+const scenarioText =
+    document.getElementById(
+        "scenarioText"
+    );
+
+const skillTags =
+    document.getElementById(
+        "skillTags"
+    );
+
+const choiceList =
+    document.getElementById(
+        "choiceList"
+    );
+
+const feedback =
+    document.getElementById(
+        "feedback"
+    );
+
+const nextRow =
+    document.getElementById(
+        "nextRow"
+    );
+
+const nextBtn =
+    document.getElementById(
+        "nextBtn"
+    );
+
+const resetBtn =
+    document.getElementById(
+        "resetBtn"
+    );
+
+const progressText =
+    document.getElementById(
+        "progressText"
+    );
+
+const gameWrapper =
+    document.getElementById(
+        "gameWrapper"
+    );
+
+const branchSelf =
+    document.getElementById(
+        "branchSelf"
+    );
+
+const branchSocial =
+    document.getElementById(
+        "branchSocial"
+    );
+
+const branchDecision =
+    document.getElementById(
+        "branchDecision"
+    );
+
+const selfCount =
+    document.getElementById(
+        "selfCount"
+    );
+
+const socialCount =
+    document.getElementById(
+        "socialCount"
+    );
+
+const decisionCount =
+    document.getElementById(
+        "decisionCount"
+    );
+
+
+/* ======================================================
+   STATE
+====================================================== */
+
+let scenarioIndex =
+    0;
+
+let completed =
+    0;
+
+let firstTryCorrect =
+    0;
+
+let attemptsThisScenario =
+    0;
+
+let locked =
+    false;
+
+let leaves = {
+
+    self:0,
+    social:0,
+    decision:0
+
+};
+
+
+/* ======================================================
+   SHUFFLE
+====================================================== */
+
+function shuffle(
+    array
+){
+
+    for(
+        let i =
+            array.length - 1;
+
+        i > 0;
+
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (
+                    i + 1
+                )
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
+    }
+
+    return array;
+
+}
+
+
+/* ======================================================
+   FIRST-TRY SCORE
+====================================================== */
+
+function firstTryPercent(){
+
+    return completed === 0
+
+        ?
+
+    100
+
+        :
+
+    Math.round(
+        (
+            firstTryCorrect /
+            completed
+        ) *
+        100
+    );
+
+}
+
+
+/* ======================================================
+   TREE VISUAL
+====================================================== */
+
+function updateTree(){
+
+    [
+        "self",
+        "social",
+        "decision"
+    ]
+    .forEach(
+        area => {
+
+            document
+                .querySelectorAll(
+                    `[data-leaves="${area}"] .leaf`
+                )
+                .forEach(
+                    (
+                        leaf,
+                        index
+                    ) => {
+
+                        leaf
+                            .classList
+                            .toggle(
+                                "grown",
+                                index <
+                                leaves[
+                                    area
+                                ]
+                            );
+
+                    }
+                );
+
+        }
+    );
+
+
+    selfCount.textContent =
+        `${leaves.self} / 3 leaves`;
+
+    socialCount.textContent =
+        `${leaves.social} / 3 leaves`;
+
+    decisionCount.textContent =
+        `${leaves.decision} / 3 leaves`;
+
+
+    [
+        branchSelf,
+        branchSocial,
+        branchDecision
+    ]
+    .forEach(
+        branch => {
+
+            branch
+                .classList
+                .remove(
+                    "focus"
+                );
+
+        }
+    );
+
+
+    const area =
+        scenarios[
+            scenarioIndex
+        ]
+        ?.area;
+
+
+    if(
+        area ===
+        "self"
+    ){
+
+        branchSelf
+            .classList
+            .add(
+                "focus"
+            );
+
+    }
+
+
+    if(
+        area ===
+        "social"
+    ){
+
+        branchSocial
+            .classList
+            .add(
+                "focus"
+            );
+
+    }
+
+
+    if(
+        area ===
+        "decision"
+    ){
+
+        branchDecision
+            .classList
+            .add(
+                "focus"
+            );
+
+    }
+
+}
+
+
+/* ======================================================
+   SCORE
+====================================================== */
+
+function updateScore(){
+
+    totalLeavesEl.textContent =
+        `${completed} / ${scenarios.length}`;
+
+
+    accuracyText.textContent =
+        `${firstTryPercent()}%`;
+
+
+    const growth =
+        Math.round(
+            (
+                completed /
+                scenarios.length
+            ) *
+            100
+        );
+
+
+    progressFill.style.width =
+        `${growth}%`;
+
+
+    progressNumber.textContent =
+        `${completed} / ${scenarios.length}`;
+
+
+    if(
+        growth >=
+        80
+    ){
+
+        eqRank.textContent =
+            "EQ Hero";
+
+    }
+
+    else if(
+        growth >=
+        50
+    ){
+
+        eqRank.textContent =
+            "Growing Star";
+
+    }
+
+    else{
+
+        eqRank.textContent =
+            "Beginner";
+
+    }
+
+
+    updateTree();
+
+}
+
+
+/* ======================================================
+   LOAD SCENARIO
+====================================================== */
+
+function loadScenario(){
+
+    const scenario =
+        scenarios[
+            scenarioIndex
+        ];
+
+
+    attemptsThisScenario =
+        0;
+
+
+    locked =
+        false;
+
+
+    stageIndicator.textContent =
+        `Scenario ${scenarioIndex + 1} of ${scenarios.length}`;
+
+
+    scenarioKicker.textContent =
+        areaNames[
+            scenario.area
+        ];
+
+
+    scenarioTitle.textContent =
+        scenario.title;
+
+
+    scenarioText.textContent =
+        scenario.text;
+
+
+    skillTags.innerHTML =
+        "";
+
+
+    scenario.tags
+        .forEach(
+            tag => {
+
+                const span =
+                    document
+                        .createElement(
+                            "span"
+                        );
+
+
+                span.className =
+                    "skill-tag";
+
+
+                span.textContent =
+                    tag;
+
+
+                skillTags
+                    .appendChild(
+                        span
+                    );
+
+            }
+        );
+
+
+    feedback.className =
+        "feedback";
+
+
+    feedback.textContent =
+        "";
+
+
+    nextRow
+        .classList
+        .remove(
+            "active"
+        );
+
+
+    choiceList.innerHTML =
+        "";
+
+
+    shuffle(
+        [
+            ...scenario.choices
+        ]
+    )
+    .forEach(
+        choice => {
+
+            const button =
+                document
+                    .createElement(
+                        "button"
+                    );
+
+
+            button.type =
+                "button";
+
+
+            button.className =
+                "choice-btn";
+
+
+            button.textContent =
+                choice.text;
+
+
+            button
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        handleChoice(
+                            choice,
+                            button
+                        );
+
+                    }
+                );
+
+
+            choiceList
+                .appendChild(
+                    button
+                );
+
+        }
+    );
+
+
+    progressText.textContent =
+        "Think first, then choose the most helpful response.";
+
+
+    updateScore();
+
+}
+
+
+/* ======================================================
+   HANDLE CHOICE
+====================================================== */
+
+function handleChoice(
+    choice,
+    button
+){
+
+    if(
+        locked
+    ){
+
+        return;
+
+    }
+
+
+    attemptsThisScenario++;
+
+
+    /* CORRECT */
+
+    if(
+        choice.good
+    ){
+
+        locked =
+            true;
+
+
+        if(
+            attemptsThisScenario ===
+            1
+        ){
+
+            firstTryCorrect++;
+
+        }
+
+
+        completed++;
+
+
+        leaves[
+            scenarios[
+                scenarioIndex
+            ]
+            .area
+        ]++;
+
+
+        playSound(
+            correctSound
+        );
+
+
+        button
+            .classList
+            .add(
+                "correct"
+            );
+
+
+        document
+            .querySelectorAll(
+                ".choice-btn"
+            )
+            .forEach(
+                choiceButton => {
+
+                    choiceButton.disabled =
+                        true;
+
+                }
+            );
+
+
+        feedback.className =
+            "feedback good";
+
+
+        feedback.textContent =
+            "✅ " +
+            choice.feedback;
+
+
+        nextBtn.textContent =
+            scenarioIndex ===
+            scenarios.length - 1
+
+                ?
+
+            "Finish Tree"
+
+                :
+
+            "Next Scenario →";
+
+
+        nextRow
+            .classList
+            .add(
+                "active"
+            );
+
+
+        progressText.textContent =
+            scenarioIndex ===
+            scenarios.length - 1
+
+                ?
+
+            "Your EQ tree is complete. View your report."
+
+                :
+
+            "Review the feedback, then continue.";
+
+
+        updateScore();
+
+
+        if(
+            window
+                .matchMedia(
+                    "(max-width:640px)"
+                )
+                .matches
+        ){
+
+            setTimeout(
+                () => {
+
+                    nextBtn
+                        .scrollIntoView(
+                            {
+                                behavior:"smooth",
+                                block:"nearest"
+                            }
+                        );
+
+                },
+                100
+            );
+
+        }
+
+    }
+
+
+    /* UNHELPFUL */
+
+    else{
+
+        playSound(
+            wrongSound
+        );
+
+
+        button
+            .classList
+            .add(
+                "wrong"
+            );
+
+
+        button.disabled =
+            true;
+
+
+        feedback.className =
+            "feedback warn";
+
+
+        feedback.textContent =
+            "💡 " +
+            choice.feedback +
+            " Try the other response.";
+
+
+        progressText.textContent =
+            "Use the feedback and try again.";
+
+    }
+
+}
+
+
+/* ======================================================
+   NEXT
+====================================================== */
+
+function nextStep(){
+
+    if(
+        !locked
+    ){
+
+        return;
+
+    }
+
+
+    if(
+        scenarioIndex ===
+        scenarios.length - 1
+    ){
+
+        finishGame();
+
+        return;
+
+    }
+
+
+    scenarioIndex++;
+
+
     loadScenario();
-  </script>
+
+
+    if(
+        window
+            .matchMedia(
+                "(max-width:640px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            () => {
+
+                document
+                    .getElementById(
+                        "scenarioCard"
+                    )
+                    .scrollIntoView(
+                        {
+                            behavior:"smooth",
+                            block:"start"
+                        }
+                    );
+
+            },
+            80
+        );
+
+    }
+
+}
+
+
+/* ======================================================
+   RESET
+====================================================== */
+
+function resetGame(){
+
+    scenarioIndex =
+        0;
+
+
+    completed =
+        0;
+
+
+    firstTryCorrect =
+        0;
+
+
+    attemptsThisScenario =
+        0;
+
+
+    locked =
+        false;
+
+
+    leaves = {
+
+        self:0,
+        social:0,
+        decision:0
+
+    };
+
+
+    loadScenario();
+
+}
+
+
+/* ======================================================
+   FINISH
+====================================================== */
+
+function finishGame(){
+
+    playSound(
+        celebrationSound
+    );
+
+
+    const accuracy =
+        firstTryPercent();
+
+
+    let rank;
+
+    let badge;
+
+    let text;
+
+
+    if(
+        accuracy >=
+        89
+    ){
+
+        rank =
+            "EQ Champion";
+
+
+        badge =
+            "🌟";
+
+
+        text =
+            "You consistently recognised responses that show self-awareness, empathy and responsible decision-making.";
+
+    }
+
+    else if(
+        accuracy >=
+        67
+    ){
+
+        rank =
+            "EQ Explorer";
+
+
+        badge =
+            "🌳";
+
+
+        text =
+            "Your EQ tree is strong. You used feedback well and showed growing skill in managing emotions, relationships and decisions.";
+
+    }
+
+    else{
+
+        rank =
+            "Growing EQ Learner";
+
+
+        badge =
+            "🌱";
+
+
+        text =
+            "You completed every branch and learnt from feedback. Keep practising how to pause, notice emotions, consider others and think about consequences.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+        `
+
+        <section class="final">
+
+            <div class="final-title">
+                EQ Skills Tree Report
+            </div>
+
+            <div class="final-badge">
+                ${badge}
+            </div>
+
+            <div class="final-rank">
+                ${rank}
+            </div>
+
+            <div class="final-score">
+
+                Tree growth:
+                9 / 9 leaves
+
+                · First-try choices:
+                ${accuracy}%
+
+            </div>
+
+
+            <div class="branch-summary">
+
+
+                <div class="summary-card">
+
+                    <strong>
+                        🧠 Self-Awareness
+                    </strong>
+
+                    ${leaves.self} / 3 leaves grown
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <strong>
+                        🤝 Social Awareness
+                    </strong>
+
+                    ${leaves.social} / 3 leaves grown
+
+                </div>
+
+
+                <div class="summary-card">
+
+                    <strong>
+                        🧭 Responsible Decisions
+                    </strong>
+
+                    ${leaves.decision} / 3 leaves grown
+
+                </div>
+
+
+            </div>
+
+
+            <div class="final-text">
+                ${text}
+            </div>
+
+
+            <button
+                class="btn btn-primary"
+                id="playAgainBtn"
+                type="button"
+            >
+                Grow the Tree Again
+            </button>
+
+        </section>
+
+        `;
+
+
+    document
+        .getElementById(
+            "playAgainBtn"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                location.reload();
+
+            }
+        );
+
+
+    window.scrollTo(
+        {
+            top:0,
+            behavior:"smooth"
+        }
+    );
+
+}
+
+
+/* ======================================================
+   EVENTS
+====================================================== */
+
+nextBtn
+    .addEventListener(
+        "click",
+        nextStep
+    );
+
+
+resetBtn
+    .addEventListener(
+        "click",
+        resetGame
+    );
+
+
+/* ======================================================
+   INITIAL GAME
+====================================================== */
+
+loadScenario();
+
+</script>
+
 </body>
 </html>
