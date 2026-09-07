@@ -2,866 +2,4034 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
+
   <title>Decision Lab - Wise Choices Simulator</title>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #020617 0%, #020617 50%, #000 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #fff;
+
+    /* =====================================================
+       RESET + COLOURS
+    ===================================================== */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
-    /* Splash */
+    :root {
+      --blue: #4f7cff;
+      --blue-dark: #3559c7;
+      --sky: #eaf6ff;
+      --mint: #e9fbf3;
+      --green: #28a86b;
+      --yellow: #fff6d8;
+      --amber: #e9a523;
+      --ink: #203247;
+      --muted: #65758a;
+      --line: #dce5f0;
+      --card: #ffffff;
+      --soft: #f6f9fc;
+      --danger: #d95a5a;
+      --danger-bg: #fff1f1;
+      --success-bg: #eaf9f0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+
+      width: 100%;
+
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      color: var(--ink);
+
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(111, 191, 255, .18),
+          transparent 34%
+        ),
+        radial-gradient(
+          circle at top right,
+          rgba(130, 221, 177, .18),
+          transparent 32%
+        ),
+        linear-gradient(
+          180deg,
+          #f8fbff 0%,
+          #eef6ff 100%
+        );
+
+      padding: 16px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+
+    /* =====================================================
+       SPLASH
+    ===================================================== */
+
     .splash-screen {
-      position: fixed; inset: 0;
-      background: #020617;
-      display: flex; justify-content: center; align-items: center;
-      z-index: 9999; transition: opacity 0.5s ease-out;
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9999;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background: white;
+
+      transition:
+        opacity .45s ease;
     }
-    .splash-screen.hidden { opacity: 0; pointer-events: none; }
+
+    .splash-screen.hidden {
+      opacity: 0;
+
+      pointer-events: none;
+    }
+
     .splash-screen img {
-      max-width: 480px; width: 90%; height: auto;
-      animation: logoFloat 2s ease-in-out infinite;
+      width:
+        min(
+          420px,
+          82vw
+        );
+
+      height: auto;
+
+      animation:
+        float 2s
+        ease-in-out
+        infinite;
     }
-    @keyframes logoFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-18px); }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform:
+          translateY(0);
+      }
+
+      50% {
+        transform:
+          translateY(-10px);
+      }
+
     }
+
+
+    /* =====================================================
+       MAIN GAME
+    ===================================================== */
 
     .container {
-      max-width: 1100px; width: 100%;
-      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.45);
-      overflow: hidden;
-      opacity: 0; transition: opacity 0.6s ease-in;
+      width:
+        min(
+          1120px,
+          100%
+        );
+
+      margin:
+        0 auto;
+
+      background:
+        rgba(
+          255,
+          255,
+          255,
+          .98
+        );
+
+      border:
+        1px solid
+        #dbe7f3;
+
+      border-radius:
+        26px;
+
+      overflow:
+        hidden;
+
+      box-shadow:
+        0 18px 50px
+        rgba(
+          62,
+          87,
+          120,
+          .16
+        );
+
+      opacity: 0;
+
+      transition:
+        opacity .45s ease;
     }
-    .container.visible { opacity: 1; }
+
+    .container.visible {
+      opacity: 1;
+    }
+
+
+    /* =====================================================
+       HEADER
+    ===================================================== */
 
     .header {
-      position: relative;
-      padding: 22px 18px 24px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 50%, #6366f1 100%);
-      color: #022c22;
-      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
+      padding:
+        22px
+        20px
+        18px;
+
+      text-align:
+        center;
+
+      color:
+        #18324f;
+
       background:
-        radial-gradient(circle at 10% 15%, rgba(59,130,246,0.3) 0, transparent 55%),
-        radial-gradient(circle at 80% 20%, rgba(45,212,191,0.25) 0, transparent 55%);
-      opacity: 0.7;
-      animation: glow 22s linear infinite;
-    }
-    @keyframes glow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-80px,40px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 28px;
-      letter-spacing: 1.5px;
-      text-shadow: 0 0 12px rgba(0,0,0,0.3);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 15px;
-      font-weight: bold;
-      color: #ecfdf5;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 6px 16px;
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 2px solid #a5b4fc;
-      color: #e0f2fe;
-      font-size: 13px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(129, 140, 248, 0.8);
+        radial-gradient(
+          circle at 15% 20%,
+          rgba(
+            255,
+            255,
+            255,
+            .65
+          ),
+          transparent 35%
+        ),
+        linear-gradient(
+          135deg,
+          #dff3ff 0%,
+          #e6f7ee 52%,
+          #fff5d7 100%
+        );
+
+      border-bottom:
+        1px solid
+        #d9e7f0;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #020617, #0b1120);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 13px;
-      color: #e5e7eb;
+    .header h1 {
+      font-size:
+        clamp(
+          26px,
+          4vw,
+          36px
+        );
+
+      line-height:
+        1.15;
+
+      letter-spacing:
+        .4px;
+
+      margin-bottom:
+        6px;
     }
+
+    .subtitle {
+      font-size:
+        clamp(
+          13px,
+          2vw,
+          15px
+        );
+
+      color:
+        #49627d;
+
+      font-weight:
+        700;
+    }
+
+    .stage-indicator {
+      display:
+        inline-block;
+
+      margin-top:
+        10px;
+
+      padding:
+        7px
+        14px;
+
+      border-radius:
+        999px;
+
+      background:
+        white;
+
+      border:
+        1px solid
+        #cfdced;
+
+      color:
+        var(--blue-dark);
+
+      font-size:
+        13px;
+
+      font-weight:
+        800;
+
+      box-shadow:
+        0 4px 10px
+        rgba(
+          56,
+          88,
+          125,
+          .08
+        );
+    }
+
+
+    /* =====================================================
+       INTRODUCTION
+    ===================================================== */
+
+    .intro-bar {
+      display:
+        grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap:
+        10px;
+
+      padding:
+        12px 18px;
+
+      background:
+        #fbfdff;
+
+      border-bottom:
+        1px solid
+        #e8eef5;
+    }
+
+    .intro-note {
+      min-width:
+        0;
+
+      padding:
+        11px
+        13px;
+
+      border-radius:
+        14px;
+
+      background:
+        var(--soft);
+
+      color:
+        #53657a;
+
+      font-size:
+        12px;
+
+      line-height:
+        1.45;
+
+      border:
+        1px solid
+        #e4ebf3;
+
+      white-space:
+        normal;
+
+      overflow-wrap:
+        anywhere;
+
+      word-break:
+        normal;
+    }
+
+
+    /* =====================================================
+       LAYOUT
+    ===================================================== */
 
     .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 18px;
-      gap: 18px;
-      background:
-        radial-gradient(circle at top, #020617 0, #020617 60%),
-        linear-gradient(to bottom, #020617, #000);
+      display:
+        grid;
+
+      grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1.08fr);
+
+      gap:
+        18px;
+
+      padding:
+        18px;
+
+      align-items:
+        start;
     }
 
+    .panel {
+      min-width:
+        0;
+
+      width:
+        100%;
+
+      border:
+        1px solid
+        #dce6ef;
+
+      border-radius:
+        20px;
+
+      background:
+        white;
+
+      box-shadow:
+        0 8px 22px
+        rgba(
+          55,
+          79,
+          105,
+          .07
+        );
+    }
+
+
+    /* =====================================================
+       DECISION STEPS PANEL
+    ===================================================== */
+
     .lab-panel {
-      flex: 1.3;
-      min-width: 360px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 75%);
-      border-radius: 18px;
-      border: 2px solid rgba(148, 163, 184, 0.7);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      padding:
+        16px;
+
+      display:
+        flex;
+
+      flex-direction:
+        column;
+
+      gap:
+        14px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #fcfeff 0%,
+          #f6fbff 100%
+        );
+    }
+
+    .lab-title,
+    .scenario-title {
+      font-size:
+        14px;
+
+      font-weight:
+        900;
+
+      letter-spacing:
+        .65px;
+
+      text-transform:
+        uppercase;
+
+      color:
+        #4a6480;
     }
 
     .lab-title {
-      font-size: 15px;
-      font-weight: bold;
-      color: #bfdbfe;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
+      text-align:
+        center;
     }
 
-    .lab-scene {
-      position: relative;
-      border-radius: 16px;
-      background:
-        linear-gradient(to top, #020617 0%, #020617 55%, #0f172a 100%);
-      height: 260px;
-      overflow: hidden;
-      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
-    }
 
-    .lab-wall {
-      position: absolute;
-      inset: 0 0 40% 0;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(148,163,184,0.12) 0, transparent 55%),
-        radial-gradient(circle at 80% 30%, rgba(148,163,184,0.12) 0, transparent 55%),
-        linear-gradient(to bottom, #020617, #020617);
-    }
+    /* =====================================================
+       STEP BUTTONS
+    ===================================================== */
 
-    .lab-bench {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 40%;
-      background:
-        linear-gradient(to top, #020617 0%, #111827 45%, #020617 100%);
-      box-shadow: 0 -6px 12px rgba(0,0,0,0.9);
+    .step-grid {
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          3,
+          minmax(0, 1fr)
+        );
+
+      gap:
+        10px;
     }
 
     .station {
-      position: absolute;
-      width: 80px;
-      height: 110px;
-      bottom: 8%;
-      border-radius: 10px;
-      border: 2px solid rgba(148,163,184,0.8);
-      background: radial-gradient(circle at top, #020617 0, #020617 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .station-label {
-      position: absolute;
-      bottom: -18px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
-      text-transform: uppercase;
-      color: #e5e7eb;
+      min-width:
+        0;
+
+      width:
+        100%;
+
+      border:
+        2px solid
+        #d9e5ef;
+
+      border-radius:
+        16px;
+
+      padding:
+        14px 8px;
+
+      background:
+        white;
+
+      text-align:
+        center;
+
+      cursor:
+        pointer;
+
+      transition:
+        .2s ease;
     }
 
+    .station:hover,
     .station.active {
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.9);
-      border-color: #0ea5e9;
+      border-color:
+        #77a1ff;
+
+      background:
+        #f2f7ff;
+
+      transform:
+        translateY(-2px);
+
+      box-shadow:
+        0 7px 16px
+        rgba(
+          79,
+          124,
+          255,
+          .12
+        );
     }
 
-    .station .icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 2px solid rgba(148,163,184,0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at 30% 20%, #1f2937 0, #020617 70%);
-      position: relative;
+    .station-icon {
+      width:
+        54px;
+
+      height:
+        54px;
+
+      margin:
+        0 auto 8px;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      border-radius:
+        50%;
+
+      font-size:
+        27px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #eef6ff,
+          #ecfbf2
+        );
+
+      border:
+        1px solid
+        #dce9f4;
     }
 
-    .icon-flask::before {
-      content: "";
-      width: 20px;
-      height: 28px;
-      border-radius: 0 0 12px 12px;
-      border: 2px solid #22c55e;
-      border-top: none;
-      background: linear-gradient(to top, #22c55e, #4ade80);
-    }
-    .icon-question::before {
-      content: "?";
-      font-size: 26px;
-      color: #facc15;
-      font-weight: bold;
-    }
-    .icon-book::before {
-      content: "";
-      width: 26px;
-      height: 22px;
-      border-radius: 4px;
-      border: 2px solid #a5b4fc;
-      background: linear-gradient(to right, #1d4ed8, #6366f1);
-    }
-    .icon-brain::before {
-      content: "";
-      width: 26px;
-      height: 22px;
-      border-radius: 50%;
-      border: 2px solid #f97316;
-      background: radial-gradient(circle, #fb923c 0, #ea580c 70%);
-    }
-    .icon-arrows::before {
-      content: "";
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 2px dashed #22d3ee;
-    }
-    .icon-speech::before {
-      content: "";
-      width: 26px;
-      height: 20px;
-      border-radius: 12px;
-      border: 2px solid #4ade80;
-      background: linear-gradient(to right, #22c55e, #a7f3d0);
+    .station-name {
+      font-size:
+        11px;
+
+      line-height:
+        1.25;
+
+      font-weight:
+        900;
+
+      color:
+        #314a67;
+
+      white-space:
+        normal;
+
+      overflow-wrap:
+        anywhere;
     }
 
-    .station[data-step="identify"] { left: 6%; }
-    .station[data-step="ask"]      { left: 22%; }
-    .station[data-step="research"] { left: 38%; }
-    .station[data-step="think"]    { left: 54%; }
-    .station[data-step="flex"]     { left: 70%; }
-    .station[data-step="communicate"] { left: 86%; }
+
+    /* =====================================================
+       CURRENT STEP DESCRIPTION
+    ===================================================== */
 
     .step-panel {
-      margin-top: 10px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
-      border-radius: 14px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      padding: 10px;
-      font-size: 14px;
-      color: #e5e7eb;
-      line-height: 1.5;
+      border-radius:
+        15px;
+
+      padding:
+        13px 14px;
+
+      background:
+        #eef6ff;
+
+      border:
+        1px solid
+        #d7e7f6;
     }
+
     .step-label-text {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: #a5b4fc;
-      letter-spacing: 0.7px;
-      margin-bottom: 2px;
+      font-size:
+        11px;
+
+      font-weight:
+        900;
+
+      color:
+        #587291;
+
+      letter-spacing:
+        .6px;
+
+      text-transform:
+        uppercase;
+
+      margin-bottom:
+        4px;
     }
+
+    #stepDescription {
+      font-size:
+        14px;
+
+      line-height:
+        1.5;
+
+      color:
+        #36506b;
+
+      white-space:
+        normal;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+
+    /* =====================================================
+       RIGHT PANEL
+    ===================================================== */
 
     .right-panel {
-      flex: 1;
-      min-width: 320px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
-      border-radius: 18px;
-      border: 2px solid rgba(148, 163, 184, 0.7);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      padding:
+        16px;
+
+      display:
+        flex;
+
+      flex-direction:
+        column;
+
+      gap:
+        12px;
+
+      min-width:
+        0;
     }
 
+
+    /* =====================================================
+       SCORE
+    ===================================================== */
+
     .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          3,
+          minmax(0, 1fr)
+        );
+
+      gap:
+        9px;
     }
+
     .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 8px 6px;
-      border-radius: 12px;
-      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+      min-width:
+        0;
+
+      width:
+        100%;
+
+      text-align:
+        center;
+
+      padding:
+        10px 7px;
+
+      border-radius:
+        14px;
+
+      background:
+        #f8fbff;
+
+      border:
+        1px solid
+        #dce7f2;
     }
+
     .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      margin-bottom: 3px;
+      font-size:
+        10px;
+
+      color:
+        #72839a;
+
+      text-transform:
+        uppercase;
+
+      font-weight:
+        800;
+
+      line-height:
+        1.25;
+
+      margin-bottom:
+        3px;
+
+      overflow-wrap:
+        anywhere;
     }
+
     .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #e5e7eb;
+      font-size:
+        18px;
+
+      font-weight:
+        900;
+
+      color:
+        #3559c7;
+    }
+
+
+    /* =====================================================
+       SCENARIO
+    ===================================================== */
+
+    .scenario-card {
+      padding:
+        14px;
+
+      border-radius:
+        16px;
+
+      background:
+        var(--yellow);
+
+      border:
+        1px solid
+        #f1dfac;
     }
 
     .scenario-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #fbbf24;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
+      color:
+        #9c6b0e;
+
+      margin-bottom:
+        6px;
     }
 
     .scenario-text {
-      font-size: 13px;
-      color: #e5e7eb;
-      text-align: center;
-      margin-bottom: 4px;
+      font-size:
+        14px;
+
+      line-height:
+        1.5;
+
+      color:
+        #544626;
+
+      white-space:
+        normal;
+
+      overflow-wrap:
+        anywhere;
+
+      word-break:
+        normal;
     }
 
+
+    /* =====================================================
+       TRAYS
+    ===================================================== */
+
     .tray-label {
-      font-size: 13px;
-      font-weight: bold;
-      color: #bfdbfe;
-      margin-top: 4px;
+      font-size:
+        12px;
+
+      font-weight:
+        900;
+
+      color:
+        #55708e;
+
+      margin-top:
+        2px;
+    }
+
+    .instruction-tip {
+      font-size:
+        12px;
+
+      line-height:
+        1.45;
+
+      color:
+        #687b91;
+
+      padding:
+        10px 12px;
+
+      border-radius:
+        12px;
+
+      background:
+        #f6f9fc;
+
+      border:
+        1px solid
+        #e3eaf2;
+
+      overflow-wrap:
+        anywhere;
     }
 
     .tray {
-      min-height: 52px;
-      border-radius: 10px;
-      border: 1px dashed rgba(148, 163, 184, 0.7);
-      padding: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      min-height:
+        62px;
+
+      width:
+        100%;
+
+      min-width:
+        0;
+
+      border-radius:
+        14px;
+
+      border:
+        2px dashed
+        #c9d7e5;
+
+      padding:
+        8px;
+
+      display:
+        flex;
+
+      flex-wrap:
+        wrap;
+
+      gap:
+        7px;
+
+      background:
+        #fbfdff;
+
+      transition:
+        .2s ease;
+
+      overflow:
+        visible;
     }
+
+    .tray:hover,
+    .tray.drop-highlight {
+      border-color:
+        #79a3ff;
+
+      background:
+        #f4f8ff;
+    }
+
+    #stepTrays {
+      display:
+        flex;
+
+      flex-direction:
+        column;
+
+      gap:
+        8px;
+
+      min-width:
+        0;
+    }
+
+    .step-tray-wrap {
+      display:
+        grid;
+
+      grid-template-columns:
+        124px
+        minmax(0, 1fr);
+
+      gap:
+        8px;
+
+      align-items:
+        stretch;
+
+      min-width:
+        0;
+    }
+
+    .step-tray-name {
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      text-align:
+        center;
+
+      padding:
+        8px;
+
+      border-radius:
+        12px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #eef6ff,
+          #effaf4
+        );
+
+      border:
+        1px solid
+        #dce8f3;
+
+      font-size:
+        11px;
+
+      font-weight:
+        900;
+
+      line-height:
+        1.3;
+
+      color:
+        #405b76;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+
+    /* =====================================================
+       DECISION CARDS
+    ===================================================== */
 
     .card {
-      border-radius: 999px;
-      padding: 4px 8px;
-      font-size: 11px;
-      cursor: grab;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.9);
-      border: 1px solid rgba(148, 163, 184, 0.9);
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.8));
-      color: #e5e7eb;
-      white-space: nowrap;
+      max-width:
+        100%;
+
+      width:
+        auto;
+
+      white-space:
+        normal;
+
+      overflow-wrap:
+        anywhere;
+
+      word-break:
+        normal;
+
+      border-radius:
+        14px;
+
+      padding:
+        8px 10px;
+
+      font-size:
+        12px;
+
+      line-height:
+        1.35;
+
+      cursor:
+        grab;
+
+      border:
+        1px solid
+        #cad8e6;
+
+      background:
+        white;
+
+      color:
+        #314861;
+
+      box-shadow:
+        0 3px 8px
+        rgba(
+          51,
+          78,
+          107,
+          .08
+        );
+
+      transition:
+        .18s ease;
+
+      user-select:
+        none;
     }
+
+    .card:hover {
+      border-color:
+        #7ca6ff;
+    }
+
     .card.dragging {
-      opacity: 0.7;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+      opacity:
+        .65;
+
+      transform:
+        scale(.98);
     }
+
+    .card.selected {
+      outline:
+        3px solid
+        rgba(
+          79,
+          124,
+          255,
+          .2
+        );
+
+      border-color:
+        var(--blue);
+
+      background:
+        #f3f7ff;
+    }
+
     .card.correct {
-      border-color: #22c55e;
+      border-color:
+        var(--green);
+
+      background:
+        var(--success-bg);
     }
+
     .card.wrong {
-      border-color: #ef4444;
+      border-color:
+        var(--danger);
+
+      background:
+        var(--danger-bg);
     }
+
+
+    /* =====================================================
+       FEEDBACK
+    ===================================================== */
 
     .feedback {
-      margin-top: 6px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 7px 8px;
-      display: none;
+      display:
+        none;
+
+      padding:
+        11px 12px;
+
+      border-radius:
+        13px;
+
+      font-size:
+        12px;
+
+      line-height:
+        1.45;
+
+      overflow-wrap:
+        anywhere;
     }
+
     .feedback.good {
-      background: rgba(22, 163, 74, 0.2);
-      border: 1px solid #4ade80;
-      color: #bbf7d0;
+      display:
+        block;
+
+      background:
+        var(--success-bg);
+
+      border:
+        1px solid
+        #a9dfbf;
+
+      color:
+        #256948;
     }
+
     .feedback.warn {
-      background: rgba(250, 204, 21, 0.15);
-      border: 1px solid #facc15;
-      color: #fef9c3;
+      display:
+        block;
+
+      background:
+        #fff7df;
+
+      border:
+        1px solid
+        #f0d585;
+
+      color:
+        #815c12;
     }
+
+
+    /* =====================================================
+       CONTROLS
+    ===================================================== */
 
     .controls {
-      margin-top: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #9ca3af;
+      display:
+        grid;
+
+      grid-template-columns:
+        auto
+        1fr
+        auto;
+
+      gap:
+        10px;
+
+      align-items:
+        center;
+
+      margin-top:
+        2px;
     }
-    .btn-primary {
-      padding: 7px 16px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #fbbf24, #22c55e);
-      color: #022c22;
-      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
+
+    #progressText {
+      font-size:
+        11px;
+
+      line-height:
+        1.4;
+
+      color:
+        #708195;
+
+      text-align:
+        center;
+
+      overflow-wrap:
+        anywhere;
     }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
-    }
+
+    .btn-primary,
     .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      font-size: 12px;
-      cursor: pointer;
-      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
-      color: #e5e7eb;
+      border:
+        none;
+
+      cursor:
+        pointer;
+
+      font-weight:
+        900;
+
+      transition:
+        .18s ease;
     }
+
+    .btn-primary {
+      padding:
+        11px 17px;
+
+      border-radius:
+        14px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #5a84ff,
+          #49b985
+        );
+
+      color:
+        white;
+
+      box-shadow:
+        0 6px 16px
+        rgba(
+          63,
+          124,
+          173,
+          .18
+        );
+    }
+
+    .btn-secondary {
+      padding:
+        10px 13px;
+
+      border-radius:
+        14px;
+
+      background:
+        #f5f8fb;
+
+      border:
+        1px solid
+        #d6e0eb;
+
+      color:
+        #52677e;
+    }
+
+    .btn-primary:hover,
     .btn-secondary:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+      transform:
+        translateY(-1px);
     }
+
+
+    /* =====================================================
+       VOLUME
+    ===================================================== */
 
     .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #9ca3af;
+      display:
+        flex;
+
+      gap:
+        8px;
+
+      align-items:
+        center;
+
+      font-size:
+        11px;
+
+      color:
+        #77879a;
     }
-    .volume-control input { flex: 1; }
+
+    .volume-control input {
+      flex:
+        1;
+
+      min-width:
+        0;
+    }
+
+
+    /* =====================================================
+       FINAL SCREEN
+    ===================================================== */
 
     .final-screen {
-      padding: 26px 18px 22px;
-      text-align: center;
-    }
-    .final-title {
-      font-size: 22px;
-      margin-bottom: 10px;
-      color: #fbbf24;
-    }
-    .final-badge { font-size: 50px; margin: 10px 0; }
-    .final-rank { font-size: 20px; margin-bottom: 6px; font-weight: bold; }
-    .final-score { font-size: 20px; margin: 6px 0; }
-    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 12px; }
+      padding:
+        34px 20px;
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 22px; }
-      .layout { flex-direction: column; }
-      .lab-panel, .right-panel { min-width: 100%; }
+      text-align:
+        center;
     }
+
+    .final-title {
+      font-size:
+        26px;
+
+      font-weight:
+        900;
+
+      color:
+        #3559c7;
+
+      margin-bottom:
+        10px;
+    }
+
+    .final-badge {
+      font-size:
+        54px;
+
+      margin:
+        10px 0;
+    }
+
+    .final-rank {
+      font-size:
+        21px;
+
+      font-weight:
+        900;
+
+      margin-bottom:
+        6px;
+    }
+
+    .final-score {
+      font-size:
+        18px;
+
+      font-weight:
+        800;
+
+      margin:
+        8px 0;
+    }
+
+    .final-text {
+      max-width:
+        640px;
+
+      margin:
+        0 auto 18px;
+
+      font-size:
+        14px;
+
+      line-height:
+        1.55;
+
+      color:
+        #617287;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+
+    /* =====================================================
+       TABLET
+    ===================================================== */
+
+    @media
+    (max-width: 900px) {
+
+      .layout {
+        grid-template-columns:
+          1fr;
+      }
+
+      .intro-bar {
+        grid-template-columns:
+          1fr;
+      }
+
+      .lab-panel,
+      .right-panel {
+        width:
+          100%;
+      }
+
+      .step-grid {
+        grid-template-columns:
+          repeat(
+            6,
+            minmax(0, 1fr)
+          );
+      }
+
+      .station {
+        padding:
+          10px 5px;
+      }
+
+      .station-icon {
+        width:
+          42px;
+
+        height:
+          42px;
+
+        font-size:
+          22px;
+      }
+
+      .station-name {
+        font-size:
+          9px;
+      }
+
+    }
+
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    @media
+    (max-width: 640px) {
+
+      html,
+      body {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        overflow-x:
+          hidden;
+      }
+
+      body {
+        padding:
+          0;
+
+        background:
+          #f6faff;
+      }
+
+      .container {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-height:
+          100dvh;
+
+        margin:
+          0;
+
+        border-radius:
+          0;
+
+        border-left:
+          0;
+
+        border-right:
+          0;
+
+        box-shadow:
+          none;
+
+        overflow:
+          hidden;
+      }
+
+      .header {
+        padding:
+          16px
+          14px
+          14px;
+      }
+
+      .header h1 {
+        font-size:
+          24px;
+      }
+
+      .subtitle {
+        font-size:
+          12px;
+      }
+
+      .stage-indicator {
+        font-size:
+          12px;
+
+        margin-top:
+          8px;
+      }
+
+      .intro-bar {
+        padding:
+          10px;
+
+        gap:
+          8px;
+      }
+
+      .intro-note {
+        font-size:
+          11px;
+
+        padding:
+          9px
+          10px;
+      }
+
+      .layout {
+        display:
+          block;
+
+        width:
+          100%;
+
+        padding:
+          10px;
+      }
+
+      .lab-panel,
+      .right-panel {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-width:
+          0;
+
+        padding:
+          12px;
+
+        border-radius:
+          16px;
+      }
+
+      .lab-panel {
+        margin-bottom:
+          12px;
+      }
+
+      .step-grid {
+        grid-template-columns:
+          repeat(
+            3,
+            minmax(0, 1fr)
+          );
+
+        gap:
+          7px;
+      }
+
+      .station {
+        min-width:
+          0;
+
+        min-height:
+          88px;
+
+        padding:
+          9px
+          5px;
+      }
+
+      .station-icon {
+        width:
+          40px;
+
+        height:
+          40px;
+
+        font-size:
+          21px;
+
+        margin-bottom:
+          6px;
+      }
+
+      .station-name {
+        font-size:
+          9px;
+
+        line-height:
+          1.2;
+      }
+
+      #stepDescription {
+        font-size:
+          13px;
+      }
+
+      .score-row {
+        gap:
+          6px;
+      }
+
+      .score-card {
+        padding:
+          8px
+          5px;
+      }
+
+      .score-label {
+        font-size:
+          9px;
+      }
+
+      .score-value {
+        font-size:
+          16px;
+      }
+
+      .scenario-text {
+        font-size:
+          13px;
+      }
+
+      .step-tray-wrap {
+        grid-template-columns:
+          1fr;
+
+        gap:
+          5px;
+
+        width:
+          100%;
+      }
+
+      .step-tray-name {
+        justify-content:
+          flex-start;
+
+        text-align:
+          left;
+
+        padding:
+          7px 9px;
+      }
+
+      .tray {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-width:
+          0;
+
+        min-height:
+          58px;
+
+        padding:
+          7px;
+      }
+
+      .card {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        font-size:
+          12px;
+
+        line-height:
+          1.4;
+
+        padding:
+          9px 10px;
+
+        white-space:
+          normal;
+
+        overflow-wrap:
+          anywhere;
+      }
+
+      .controls {
+        grid-template-columns:
+          1fr;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width:
+          100%;
+
+        min-height:
+          46px;
+      }
+
+      #progressText {
+        order:
+          -1;
+
+        text-align:
+          left;
+      }
+
+      .volume-control {
+        padding-bottom:
+          calc(
+            8px +
+            env(
+              safe-area-inset-bottom
+            )
+          );
+      }
+
+    }
+
+
+    /* =====================================================
+       VERY SMALL PHONES
+    ===================================================== */
+
+    @media
+    (max-width: 360px) {
+
+      .header h1 {
+        font-size:
+          21px;
+      }
+
+      .step-grid {
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0, 1fr)
+          );
+      }
+
+      .score-row {
+        grid-template-columns:
+          1fr;
+      }
+
+      .score-card {
+        display:
+          flex;
+
+        justify-content:
+          space-between;
+
+        align-items:
+          center;
+
+        text-align:
+          left;
+      }
+
+      .score-label {
+        margin:
+          0;
+
+        font-size:
+          10px;
+      }
+
+    }
+
+
+    /* =====================================================
+       REDUCED MOTION
+    ===================================================== */
+
+    @media
+    (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration:
+          .01ms !important;
+
+        animation-iteration-count:
+          1 !important;
+
+        transition-duration:
+          .01ms !important;
+
+        scroll-behavior:
+          auto !important;
+      }
+
+    }
+
   </style>
 </head>
+
+
 <body>
-  <div class="splash-screen" id="splashScreen">
-    <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
+
+
+  <!-- ===================================================
+       SPLASH
+  ==================================================== -->
+
+  <div
+    class="splash-screen"
+    id="splashScreen"
+  >
+
+    <img
+      src="assets/innovine-logo.png"
+      alt="Innovine Logo"
+      onerror="this.style.display='none'"
+    />
+
   </div>
 
-  <div class="container" id="mainContainer">
+
+  <!-- ===================================================
+       GAME
+  ==================================================== -->
+
+  <div
+    class="container"
+    id="mainContainer"
+  >
+
+
+    <!-- HEADER -->
+
     <div class="header">
-      <div class="header-content">
-        <h1>🧪 DECISION LAB 🧪</h1>
-        <div class="subtitle">Wise Choices Simulator · Grade 7</div>
-        <div class="stage-indicator" id="stageIndicator">Experiment 1 of 3</div>
+
+      <h1>
+        🧪 Decision Lab
+      </h1>
+
+      <div class="subtitle">
+        Wise Choices Simulator
       </div>
+
+      <div
+        class="stage-indicator"
+        id="stageIndicator"
+      >
+        Experiment 1 of 3
+      </div>
+
     </div>
 
-    <div class="top-bar">
-      <div>Use each lab station to complete the 6 steps of decision-making: Identify, Ask, Research, Think, Be flexible, Communicate. [file:29]</div>
-      <div>Good decision-makers mix reasoning, problem-solving and intuition to choose wisely. [file:29]</div>
+
+    <!-- INSTRUCTIONS -->
+
+    <div class="intro-bar">
+
+      <div class="intro-note">
+
+        Complete the six decision-making steps:
+        Identify, Ask, Research, Think creatively,
+        Be flexible and Communicate.
+
+      </div>
+
+      <div class="intro-note">
+
+        On a phone, tap a card and then tap the step
+        where you want to place it. You can also drag
+        cards on larger screens.
+
+      </div>
+
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="lab-panel">
-        <div class="lab-title">Decision Lab Bench</div>
-        <div class="lab-scene">
-          <div class="lab-wall"></div>
-          <div class="lab-bench"></div>
 
-          <div class="station" data-step="identify">
-            <div class="icon icon-flask"></div>
-            <div class="station-label">IDENTIFY</div>
-          </div>
+    <!-- MAIN AREA -->
 
-          <div class="station" data-step="ask">
-            <div class="icon icon-question"></div>
-            <div class="station-label">ASK</div>
-          </div>
+    <div
+      class="layout"
+      id="gameWrapper"
+    >
 
-          <div class="station" data-step="research">
-            <div class="icon icon-book"></div>
-            <div class="station-label">RESEARCH</div>
-          </div>
 
-          <div class="station" data-step="think">
-            <div class="icon icon-brain"></div>
-            <div class="station-label">THINK</div>
-          </div>
+      <!-- =================================================
+           DECISION STEPS
+      ================================================== -->
 
-          <div class="station" data-step="flex">
-            <div class="icon icon-arrows"></div>
-            <div class="station-label">BE FLEXIBLE</div>
-          </div>
+      <section
+        class="panel lab-panel"
+      >
 
-          <div class="station" data-step="communicate">
-            <div class="icon icon-speech"></div>
-            <div class="station-label">COMMUNICATE</div>
-          </div>
+        <div class="lab-title">
+          Decision-Making Steps
         </div>
+
+
+        <div class="step-grid">
+
+
+          <button
+            class="station active"
+            type="button"
+            data-step="identify"
+          >
+
+            <div class="station-icon">
+              🔎
+            </div>
+
+            <div class="station-name">
+              IDENTIFY
+            </div>
+
+          </button>
+
+
+          <button
+            class="station"
+            type="button"
+            data-step="ask"
+          >
+
+            <div class="station-icon">
+              ❓
+            </div>
+
+            <div class="station-name">
+              ASK
+            </div>
+
+          </button>
+
+
+          <button
+            class="station"
+            type="button"
+            data-step="research"
+          >
+
+            <div class="station-icon">
+              📘
+            </div>
+
+            <div class="station-name">
+              RESEARCH
+            </div>
+
+          </button>
+
+
+          <button
+            class="station"
+            type="button"
+            data-step="think"
+          >
+
+            <div class="station-icon">
+              💡
+            </div>
+
+            <div class="station-name">
+              THINK CREATIVELY
+            </div>
+
+          </button>
+
+
+          <button
+            class="station"
+            type="button"
+            data-step="flex"
+          >
+
+            <div class="station-icon">
+              🔄
+            </div>
+
+            <div class="station-name">
+              BE FLEXIBLE
+            </div>
+
+          </button>
+
+
+          <button
+            class="station"
+            type="button"
+            data-step="communicate"
+          >
+
+            <div class="station-icon">
+              💬
+            </div>
+
+            <div class="station-name">
+              COMMUNICATE
+            </div>
+
+          </button>
+
+
+        </div>
+
 
         <div class="step-panel">
-          <div class="step-label-text">Current Lab Step</div>
-          <div id="stepDescription"></div>
-        </div>
-      </div>
 
-      <div class="right-panel">
+          <div class="step-label-text">
+            Current Step
+          </div>
+
+          <div id="stepDescription">
+          </div>
+
+        </div>
+
+
+      </section>
+
+
+      <!-- =================================================
+           ACTIVITY
+      ================================================== -->
+
+      <section
+        class="panel right-panel"
+      >
+
+
+        <!-- SCORE -->
+
         <div class="score-row">
+
+
           <div class="score-card">
-            <div class="score-label">Experiment</div>
-            <div class="score-value" id="expCounter">1 / 3</div>
+
+            <div class="score-label">
+              Experiment
+            </div>
+
+            <div
+              class="score-value"
+              id="expCounter"
+            >
+              1 / 3
+            </div>
+
           </div>
+
+
           <div class="score-card">
-            <div class="score-label">Steps Done Well</div>
-            <div class="score-value" id="goodSteps">0</div>
+
+            <div class="score-label">
+              Steps Done Well
+            </div>
+
+            <div
+              class="score-value"
+              id="goodSteps"
+            >
+              0
+            </div>
+
           </div>
+
+
           <div class="score-card">
-            <div class="score-label">Decision Skill</div>
-            <div class="score-value" id="skillScore">0%</div>
+
+            <div class="score-label">
+              Decision Skill
+            </div>
+
+            <div
+              class="score-value"
+              id="skillScore"
+            >
+              0%
+            </div>
+
           </div>
+
+
         </div>
 
-        <div class="scenario-title">Scenario</div>
-        <div class="scenario-text" id="scenarioText"></div>
 
-        <div class="tray-label">Decision Ingredients</div>
-        <div class="tray" id="bankTray"></div>
+        <!-- SCENARIO -->
 
-        <div class="tray-label">Place each card on the correct lab step</div>
-        <div class="tray" id="identifyTray" data-step="identify"></div>
-        <div class="tray" id="askTray" data-step="ask"></div>
-        <div class="tray" id="researchTray" data-step="research"></div>
-        <div class="tray" id="thinkTray" data-step="think"></div>
-        <div class="tray" id="flexTray" data-step="flex"></div>
-        <div class="tray" id="communicateTray" data-step="communicate"></div>
+        <div class="scenario-card">
 
-        <div class="feedback" id="feedback"></div>
+          <div class="scenario-title">
+            Scenario
+          </div>
+
+          <div
+            class="scenario-text"
+            id="scenarioText"
+          >
+          </div>
+
+        </div>
+
+
+        <!-- CARD BANK -->
+
+        <div class="tray-label">
+          Decision Ingredients
+        </div>
+
+
+        <div class="instruction-tip">
+
+          Tap a card to select it, then tap a step tray
+          to place it. Tap a placed card and then the
+          Decision Ingredients tray to move it back.
+
+        </div>
+
+
+        <div
+          class="tray"
+          id="bankTray"
+          aria-label="Decision Ingredients"
+        >
+        </div>
+
+
+        <!-- STEP TRAYS -->
+
+        <div class="tray-label">
+          Place each card on the correct step
+        </div>
+
+
+        <div id="stepTrays">
+        </div>
+
+
+        <!-- FEEDBACK -->
+
+        <div
+          class="feedback"
+          id="feedback"
+          aria-live="polite"
+        >
+        </div>
+
+
+        <!-- CONTROLS -->
 
         <div class="controls">
-          <button class="btn-secondary" id="resetBtn">Reset experiment</button>
-          <div id="progressText">Drag each card to the step where it belongs, then click “Run Experiment”.</div>
-          <button class="btn-primary" id="checkBtn">Run Experiment</button>
+
+
+          <button
+            class="btn-secondary"
+            id="resetBtn"
+            type="button"
+          >
+            Reset Experiment
+          </button>
+
+
+          <div id="progressText">
+
+            Place every card, then run the experiment.
+
+          </div>
+
+
+          <button
+            class="btn-primary"
+            id="checkBtn"
+            type="button"
+          >
+            Run Experiment
+          </button>
+
+
         </div>
+
+
+        <!-- VOLUME -->
 
         <div class="volume-control">
-          <span>🔊 Volume</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+
+          <span>
+            🔊 Volume
+          </span>
+
+          <input
+            type="range"
+            id="volumeSlider"
+            min="0"
+            max="100"
+            value="80"
+          />
+
         </div>
-      </div>
+
+
+      </section>
+
+
     </div>
+
   </div>
 
-  <script>
-    // Splash
-    setTimeout(() => {
-      document.getElementById('splashScreen').classList.add('hidden');
-      document.getElementById('mainContainer').classList.add('visible');
+
+<script>
+
+
+  /* =====================================================
+     SPLASH
+  ===================================================== */
+
+  setTimeout(
+    () => {
+
+      document
+        .getElementById(
+          "splashScreen"
+        )
+        .classList
+        .add(
+          "hidden"
+        );
+
+
+      document
+        .getElementById(
+          "mainContainer"
+        )
+        .classList
+        .add(
+          "visible"
+        );
+
+
       initGame();
-    }, 5000);
 
-    // Audio
-    const correctSound = new Audio('assets/correct.mp3');
-    const wrongSound = new Audio('assets/wrong.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    correctSound.volume = volume;
-    wrongSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playCorrect(){ correctSound.currentTime = 0; correctSound.play().catch(()=>{}); }
-    function playWrong(){ wrongSound.currentTime = 0; wrongSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      correctSound.volume = volume;
-      wrongSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
+    },
+    5000
+  );
 
-    const stations = document.querySelectorAll(".station");
-    const stepDescriptionEl = document.getElementById("stepDescription");
 
-    // Decision-making steps from textbook: Identify, Ask, Research, Think creatively, Be flexible, Communicate. [file:29]
-    const stepDescriptions = {
-      identify: "Identify: First, recognise and name the real problem or decision. You can only decide how to proceed when you know what the issue is. [file:29]",
-      ask: "Ask: If you have doubts, ask questions to people involved to clear your confusion about the situation. [file:29]",
-      research: "Research: Gather more information and look deeper into the roots of the problem before choosing. [file:29]",
-      think: "Think creatively: Use your imagination to generate different possible solutions. [file:29]",
-      flex: "Be flexible: Keep an open mind and consider several options and their effects before you choose. [file:29]",
-      communicate: "Communicate: Share your decision clearly so that others understand it and do not misinterpret it. [file:29]"
-    };
+  /* =====================================================
+     AUDIO
+  ===================================================== */
 
-    // Experiments / scenarios [file:29]
-    const experiments = [
-      {
-        scenario: "You have been invited to two events on the same evening: a close friend's birthday and an important school competition practice. You cannot attend both.",
-        cards: [
-          { text: "Write down what the actual choice is: which event to attend this evening.", step: "identify" },
-          { text: "Ask your teacher or coach how important this practice is for the team.", step: "ask" },
-          { text: "Check the competition date and how many practices are left.", step: "research" },
-          { text: "Brainstorm options like going early to one event and later to the other.", step: "think" },
-          { text: "List pros and cons of each option and be ready to adjust your plan.", step: "flex" },
-          { text: "Explain your final choice calmly to your friend and teacher.", step: "communicate" }
+  const correctSound =
+    new Audio(
+      "assets/correct.mp3"
+    );
+
+
+  const wrongSound =
+    new Audio(
+      "assets/wrong.mp3"
+    );
+
+
+  const celebrationSound =
+    new Audio(
+      "assets/freesound_community-claps-44774.mp3"
+    );
+
+
+  let volume =
+    0.8;
+
+
+  [
+    correctSound,
+    wrongSound,
+    celebrationSound
+  ]
+  .forEach(
+    sound => {
+
+      sound.volume =
+        volume;
+
+    }
+  );
+
+
+  function playSound(
+    sound
+  ) {
+
+    sound.currentTime =
+      0;
+
+
+    sound
+      .play()
+      .catch(
+        () => {}
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      "volumeSlider"
+    )
+    .addEventListener(
+      "input",
+      event => {
+
+        volume =
+          event.target.value /
+          100;
+
+
+        [
+          correctSound,
+          wrongSound,
+          celebrationSound
         ]
-      },
-      {
-        scenario: "You are struggling with a subject and are thinking about whether to join an extra coaching class.",
-        cards: [
-          { text: "State the decision: should you join extra coaching for this subject or not?", step: "identify" },
-          { text: "Ask your current teacher what areas you are weak in.", step: "ask" },
-          { text: "Find out class timings, cost and how others improved with coaching.", step: "research" },
-          { text: "Think of other ways to improve, like study groups or online videos.", step: "think" },
-          { text: "Consider mixing two ideas, like coaching plus short daily self-study.", step: "flex" },
-          { text: "Share your decision with your parents and ask for their support.", step: "communicate" }
-        ]
-      },
-      {
-        scenario: "Two classmates are fighting and each one wants you to take their side.",
-        cards: [
-          { text: "Identify the problem: your friends are in conflict and you feel pressure to choose sides.", step: "identify" },
-          { text: "Ask each person calmly what happened and how they feel.", step: "ask" },
-          { text: "Think about school rules on conflict and what a teacher might suggest.", step: "research" },
-          { text: "Imagine peaceful solutions like helping them talk it out or involving a mediator.", step: "think" },
-          { text: "Be open to changing your first idea if you hear new information from both sides.", step: "flex" },
-          { text: "Communicate your decision not to spread gossip and to support a fair solution.", step: "communicate" }
-        ]
+        .forEach(
+          sound => {
+
+            sound.volume =
+              volume;
+
+          }
+        );
+
       }
-    ];
+    );
 
-    const TOTAL_EXPERIMENTS = experiments.length;
 
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const bankTray = document.getElementById("bankTray");
-    const identifyTray = document.getElementById("identifyTray");
-    const askTray = document.getElementById("askTray");
-    const researchTray = document.getElementById("researchTray");
-    const thinkTray = document.getElementById("thinkTray");
-    const flexTray = document.getElementById("flexTray");
-    const communicateTray = document.getElementById("communicateTray");
-    const trays = [identifyTray, askTray, researchTray, thinkTray, flexTray, communicateTray];
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
-    const checkBtn = document.getElementById("checkBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const expCounterEl = document.getElementById("expCounter");
-    const goodStepsEl = document.getElementById("goodSteps");
-    const skillScoreEl = document.getElementById("skillScore");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const gameWrapper = document.getElementById("gameWrapper");
+  /* =====================================================
+     SIX DECISION-MAKING STEPS
+  ===================================================== */
 
-    let currentExperimentIndex = 0;
-    let goodStepsTotal = 0;
-    let draggingCard = null;
+  const stepDescriptions = {
 
-    function initGame(){
-      currentExperimentIndex = 0;
-      goodStepsTotal = 0;
-      updateCounters();
-      setActiveStep("identify");
-      loadExperiment();
-      setupDragTargets();
-    }
+    identify:
+      "Identify: Recognise and name the real problem or decision before deciding what to do.",
 
-    function updateCounters(){
-      expCounterEl.textContent = `${currentExperimentIndex + 1} / ${TOTAL_EXPERIMENTS}`;
-      goodStepsEl.textContent = String(goodStepsTotal);
-      const possibleSteps = TOTAL_EXPERIMENTS * 6;
-      const percent = possibleSteps ? Math.round((goodStepsTotal / possibleSteps) * 100) : 0;
-      skillScoreEl.textContent = percent + "%";
-      stageIndicator.textContent = `Experiment ${currentExperimentIndex + 1} of ${TOTAL_EXPERIMENTS}`;
-    }
+    ask:
+      "Ask: Ask useful questions when you need more clarity about the situation.",
 
-    function setActiveStep(stepKey){
-      stations.forEach(st => {
-        if(st.dataset.step === stepKey){
-          st.classList.add("active");
-        } else {
-          st.classList.remove("active");
+    research:
+      "Research: Gather information and look carefully at the facts before choosing.",
+
+    think:
+      "Think creatively: Generate different possible solutions instead of stopping at the first idea.",
+
+    flex:
+      "Be flexible: Keep an open mind, compare options and be willing to adjust your thinking.",
+
+    communicate:
+      "Communicate: Share your final decision clearly so that others understand it."
+
+  };
+
+
+  const stepLabels = {
+
+    identify:
+      "🔎 Identify",
+
+    ask:
+      "❓ Ask",
+
+    research:
+      "📘 Research",
+
+    think:
+      "💡 Think Creatively",
+
+    flex:
+      "🔄 Be Flexible",
+
+    communicate:
+      "💬 Communicate"
+
+  };
+
+
+  const stepOrder = [
+
+    "identify",
+    "ask",
+    "research",
+    "think",
+    "flex",
+    "communicate"
+
+  ];
+
+
+  /* =====================================================
+     EXPERIMENTS
+  ===================================================== */
+
+  const experiments = [
+
+
+    /* EXPERIMENT 1 */
+
+    {
+
+      scenario:
+        "You have been invited to two events on the same evening: a close friend's birthday and an important school competition practice. You cannot attend both.",
+
+
+      cards: [
+
+        {
+
+          text:
+            "Write down what the actual choice is: which event to attend this evening.",
+
+          step:
+            "identify"
+
+        },
+
+
+        {
+
+          text:
+            "Ask your teacher or coach how important this practice is for the team.",
+
+          step:
+            "ask"
+
+        },
+
+
+        {
+
+          text:
+            "Check the competition date and how many practices are left.",
+
+          step:
+            "research"
+
+        },
+
+
+        {
+
+          text:
+            "Brainstorm options like going early to one event and later to the other.",
+
+          step:
+            "think"
+
+        },
+
+
+        {
+
+          text:
+            "List pros and cons of each option and be ready to adjust your plan.",
+
+          step:
+            "flex"
+
+        },
+
+
+        {
+
+          text:
+            "Explain your final choice calmly to your friend and teacher.",
+
+          step:
+            "communicate"
+
         }
-      });
-      stepDescriptionEl.textContent = stepDescriptions[stepKey] || "";
-    }
 
-    stations.forEach(st => {
-      st.addEventListener("click", () => {
-        setActiveStep(st.dataset.step);
-      });
-    });
+      ]
 
-    function clearExperiment(){
-      bankTray.innerHTML = "";
-      trays.forEach(t => t.innerHTML = "");
-      feedbackEl.style.display = "none";
-      feedbackEl.textContent = "";
-    }
+    },
 
-    function loadExperiment(){
-      clearExperiment();
-      progressTextEl.textContent = "Drag each card to the step where it belongs, then click “Run Experiment”.";
-      const exp = experiments[currentExperimentIndex];
-      scenarioTextEl.textContent = exp.scenario;
 
-      const shuffledCards = shuffle([...exp.cards]);
-      shuffledCards.forEach((card, idx) => {
-        const el = document.createElement("div");
-        el.className = "card";
-        el.textContent = card.text;
-        el.draggable = true;
-        el.dataset.step = card.step;
-        el.dataset.index = idx;
-        el.addEventListener("dragstart", handleDragStart);
-        el.addEventListener("dragend", handleDragEnd);
-        bankTray.appendChild(el);
-      });
-    }
+    /* EXPERIMENT 2 */
 
-    function shuffle(arr){
-      for(let i = arr.length - 1; i > 0; i--){
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
+    {
 
-    function handleDragStart(e){
-      draggingCard = e.target;
-      draggingCard.classList.add("dragging");
-    }
+      scenario:
+        "You are struggling with a subject and are thinking about whether to join an extra coaching class.",
 
-    function handleDragEnd(e){
-      if(draggingCard){
-        draggingCard.classList.remove("dragging");
-      }
-      draggingCard = null;
-    }
 
-    function setupDragTargets(){
-      [bankTray, ...trays].forEach(tray => {
-        tray.addEventListener("dragover", e => {
-          e.preventDefault();
-        });
-        tray.addEventListener("drop", e => {
-          e.preventDefault();
-          if(!draggingCard) return;
-          tray.appendChild(draggingCard);
-        });
-      });
-    }
+      cards: [
 
-    resetBtn.addEventListener("click", () => {
-      loadExperiment();
-    });
+        {
 
-    checkBtn.addEventListener("click", () => {
-      const exp = experiments[currentExperimentIndex];
-      const expectedCount = exp.cards.length;
-      const placedCount = Array.from(document.querySelectorAll(".tray .card")).length - bankTray.querySelectorAll(".card").length;
+          text:
+            "State the decision: should you join extra coaching for this subject or not?",
 
-      if(bankTray.querySelectorAll(".card").length > 0){
-        progressTextEl.textContent = "Try to place every card on a step before running the experiment.";
-        return;
-      }
+          step:
+            "identify"
 
-      let correctThisExperiment = 0;
-      const allCards = document.querySelectorAll(".card");
-      allCards.forEach(card => {
-        card.classList.remove("correct","wrong");
-        const parentTray = card.parentElement;
-        const trayStep = parentTray.dataset.step;
-        if(trayStep && trayStep === card.dataset.step){
-          card.classList.add("correct");
-          correctThisExperiment++;
-        } else if(trayStep) {
-          card.classList.add("wrong");
+        },
+
+
+        {
+
+          text:
+            "Ask your current teacher what areas you are weak in.",
+
+          step:
+            "ask"
+
+        },
+
+
+        {
+
+          text:
+            "Find out class timings, cost and how others improved with coaching.",
+
+          step:
+            "research"
+
+        },
+
+
+        {
+
+          text:
+            "Think of other ways to improve, like study groups or online videos.",
+
+          step:
+            "think"
+
+        },
+
+
+        {
+
+          text:
+            "Consider mixing two ideas, like coaching plus short daily self-study.",
+
+          step:
+            "flex"
+
+        },
+
+
+        {
+
+          text:
+            "Share your decision with your parents and ask for their support.",
+
+          step:
+            "communicate"
+
         }
-      });
 
-      let message = "";
-      const ratio = correctThisExperiment / expectedCount;
+      ]
 
-      if(ratio === 1){
-        playCorrect();
-        feedbackEl.className = "feedback good";
-        message = "Excellent. You matched each action to the correct step of decision making: identifying the problem, asking, researching, thinking creatively, staying flexible and communicating clearly. [file:29]";
-      } else if(ratio >= 0.6){
-        playCorrect();
-        feedbackEl.className = "feedback good";
-        message = "You placed most cards on the right steps. Review the ones in red to see which decisions belong to asking, researching or thinking creatively. Practising the full process makes decisions wiser. [file:29]";
-      } else {
-        playWrong();
-        feedbackEl.className = "feedback warn";
-        message = "Several cards are on the wrong steps. Remember: first identify the problem, then ask questions, research, think of options, stay flexible, and finally communicate your choice. [file:29]";
+    },
+
+
+    /* EXPERIMENT 3 */
+
+    {
+
+      scenario:
+        "Two classmates are fighting and each one wants you to take their side.",
+
+
+      cards: [
+
+        {
+
+          text:
+            "Identify the problem: your friends are in conflict and you feel pressure to choose sides.",
+
+          step:
+            "identify"
+
+        },
+
+
+        {
+
+          text:
+            "Ask each person calmly what happened and how they feel.",
+
+          step:
+            "ask"
+
+        },
+
+
+        {
+
+          text:
+            "Think about school rules on conflict and what a teacher might suggest.",
+
+          step:
+            "research"
+
+        },
+
+
+        {
+
+          text:
+            "Imagine peaceful solutions like helping them talk it out or involving a mediator.",
+
+          step:
+            "think"
+
+        },
+
+
+        {
+
+          text:
+            "Be open to changing your first idea if you hear new information from both sides.",
+
+          step:
+            "flex"
+
+        },
+
+
+        {
+
+          text:
+            "Communicate your decision not to spread gossip and to support a fair solution.",
+
+          step:
+            "communicate"
+
+        }
+
+      ]
+
+    }
+
+  ];
+
+
+  /* =====================================================
+     ELEMENTS
+  ===================================================== */
+
+  const stations =
+    document.querySelectorAll(
+      ".station"
+    );
+
+
+  const stepDescriptionEl =
+    document.getElementById(
+      "stepDescription"
+    );
+
+
+  const scenarioTextEl =
+    document.getElementById(
+      "scenarioText"
+    );
+
+
+  const bankTray =
+    document.getElementById(
+      "bankTray"
+    );
+
+
+  const stepTraysContainer =
+    document.getElementById(
+      "stepTrays"
+    );
+
+
+  const feedbackEl =
+    document.getElementById(
+      "feedback"
+    );
+
+
+  const progressTextEl =
+    document.getElementById(
+      "progressText"
+    );
+
+
+  const checkBtn =
+    document.getElementById(
+      "checkBtn"
+    );
+
+
+  const resetBtn =
+    document.getElementById(
+      "resetBtn"
+    );
+
+
+  const expCounterEl =
+    document.getElementById(
+      "expCounter"
+    );
+
+
+  const goodStepsEl =
+    document.getElementById(
+      "goodSteps"
+    );
+
+
+  const skillScoreEl =
+    document.getElementById(
+      "skillScore"
+    );
+
+
+  const stageIndicator =
+    document.getElementById(
+      "stageIndicator"
+    );
+
+
+  const gameWrapper =
+    document.getElementById(
+      "gameWrapper"
+    );
+
+
+  /* =====================================================
+     GAME VARIABLES
+  ===================================================== */
+
+  let currentExperimentIndex =
+    0;
+
+
+  let goodStepsTotal =
+    0;
+
+
+  let draggingCard =
+    null;
+
+
+  let selectedCard =
+    null;
+
+
+  let experimentChecked =
+    false;
+
+
+  let experimentScoreAdded =
+    false;
+
+
+  /* =====================================================
+     SHUFFLE
+  ===================================================== */
+
+  function shuffle(
+    array
+  ) {
+
+    for(
+      let i =
+        array.length - 1;
+
+      i > 0;
+
+      i--
+    ) {
+
+      const j =
+        Math.floor(
+          Math.random() *
+          (i + 1)
+        );
+
+
+      [
+        array[i],
+        array[j]
+      ] =
+      [
+        array[j],
+        array[i]
+      ];
+
+    }
+
+
+    return array;
+
+  }
+
+
+  /* =====================================================
+     BUILD STEP TRAYS
+  ===================================================== */
+
+  function buildStepTrays() {
+
+    stepTraysContainer.innerHTML =
+      "";
+
+
+    stepOrder.forEach(
+      step => {
+
+
+        const wrap =
+          document.createElement(
+            "div"
+          );
+
+
+        wrap.className =
+          "step-tray-wrap";
+
+
+        const name =
+          document.createElement(
+            "div"
+          );
+
+
+        name.className =
+          "step-tray-name";
+
+
+        name.textContent =
+          stepLabels[
+            step
+          ];
+
+
+        const tray =
+          document.createElement(
+            "div"
+          );
+
+
+        tray.className =
+          "tray step-tray";
+
+
+        tray.dataset.step =
+          step;
+
+
+        tray.setAttribute(
+          "aria-label",
+          stepLabels[
+            step
+          ]
+        );
+
+
+        addTrayInteraction(
+          tray
+        );
+
+
+        wrap.appendChild(
+          name
+        );
+
+
+        wrap.appendChild(
+          tray
+        );
+
+
+        stepTraysContainer
+          .appendChild(
+            wrap
+          );
+
       }
+    );
 
-      feedbackEl.textContent = message;
-      feedbackEl.style.display = "block";
 
-      goodStepsTotal += correctThisExperiment;
-      updateCounters();
+    addTrayInteraction(
+      bankTray
+    );
 
-      setTimeout(() => {
-        if(currentExperimentIndex < TOTAL_EXPERIMENTS - 1){
-          currentExperimentIndex++;
+  }
+
+
+  /* =====================================================
+     STEP INFORMATION
+  ===================================================== */
+
+  function setActiveStep(
+    stepKey
+  ) {
+
+    stations.forEach(
+      station => {
+
+        station
+          .classList
+          .toggle(
+            "active",
+            station.dataset.step ===
+            stepKey
+          );
+
+      }
+    );
+
+
+    stepDescriptionEl.textContent =
+      stepDescriptions[
+        stepKey
+      ] || "";
+
+  }
+
+
+  stations.forEach(
+    station => {
+
+      station
+        .addEventListener(
+          "click",
+          () => {
+
+            setActiveStep(
+              station.dataset.step
+            );
+
+          }
+        );
+
+    }
+  );
+
+
+  /* =====================================================
+     INITIALISE
+  ===================================================== */
+
+  function initGame() {
+
+    currentExperimentIndex =
+      0;
+
+
+    goodStepsTotal =
+      0;
+
+
+    buildStepTrays();
+
+
+    updateCounters();
+
+
+    setActiveStep(
+      "identify"
+    );
+
+
+    loadExperiment();
+
+  }
+
+
+  /* =====================================================
+     COUNTERS
+  ===================================================== */
+
+  function updateCounters() {
+
+    expCounterEl.textContent =
+      `${currentExperimentIndex + 1} / ${experiments.length}`;
+
+
+    goodStepsEl.textContent =
+      String(
+        goodStepsTotal
+      );
+
+
+    const possibleSteps =
+      experiments.length *
+      6;
+
+
+    const percent =
+      possibleSteps
+        ?
+        Math.round(
+          (
+            goodStepsTotal /
+            possibleSteps
+          ) *
+          100
+        )
+        :
+        0;
+
+
+    skillScoreEl.textContent =
+      percent +
+      "%";
+
+
+    stageIndicator.textContent =
+      `Experiment ${currentExperimentIndex + 1} of ${experiments.length}`;
+
+  }
+
+
+  /* =====================================================
+     CARD SELECTION
+  ===================================================== */
+
+  function clearSelection() {
+
+    if(
+      selectedCard
+    ) {
+
+      selectedCard
+        .classList
+        .remove(
+          "selected"
+        );
+
+    }
+
+
+    selectedCard =
+      null;
+
+  }
+
+
+  /* =====================================================
+     CLEAR EXPERIMENT
+  ===================================================== */
+
+  function clearExperiment() {
+
+    bankTray.innerHTML =
+      "";
+
+
+    document
+      .querySelectorAll(
+        ".step-tray"
+      )
+      .forEach(
+        tray => {
+
+          tray.innerHTML =
+            "";
+
+        }
+      );
+
+
+    feedbackEl.className =
+      "feedback";
+
+
+    feedbackEl.textContent =
+      "";
+
+
+    clearSelection();
+
+
+    experimentChecked =
+      false;
+
+
+    experimentScoreAdded =
+      false;
+
+
+    checkBtn.textContent =
+      "Run Experiment";
+
+  }
+
+
+  /* =====================================================
+     CREATE CARD
+  ===================================================== */
+
+  function createCard(
+    card
+  ) {
+
+    const element =
+      document.createElement(
+        "div"
+      );
+
+
+    element.className =
+      "card";
+
+
+    element.textContent =
+      card.text;
+
+
+    element.draggable =
+      true;
+
+
+    element.dataset.step =
+      card.step;
+
+
+    element.tabIndex =
+      0;
+
+
+    element.setAttribute(
+      "role",
+      "button"
+    );
+
+
+    element.setAttribute(
+      "aria-label",
+      card.text
+    );
+
+
+    element
+      .addEventListener(
+        "click",
+        () => {
+
+          selectCard(
+            element
+          );
+
+        }
+      );
+
+
+    element
+      .addEventListener(
+        "keydown",
+        event => {
+
+          if(
+            event.key ===
+            "Enter" ||
+            event.key ===
+            " "
+          ) {
+
+            event.preventDefault();
+
+
+            selectCard(
+              element
+            );
+
+          }
+
+        }
+      );
+
+
+    element
+      .addEventListener(
+        "dragstart",
+        handleDragStart
+      );
+
+
+    element
+      .addEventListener(
+        "dragend",
+        handleDragEnd
+      );
+
+
+    return element;
+
+  }
+
+
+  /* =====================================================
+     TAP-TO-SELECT
+  ===================================================== */
+
+  function selectCard(
+    card
+  ) {
+
+    if(
+      experimentChecked
+    ) {
+
+      return;
+
+    }
+
+
+    if(
+      selectedCard ===
+      card
+    ) {
+
+      clearSelection();
+
+      return;
+
+    }
+
+
+    clearSelection();
+
+
+    selectedCard =
+      card;
+
+
+    card
+      .classList
+      .add(
+        "selected"
+      );
+
+
+    progressTextEl.textContent =
+      "Card selected. Now tap the step where you want to place it.";
+
+  }
+
+
+  /* =====================================================
+     TRAY INTERACTION
+  ===================================================== */
+
+  function addTrayInteraction(
+    tray
+  ) {
+
+
+    /* TAP */
+
+    tray
+      .addEventListener(
+        "click",
+        event => {
+
+
+          if(
+            event.target
+              .classList
+              .contains(
+                "card"
+              )
+          ) {
+
+            return;
+
+          }
+
+
+          if(
+            experimentChecked ||
+            !selectedCard
+          ) {
+
+            return;
+
+          }
+
+
+          tray.appendChild(
+            selectedCard
+          );
+
+
+          clearSelection();
+
+
+          progressTextEl.textContent =
+            "Card moved. Continue until every card is placed.";
+
+        }
+      );
+
+
+    /* DRAG OVER */
+
+    tray
+      .addEventListener(
+        "dragover",
+        event => {
+
+          if(
+            experimentChecked
+          ) {
+
+            return;
+
+          }
+
+
+          event.preventDefault();
+
+
+          tray
+            .classList
+            .add(
+              "drop-highlight"
+            );
+
+        }
+      );
+
+
+    /* DRAG LEAVE */
+
+    tray
+      .addEventListener(
+        "dragleave",
+        () => {
+
+          tray
+            .classList
+            .remove(
+              "drop-highlight"
+            );
+
+        }
+      );
+
+
+    /* DROP */
+
+    tray
+      .addEventListener(
+        "drop",
+        event => {
+
+          if(
+            experimentChecked
+          ) {
+
+            return;
+
+          }
+
+
+          event.preventDefault();
+
+
+          tray
+            .classList
+            .remove(
+              "drop-highlight"
+            );
+
+
+          if(
+            !draggingCard
+          ) {
+
+            return;
+
+          }
+
+
+          tray.appendChild(
+            draggingCard
+          );
+
+        }
+      );
+
+  }
+
+
+  /* =====================================================
+     DRAG EVENTS
+  ===================================================== */
+
+  function handleDragStart(
+    event
+  ) {
+
+    if(
+      experimentChecked
+    ) {
+
+      event.preventDefault();
+
+      return;
+
+    }
+
+
+    draggingCard =
+      event.currentTarget;
+
+
+    draggingCard
+      .classList
+      .add(
+        "dragging"
+      );
+
+  }
+
+
+  function handleDragEnd() {
+
+    if(
+      draggingCard
+    ) {
+
+      draggingCard
+        .classList
+        .remove(
+          "dragging"
+        );
+
+    }
+
+
+    draggingCard =
+      null;
+
+
+    document
+      .querySelectorAll(
+        ".tray"
+      )
+      .forEach(
+        tray => {
+
+          tray
+            .classList
+            .remove(
+              "drop-highlight"
+            );
+
+        }
+      );
+
+  }
+
+
+  /* =====================================================
+     LOAD EXPERIMENT
+  ===================================================== */
+
+  function loadExperiment() {
+
+    clearExperiment();
+
+
+    const experiment =
+      experiments[
+        currentExperimentIndex
+      ];
+
+
+    scenarioTextEl.textContent =
+      experiment.scenario;
+
+
+    progressTextEl.textContent =
+      "Place every card, then run the experiment.";
+
+
+    shuffle(
+      [
+        ...experiment.cards
+      ]
+    )
+    .forEach(
+      card => {
+
+        bankTray
+          .appendChild(
+            createCard(
+              card
+            )
+          );
+
+      }
+    );
+
+
+    setActiveStep(
+      "identify"
+    );
+
+
+    /*
+    On mobile move the learner
+    directly to the activity.
+    */
+
+    if(
+      window
+        .matchMedia(
+          "(max-width: 640px)"
+        )
+        .matches
+    ) {
+
+      setTimeout(
+        () => {
+
+          document
+            .querySelector(
+              ".right-panel"
+            )
+            .scrollIntoView(
+              {
+                behavior:
+                  "smooth",
+
+                block:
+                  "start"
+              }
+            );
+
+        },
+        80
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     RESET
+  ===================================================== */
+
+  resetBtn
+    .addEventListener(
+      "click",
+      () => {
+
+        loadExperiment();
+
+      }
+    );
+
+
+  /* =====================================================
+     RUN EXPERIMENT
+  ===================================================== */
+
+  checkBtn
+    .addEventListener(
+      "click",
+      () => {
+
+
+        /*
+        If experiment has already
+        been checked, button acts
+        as Next.
+        */
+
+        if(
+          experimentChecked
+        ) {
+
+
+          if(
+            currentExperimentIndex <
+            experiments.length - 1
+          ) {
+
+            currentExperimentIndex++;
+
+
+            updateCounters();
+
+
+            loadExperiment();
+
+          }
+
+
+          else {
+
+            showFinalScreen();
+
+          }
+
+
+          return;
+
+        }
+
+
+        /*
+        All cards must be placed
+        before checking.
+        */
+
+        if(
+          bankTray
+            .querySelectorAll(
+              ".card"
+            )
+            .length >
+          0
+        ) {
+
+          progressTextEl.textContent =
+            "Place every card on a step before running the experiment.";
+
+
+          feedbackEl.className =
+            "feedback warn";
+
+
+          feedbackEl.textContent =
+            "Some decision cards are still in the Decision Ingredients tray.";
+
+
+          return;
+
+        }
+
+
+        clearSelection();
+
+
+        const allCards =
+          document
+            .querySelectorAll(
+              ".card"
+            );
+
+
+        let correctThisExperiment =
+          0;
+
+
+        allCards.forEach(
+          card => {
+
+
+            card
+              .classList
+              .remove(
+                "correct",
+                "wrong"
+              );
+
+
+            const trayStep =
+              card
+                .parentElement
+                .dataset
+                .step;
+
+
+            if(
+              trayStep ===
+              card.dataset.step
+            ) {
+
+              card
+                .classList
+                .add(
+                  "correct"
+                );
+
+
+              correctThisExperiment++;
+
+            }
+
+
+            else {
+
+              card
+                .classList
+                .add(
+                  "wrong"
+                );
+
+            }
+
+
+            card.draggable =
+              false;
+
+          }
+        );
+
+
+        const ratio =
+          correctThisExperiment /
+          6;
+
+
+        /* PERFECT */
+
+        if(
+          ratio ===
+          1
+        ) {
+
+          playSound(
+            correctSound
+          );
+
+
+          feedbackEl.className =
+            "feedback good";
+
+
+          feedbackEl.textContent =
+            "Excellent. Every action is matched to the correct decision-making step.";
+
+        }
+
+
+        /* MOSTLY CORRECT */
+
+        else if(
+          ratio >=
+          .6
+        ) {
+
+          playSound(
+            correctSound
+          );
+
+
+          feedbackEl.className =
+            "feedback good";
+
+
+          feedbackEl.textContent =
+            "You placed most cards correctly. Review the cards marked in red and compare them with the six decision-making steps.";
+
+        }
+
+
+        /* NEEDS REVIEW */
+
+        else {
+
+          playSound(
+            wrongSound
+          );
+
+
+          feedbackEl.className =
+            "feedback warn";
+
+
+          feedbackEl.textContent =
+            "Several cards need another look. Remember the sequence: Identify, Ask, Research, Think creatively, Be flexible and Communicate.";
+
+        }
+
+
+        /*
+        Prevent the same experiment
+        from adding to the score
+        more than once.
+        */
+
+        if(
+          !experimentScoreAdded
+        ) {
+
+          goodStepsTotal +=
+            correctThisExperiment;
+
+
+          experimentScoreAdded =
+            true;
+
+
           updateCounters();
-          loadExperiment();
-        } else {
-          showFinalScreen();
+
         }
-      }, 2000);
-    });
 
-    function showFinalScreen(){
-      playCelebrate();
-      const possibleSteps = TOTAL_EXPERIMENTS * 6;
-      const percent = possibleSteps ? Math.round((goodStepsTotal / possibleSteps) * 100) : 0;
-      let rank, badge, text;
 
-      if(percent >= 70){
-        rank = "Decision Scientist";
-        badge = "🧬";
-        text = "You use all six decision-making steps with confidence. You can identify problems, ask, research, think creatively, stay flexible and communicate clearly. [file:29]";
-      } else if(percent >= 40){
-        rank = "Growing Lab Assistant";
-        badge = "⚗️";
-        text = "You are learning to use the full decision process. With more practice, your choices will become even wiser and more responsible. [file:29]";
-      } else {
-        rank = "New Lab Intern";
-        badge = "🔬";
-        text = "This is the start of your decision-making journey. Keep practising the six steps and notice how your choices improve over time. [file:29]";
+        experimentChecked =
+          true;
+
+
+        /*
+        Button now becomes Next.
+        */
+
+        checkBtn.textContent =
+          currentExperimentIndex <
+          experiments.length - 1
+
+            ?
+
+          "Next Experiment →"
+
+            :
+
+          "See Final Report →";
+
+
+        progressTextEl.textContent =
+          `${correctThisExperiment} of 6 steps matched correctly.`;
+
+
+        /*
+        Keep continuation button
+        easy to reach on a phone.
+        */
+
+        if(
+          window
+            .matchMedia(
+              "(max-width: 640px)"
+            )
+            .matches
+        ) {
+
+          setTimeout(
+            () => {
+
+              checkBtn
+                .scrollIntoView(
+                  {
+                    behavior:
+                      "smooth",
+
+                    block:
+                      "nearest"
+                  }
+                );
+
+            },
+            120
+          );
+
+        }
+
       }
+    );
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Decision Lab Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Correct steps: ${goodStepsTotal} / ${possibleSteps} (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Run Experiments Again</button>
-        </div>
-      `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => {
-        location.reload();
-      });
+
+  /* =====================================================
+     FINAL SCREEN
+  ===================================================== */
+
+  function showFinalScreen() {
+
+    playSound(
+      celebrationSound
+    );
+
+
+    const possibleSteps =
+      experiments.length *
+      6;
+
+
+    const percent =
+      Math.round(
+        (
+          goodStepsTotal /
+          possibleSteps
+        ) *
+        100
+      );
+
+
+    let rank;
+
+    let badge;
+
+    let text;
+
+
+    if(
+      percent >=
+      70
+    ) {
+
+      rank =
+        "Decision Scientist";
+
+
+      badge =
+        "🧬";
+
+
+      text =
+        "You use the six decision-making steps with confidence. You can identify problems, ask useful questions, research, think creatively, stay flexible and communicate clearly.";
+
     }
-  </script>
+
+
+    else if(
+      percent >=
+      40
+    ) {
+
+      rank =
+        "Growing Lab Assistant";
+
+
+      badge =
+        "⚗️";
+
+
+      text =
+        "You are learning to use the full decision process. More practice will help you make wiser and more responsible choices.";
+
+    }
+
+
+    else {
+
+      rank =
+        "New Lab Intern";
+
+
+      badge =
+        "🔬";
+
+
+      text =
+        "This is the start of your decision-making journey. Keep practising the six steps and notice how your choices improve.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+      `
+
+      <div
+        class="panel final-screen"
+        style="
+          grid-column:1/-1;
+        "
+      >
+
+        <div class="final-title">
+          Decision Lab Report
+        </div>
+
+
+        <div class="final-badge">
+          ${badge}
+        </div>
+
+
+        <div class="final-rank">
+          ${rank}
+        </div>
+
+
+        <div class="final-score">
+
+          Correct steps:
+          ${goodStepsTotal}
+          /
+          ${possibleSteps}
+          (${percent}%)
+
+        </div>
+
+
+        <div class="final-text">
+
+          ${text}
+
+        </div>
+
+
+        <button
+          class="btn-primary"
+          id="playAgainBtn"
+          type="button"
+        >
+
+          Run Experiments Again
+
+        </button>
+
+      </div>
+
+      `;
+
+
+    document
+      .getElementById(
+        "playAgainBtn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          location.reload();
+
+        }
+      );
+
+
+    window.scrollTo(
+      {
+        top:
+          0,
+
+        behavior:
+          "smooth"
+      }
+    );
+
+  }
+
+
+</script>
+
 </body>
 </html>
