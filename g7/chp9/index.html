@@ -2,920 +2,3793 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bounce-Back Challenge – Resilience Runner (Stick Figure)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Bounce-Back Challenge – Resilience Runner</title>
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #020617 0%, #020617 50%, #000 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #fff;
-      overflow: hidden;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: radial-gradient(circle at top, #020617 0%, #020617 80%);
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.45);
-      overflow: hidden;
+    :root {
+      --ink: #223247;
+      --muted: #66768a;
+      --blue: #5c86f7;
+      --blue-dark: #3d63c9;
+      --sky: #eaf6ff;
+      --mint: #eaf9f1;
+      --green: #35ad76;
+      --green-dark: #237a54;
+      --yellow: #fff5cf;
+      --orange: #f39b49;
+      --red: #dc6b67;
+      --line: #dbe6ef;
+      --card: #ffffff;
+      --soft: #f7fafe;
+      --shadow: 0 14px 34px rgba(55, 83, 115, 0.13);
     }
+
+    html {
+      width: 100%;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+
+      overflow-x: hidden;
+      overflow-y: auto;
+
+      font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+      color: var(--ink);
+
+      background:
+        radial-gradient(
+          circle at top left,
+          rgba(135, 201, 255, 0.22),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at top right,
+          rgba(133, 224, 177, 0.20),
+          transparent 30%
+        ),
+        linear-gradient(
+          180deg,
+          #f8fbff 0%,
+          #eef6ff 100%
+        );
+
+      padding: 16px;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid #ffd968;
+      outline-offset: 3px;
+    }
+
+
+    /* =========================================
+       SPLASH
+    ========================================= */
+
+    .splash-screen {
+      position: fixed;
+      inset: 0;
+
+      z-index: 9999;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: white;
+
+      transition: opacity .45s ease;
+    }
+
+    .splash-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .splash-screen img {
+      width: min(430px, 82vw);
+      height: auto;
+
+      animation:
+        splashFloat
+        2s
+        ease-in-out
+        infinite;
+    }
+
+    @keyframes splashFloat {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+
+    /* =========================================
+       GAME SHELL
+    ========================================= */
+
+    .container {
+      width: min(1120px, 100%);
+
+      margin: 0 auto;
+
+      background:
+        rgba(
+          255,
+          255,
+          255,
+          .98
+        );
+
+      border:
+        1px solid #d9e6f1;
+
+      border-radius: 28px;
+
+      overflow: hidden;
+
+      box-shadow:
+        var(--shadow);
+
+      opacity: 0;
+
+      transition:
+        opacity .45s ease;
+    }
+
+    .container.visible {
+      opacity: 1;
+    }
+
+
+    /* =========================================
+       HEADER
+    ========================================= */
 
     .header {
       position: relative;
-      padding: 20px 18px 22px;
+
+      padding:
+        22px 20px 18px;
+
       text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #0ea5e9 50%, #6366f1 100%);
-      color: #022c22;
-      box-shadow: 0 5px 20px rgba(34, 197, 94, 0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
+
       background:
-        radial-gradient(circle at 10% 15%, rgba(59,130,246,0.3) 0, transparent 55%),
-        radial-gradient(circle at 80% 20%, rgba(45,212,191,0.25) 0, transparent 55%);
-      opacity: 0.7;
-      animation: glow 22s linear infinite;
+        radial-gradient(
+          circle at 18% 18%,
+          rgba(255,255,255,.65),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #dff3ff 0%,
+          #e5f8ed 54%,
+          #fff3d3 100%
+        );
+
+      border-bottom:
+        1px solid #d9e6ef;
     }
-    @keyframes glow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-80px,40px); }
-    }
-    .header-content { position: relative; z-index: 1; }
+
     .header h1 {
-      font-size: 26px;
-      letter-spacing: 1.5px;
-      text-shadow: 0 0 12px rgba(0,0,0,0.3);
-      margin-bottom: 4px;
+      font-size:
+        clamp(
+          26px,
+          4vw,
+          36px
+        );
+
+      line-height: 1.15;
+
+      margin-bottom: 6px;
+
+      color: #23405e;
     }
+
     .subtitle {
+      color: #5c7085;
+
       font-size: 14px;
-      font-weight: bold;
-      color: #ecfdf5;
+
+      font-weight: 800;
     }
+
     .stage-indicator {
       display: inline-block;
-      margin-top: 8px;
-      padding: 6px 16px;
-      border-radius: 18px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 2px solid #a5b4fc;
-      color: #e0f2fe;
+
+      margin-top: 10px;
+
+      padding:
+        7px 14px;
+
+      border-radius: 999px;
+
+      background: white;
+
+      border:
+        1px solid #cfdeeb;
+
+      color:
+        var(--blue-dark);
+
       font-size: 13px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(129, 140, 248, 0.8);
+
+      font-weight: 900;
+
+      box-shadow:
+        0 4px 12px
+        rgba(60, 94, 128, .08);
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #020617, #0b1120);
-      border-bottom: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 13px;
-      color: #e5e7eb;
+
+    /* =========================================
+       INTRODUCTION
+    ========================================= */
+
+    .intro-bar {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 10px;
+
+      padding:
+        12px 18px;
+
+      background:
+        #fbfdff;
+
+      border-bottom:
+        1px solid #e6eef5;
     }
+
+    .intro-note {
+      min-width: 0;
+
+      padding:
+        11px 13px;
+
+      border-radius: 14px;
+
+      background:
+        #f4f8fc;
+
+      border:
+        1px solid #e3eaf2;
+
+      color:
+        #5c6f83;
+
+      font-size: 12px;
+
+      line-height: 1.45;
+
+      overflow-wrap: anywhere;
+    }
+
+
+    /* =========================================
+       MAIN LAYOUT
+    ========================================= */
 
     .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 16px;
-      gap: 16px;
-      background:
-        radial-gradient(circle at top, #020617 0, #020617 60%),
-        linear-gradient(to bottom, #020617, #000);
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1.18fr)
+        minmax(0, .92fr);
+
+      gap: 18px;
+
+      padding: 18px;
+
+      align-items: start;
     }
 
+    .panel {
+      min-width: 0;
+
+      background: white;
+
+      border:
+        1px solid var(--line);
+
+      border-radius: 20px;
+
+      box-shadow:
+        0 8px 22px
+        rgba(51, 77, 105, .07);
+    }
+
+
+    /* =========================================
+       RUNNER PANEL
+    ========================================= */
+
     .game-panel {
-      flex: 1.4;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(148,163,184,0.7);
-      padding: 10px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 75%);
+      padding: 16px;
+
       display: flex;
+
       flex-direction: column;
-      gap: 8px;
+
+      gap: 12px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #fcfeff 0%,
+          #f7fbff 100%
+        );
     }
 
     .game-title {
-      font-size: 15px;
-      font-weight: bold;
-      color: #bfdbfe;
-      text-transform: uppercase;
-      letter-spacing: 1px;
       text-align: center;
+
+      font-size: 14px;
+
+      text-transform: uppercase;
+
+      letter-spacing: .7px;
+
+      color: #52708d;
+
+      font-weight: 900;
     }
+
+
+    /* =========================================
+       RUNNING SCENE
+    ========================================= */
 
     .runner-scene {
       position: relative;
-      height: 260px;
-      border-radius: 16px;
+
+      min-height: 300px;
+
       overflow: hidden;
+
+      border-radius: 20px;
+
       background:
-        linear-gradient(to top, #0f172a 0%, #0f172a 40%, #1d4ed8 80%, #38bdf8 100%);
-      box-shadow: inset 0 0 20px rgba(15, 23, 42, 0.9);
+        radial-gradient(
+          circle at 80% 20%,
+          rgba(255,255,255,.95) 0 6%,
+          transparent 7%
+        ),
+        linear-gradient(
+          to bottom,
+          #cfeeff 0%,
+          #eaf8ff 58%,
+          #dff4d9 59%,
+          #cfe8bf 100%
+        );
+
+      border:
+        1px solid #d3e4ef;
+
+      box-shadow:
+        inset 0 -12px 25px
+        rgba(89, 126, 88, .08);
     }
+
+
+    /* CLOUDS */
+
+    .cloud {
+      position: absolute;
+
+      width: 66px;
+      height: 24px;
+
+      border-radius: 999px;
+
+      background:
+        rgba(255,255,255,.92);
+    }
+
+    .cloud::before,
+    .cloud::after {
+      content: "";
+
+      position: absolute;
+
+      border-radius: 50%;
+
+      background: inherit;
+    }
+
+    .cloud::before {
+      width: 28px;
+      height: 28px;
+
+      left: 10px;
+      top: -12px;
+    }
+
+    .cloud::after {
+      width: 34px;
+      height: 34px;
+
+      right: 9px;
+      top: -16px;
+    }
+
+    .cloud.one {
+      top: 45px;
+      left: 9%;
+    }
+
+    .cloud.two {
+      top: 78px;
+      right: 12%;
+
+      transform:
+        scale(.78);
+    }
+
+
+    /* SKY TEXT */
+
+    .sky-text {
+      position: absolute;
+
+      top: 14px;
+      left: 50%;
+
+      width:
+        min(
+          92%,
+          560px
+        );
+
+      transform:
+        translateX(-50%);
+
+      text-align: center;
+
+      font-size: 13px;
+
+      line-height: 1.35;
+
+      font-weight: 900;
+
+      color: #3d6281;
+
+      overflow-wrap: anywhere;
+    }
+
+
+    /* GROUND */
 
     .ground {
       position: absolute;
-      bottom: 0;
+
       left: 0;
       right: 0;
-      height: 80px;
+      bottom: 0;
+
+      height: 88px;
+
       background:
-        repeating-linear-gradient(
-          -45deg,
-          #16a34a,
-          #16a34a 10px,
-          #15803d 10px,
-          #15803d 18px
+        linear-gradient(
+          180deg,
+          #8dce79 0%,
+          #73b662 100%
         );
+    }
+
+
+    /* TRACK */
+
+    .track {
+      position: absolute;
+
+      left: 0;
+      right: 0;
+
+      bottom: 28px;
+
+      height: 36px;
+
+      background:
+        #8a6b56;
+
+      border-top:
+        3px solid
+        rgba(255,255,255,.55);
+
+      border-bottom:
+        3px solid
+        rgba(255,255,255,.35);
     }
 
     .lane-line {
       position: absolute;
-      bottom: 40px;
+
       left: 0;
       right: 0;
-      height: 4px;
-      background: repeating-linear-gradient(
-        to right,
-        rgba(248,250,252,0.8),
-        rgba(248,250,252,0.8) 40px,
-        transparent 40px,
-        transparent 60px
-      );
-      opacity: 0.7;
+
+      bottom: 44px;
+
+      height: 3px;
+
+      background:
+        repeating-linear-gradient(
+          to right,
+          rgba(255,255,255,.95) 0 34px,
+          transparent 34px 50px
+        );
     }
 
-    .sky-text {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 13px;
-      font-weight: bold;
-      color: #e0f2fe;
-      text-shadow: 0 0 8px rgba(15,23,42,0.9);
-      text-align: center;
-    }
 
-    /* Stick figure runner */
+    /* =========================================
+       RUNNER
+    ========================================= */
+
     .runner {
       position: absolute;
-      bottom: 40px;
-      left: 60px;
-      width: 30px;
-      height: 80px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      transform-origin: bottom center;
+
+      left: 56px;
+
+      bottom: 58px;
+
+      width: 44px;
+      height: 84px;
+
+      transform-origin:
+        bottom center;
+
+      transition:
+        left .7s ease;
+
+      z-index: 4;
     }
+
     .runner-head {
-      width: 18px;
-      height: 18px;
+      position: absolute;
+
+      left: 50%;
+      top: 0;
+
+      width: 22px;
+      height: 22px;
+
+      transform:
+        translateX(-50%);
+
       border-radius: 50%;
-      border: 3px solid #22c55e;
-      background: rgba(15,23,42,0.9);
-      box-shadow: 0 0 8px rgba(34,197,94,0.9);
+
+      background:
+        #ffd0a8;
+
+      border:
+        3px solid #4f7cff;
     }
+
     .runner-body {
       position: absolute;
-      top: 16px;
+
       left: 50%;
-      transform: translateX(-50%);
-      width: 3px;
-      height: 26px;
-      background: #e5e7eb;
+      top: 21px;
+
+      width: 4px;
+      height: 30px;
+
+      transform:
+        translateX(-50%);
+
+      background:
+        #34506f;
+
+      border-radius:
+        999px;
     }
-    .runner-arm {
-      position: absolute;
-      top: 22px;
-      width: 18px;
-      height: 3px;
-      background: #e5e7eb;
-      transform-origin: left center;
-    }
-    .runner-arm.right {
-      left: 50%;
-      transform: rotate(25deg);
-    }
-    .runner-arm.left {
-      right: 50%;
-      transform: rotate(-25deg);
-    }
+
+    .runner-arm,
     .runner-leg {
       position: absolute;
-      top: 40px;
-      width: 3px;
-      height: 24px;
-      background: #e5e7eb;
-      transform-origin: top center;
-      border-radius: 8px;
+
+      width: 4px;
+
+      background:
+        #34506f;
+
+      border-radius:
+        999px;
+
+      transform-origin:
+        top center;
     }
-    .runner-leg.right {
-      left: 55%;
-      animation: leg-run-right 0.4s linear infinite;
+
+    .runner-arm {
+      top: 28px;
+
+      height: 26px;
     }
+
+    .runner-arm.left {
+      left: 48%;
+
+      transform:
+        rotate(42deg);
+    }
+
+    .runner-arm.right {
+      left: 52%;
+
+      transform:
+        rotate(-42deg);
+    }
+
+    .runner-leg {
+      top: 49px;
+
+      height: 31px;
+    }
+
     .runner-leg.left {
-      right: 55%;
-      animation: leg-run-left 0.4s linear infinite;
+      left: 48%;
+
+      animation:
+        legLeft
+        .45s
+        linear
+        infinite;
     }
-    @keyframes leg-run-right {
-      0% { transform: rotate(20deg); }
-      50% { transform: rotate(-10deg); }
-      100% { transform: rotate(20deg); }
+
+    .runner-leg.right {
+      left: 52%;
+
+      animation:
+        legRight
+        .45s
+        linear
+        infinite;
     }
-    @keyframes leg-run-left {
-      0% { transform: rotate(-10deg); }
-      50% { transform: rotate(20deg); }
-      100% { transform: rotate(-10deg); }
+
+    @keyframes legLeft {
+      0%,
+      100% {
+        transform:
+          rotate(20deg);
+      }
+
+      50% {
+        transform:
+          rotate(-18deg);
+      }
+    }
+
+    @keyframes legRight {
+      0%,
+      100% {
+        transform:
+          rotate(-18deg);
+      }
+
+      50% {
+        transform:
+          rotate(20deg);
+      }
     }
 
     .runner.jump {
-      animation: jump 0.7s ease-out;
-    }
-    @keyframes jump {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-60px); }
-      100% { transform: translateY(0); }
+      animation:
+        jumpArc
+        .78s
+        ease-out;
     }
 
-    /* Obstacle */
+    @keyframes jumpArc {
+      0% {
+        transform:
+          translateY(0)
+          rotate(0);
+      }
+
+      48% {
+        transform:
+          translateY(-84px)
+          rotate(-3deg);
+      }
+
+      100% {
+        transform:
+          translateY(0)
+          rotate(0);
+      }
+    }
+
+
+    /* =========================================
+       BARRIER
+    ========================================= */
+
     .barrier {
       position: absolute;
-      bottom: 40px;
-      right: 80px;
-      width: 20px;
-      height: 40px;
-      border-radius: 4px;
-      background: linear-gradient(to top, #f97316, #ea580c);
-      border: 2px solid #fed7aa;
-      box-shadow: 0 0 10px rgba(248,250,252,0.7);
+
+      right: 84px;
+
+      bottom: 61px;
+
+      width: 34px;
+      height: 56px;
+
+      border-radius:
+        7px 7px 3px 3px;
+
+      background:
+        linear-gradient(
+          180deg,
+          #ffb55e 0%,
+          #ef8339 100%
+        );
+
+      border:
+        3px solid white;
+
+      box-shadow:
+        0 7px 14px
+        rgba(125, 75, 35, .18);
+
+      z-index: 3;
     }
+
+    .barrier::before,
+    .barrier::after {
+      content: "";
+
+      position: absolute;
+
+      left: -8px;
+
+      width: 50px;
+      height: 7px;
+
+      border-radius:
+        999px;
+
+      background:
+        #ef8339;
+
+      border:
+        2px solid white;
+    }
+
+    .barrier::before {
+      top: 10px;
+    }
+
+    .barrier::after {
+      top: 31px;
+    }
+
+
+    /* =========================================
+       SCENE MESSAGE
+    ========================================= */
+
+    .scene-message {
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      padding:
+        12px 13px;
+
+      border-radius:
+        14px;
+
+      background:
+        #edf7ff;
+
+      border:
+        1px solid #d7e8f6;
+
+      color:
+        #4b6680;
+
+      font-size:
+        13px;
+
+      line-height:
+        1.45;
+    }
+
+    .scene-message span:first-child {
+      font-size: 22px;
+
+      flex-shrink: 0;
+    }
+
+
+    /* =========================================
+       RIGHT PANEL
+    ========================================= */
 
     .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(148,163,184,0.7);
-      padding: 12px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 70%);
+      padding: 16px;
+
       display: flex;
+
       flex-direction: column;
+
+      gap: 12px;
+    }
+
+
+    /* SCORE */
+
+    .score-row {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          3,
+          minmax(0, 1fr)
+        );
+
       gap: 8px;
     }
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
     .score-card {
-      flex: 1;
+      min-width: 0;
+
+      padding:
+        10px 7px;
+
       text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: radial-gradient(circle, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 1));
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.8);
+
+      border-radius:
+        14px;
+
+      background:
+        #f8fbff;
+
+      border:
+        1px solid #dce7f2;
     }
+
     .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #9ca3af;
-      text-transform: uppercase;
-      margin-bottom: 2px;
+      color:
+        #75869a;
+
+      font-size:
+        10px;
+
+      line-height:
+        1.2;
+
+      font-weight:
+        900;
+
+      text-transform:
+        uppercase;
+
+      overflow-wrap:
+        anywhere;
     }
+
     .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #e5e7eb;
+      margin-top:
+        3px;
+
+      color:
+        var(--blue-dark);
+
+      font-size:
+        18px;
+
+      font-weight:
+        900;
+    }
+
+
+    /* =========================================
+       RESILIENCE METER
+    ========================================= */
+
+    .meter-card {
+      padding: 12px;
+
+      border-radius:
+        15px;
+
+      background:
+        #f5fbf7;
+
+      border:
+        1px solid #d8ebdf;
     }
 
     .meter-label {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fbbf24;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
+      margin-bottom:
+        7px;
+
+      text-align:
+        center;
+
+      font-size:
+        12px;
+
+      font-weight:
+        900;
+
+      color:
+        #4c705c;
+
+      text-transform:
+        uppercase;
+
+      letter-spacing:
+        .5px;
     }
 
     .meter-bar {
-      position: relative;
+      position:
+        relative;
+
       height: 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.7);
-      overflow: hidden;
-      background: linear-gradient(to right, #4b5563, #020617);
+
+      overflow:
+        hidden;
+
+      border-radius:
+        999px;
+
+      background:
+        #e6ece9;
     }
 
     .meter-fill {
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 60%;
-      border-radius: 999px;
-      background: linear-gradient(to right, #f97316, #22c55e);
-      box-shadow: 0 0 14px rgba(34,197,94,0.7);
-      transition: width 0.4s ease-out;
+      position:
+        absolute;
+
+      inset:
+        0 auto 0 0;
+
+      width: 50%;
+
+      border-radius:
+        inherit;
+
+      background:
+        linear-gradient(
+          90deg,
+          #ffb15e 0%,
+          #55c789 100%
+        );
+
+      transition:
+        width .35s ease;
     }
 
     .meter-text {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: bold;
-      color: #e5e7eb;
-      text-shadow: 0 0 4px rgba(0,0,0,0.7);
+      position:
+        relative;
+
+      z-index: 2;
+
+      height: 100%;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      color:
+        #2f4b3d;
+
+      font-size:
+        11px;
+
+      font-weight:
+        900;
+    }
+
+
+    /* =========================================
+       SCENARIO
+    ========================================= */
+
+    .scenario-card {
+      padding: 14px;
+
+      border-radius:
+        16px;
+
+      background:
+        var(--yellow);
+
+      border:
+        1px solid #eddda5;
     }
 
     .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #bfdbfe;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
+      margin-bottom:
+        6px;
+
+      color:
+        #9c6b0e;
+
+      font-size:
+        12px;
+
+      font-weight:
+        900;
+
+      text-transform:
+        uppercase;
+
+      letter-spacing:
+        .55px;
     }
 
     .scenario-text {
-      font-size: 13px;
-      color: #e5e7eb;
-      text-align: center;
-      min-height: 44px;
+      color:
+        #51482e;
+
+      font-size:
+        14px;
+
+      line-height:
+        1.48;
+
+      overflow-wrap:
+        anywhere;
     }
+
+
+    /* =========================================
+       TIP
+    ========================================= */
 
     .tip-box {
-      margin-top: 4px;
-      border-radius: 10px;
-      border: 1px solid rgba(148,163,184,0.7);
-      padding: 6px 8px;
-      font-size: 12px;
-      color: #e5e7eb;
-      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
+      padding:
+        11px 12px;
+
+      border-radius:
+        14px;
+
+      background:
+        #f5f8fc;
+
+      border:
+        1px solid #e2e9f1;
+
+      color:
+        #62758b;
+
+      font-size:
+        12px;
+
+      line-height:
+        1.45;
+
+      overflow-wrap:
+        anywhere;
     }
+
+
+    /* =========================================
+       RESPONSE OPTIONS
+    ========================================= */
+
+    .response-area {
+      display:
+        none;
+
+      flex-direction:
+        column;
+
+      gap: 8px;
+    }
+
+    .response-area.active {
+      display: flex;
+    }
+
+    .response-title {
+      color:
+        #506b87;
+
+      font-size:
+        12px;
+
+      font-weight:
+        900;
+
+      text-transform:
+        uppercase;
+
+      letter-spacing:
+        .5px;
+    }
+
+    .choice-btn {
+      width: 100%;
+
+      border:
+        2px solid #dbe5ef;
+
+      border-radius:
+        15px;
+
+      padding:
+        12px 13px;
+
+      text-align:
+        left;
+
+      background:
+        white;
+
+      color:
+        #314861;
+
+      font-size:
+        13px;
+
+      line-height:
+        1.45;
+
+      font-weight:
+        700;
+
+      cursor:
+        pointer;
+
+      transition:
+        .18s ease;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+    .choice-btn:hover:not(:disabled) {
+      border-color:
+        #7ca6ff;
+
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 6px 14px
+        rgba(76, 115, 157, .10);
+    }
+
+    .choice-btn.good-choice {
+      border-color:
+        #5fc58d;
+
+      background:
+        #ecf9f2;
+
+      color:
+        #256848;
+    }
+
+    .choice-btn.bad-choice {
+      border-color:
+        #e38b86;
+
+      background:
+        #fff1f0;
+
+      color:
+        #8a403e;
+    }
+
+    .choice-btn:disabled {
+      cursor:
+        default;
+    }
+
+
+    /* =========================================
+       FEEDBACK
+    ========================================= */
 
     .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(22, 163, 74, 0.2);
-      border: 1px solid #4ade80;
-      color: #bbf7d0;
-    }
-    .feedback.warn {
-      background: rgba(248, 113, 113, 0.15);
-      border: 1px solid #f97316;
-      color: #fed7aa;
+      display:
+        none;
+
+      padding:
+        11px 12px;
+
+      border-radius:
+        14px;
+
+      font-size:
+        12px;
+
+      line-height:
+        1.45;
+
+      overflow-wrap:
+        anywhere;
     }
 
+    .feedback.good {
+      display:
+        block;
+
+      background:
+        #ebf9f1;
+
+      border:
+        1px solid #b8e4ca;
+
+      color:
+        #286848;
+    }
+
+    .feedback.warn {
+      display:
+        block;
+
+      background:
+        #fff3e7;
+
+      border:
+        1px solid #efc79f;
+
+      color:
+        #865224;
+    }
+
+
+    /* =========================================
+       CONTROLS
+    ========================================= */
+
     .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: grid;
+
+      grid-template-columns:
+        auto 1fr;
+
+      gap: 10px;
+
+      align-items:
+        center;
+    }
+
+    .action-buttons {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
       gap: 8px;
-      font-size: 12px;
-      color: #9ca3af;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .jump-button {
+      min-height:
+        46px;
+
+      border-radius:
+        14px;
+
+      cursor:
+        pointer;
+
+      font-weight:
+        900;
+
+      transition:
+        .18s ease;
     }
 
     .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #fbbf24, #22c55e);
-      color: #022c22;
-      box-shadow: 0 4px 12px rgba(250, 204, 21, 0.6);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
+      border:
+        0;
+
+      padding:
+        11px 15px;
+
+      color:
+        white;
+
+      background:
+        linear-gradient(
+          135deg,
+          #5f89f7,
+          #4eba86
+        );
+
+      box-shadow:
+        0 6px 15px
+        rgba(73, 126, 168, .18);
     }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(250, 204, 21, 0.8);
-    }
+
     .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      font-size: 12px;
-      cursor: pointer;
-      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
-      color: #e5e7eb;
+      border:
+        1px solid #d3dee9;
+
+      padding:
+        10px 13px;
+
+      color:
+        #566c83;
+
+      background:
+        #f6f9fc;
     }
-    .btn-secondary:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+
+    .jump-button {
+      border:
+        0;
+
+      padding:
+        12px 15px;
+
+      color:
+        #5a4517;
+
+      background:
+        linear-gradient(
+          135deg,
+          #ffe082,
+          #ffb65f
+        );
+
+      box-shadow:
+        0 6px 15px
+        rgba(222, 155, 63, .22);
     }
+
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .jump-button:hover {
+      transform:
+        translateY(-1px);
+    }
+
+    .btn-primary:disabled,
+    .jump-button:disabled {
+      opacity:
+        .45;
+
+      cursor:
+        not-allowed;
+
+      transform:
+        none;
+
+      box-shadow:
+        none;
+    }
+
+    #progressText {
+      color:
+        #6b7d90;
+
+      font-size:
+        11px;
+
+      line-height:
+        1.4;
+
+      text-align:
+        center;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+
+    /* =========================================
+       NEXT BUTTON
+    ========================================= */
+
+    .next-row {
+      display:
+        none;
+    }
+
+    .next-row.active {
+      display:
+        block;
+    }
+
+    .next-row .btn-primary {
+      width:
+        100%;
+    }
+
+
+    /* =========================================
+       VOLUME
+    ========================================= */
 
     .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #9ca3af;
-    }
-    .volume-control input { flex: 1; }
+      display:
+        flex;
 
-    /* Question overlay */
-    .question-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 12px;
-      z-index: 9999;
+      align-items:
+        center;
+
+      gap: 8px;
+
+      color:
+        #7b8a9a;
+
+      font-size:
+        11px;
     }
-    .question-overlay.active {
-      display: flex;
+
+    .volume-control input {
+      flex:
+        1;
+
+      min-width:
+        0;
     }
-    .question-box {
-      max-width: 420px;
-      width: 100%;
-      border-radius: 16px;
-      background: radial-gradient(circle at top, #020617 0%, #020617 90%);
-      border: 2px solid rgba(148,163,184,0.9);
-      padding: 12px 14px 14px;
-      box-shadow: 0 0 20px rgba(15,23,42,0.9);
-    }
-    .question-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #fbbf24;
-      margin-bottom: 4px;
-    }
-    .question-text {
-      font-size: 13px;
-      color: #e5e7eb;
-      margin-bottom: 8px;
-    }
-    .choice-btn {
-      border-radius: 14px;
-      border: 1px solid rgba(148,163,184,0.7);
-      padding: 7px 8px;
-      font-size: 12px;
-      text-align: left;
-      cursor: pointer;
-      background: radial-gradient(circle at top, #020617 0%, #020617 100%);
-      color: #e5e7eb;
-      width: 100%;
-      margin-bottom: 6px;
-    }
-    .choice-btn:hover {
-      border-color: #38bdf8;
-      box-shadow: 0 0 10px rgba(56,189,248,0.7);
-    }
+
+
+    /* =========================================
+       FINAL SCREEN
+    ========================================= */
 
     .final-screen {
-      padding: 20px 16px 18px;
-      text-align: center;
-    }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #fbbf24;
-    }
-    .final-badge { font-size: 46px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; }
-    .final-score { font-size: 18px; margin: 4px 0; }
-    .final-text { font-size: 14px; color: #e5e7eb; margin-bottom: 10px; }
+      grid-column:
+        1 / -1;
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 22px; }
-      .layout { flex-direction: column; }
-      .game-panel, .right-panel { min-width: 100%; }
+      padding:
+        34px 22px;
+
+      text-align:
+        center;
+
+      background:
+        white;
+
+      border:
+        1px solid var(--line);
+
+      border-radius:
+        20px;
+
+      box-shadow:
+        0 8px 22px
+        rgba(51, 77, 105, .07);
     }
+
+    .final-title {
+      color:
+        var(--blue-dark);
+
+      font-size:
+        26px;
+
+      font-weight:
+        900;
+
+      margin-bottom:
+        8px;
+    }
+
+    .final-badge {
+      font-size:
+        58px;
+
+      margin:
+        10px 0;
+    }
+
+    .final-rank {
+      font-size:
+        22px;
+
+      font-weight:
+        900;
+
+      margin-bottom:
+        6px;
+    }
+
+    .final-score {
+      font-size:
+        17px;
+
+      font-weight:
+        800;
+
+      margin:
+        8px 0;
+
+      color:
+        #53677d;
+    }
+
+    .final-text {
+      max-width:
+        640px;
+
+      margin:
+        0 auto 18px;
+
+      color:
+        #64768a;
+
+      font-size:
+        14px;
+
+      line-height:
+        1.55;
+
+      overflow-wrap:
+        anywhere;
+    }
+
+
+    /* =========================================
+       TABLET
+    ========================================= */
+
+    @media
+    (max-width: 900px) {
+
+      .layout {
+        grid-template-columns:
+          1fr;
+      }
+
+      .intro-bar {
+        grid-template-columns:
+          1fr;
+      }
+
+    }
+
+
+    /* =========================================
+       MOBILE
+    ========================================= */
+
+    @media
+    (max-width: 640px) {
+
+      html,
+      body {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        overflow-x:
+          hidden;
+
+        overflow-y:
+          auto;
+      }
+
+      body {
+        padding:
+          0;
+
+        background:
+          #f6faff;
+      }
+
+      .container {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-height:
+          100dvh;
+
+        margin:
+          0;
+
+        border:
+          0;
+
+        border-radius:
+          0;
+
+        box-shadow:
+          none;
+
+        overflow:
+          visible;
+      }
+
+      .header {
+        padding:
+          16px 13px 14px;
+      }
+
+      .header h1 {
+        font-size:
+          23px;
+      }
+
+      .subtitle {
+        font-size:
+          12px;
+      }
+
+      .intro-bar {
+        padding:
+          10px;
+
+        gap:
+          8px;
+      }
+
+      .intro-note {
+        padding:
+          9px 10px;
+
+        font-size:
+          11px;
+      }
+
+      .layout {
+        display:
+          block;
+
+        width:
+          100%;
+
+        padding:
+          10px;
+      }
+
+      .panel {
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-width:
+          0;
+
+        border-radius:
+          16px;
+      }
+
+      .game-panel {
+        padding:
+          11px;
+
+        margin-bottom:
+          12px;
+      }
+
+      .runner-scene {
+        min-height:
+          220px;
+      }
+
+      .runner {
+        left:
+          28px;
+
+        bottom:
+          54px;
+
+        transform:
+          scale(.88);
+      }
+
+      .barrier {
+        right:
+          34px;
+
+        bottom:
+          57px;
+
+        transform:
+          scale(.88);
+
+        transform-origin:
+          bottom center;
+      }
+
+      .sky-text {
+        top:
+          10px;
+
+        width:
+          92%;
+
+        font-size:
+          11px;
+      }
+
+      .right-panel {
+        padding:
+          12px;
+
+        width:
+          100%;
+
+        max-width:
+          100%;
+
+        min-width:
+          0;
+      }
+
+      .score-row {
+        gap:
+          6px;
+      }
+
+      .score-card {
+        padding:
+          8px 4px;
+      }
+
+      .score-label {
+        font-size:
+          9px;
+      }
+
+      .score-value {
+        font-size:
+          16px;
+      }
+
+      .scenario-text,
+      .choice-btn {
+        font-size:
+          13px;
+      }
+
+      .controls {
+        grid-template-columns:
+          1fr;
+      }
+
+      .action-buttons {
+        grid-template-columns:
+          1fr 1fr;
+      }
+
+      #progressText {
+        order:
+          -1;
+
+        text-align:
+          left;
+      }
+
+      .jump-button,
+      .btn-primary,
+      .btn-secondary {
+        width:
+          100%;
+      }
+
+      .volume-control {
+        padding-bottom:
+          calc(
+            8px +
+            env(
+              safe-area-inset-bottom
+            )
+          );
+      }
+
+      /*
+        Keeps the continuation button
+        reachable after answering.
+      */
+
+      .next-row.active {
+        position:
+          sticky;
+
+        bottom:
+          calc(
+            8px +
+            env(
+              safe-area-inset-bottom
+            )
+          );
+
+        z-index:
+          20;
+
+        padding-top:
+          4px;
+      }
+
+      .next-row .btn-primary {
+        border:
+          3px solid white;
+
+        min-height:
+          50px;
+
+        box-shadow:
+          0 8px 20px
+          rgba(66, 103, 144, .22);
+      }
+
+    }
+
+
+    /* =========================================
+       VERY SMALL PHONES
+    ========================================= */
+
+    @media
+    (max-width: 360px) {
+
+      .header h1 {
+        font-size:
+          20px;
+      }
+
+      .score-row {
+        grid-template-columns:
+          1fr;
+      }
+
+      .score-card {
+        display:
+          flex;
+
+        align-items:
+          center;
+
+        justify-content:
+          space-between;
+
+        text-align:
+          left;
+      }
+
+      .score-value {
+        margin-top:
+          0;
+      }
+
+      .action-buttons {
+        grid-template-columns:
+          1fr;
+      }
+
+    }
+
+
+    /* =========================================
+       REDUCED MOTION
+    ========================================= */
+
+    @media
+    (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration:
+          .01ms !important;
+
+        animation-iteration-count:
+          1 !important;
+
+        transition-duration:
+          .01ms !important;
+
+        scroll-behavior:
+          auto !important;
+      }
+
+    }
+
   </style>
 </head>
+
+
 <body>
-  <div class="question-overlay" id="questionOverlay">
-    <div class="question-box">
-      <div class="question-title">Obstacle Question</div>
-      <div class="question-text" id="questionText"></div>
-      <button class="choice-btn" id="qPositive"></button>
-      <button class="choice-btn" id="qNegative"></button>
-    </div>
+
+
+  <!-- =========================================
+       SPLASH SCREEN
+  ========================================== -->
+
+  <div
+    class="splash-screen"
+    id="splashScreen"
+  >
+
+    <img
+      src="assets/innovine-logo.png"
+      alt="Innovine Logo"
+      onerror="this.style.display='none'"
+    />
+
   </div>
 
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🏃‍♂️ Bounce-Back Challenge – Resilience Runner</h1>
-        <div class="subtitle">Positive Attitude · Grade 7</div>
-        <div class="stage-indicator" id="stageIndicator">Obstacle 1 of 6</div>
+
+  <!-- =========================================
+       GAME
+  ========================================== -->
+
+  <div
+    class="container"
+    id="mainContainer"
+  >
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+      <h1>
+        🏃 Bounce-Back Challenge
+      </h1>
+
+      <div class="subtitle">
+        Resilience Runner · Positive Attitude
       </div>
+
+      <div
+        class="stage-indicator"
+        id="stageIndicator"
+      >
+        Obstacle 1 of 6
+      </div>
+
+    </header>
+
+
+    <!-- INTRO -->
+
+    <div class="intro-bar">
+
+      <div class="intro-note">
+
+        Your school day is a running track. Each obstacle represents a difficult moment. Jump the barrier, then choose the response that shows resilience and a positive attitude.
+
+      </div>
+
+
+      <div class="intro-note">
+
+        On a phone, the page scrolls normally. You do not need perfect timing: tap Jump when you are ready, then make your choice.
+
+      </div>
+
     </div>
 
-    <div class="top-bar">
-      <div>Positive people are resilient – they recover from setbacks, see the bright side and keep going.[file:29]</div>
-      <div>Tap JUMP to clear each barrier, then choose a response that shows optimism and courage.[file:29]</div>
-    </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="game-panel">
-        <div class="game-title">School Day Run</div>
-        <div class="runner-scene">
-          <div class="sky-text" id="skyText">Morning: A new school day begins.</div>
+    <!-- MAIN -->
+
+    <main
+      class="layout"
+      id="gameWrapper"
+    >
+
+
+      <!-- =====================================
+           RUNNER SCENE
+      ====================================== -->
+
+      <section
+        class="panel game-panel"
+      >
+
+        <div class="game-title">
+          School Day Run
+        </div>
+
+
+        <div
+          class="runner-scene"
+          id="runnerScene"
+        >
+
+
+          <div class="cloud one"></div>
+
+          <div class="cloud two"></div>
+
+
+          <div
+            class="sky-text"
+            id="skyText"
+          >
+
+            Morning: A new school day begins.
+
+          </div>
+
+
           <div class="ground"></div>
+
+          <div class="track"></div>
+
           <div class="lane-line"></div>
 
-          <div class="runner" id="runner">
+
+          <!-- RUNNER -->
+
+          <div
+            class="runner"
+            id="runner"
+            aria-label="Runner"
+          >
+
             <div class="runner-head"></div>
+
             <div class="runner-body"></div>
+
             <div class="runner-arm left"></div>
+
             <div class="runner-arm right"></div>
+
             <div class="runner-leg left"></div>
+
             <div class="runner-leg right"></div>
+
           </div>
 
-          <div class="barrier" id="barrier"></div>
-        </div>
-      </div>
 
-      <div class="right-panel">
+          <!-- BARRIER -->
+
+          <div
+            class="barrier"
+            id="barrier"
+            aria-label="Obstacle barrier"
+          ></div>
+
+
+        </div>
+
+
+        <div
+          class="scene-message"
+          id="sceneMessage"
+        >
+
+          <span>
+            🌱
+          </span>
+
+          <span>
+            Start your run, then clear each obstacle one at a time.
+          </span>
+
+        </div>
+
+
+      </section>
+
+
+      <!-- =====================================
+           GAME INFORMATION
+      ====================================== -->
+
+      <section
+        class="panel right-panel"
+      >
+
+
+        <!-- SCORE -->
+
         <div class="score-row">
+
+
           <div class="score-card">
-            <div class="score-label">Obstacle</div>
-            <div class="score-value" id="obstacleCounter">1 / 6</div>
+
+            <div class="score-label">
+              Obstacle
+            </div>
+
+            <div
+              class="score-value"
+              id="obstacleCounter"
+            >
+              1 / 6
+            </div>
+
           </div>
+
+
           <div class="score-card">
-            <div class="score-label">Positive Choices</div>
-            <div class="score-value" id="positiveCount">0</div>
+
+            <div class="score-label">
+              Positive Choices
+            </div>
+
+            <div
+              class="score-value"
+              id="positiveCount"
+            >
+              0
+            </div>
+
           </div>
+
+
           <div class="score-card">
-            <div class="score-label">Resilience Score</div>
-            <div class="score-value" id="resilienceScore">0%</div>
+
+            <div class="score-label">
+              Resilience Score
+            </div>
+
+            <div
+              class="score-value"
+              id="resilienceScore"
+            >
+              0%
+            </div>
+
           </div>
+
+
         </div>
 
-        <div class="meter-label">Resilience Meter</div>
-        <div class="meter-bar">
-          <div class="meter-fill" id="meterFill"></div>
-          <div class="meter-text" id="meterText">60%</div>
+
+        <!-- RESILIENCE METER -->
+
+        <div class="meter-card">
+
+          <div class="meter-label">
+            Resilience Meter
+          </div>
+
+
+          <div class="meter-bar">
+
+            <div
+              class="meter-fill"
+              id="meterFill"
+            ></div>
+
+
+            <div
+              class="meter-text"
+              id="meterText"
+            >
+              50%
+            </div>
+
+          </div>
+
         </div>
 
-        <div class="scenario-title">Current Situation</div>
-        <div class="scenario-text" id="scenarioText"></div>
 
-        <div class="tip-box" id="tipBox">
-          Positive attitude means staying hopeful, seeing the good in situations and handling emotions in a constructive way.[file:29]
+        <!-- SCENARIO -->
+
+        <div class="scenario-card">
+
+          <div class="scenario-title">
+            Current Situation
+          </div>
+
+          <div
+            class="scenario-text"
+            id="scenarioText"
+          >
+
+            Your day is like a running track. Obstacles will appear, but your attitude decides how you move past them.
+
+          </div>
+
         </div>
 
-        <div class="feedback" id="feedback"></div>
+
+        <!-- TIP -->
+
+        <div
+          class="tip-box"
+          id="tipBox"
+        >
+
+          Positive attitude means staying hopeful, noticing what you can control and responding to difficulties constructively.
+
+        </div>
+
+
+        <!-- RESPONSES -->
+
+        <div
+          class="response-area"
+          id="responseArea"
+        >
+
+          <div class="response-title">
+            How will you respond?
+          </div>
+
+
+          <button
+            class="choice-btn"
+            id="qPositive"
+            type="button"
+          ></button>
+
+
+          <button
+            class="choice-btn"
+            id="qNegative"
+            type="button"
+          ></button>
+
+
+        </div>
+
+
+        <!-- FEEDBACK -->
+
+        <div
+          class="feedback"
+          id="feedback"
+          aria-live="polite"
+        ></div>
+
+
+        <!-- CONTROLS -->
 
         <div class="controls">
-          <button class="btn-secondary" id="resetBtn">Restart run</button>
-          <div id="progressText">Click “Start Run”, then tap “Jump” just before the barrier.</div>
-          <div>
-            <button class="btn-primary" id="startBtn">Start Run</button>
-            <button class="btn-primary" id="jumpBtn" style="margin-left:4px;">Jump</button>
+
+          <button
+            class="btn-secondary"
+            id="resetBtn"
+            type="button"
+          >
+            Restart Run
+          </button>
+
+
+          <div id="progressText">
+
+            Tap Start Run to begin.
+
           </div>
+
         </div>
+
+
+        <!-- MAIN ACTION BUTTONS -->
+
+        <div class="action-buttons">
+
+
+          <button
+            class="btn-primary"
+            id="startBtn"
+            type="button"
+          >
+            Start Run
+          </button>
+
+
+          <button
+            class="jump-button"
+            id="jumpBtn"
+            type="button"
+            disabled
+          >
+            Jump
+          </button>
+
+
+        </div>
+
+
+        <!-- NEXT -->
+
+        <div
+          class="next-row"
+          id="nextRow"
+        >
+
+          <button
+            class="btn-primary"
+            id="nextBtn"
+            type="button"
+          >
+            Next Obstacle →
+          </button>
+
+        </div>
+
+
+        <!-- VOLUME -->
 
         <div class="volume-control">
-          <span>🔊 Volume</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
+
+          <span>
+            🔊 Volume
+          </span>
+
+
+          <input
+            type="range"
+            id="volumeSlider"
+            min="0"
+            max="100"
+            value="80"
+          />
+
         </div>
-      </div>
-    </div>
+
+
+      </section>
+
+
+    </main>
+
   </div>
 
-  <script>
-    // Audio (optional; use your own file paths)
-    const goodSound = new Audio('assets/correct.mp3');
-    const badSound = new Audio('assets/wrong.mp3');
-    const finishSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    badSound.volume = volume;
-    finishSound.volume = volume;
 
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playBad(){ badSound.currentTime = 0; badSound.play().catch(()=>{}); }
-    function playFinish(){ finishSound.currentTime = 0; finishSound.play().catch(()=>{}); }
+<script>
 
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      badSound.volume = volume;
-      finishSound.volume = volume;
-    });
 
-    // Obstacles and choices – all tied to chapter concepts.[file:29]
-    const obstacles = [
-      {
-        time: "Morning",
-        situation: "You have a big exam today. You studied, but you still feel nervous and your heart is racing.",
-        positiveChoice: "Take a few deep breaths, remind yourself of what you have prepared and tell yourself, “I will try my best.”",
-        negativeChoice: "Keep telling yourself you will fail and think about quitting the exam.",
-        positiveTip: "Positive attitude helps you relax and manage stress caused by exams.[file:29]",
-        negativeTip: "Negative self-talk increases stress and makes it harder to focus.[file:29]"
-      },
-      {
-        time: "Mid-morning",
-        situation: "You see classmates scoring higher marks and posting their achievements in a group chat.",
-        positiveChoice: "Feel happy for them, use their success as motivation and focus on your own progress.",
-        negativeChoice: "Feel jealous, compare yourself constantly and decide you will never be good enough.",
-        positiveTip: "Positivity helps you focus on what you have and avoid unhealthy comparison.[file:29]",
-        negativeTip: "Jealousy pulls your attention away from your own strengths.[file:29]"
-      },
-      {
-        time: "Lunch break",
-        situation: "You have homework, activities and sports after school and you feel overwhelmed.",
-        positiveChoice: "Make a small plan, do one task at a time and remind yourself you can handle it step by step.",
-        negativeChoice: "Complain all day, do nothing and tell yourself life is too hard.",
-        positiveTip: "Positive mindset strengthens your ability to handle uncertainty and stress.[file:29]",
-        negativeTip: "Giving in to hopelessness makes challenges feel even bigger.[file:29]"
-      },
-      {
-        time: "Afternoon",
-        situation: "You make a mistake while answering in class and a few students giggle.",
-        positiveChoice: "Accept the mistake, smile, and think, “I learnt something new. Everyone makes mistakes.”",
-        negativeChoice: "Feel ashamed, stay silent the rest of the day and decide never to answer again.",
-        positiveTip: "Positive people accept situations as part of life and learn from mistakes.[file:29]",
-        negativeTip: "Fear of failure can stop you from trying new things.[file:29]"
-      },
-      {
-        time: "After school",
-        situation: "Your friend wins a competition that you also tried for.",
-        positiveChoice: "Genuinely congratulate them and feel inspired to practise and try again.",
-        negativeChoice: "Act cold, avoid them and keep thinking you are less talented.",
-        positiveTip: "Being happy in others’ success and drawing motivation from it is a sign of positive attitude.[file:29]",
-        negativeTip: "Resentment damages friendships and does not improve your skills.[file:29]"
-      },
-      {
-        time: "Evening",
-        situation: "You feel tired and a family member snaps at you for something small.",
-        positiveChoice: "Remind yourself not to take it personally, calm down and choose kind words.",
-        negativeChoice: "Shout back, stay angry all evening and think everything is bad.",
-        positiveTip: "Not taking things personally and choosing kindness keeps your attitude positive.[file:29]",
-        negativeTip: "Holding onto anger steals your peace and joy.[file:29]"
+  /* =========================================
+     SPLASH
+  ========================================= */
+
+  setTimeout(
+    () => {
+
+      document
+        .getElementById(
+          "splashScreen"
+        )
+        .classList
+        .add(
+          "hidden"
+        );
+
+
+      document
+        .getElementById(
+          "mainContainer"
+        )
+        .classList
+        .add(
+          "visible"
+        );
+
+    },
+    5000
+  );
+
+
+  /* =========================================
+     AUDIO
+  ========================================= */
+
+  const goodSound =
+    new Audio(
+      "assets/correct.mp3"
+    );
+
+
+  const badSound =
+    new Audio(
+      "assets/wrong.mp3"
+    );
+
+
+  const finishSound =
+    new Audio(
+      "assets/freesound_community-claps-44774.mp3"
+    );
+
+
+  let volume =
+    0.8;
+
+
+  [
+    goodSound,
+    badSound,
+    finishSound
+  ]
+  .forEach(
+    sound => {
+
+      sound.volume =
+        volume;
+
+    }
+  );
+
+
+  function playSound(
+    sound
+  ) {
+
+    sound.currentTime =
+      0;
+
+
+    sound
+      .play()
+      .catch(
+        () => {}
+      );
+
+  }
+
+
+  document
+    .getElementById(
+      "volumeSlider"
+    )
+    .addEventListener(
+      "input",
+      event => {
+
+        volume =
+          event.target.value /
+          100;
+
+
+        [
+          goodSound,
+          badSound,
+          finishSound
+        ]
+        .forEach(
+          sound => {
+
+            sound.volume =
+              volume;
+
+          }
+        );
+
       }
-    ];
+    );
 
-    const runner = document.getElementById("runner");
-    const barrier = document.getElementById("barrier");
-    const skyText = document.getElementById("skyText");
 
-    const obstacleCounterEl = document.getElementById("obstacleCounter");
-    const positiveCountEl = document.getElementById("positiveCount");
-    const resilienceScoreEl = document.getElementById("resilienceScore");
-    const stageIndicator = document.getElementById("stageIndicator");
+  /* =========================================
+     OBSTACLE DATA
+  ========================================= */
 
-    const meterFill = document.getElementById("meterFill");
-    const meterText = document.getElementById("meterText");
+  const obstacles = [
 
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const tipBox = document.getElementById("tipBox");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
 
-    const resetBtn = document.getElementById("resetBtn");
-    const startBtn = document.getElementById("startBtn");
-    const jumpBtn = document.getElementById("jumpBtn");
-    const gameWrapper = document.getElementById("gameWrapper");
+    /* 1 */
 
-    const questionOverlay = document.getElementById("questionOverlay");
-    const questionText = document.getElementById("questionText");
-    const qPositive = document.getElementById("qPositive");
-    const qNegative = document.getElementById("qNegative");
+    {
 
-    let currentIndex = 0;
-    let positiveChoices = 0;
-    let resilience = 60;
-    let running = false;
+      time:
+        "Morning",
 
-    let runnerX = 60;   // starting left
-    let barrierX = 430; // approximate barrier position
-    let speed = 2.5;
-    let jumpActive = false;
-    let questionShownForThisObstacle = false;
-    let hitProcessed = false;
-    let animationId = null;
+      situation:
+        "You have a big exam today. You studied, but you still feel nervous and your heart is racing.",
 
-    function updateUI(){
-      obstacleCounterEl.textContent = `${currentIndex + 1} / ${obstacles.length}`;
-      positiveCountEl.textContent = String(positiveChoices);
-      const scorePercent = Math.round((positiveChoices / obstacles.length) * 100);
-      resilienceScoreEl.textContent = scorePercent + "%";
-      stageIndicator.textContent = `Obstacle ${currentIndex + 1} of ${obstacles.length}`;
+      positiveChoice:
+        "Take a few slow breaths, remind yourself of what you prepared and tell yourself that you will try your best.",
 
-      if(resilience < 0) resilience = 0;
-      if(resilience > 100) resilience = 100;
-      meterFill.style.width = resilience + "%";
-      meterText.textContent = resilience + "%";
+      negativeChoice:
+        "Keep telling yourself that you will fail and think about giving up before the exam begins.",
+
+      positiveTip:
+        "A positive attitude can help you calm yourself, manage exam stress and focus on what you can do.",
+
+      negativeTip:
+        "Negative self-talk can increase stress and make it harder to focus."
+
+    },
+
+
+    /* 2 */
+
+    {
+
+      time:
+        "Mid-morning",
+
+      situation:
+        "You see classmates scoring higher marks and sharing their achievements in a group chat.",
+
+      positiveChoice:
+        "Feel happy for them, use their success as motivation and focus on your own progress.",
+
+      negativeChoice:
+        "Compare yourself constantly, feel jealous and decide that you will never be good enough.",
+
+      positiveTip:
+        "Positivity helps you appreciate others while staying focused on your own growth.",
+
+      negativeTip:
+        "Constant comparison can pull attention away from your own strengths and progress."
+
+    },
+
+
+    /* 3 */
+
+    {
+
+      time:
+        "Lunch break",
+
+      situation:
+        "You have homework, activities and sports after school and you feel overwhelmed.",
+
+      positiveChoice:
+        "Make a small plan, do one task at a time and remind yourself that you can handle it step by step.",
+
+      negativeChoice:
+        "Complain all day, do nothing and tell yourself that everything is too difficult.",
+
+      positiveTip:
+        "Breaking a challenge into smaller steps can make it feel manageable and strengthen resilience.",
+
+      negativeTip:
+        "Hopeless thinking can make a difficult situation feel even bigger."
+
+    },
+
+
+    /* 4 */
+
+    {
+
+      time:
+        "Afternoon",
+
+      situation:
+        "You make a mistake while answering in class and a few students giggle.",
+
+      positiveChoice:
+        "Accept the mistake, learn from it and remind yourself that everyone makes mistakes sometimes.",
+
+      negativeChoice:
+        "Feel ashamed, stay silent for the rest of the day and decide never to answer again.",
+
+      positiveTip:
+        "Resilient people learn from mistakes instead of allowing one mistake to stop them from trying.",
+
+      negativeTip:
+        "Fear of making mistakes can stop you from learning and participating."
+
+    },
+
+
+    /* 5 */
+
+    {
+
+      time:
+        "After school",
+
+      situation:
+        "Your friend wins a competition that you also tried for.",
+
+      positiveChoice:
+        "Congratulate your friend, appreciate their success and feel motivated to practise and try again.",
+
+      negativeChoice:
+        "Act cold towards your friend and keep thinking that their success proves you are less talented.",
+
+      positiveTip:
+        "Celebrating another person’s success while continuing to work on your own goals shows confidence and resilience.",
+
+      negativeTip:
+        "Resentment can hurt friendships without helping you improve your own skills."
+
+    },
+
+
+    /* 6 */
+
+    {
+
+      time:
+        "Evening",
+
+      situation:
+        "You feel tired and a family member speaks sharply to you about something small.",
+
+      positiveChoice:
+        "Pause, calm yourself and respond kindly instead of taking the comment personally.",
+
+      negativeChoice:
+        "Shout back, stay angry for the rest of the evening and decide that everything is going badly.",
+
+      positiveTip:
+        "Pausing before reacting helps you manage emotions and choose a constructive response.",
+
+      negativeTip:
+        "Holding onto anger can make one difficult moment affect the rest of your day."
+
     }
 
-    function resetPositions(){
-      runnerX = 60;
-      barrierX = 430;
-      runner.style.left = runnerX + "px";
-      barrier.style.right = (80) + "px"; // visual placeholder; we will animate runner only
-      runner.classList.remove("jump");
-      jumpActive = false;
-      questionShownForThisObstacle = false;
-      hitProcessed = false;
-    }
+  ];
 
-    function loadObstacle(){
-      const ob = obstacles[currentIndex];
-      skyText.textContent = `${ob.time}: New challenge on your path.`;
-      scenarioTextEl.textContent = ob.situation;
-      feedbackEl.style.display = "none";
-      feedbackEl.textContent = "";
-      tipBox.textContent = "Tap Jump near the barrier, then choose how you respond to this situation.";
-      resetPositions();
-    }
 
-    function startRun(){
-      running = true;
-      currentIndex = 0;
-      positiveChoices = 0;
-      resilience = 60;
-      updateUI();
-      loadObstacle();
-      progressTextEl.textContent = "Run started. Jump just before the barrier to answer the question.";
-      if(animationId) cancelAnimationFrame(animationId);
-      animationLoop();
-    }
+  /* =========================================
+     ELEMENTS
+  ========================================= */
 
-    function animationLoop(){
-      if(!running) return;
+  const runner =
+    document.getElementById(
+      "runner"
+    );
 
-      // move runner towards barrier while there is an active obstacle
-      if(!questionShownForThisObstacle && !hitProcessed){
-        runnerX += speed;
-        if(runnerX > 380) runnerX = 380; // limit
-        runner.style.left = runnerX + "px";
 
-        // simple collision window
-        const distanceToBarrier = barrierX - runnerX;
-        if(distanceToBarrier < 20 && !jumpActive && !hitProcessed){
-          // barrier hit (no jump)
-          handleAutoHit();
-        }
-      }
+  const runnerScene =
+    document.getElementById(
+      "runnerScene"
+    );
 
-      animationId = requestAnimationFrame(animationLoop);
-    }
 
-    function handleJump(){
-      if(!running || questionShownForThisObstacle || hitProcessed) return;
-      // only allow jump if runner is reasonably near the barrier
-      const distanceToBarrier = barrierX - runnerX;
-      if(distanceToBarrier > 100) {
-        // too early; just ignore to keep it simple
-        return;
-      }
-      jumpActive = true;
-      runner.classList.add("jump");
+  const skyText =
+    document.getElementById(
+      "skyText"
+    );
 
-      setTimeout(() => {
-        runner.classList.remove("jump");
-        jumpActive = false;
-        if(!questionShownForThisObstacle){
-          showQuestion();
-        }
-      }, 700);
-    }
 
-    function showQuestion(){
-      questionShownForThisObstacle = true;
-      const ob = obstacles[currentIndex];
-      questionText.textContent = ob.situation;
-      qPositive.textContent = ob.positiveChoice;
-      qNegative.textContent = ob.negativeChoice;
-      questionOverlay.classList.add("active");
-    }
+  const sceneMessage =
+    document.getElementById(
+      "sceneMessage"
+    );
 
-    function closeQuestion(){
-      questionOverlay.classList.remove("active");
-    }
 
-    qPositive.addEventListener("click", () => handleChoice(true));
-    qNegative.addEventListener("click", () => handleChoice(false));
+  const obstacleCounterEl =
+    document.getElementById(
+      "obstacleCounter"
+    );
 
-    function handleAutoHit(){
-      hitProcessed = true;
-      // did not jump; treat as negative choice but still show learning
-      handleChoice(false, true);
-    }
 
-    function handleChoice(isPositive, auto = false){
-      closeQuestion();
-      const ob = obstacles[currentIndex];
+  const positiveCountEl =
+    document.getElementById(
+      "positiveCount"
+    );
 
-      if(isPositive){
-        positiveChoices++;
-        resilience += 10;
-        playGood();
-        feedbackEl.className = "feedback good";
-        feedbackEl.textContent = ob.positiveTip;
-        tipBox.textContent = ob.positiveTip;
-      } else {
-        resilience -= 10;
-        playBad();
-        feedbackEl.className = "feedback warn";
-        feedbackEl.textContent = auto
-          ? "You hit the barrier without jumping. This is like reacting without thinking positively first. " + ob.negativeTip
-          : ob.negativeTip;
-        tipBox.textContent = ob.negativeTip;
-      }
-      feedbackEl.style.display = "block";
-      updateUI();
 
-      // move to next obstacle after short delay
-      setTimeout(() => {
-        currentIndex++;
-        if(currentIndex < obstacles.length){
-          updateUI();
-          loadObstacle();
-        } else {
-          finishRun();
-        }
-      }, 1700);
-    }
+  const resilienceScoreEl =
+    document.getElementById(
+      "resilienceScore"
+    );
 
-    function finishRun(){
-      running = false;
-      if(animationId) cancelAnimationFrame(animationId);
-      playFinish();
-      const scorePercent = Math.round((positiveChoices / obstacles.length) * 100);
-      let rank, badge, text;
 
-      if(scorePercent >= 70){
-        rank = "Resilience Hero";
-        badge = "💪";
-        text = "You bounce back from challenges, stay hopeful and use each situation to grow. This is what a positive attitude looks like in daily life.[file:29]";
-      } else if(scorePercent >= 40){
-        rank = "Growing Fighter";
-        badge = "🌟";
-        text = "You sometimes stay positive and sometimes get pulled into negative thoughts. With practice, you can become more optimistic and resilient.[file:29]";
-      } else {
-        rank = "New Runner";
-        badge = "🌱";
-        text = "Everyone starts somewhere. Learning gratitude, self-talk and acceptance can help you handle stress and tough situations better.[file:29]";
-      }
+  const stageIndicator =
+    document.getElementById(
+      "stageIndicator"
+    );
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Resilience Run Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Positive choices: ${positiveChoices} / ${obstacles.length} (${scorePercent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Run Again</button>
-        </div>
+
+  const meterFill =
+    document.getElementById(
+      "meterFill"
+    );
+
+
+  const meterText =
+    document.getElementById(
+      "meterText"
+    );
+
+
+  const scenarioTextEl =
+    document.getElementById(
+      "scenarioText"
+    );
+
+
+  const tipBox =
+    document.getElementById(
+      "tipBox"
+    );
+
+
+  const feedbackEl =
+    document.getElementById(
+      "feedback"
+    );
+
+
+  const progressTextEl =
+    document.getElementById(
+      "progressText"
+    );
+
+
+  const responseArea =
+    document.getElementById(
+      "responseArea"
+    );
+
+
+  const qPositive =
+    document.getElementById(
+      "qPositive"
+    );
+
+
+  const qNegative =
+    document.getElementById(
+      "qNegative"
+    );
+
+
+  const resetBtn =
+    document.getElementById(
+      "resetBtn"
+    );
+
+
+  const startBtn =
+    document.getElementById(
+      "startBtn"
+    );
+
+
+  const jumpBtn =
+    document.getElementById(
+      "jumpBtn"
+    );
+
+
+  const nextBtn =
+    document.getElementById(
+      "nextBtn"
+    );
+
+
+  const nextRow =
+    document.getElementById(
+      "nextRow"
+    );
+
+
+  const gameWrapper =
+    document.getElementById(
+      "gameWrapper"
+    );
+
+
+  /* =========================================
+     GAME STATE
+  ========================================= */
+
+  let currentIndex =
+    0;
+
+
+  let positiveChoices =
+    0;
+
+
+  let resilience =
+    50;
+
+
+  let runStarted =
+    false;
+
+
+  let jumped =
+    false;
+
+
+  let choiceLocked =
+    false;
+
+
+  /* =========================================
+     UPDATE UI
+  ========================================= */
+
+  function updateUI() {
+
+    obstacleCounterEl.textContent =
+      `${currentIndex + 1} / ${obstacles.length}`;
+
+
+    positiveCountEl.textContent =
+      String(
+        positiveChoices
+      );
+
+
+    const scorePercent =
+      Math.round(
+        (
+          positiveChoices /
+          obstacles.length
+        ) *
+        100
+      );
+
+
+    resilienceScoreEl.textContent =
+      scorePercent +
+      "%";
+
+
+    stageIndicator.textContent =
+      `Obstacle ${currentIndex + 1} of ${obstacles.length}`;
+
+
+    resilience =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          resilience
+        )
+      );
+
+
+    meterFill.style.width =
+      resilience +
+      "%";
+
+
+    meterText.textContent =
+      resilience +
+      "%";
+
+  }
+
+
+  /* =========================================
+     RESET RUNNER POSITION
+  ========================================= */
+
+  function resetRunnerPosition() {
+
+    const mobile =
+      window
+        .matchMedia(
+          "(max-width: 640px)"
+        )
+        .matches;
+
+
+    runner.style.left =
+      mobile
+        ?
+        "28px"
+        :
+        "56px";
+
+
+    runner
+      .classList
+      .remove(
+        "jump"
+      );
+
+  }
+
+
+  /* =========================================
+     LOAD OBSTACLE
+  ========================================= */
+
+  function loadObstacle() {
+
+    const obstacle =
+      obstacles[
+        currentIndex
+      ];
+
+
+    choiceLocked =
+      false;
+
+
+    jumped =
+      false;
+
+
+    skyText.textContent =
+      `${obstacle.time}: A new challenge appears.`;
+
+
+    scenarioTextEl.textContent =
+      obstacle.situation;
+
+
+    tipBox.textContent =
+      "Tap Jump when you are ready to clear the barrier. After the jump, choose how you would respond.";
+
+
+    responseArea
+      .classList
+      .remove(
+        "active"
+      );
+
+
+    feedbackEl.className =
+      "feedback";
+
+
+    feedbackEl.textContent =
+      "";
+
+
+    qPositive.className =
+      "choice-btn";
+
+
+    qNegative.className =
+      "choice-btn";
+
+
+    qPositive.disabled =
+      false;
+
+
+    qNegative.disabled =
+      false;
+
+
+    jumpBtn.disabled =
+      !runStarted;
+
+
+    nextRow
+      .classList
+      .remove(
+        "active"
+      );
+
+
+    progressTextEl.textContent =
+      runStarted
+        ?
+        "Tap Jump to clear this obstacle."
+        :
+        "Tap Start Run to begin.";
+
+
+    sceneMessage.innerHTML =
+      `
+
+      <span>
+        🏃
+      </span>
+
+      <span>
+        ${obstacle.time}: clear the barrier, then make a resilient choice.
+      </span>
+
       `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => {
-        location.reload();
-      });
+
+
+    resetRunnerPosition();
+
+
+    updateUI();
+
+  }
+
+
+  /* =========================================
+     START
+  ========================================= */
+
+  function startRun() {
+
+    currentIndex =
+      0;
+
+
+    positiveChoices =
+      0;
+
+
+    resilience =
+      50;
+
+
+    runStarted =
+      true;
+
+
+    startBtn.textContent =
+      "Run Active";
+
+
+    startBtn.disabled =
+      true;
+
+
+    loadObstacle();
+
+  }
+
+
+  /* =========================================
+     RESTART
+  ========================================= */
+
+  function restartRun() {
+
+    currentIndex =
+      0;
+
+
+    positiveChoices =
+      0;
+
+
+    resilience =
+      50;
+
+
+    runStarted =
+      true;
+
+
+    startBtn.textContent =
+      "Run Active";
+
+
+    startBtn.disabled =
+      true;
+
+
+    loadObstacle();
+
+
+    window.scrollTo(
+      {
+
+        top:
+          0,
+
+        behavior:
+          "smooth"
+
+      }
+    );
+
+  }
+
+
+  /* =========================================
+     JUMP MECHANIC
+  ========================================= */
+
+  function handleJump() {
+
+    if(
+      !runStarted ||
+      jumped ||
+      choiceLocked
+    ) {
+
+      return;
+
     }
 
-    resetBtn.addEventListener("click", () => {
-      if(animationId) cancelAnimationFrame(animationId);
-      startRun();
-    });
 
-    startBtn.addEventListener("click", () => {
-      if(!running){
-        startRun();
-      }
-    });
+    jumped =
+      true;
 
-    jumpBtn.addEventListener("click", handleJump);
 
-    // Initial state
+    jumpBtn.disabled =
+      true;
+
+
+    progressTextEl.textContent =
+      "Great jump! Now choose the response that shows resilience.";
+
+
+    const mobile =
+      window
+        .matchMedia(
+          "(max-width: 640px)"
+        )
+        .matches;
+
+
+    const sceneWidth =
+      runnerScene
+        .getBoundingClientRect()
+        .width;
+
+
+    const targetLeft =
+      mobile
+        ?
+        Math.max(
+          120,
+          sceneWidth - 130
+        )
+        :
+        Math.max(
+          260,
+          sceneWidth - 180
+        );
+
+
+    runner.style.left =
+      targetLeft +
+      "px";
+
+
+    runner
+      .classList
+      .add(
+        "jump"
+      );
+
+
+    setTimeout(
+      () => {
+
+
+        runner
+          .classList
+          .remove(
+            "jump"
+          );
+
+
+        responseArea
+          .classList
+          .add(
+            "active"
+          );
+
+
+        const obstacle =
+          obstacles[
+            currentIndex
+          ];
+
+
+        qPositive.textContent =
+          obstacle.positiveChoice;
+
+
+        qNegative.textContent =
+          obstacle.negativeChoice;
+
+
+        sceneMessage.innerHTML =
+          `
+
+          <span>
+            ✨
+          </span>
+
+          <span>
+            Barrier cleared. Your response is the next part of the challenge.
+          </span>
+
+          `;
+
+
+        /*
+          On mobile, bring the choices
+          into view automatically.
+        */
+
+        if(
+          window
+            .matchMedia(
+              "(max-width: 640px)"
+            )
+            .matches
+        ) {
+
+
+          setTimeout(
+            () => {
+
+              responseArea
+                .scrollIntoView(
+                  {
+
+                    behavior:
+                      "smooth",
+
+                    block:
+                      "start"
+
+                  }
+                );
+
+            },
+            120
+          );
+
+        }
+
+      },
+      760
+    );
+
+  }
+
+
+  /* =========================================
+     ANSWER CHOICE
+  ========================================= */
+
+  function handleChoice(
+    isPositive
+  ) {
+
+    if(
+      choiceLocked
+    ) {
+
+      return;
+
+    }
+
+
+    choiceLocked =
+      true;
+
+
+    const obstacle =
+      obstacles[
+        currentIndex
+      ];
+
+
+    qPositive.disabled =
+      true;
+
+
+    qNegative.disabled =
+      true;
+
+
+    /* POSITIVE RESPONSE */
+
+    if(
+      isPositive
+    ) {
+
+      positiveChoices++;
+
+
+      resilience +=
+        10;
+
+
+      playSound(
+        goodSound
+      );
+
+
+      qPositive
+        .classList
+        .add(
+          "good-choice"
+        );
+
+
+      feedbackEl.className =
+        "feedback good";
+
+
+      feedbackEl.textContent =
+        "✅ " +
+        obstacle.positiveTip;
+
+
+      sceneMessage.innerHTML =
+        `
+
+        <span>
+          🌟
+        </span>
+
+        <span>
+          You bounced back with a constructive and hopeful response.
+        </span>
+
+        `;
+
+    }
+
+
+    /* LESS HELPFUL RESPONSE */
+
+    else {
+
+      resilience -=
+        8;
+
+
+      playSound(
+        badSound
+      );
+
+
+      qNegative
+        .classList
+        .add(
+          "bad-choice"
+        );
+
+
+      /*
+        Highlight the stronger answer.
+      */
+
+      qPositive
+        .classList
+        .add(
+          "good-choice"
+        );
+
+
+      feedbackEl.className =
+        "feedback warn";
+
+
+      feedbackEl.textContent =
+        "💡 " +
+        obstacle.negativeTip +
+        " A stronger response is highlighted above.";
+
+
+      sceneMessage.innerHTML =
+        `
+
+        <span>
+          💡
+        </span>
+
+        <span>
+          Every setback is a chance to practise a stronger response next time.
+        </span>
+
+        `;
+
+    }
+
+
+    /*
+      Show the positive learning point
+      after either response.
+    */
+
+    tipBox.textContent =
+      obstacle.positiveTip;
+
+
+    /*
+      Show continuation button.
+    */
+
+    nextRow
+      .classList
+      .add(
+        "active"
+      );
+
+
+    progressTextEl.textContent =
+      "Review the feedback, then continue to the next obstacle.";
+
+
     updateUI();
-    scenarioTextEl.textContent = "Your day is like a running track. Obstacles will appear, but your attitude decides how you move past them.[file:29]";
-  </script>
+
+
+    /*
+      Keep the Next button accessible
+      on phones.
+    */
+
+    if(
+      window
+        .matchMedia(
+          "(max-width: 640px)"
+        )
+        .matches
+    ) {
+
+
+      setTimeout(
+        () => {
+
+          nextBtn
+            .scrollIntoView(
+              {
+
+                behavior:
+                  "smooth",
+
+                block:
+                  "nearest"
+
+              }
+            );
+
+        },
+        140
+      );
+
+    }
+
+  }
+
+
+  /* =========================================
+     NEXT OBSTACLE
+  ========================================= */
+
+  function nextObstacle() {
+
+    if(
+      !choiceLocked
+    ) {
+
+      return;
+
+    }
+
+
+    currentIndex++;
+
+
+    if(
+      currentIndex <
+      obstacles.length
+    ) {
+
+
+      loadObstacle();
+
+
+      /*
+        Bring the next runner scene
+        into view on mobile.
+      */
+
+      if(
+        window
+          .matchMedia(
+            "(max-width: 640px)"
+          )
+          .matches
+      ) {
+
+
+        setTimeout(
+          () => {
+
+            runnerScene
+              .scrollIntoView(
+                {
+
+                  behavior:
+                    "smooth",
+
+                  block:
+                    "start"
+
+                }
+              );
+
+          },
+          100
+        );
+
+      }
+
+    }
+
+
+    else {
+
+      finishRun();
+
+    }
+
+  }
+
+
+  /* =========================================
+     FINAL SCREEN
+  ========================================= */
+
+  function finishRun() {
+
+    runStarted =
+      false;
+
+
+    playSound(
+      finishSound
+    );
+
+
+    const scorePercent =
+      Math.round(
+        (
+          positiveChoices /
+          obstacles.length
+        ) *
+        100
+      );
+
+
+    let rank;
+
+    let badge;
+
+    let text;
+
+
+    if(
+      scorePercent >=
+      80
+    ) {
+
+      rank =
+        "Resilience Hero";
+
+
+      badge =
+        "💪";
+
+
+      text =
+        "You consistently choose hopeful, constructive responses and keep moving forward when challenges appear.";
+
+    }
+
+
+    else if(
+      scorePercent >=
+      50
+    ) {
+
+      rank =
+        "Growing Resilience Star";
+
+
+      badge =
+        "🌟";
+
+
+      text =
+        "You already use several positive strategies. Keep practising calm self-talk, perspective and constructive responses.";
+
+    }
+
+
+    else {
+
+      rank =
+        "Resilience Starter";
+
+
+      badge =
+        "🌱";
+
+
+      text =
+        "Resilience grows with practice. Each difficult moment is a new chance to pause, rethink and choose a stronger response.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+      `
+
+      <section class="final-screen">
+
+        <div class="final-title">
+          Resilience Run Report
+        </div>
+
+
+        <div class="final-badge">
+          ${badge}
+        </div>
+
+
+        <div class="final-rank">
+          ${rank}
+        </div>
+
+
+        <div class="final-score">
+
+          Positive choices:
+          ${positiveChoices}
+          /
+          ${obstacles.length}
+          (${scorePercent}%)
+
+        </div>
+
+
+        <div class="final-text">
+
+          ${text}
+
+        </div>
+
+
+        <button
+          class="btn-primary"
+          id="playAgainBtn"
+          type="button"
+        >
+
+          Run Again
+
+        </button>
+
+      </section>
+
+      `;
+
+
+    document
+      .getElementById(
+        "playAgainBtn"
+      )
+      .addEventListener(
+        "click",
+        () => {
+
+          location.reload();
+
+        }
+      );
+
+
+    window.scrollTo(
+      {
+
+        top:
+          0,
+
+        behavior:
+          "smooth"
+
+      }
+    );
+
+  }
+
+
+  /* =========================================
+     BUTTON EVENTS
+  ========================================= */
+
+  startBtn
+    .addEventListener(
+      "click",
+      startRun
+    );
+
+
+  resetBtn
+    .addEventListener(
+      "click",
+      restartRun
+    );
+
+
+  jumpBtn
+    .addEventListener(
+      "click",
+      handleJump
+    );
+
+
+  nextBtn
+    .addEventListener(
+      "click",
+      nextObstacle
+    );
+
+
+  qPositive
+    .addEventListener(
+      "click",
+      () => {
+
+        handleChoice(
+          true
+        );
+
+      }
+    );
+
+
+  qNegative
+    .addEventListener(
+      "click",
+      () => {
+
+        handleChoice(
+          false
+        );
+
+      }
+    );
+
+
+  /* =========================================
+     RESPONSIVE RUNNER POSITION
+  ========================================= */
+
+  window
+    .addEventListener(
+      "resize",
+      () => {
+
+        if(
+          !jumped
+        ) {
+
+          resetRunnerPosition();
+
+        }
+
+      }
+    );
+
+
+  /* =========================================
+     INITIAL STATE
+  ========================================= */
+
+  updateUI();
+
+  loadObstacle();
+
+
+</script>
+
 </body>
 </html>
