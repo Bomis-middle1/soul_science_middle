@@ -1,636 +1,3178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Box Breaker – Breaking Gender Stereotypes</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #e0f2fe 0%, #fef3c7 40%, #fee2e2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
+<meta charset="UTF-8">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<title>Box Breaker – Breaking Gender Stereotypes</title>
+
+<style>
+
+/* ======================================================
+   RESET
+====================================================== */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --ink:#26384a;
+    --muted:#67798b;
+    --blue:#5d8de4;
+    --blue-dark:#3762ad;
+    --pink:#f6dce7;
+    --peach:#fff0df;
+    --green:#45ac77;
+    --green-bg:#eaf8f0;
+    --red:#d96867;
+    --red-bg:#fff0ef;
+    --yellow:#fff3cf;
+    --line:#dce6ee;
+    --soft:#f7fafc;
+    --white:#ffffff;
+}
+
+html{
+    width:100%;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+}
+
+body{
+    width:100%;
+    min-height:100vh;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+
+    font-family:
+        "Trebuchet MS",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    color:var(--ink);
+
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(123,191,255,.18),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at top right,
+            rgba(247,184,205,.18),
+            transparent 30%
+        ),
+        linear-gradient(
+            180deg,
+            #f9fcff 0%,
+            #f3f8ff 55%,
+            #fff9f5 100%
+        );
+
+    padding:16px;
+}
+
+button,
+input{
+    font:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:3px solid #ffd362;
+    outline-offset:3px;
+}
+
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+.splash{
+    position:fixed;
+    inset:0;
+
+    z-index:9999;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:#fff;
+
+    transition:opacity .45s ease;
+}
+
+.splash.hide{
+    opacity:0;
+    pointer-events:none;
+}
+
+.splash img{
+    width:min(430px,82vw);
+    height:auto;
+
+    animation:
+        floatLogo
+        2s
+        ease-in-out
+        infinite;
+}
+
+@keyframes floatLogo{
+
+    0%,
+    100%{
+        transform:translateY(0);
     }
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #f97316;
-      box-shadow: 0 0 40px rgba(248, 171, 60, 0.55);
-      overflow: hidden;
+    50%{
+        transform:translateY(-10px);
     }
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #f97316 0%, #f97316 40%, #ec4899 80%);
-      color: #111827;
-      box-shadow: 0 4px 16px rgba(248,171,60,0.8);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: headerGlow 18s linear infinite;
-    }
-    @keyframes headerGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fffbeb;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.92);
-      border: 2px solid #fed7aa;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(248,171,60,0.9);
+}
+
+
+/* ======================================================
+   GAME SHELL
+====================================================== */
+
+.game{
+    width:min(1120px,100%);
+
+    margin:0 auto;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #dbe6ee;
+
+    border-radius:28px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 18px 46px
+        rgba(54,81,108,.14);
+
+    opacity:0;
+
+    transition:opacity .45s ease;
+}
+
+.game.visible{
+    opacity:1;
+}
+
+
+/* ======================================================
+   HEADER
+====================================================== */
+
+.header{
+    padding:
+        22px
+        18px
+        18px;
+
+    text-align:center;
+
+    background:
+        radial-gradient(
+            circle at 14% 18%,
+            rgba(255,255,255,.8),
+            transparent 28%
+        ),
+        linear-gradient(
+            135deg,
+            #e2f2ff 0%,
+            #f7e6ed 50%,
+            #fff0d6 100%
+        );
+
+    border-bottom:
+        1px solid
+        #dce7ef;
+}
+
+.header h1{
+    font-size:
+        clamp(
+            26px,
+            4vw,
+            37px
+        );
+
+    line-height:1.12;
+
+    color:#314d65;
+
+    margin-bottom:6px;
+}
+
+.subtitle{
+    font-size:14px;
+
+    font-weight:800;
+
+    color:#60758a;
+}
+
+.stage{
+    display:inline-block;
+
+    margin-top:10px;
+
+    padding:
+        7px
+        15px;
+
+    border-radius:999px;
+
+    background:#fff;
+
+    border:
+        1px solid
+        #cfdde8;
+
+    color:var(--blue-dark);
+
+    font-size:13px;
+
+    font-weight:900;
+
+    box-shadow:
+        0 4px 10px
+        rgba(55,88,120,.07);
+}
+
+
+/* ======================================================
+   INTRO
+====================================================== */
+
+.intro{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+
+    padding:
+        12px
+        18px;
+
+    background:#fbfdff;
+
+    border-bottom:
+        1px solid
+        #e8eef4;
+}
+
+.intro-card{
+    min-width:0;
+
+    padding:
+        11px
+        13px;
+
+    border-radius:14px;
+
+    background:#f5f9fc;
+
+    border:
+        1px solid
+        #e3eaf1;
+
+    color:#607286;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   PROGRESS
+====================================================== */
+
+.progress-area{
+    display:grid;
+
+    grid-template-columns:
+        auto
+        minmax(0,1fr)
+        auto;
+
+    gap:10px;
+
+    align-items:center;
+
+    padding:
+        11px
+        18px;
+
+    background:#fff;
+}
+
+.progress-label,
+.progress-number{
+    font-size:11px;
+
+    font-weight:900;
+
+    color:#667a8d;
+}
+
+.progress-bar{
+    height:13px;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+    background:#e7ecef;
+}
+
+.progress-fill{
+    height:100%;
+
+    width:0%;
+
+    border-radius:inherit;
+
+    background:
+        linear-gradient(
+            90deg,
+            #6797e9,
+            #53bd82
+        );
+
+    transition:width .35s ease;
+}
+
+
+/* ======================================================
+   MAIN LAYOUT
+====================================================== */
+
+.layout{
+    display:grid;
+
+    grid-template-columns:
+        minmax(0,1fr)
+        minmax(0,1fr);
+
+    gap:18px;
+
+    padding:18px;
+
+    align-items:start;
+}
+
+.panel{
+    min-width:0;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+
+    box-shadow:
+        0 8px 22px
+        rgba(55,82,108,.07);
+}
+
+
+/* ======================================================
+   BOX PANEL
+====================================================== */
+
+.box-panel{
+    padding:16px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fffdfd 0%,
+            #fff8f8 100%
+        );
+}
+
+.panel-title{
+    text-align:center;
+
+    font-size:14px;
+
+    font-weight:900;
+
+    letter-spacing:.7px;
+
+    text-transform:uppercase;
+
+    color:#67566a;
+
+    margin-bottom:5px;
+}
+
+.panel-subtitle{
+    text-align:center;
+
+    font-size:12px;
+
+    color:#7c7281;
+
+    line-height:1.4;
+
+    margin-bottom:12px;
+}
+
+
+/* ======================================================
+   STEREOTYPE BOXES
+====================================================== */
+
+.boxes{
+    display:grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap:10px;
+}
+
+.stereotype-box{
+    min-width:0;
+
+    padding:12px;
+
+    border-radius:17px;
+
+    border:
+        1px solid
+        #efccd5;
+
+    background:
+        linear-gradient(
+            180deg,
+            #fff4f6,
+            #fff9fa
+        );
+}
+
+.stereotype-box.blue-box{
+    border-color:#d4deef;
+
+    background:
+        linear-gradient(
+            180deg,
+            #f1f6ff,
+            #f9fbff
+        );
+}
+
+.box-head{
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:8px;
+
+    margin-bottom:10px;
+}
+
+.box-icon{
+    flex-shrink:0;
+
+    width:42px;
+    height:42px;
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    border-radius:13px;
+
+    background:#f6dfe6;
+
+    font-size:22px;
+}
+
+.blue-box .box-icon{
+    background:#e1ecff;
+}
+
+.box-name{
+    font-size:13px;
+
+    font-weight:900;
+
+    color:#5b4150;
+
+    margin-bottom:2px;
+}
+
+.blue-box .box-name{
+    color:#405a78;
+}
+
+.box-desc{
+    font-size:10px;
+
+    line-height:1.35;
+
+    color:#7c6d75;
+}
+
+.card-list{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+}
+
+
+/* ======================================================
+   STEREOTYPE CARDS
+====================================================== */
+
+.stereotype-card{
+    width:100%;
+
+    min-width:0;
+
+    padding:
+        10px
+        11px;
+
+    border:
+        2px solid
+        #ebccd4;
+
+    border-radius:14px;
+
+    text-align:left;
+
+    background:#fff;
+
+    color:#694952;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+    line-height:1.4;
+
+    font-weight:800;
+
+    transition:.18s ease;
+
+    overflow-wrap:anywhere;
+}
+
+.blue-box .stereotype-card{
+    border-color:#d3deed;
+
+    color:#405b78;
+}
+
+.stereotype-card:hover:not(:disabled){
+    transform:translateY(-1px);
+
+    border-color:#d68d9f;
+
+    box-shadow:
+        0 6px 13px
+        rgba(111,76,88,.08);
+}
+
+.blue-box
+.stereotype-card:hover:not(:disabled){
+    border-color:#7fa2dc;
+}
+
+.stereotype-card.selected{
+    border-color:var(--blue);
+
+    background:#eef5ff;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(93,141,228,.12);
+}
+
+.stereotype-card.freed{
+    border-color:#9ad4b2;
+
+    background:#edf9f2;
+
+    color:#367054;
+}
+
+.stereotype-card:disabled{
+    cursor:default;
+}
+
+.card-status{
+    display:block;
+
+    margin-top:4px;
+
+    font-size:9px;
+
+    font-weight:900;
+
+    color:#25835a;
+}
+
+
+/* ======================================================
+   RIGHT PANEL
+====================================================== */
+
+.right-panel{
+    padding:16px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+    background:#fffefa;
+}
+
+
+/* ======================================================
+   SCORE
+====================================================== */
+
+.score-row{
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0,1fr)
+        );
+
+    gap:7px;
+}
+
+.score-card{
+    min-width:0;
+
+    padding:
+        9px
+        5px;
+
+    text-align:center;
+
+    border-radius:14px;
+
+    background:#f8fbff;
+
+    border:
+        1px solid
+        #dce6ef;
+}
+
+.score-label{
+    font-size:9px;
+
+    line-height:1.2;
+
+    text-transform:uppercase;
+
+    font-weight:900;
+
+    color:#75869a;
+
+    overflow-wrap:anywhere;
+}
+
+.score-value{
+    margin-top:3px;
+
+    font-size:16px;
+
+    font-weight:900;
+
+    color:#3f68b0;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   REAL PEOPLE ZONE
+====================================================== */
+
+.real-zone{
+    padding:13px;
+
+    border-radius:17px;
+
+    background:
+        linear-gradient(
+            180deg,
+            #eefaf3,
+            #f8fdf9
+        );
+
+    border:
+        1px solid
+        #cbe7d5;
+}
+
+.zone-title{
+    font-size:13px;
+
+    font-weight:900;
+
+    color:#357052;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+    margin-bottom:4px;
+}
+
+.zone-text{
+    font-size:12px;
+
+    line-height:1.45;
+
+    color:#5c7767;
+}
+
+
+/* ======================================================
+   QUESTION CARD
+====================================================== */
+
+.question-card{
+    display:none;
+
+    padding:14px;
+
+    border-radius:17px;
+
+    background:#f3f7ff;
+
+    border:
+        1px solid
+        #d7e3f4;
+}
+
+.question-card.active{
+    display:block;
+}
+
+.question-label{
+    font-size:10px;
+
+    font-weight:900;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+    color:#718499;
+
+    margin-bottom:4px;
+}
+
+.question-stereotype{
+    font-size:14px;
+
+    line-height:1.4;
+
+    font-weight:900;
+
+    color:#3c5875;
+
+    margin-bottom:10px;
+
+    overflow-wrap:anywhere;
+}
+
+.question-prompt{
+    font-size:12px;
+
+    line-height:1.4;
+
+    color:#62778c;
+
+    margin-bottom:8px;
+}
+
+
+/* ======================================================
+   REWRITE OPTIONS
+====================================================== */
+
+.rewrite-options{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+}
+
+.rewrite-btn{
+    width:100%;
+
+    min-height:48px;
+
+    padding:
+        10px
+        11px;
+
+    border:
+        2px solid
+        #dbe5ef;
+
+    border-radius:14px;
+
+    text-align:left;
+
+    background:#fff;
+
+    color:#354d64;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+    line-height:1.4;
+
+    font-weight:800;
+
+    transition:.18s ease;
+
+    overflow-wrap:anywhere;
+}
+
+.rewrite-btn:hover:not(:disabled){
+    border-color:#82a8e6;
+
+    transform:translateY(-1px);
+}
+
+.rewrite-btn.correct{
+    border-color:#7fc79d;
+
+    background:#edf9f2;
+
+    color:#2b704e;
+}
+
+.rewrite-btn.wrong{
+    border-color:#dc8581;
+
+    background:#fff0ef;
+
+    color:#8a4643;
+}
+
+.rewrite-btn:disabled{
+    cursor:default;
+}
+
+
+/* ======================================================
+   FREED BELIEFS
+====================================================== */
+
+.belief-title{
+    font-size:12px;
+
+    font-weight:900;
+
+    color:#596f83;
+
+    text-transform:uppercase;
+
+    letter-spacing:.55px;
+}
+
+.belief-list{
+    display:flex;
+
+    flex-direction:column;
+
+    gap:6px;
+}
+
+.belief-chip{
+    padding:
+        8px
+        10px;
+
+    border-radius:13px;
+
+    background:#edf9f2;
+
+    border:
+        1px solid
+        #c1e3cf;
+
+    color:#397157;
+
+    font-size:10px;
+
+    line-height:1.4;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   FEEDBACK
+====================================================== */
+
+.feedback{
+    display:none;
+
+    padding:
+        11px
+        12px;
+
+    border-radius:14px;
+
+    font-size:12px;
+
+    line-height:1.45;
+
+    overflow-wrap:anywhere;
+}
+
+.feedback.good{
+    display:block;
+
+    background:#ebf9f1;
+
+    border:
+        1px solid
+        #b6e1c7;
+
+    color:#286a49;
+}
+
+.feedback.warn{
+    display:block;
+
+    background:#fff2e9;
+
+    border:
+        1px solid
+        #efc59e;
+
+    color:#835124;
+}
+
+
+/* ======================================================
+   CONTROLS
+====================================================== */
+
+.controls{
+    display:grid;
+
+    grid-template-columns:
+        auto
+        1fr
+        auto;
+
+    gap:8px;
+
+    align-items:center;
+}
+
+.btn{
+    min-height:44px;
+
+    border-radius:14px;
+
+    font-weight:900;
+
+    cursor:pointer;
+
+    transition:.18s ease;
+}
+
+.btn-secondary{
+    padding:
+        9px
+        12px;
+
+    border:
+        1px solid
+        #d4dee8;
+
+    background:#f5f8fb;
+
+    color:#5b6f82;
+}
+
+.btn-primary{
+    padding:
+        10px
+        16px;
+
+    border:0;
+
+    color:#fff;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5f8ee5,
+            #4cb97f
+        );
+
+    box-shadow:
+        0 6px 15px
+        rgba(67,117,158,.17);
+}
+
+.btn:hover:not(:disabled){
+    transform:translateY(-1px);
+}
+
+.btn:disabled{
+    opacity:.42;
+
+    cursor:not-allowed;
+
+    box-shadow:none;
+}
+
+#progressText{
+    min-width:0;
+
+    text-align:center;
+
+    color:#708195;
+
+    font-size:10px;
+
+    line-height:1.4;
+
+    overflow-wrap:anywhere;
+}
+
+
+/* ======================================================
+   VOLUME
+====================================================== */
+
+.volume{
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font-size:11px;
+
+    color:#7a8998;
+}
+
+.volume input{
+    flex:1;
+
+    min-width:0;
+}
+
+
+/* ======================================================
+   FINAL SCREEN
+====================================================== */
+
+.final{
+    grid-column:1/-1;
+
+    padding:
+        36px
+        22px;
+
+    text-align:center;
+
+    border:
+        1px solid
+        var(--line);
+
+    border-radius:20px;
+
+    background:#fff;
+}
+
+.final-title{
+    font-size:27px;
+
+    font-weight:900;
+
+    color:#3e67ad;
+
+    margin-bottom:8px;
+}
+
+.final-badge{
+    font-size:58px;
+
+    margin:
+        10px 0;
+}
+
+.final-rank{
+    font-size:22px;
+
+    font-weight:900;
+
+    margin-bottom:6px;
+}
+
+.final-score{
+    margin:
+        8px 0;
+
+    font-size:16px;
+
+    font-weight:800;
+
+    color:#586d81;
+}
+
+.final-text{
+    max-width:660px;
+
+    margin:
+        0 auto 18px;
+
+    color:#67798b;
+
+    font-size:14px;
+
+    line-height:1.55;
+}
+
+
+/* ======================================================
+   TABLET
+====================================================== */
+
+@media(max-width:900px){
+
+    .layout{
+        grid-template-columns:1fr;
     }
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fee2e2, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
+    .intro{
+        grid-template-columns:1fr;
     }
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #fecaca 0%, transparent 40%),
-        #f9fafb;
+}
+
+
+/* ======================================================
+   MOBILE
+====================================================== */
+
+@media(max-width:640px){
+
+    html,
+    body{
+        width:100%;
+        max-width:100%;
+
+        overflow-x:hidden;
+        overflow-y:auto;
     }
 
-    /* Left panel: boxes */
-    .left-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(248,113,113,0.9);
-      padding: 10px;
-      background: #fee2e2;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .panel-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
+    body{
+        padding:0;
+
+        background:#f7fbff;
     }
 
-    .boxes-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .game{
+        width:100%;
+        max-width:100%;
+
+        margin:0;
+
+        border:0;
+        border-radius:0;
+
+        box-shadow:none;
+
+        overflow:visible;
     }
 
-    .box {
-      flex: 1;
-      border-radius: 14px;
-      border: 2px solid rgba(239,68,68,0.9);
-      background: #fee2e2;
-      padding: 6px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+    .header{
+        padding:
+            16px
+            13px
+            14px;
     }
 
-    .box-header {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 2px;
-    }
-    .box-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      background: #fecaca;
-      border: 1px solid #f97316;
-    }
-    .box-name {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-    }
-    .box-desc {
-      font-size: 11px;
-      color: #4b5563;
+    .header h1{
+        font-size:22px;
     }
 
-    .card-list {
-      margin-top: 4px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      min-height: 52px;
+    .subtitle{
+        font-size:12px;
     }
 
-    .stereotype-card {
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 11px;
-      cursor: grab;
-      background: #fecaca;
-      border: 1px solid rgba(248,113,113,0.9);
-      color: #7c2d12;
-      box-shadow: 0 2px 6px rgba(248,113,113,0.7);
-      max-width: 100%;
-    }
-    .stereotype-card.dragging {
-      opacity: 0.7;
-      box-shadow: 0 0 10px rgba(248,113,113,0.9);
+    .intro{
+        padding:10px;
+
+        gap:7px;
     }
 
-    /* Right panel: Real People Zone */
-    .right-panel {
-      flex: 1.4;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(34,197,94,0.9);
-      padding: 10px;
-      background: #ecfdf5;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    .intro-card{
+        padding:
+            9px
+            10px;
+
+        font-size:11px;
     }
 
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .status-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #fefce8;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .status-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .status-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
+    .progress-area{
+        position:sticky;
+
+        top:0;
+
+        z-index:20;
+
+        padding:
+            9px
+            10px;
+
+        background:
+            rgba(255,255,255,.97);
+
+        box-shadow:
+            0 3px 10px
+            rgba(55,78,102,.06);
     }
 
-    .zone-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #065f46;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
-    }
-    .zone-subtitle {
-      font-size: 12px;
-      color: #065f46;
-      text-align: center;
+    .layout{
+        display:block;
+
+        width:100%;
+
+        padding:10px;
     }
 
-    .real-zone {
-      flex: 1;
-      border-radius: 14px;
-      border: 2px dashed rgba(34,197,94,0.9);
-      background: #d1fae5;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+    .panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        border-radius:16px;
     }
 
-    .zone-hint {
-      font-size: 12px;
-      color: #047857;
-      text-align: center;
+    .box-panel{
+        padding:11px;
+
+        margin-bottom:12px;
     }
 
-    .belief-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-      min-height: 52px;
+    .boxes{
+        grid-template-columns:1fr;
+
+        gap:9px;
     }
 
-    .belief-chip {
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 11px;
-      background: #bbf7d0;
-      border: 1px solid #22c55e;
-      color: #064e3b;
-      box-shadow: 0 2px 6px rgba(34,197,94,0.7);
+    .stereotype-box{
+        padding:10px;
     }
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
+    .card-list{
+        gap:6px;
     }
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
+    .stereotype-card{
+        min-height:48px;
+
+        padding:
+            10px
+            11px;
+
+        font-size:11px;
     }
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(34,197,94,1);
+    .right-panel{
+        width:100%;
+        max-width:100%;
+
+        min-width:0;
+
+        padding:12px;
     }
 
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
+    .score-row{
+        gap:5px;
     }
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
+    .score-card{
+        padding:
+            8px
+            4px;
     }
-    .volume-control input { flex: 1; }
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
+    .score-label{
+        font-size:8px;
     }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column-reverse; }
-      .left-panel, .right-panel { min-width: 100%; }
+    .score-value{
+        font-size:14px;
     }
-  </style>
+
+    .question-card{
+        padding:11px;
+    }
+
+    .question-stereotype{
+        font-size:13px;
+    }
+
+    .rewrite-btn{
+        min-height:50px;
+
+        font-size:11px;
+    }
+
+    .controls{
+        grid-template-columns:1fr;
+    }
+
+    .controls .btn{
+        width:100%;
+    }
+
+    #progressText{
+        order:-1;
+
+        text-align:left;
+    }
+
+    .finish-ready{
+        position:sticky;
+
+        bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+
+        z-index:30;
+
+        border:
+            3px solid #fff;
+
+        box-shadow:
+            0 8px 20px
+            rgba(58,90,123,.2);
+    }
+
+    .volume{
+        padding-bottom:
+            calc(
+                8px +
+                env(
+                    safe-area-inset-bottom
+                )
+            );
+    }
+
+}
+
+
+/* ======================================================
+   VERY SMALL PHONES
+====================================================== */
+
+@media(max-width:360px){
+
+    .header h1{
+        font-size:19px;
+    }
+
+    .progress-area{
+        grid-template-columns:1fr;
+
+        gap:4px;
+    }
+
+    .progress-label,
+    .progress-number{
+        text-align:center;
+    }
+
+    .score-row{
+        grid-template-columns:1fr;
+    }
+
+    .score-card{
+        display:flex;
+
+        align-items:center;
+
+        justify-content:
+            space-between;
+
+        text-align:left;
+    }
+
+    .score-value{
+        margin:0;
+    }
+
+}
+
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media(prefers-reduced-motion:reduce){
+
+    *,
+    *::before,
+    *::after{
+        animation-duration:
+            .01ms !important;
+
+        animation-iteration-count:
+            1 !important;
+
+        transition-duration:
+            .01ms !important;
+
+        scroll-behavior:
+            auto !important;
+    }
+
+}
+
+</style>
 </head>
+
+
 <body>
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🧱 Box Breaker – Breaking Gender Stereotypes</h1>
-        <div class="subtitle">Chapter 5 – Breaking Gender Stereotypes · Grade 6</div>
-        <div class="stage-indicator" id="stageIndicator">Cards freed: 0 / 10</div>
-      </div>
+
+
+<!-- ======================================================
+     SPLASH
+====================================================== -->
+
+<div
+    class="splash"
+    id="splash"
+>
+
+    <img
+        src="assets/innovine-logo.png"
+        alt="Innovine Logo"
+        onerror="this.style.display='none'"
+    >
+
+</div>
+
+
+<!-- ======================================================
+     GAME
+====================================================== -->
+
+<div
+    class="game"
+    id="game"
+>
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+        <h1>
+            🧱 Box Breaker
+        </h1>
+
+        <div class="subtitle">
+            Breaking Gender Stereotypes
+        </div>
+
+        <div
+            class="stage"
+            id="stageIndicator"
+        >
+            Boxes broken: 0 / 10
+        </div>
+
+    </header>
+
+
+    <!-- INTRO -->
+
+    <div class="intro">
+
+        <div class="intro-card">
+
+            Gender stereotypes are narrow rules about how people are
+            expected to behave because of gender. These rules can limit
+            feelings, interests, strengths and opportunities.
+
+        </div>
+
+        <div class="intro-card">
+
+            Tap a stereotype, then choose the fair belief that replaces it.
+            Free all 10 cards from the boxes.
+
+        </div>
+
     </div>
 
-    <div class="top-bar">
-      <div>Gender stereotypes are “boxes” like “act like a man” or “good girls are always quiet”.[file:35]</div>
-      <div>Drag each card out of the boxes into the Real People Zone to rewrite it as a healthy belief.[file:35]</div>
+
+    <!-- PROGRESS -->
+
+    <div class="progress-area">
+
+        <div class="progress-label">
+            Box-Breaking Progress
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                class="progress-fill"
+                id="progressFill"
+            ></div>
+
+        </div>
+
+        <div
+            class="progress-number"
+            id="progressNumber"
+        >
+            0 / 10
+        </div>
+
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="left-panel">
-        <div class="panel-title">Stereotype Boxes</div>
-        <div class="boxes-row">
-          <div class="box" id="boyBox">
-            <div class="box-header">
-              <div class="box-icon">🧍‍♂️</div>
-              <div>
-                <div class="box-name">“Act Like a Man” Box</div>
-                <div class="box-desc">Harsh rules boys are told to follow, even when they hurt them.[file:35]</div>
-              </div>
+
+    <!-- MAIN -->
+
+    <main
+        class="layout"
+        id="gameWrapper"
+    >
+
+
+        <!-- =================================================
+             STEREOTYPE BOXES
+        ================================================== -->
+
+        <section class="panel box-panel">
+
+            <div class="panel-title">
+                Stereotype Boxes
             </div>
-            <div class="card-list">
-              <div class="stereotype-card" data-id="boys_dont_cry">Boys should never cry</div>
-              <div class="stereotype-card" data-id="boys_tough">Boys must always be tough</div>
-              <div class="stereotype-card" data-id="boys_no_care">Boys shouldn’t like caring for babies</div>
-              <div class="stereotype-card" data-id="boys_no_art">Boys shouldn’t like art or dance</div>
-              <div class="stereotype-card" data-id="boys_dominate">Boys should be the boss in every group</div>
+
+            <div class="panel-subtitle">
+                Tap any card to question the rule and replace it with a fair belief.
             </div>
-          </div>
 
-          <div class="box" id="girlBox">
-            <div class="box-header">
-              <div class="box-icon">🧍‍♀️</div>
-              <div>
-                <div class="box-name">“Good Girl” Box</div>
-                <div class="box-desc">Narrow ideas about how girls “should” behave and feel.[file:35]</div>
-              </div>
+
+            <div class="boxes">
+
+
+                <!-- BOYS BOX -->
+
+                <div class="stereotype-box blue-box">
+
+                    <div class="box-head">
+
+                        <div class="box-icon">
+                            🧍‍♂️
+                        </div>
+
+                        <div>
+
+                            <div class="box-name">
+                                Act Like a Man Box
+                            </div>
+
+                            <div class="box-desc">
+                                Narrow rules about how boys are expected to feel or behave.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="card-list"
+                        id="boyCards"
+                    ></div>
+
+                </div>
+
+
+                <!-- GIRLS BOX -->
+
+                <div class="stereotype-box">
+
+                    <div class="box-head">
+
+                        <div class="box-icon">
+                            🧍‍♀️
+                        </div>
+
+                        <div>
+
+                            <div class="box-name">
+                                Good Girl Box
+                            </div>
+
+                            <div class="box-desc">
+                                Narrow rules about how girls are expected to behave or what they can do.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="card-list"
+                        id="girlCards"
+                    ></div>
+
+                </div>
+
+
             </div>
-            <div class="card-list">
-              <div class="stereotype-card" data-id="girls_quiet">Girls should always be quiet and polite</div>
-              <div class="stereotype-card" data-id="girls_no_lead">Girls cannot be good leaders</div>
-              <div class="stereotype-card" data-id="girls_weak">Girls are weak and need protection</div>
-              <div class="stereotype-card" data-id="girls_no_sports">Girls shouldn’t play rough sports</div>
-              <div class="stereotype-card" data-id="girls_only_look">Girls’ main job is to look pretty</div>
+
+        </section>
+
+
+        <!-- =================================================
+             REAL PEOPLE ZONE
+        ================================================== -->
+
+        <section class="panel right-panel">
+
+
+            <!-- SCORE -->
+
+            <div class="score-row">
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Cards Freed
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="freedCount"
+                    >
+                        0 / 10
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Accuracy
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="accuracyText"
+                    >
+                        100%
+                    </div>
+
+                </div>
+
+
+                <div class="score-card">
+
+                    <div class="score-label">
+                        Role Rank
+                    </div>
+
+                    <div
+                        class="score-value"
+                        id="rankText"
+                    >
+                        Starter
+                    </div>
+
+                </div>
+
+
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="right-panel">
-        <div class="status-row">
-          <div class="status-card">
-            <div class="status-label">Cards Freed</div>
-            <div class="status-value" id="freedCount">0</div>
-          </div>
-          <div class="status-card">
-            <div class="status-label">Box Breaking</div>
-            <div class="status-value" id="progressPercent">0%</div>
-          </div>
-          <div class="status-card">
-            <div class="status-label">Role Rank</div>
-            <div class="status-value" id="rankText">Starter</div>
-          </div>
-        </div>
 
-        <div class="zone-title">Real People Zone</div>
-        <div class="zone-subtitle">Here, everyone is allowed full emotions, skills and dreams – not just box rules.[file:35]</div>
+            <!-- REAL PEOPLE ZONE -->
 
-        <div class="real-zone" id="realZone">
-          <div class="zone-hint" id="zoneHint">Drop a stereotype card here to transform it into a healthy belief.</div>
-          <div class="belief-list" id="beliefList"></div>
-        </div>
+            <div class="real-zone">
 
-        <div class="feedback good" id="feedback"></div>
+                <div class="zone-title">
+                    🌍 Real People Zone
+                </div>
 
-        <div class="controls">
-          <button class="btn-secondary" id="resetBtn">Reset boxes</button>
-          <div id="progressText">Drag each stereotype card into the Real People Zone to break that box rule.</div>
-          <button class="btn-primary" id="finishBtn">Finish</button>
-        </div>
+                <div class="zone-text">
 
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
-      </div>
-    </div>
-  </div>
+                    Real people can have a full range of emotions,
+                    interests, talents and dreams. Gender does not decide
+                    who someone must be.
 
-  <script>
-    // Audio (same assets folder pattern)
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+                </div>
 
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
+            </div>
 
-    // Map stereotype IDs to healthier beliefs (rephrased)
-    const beliefMap = {
-      boys_dont_cry: "Everyone, including boys, can cry and show feelings.",
-      boys_tough: "Everyone can be strong and also gentle when needed.",
-      boys_no_care: "Anyone can care for babies and younger children with love.",
-      boys_no_art: "All genders can enjoy art, music and dance.",
-      boys_dominate: "Anyone can listen, share and lead kindly in a group.",
-      girls_quiet: "Girls can speak up, share ideas and set boundaries.",
-      girls_no_lead: "People of all genders can be great leaders.",
-      girls_weak: "Girls can be physically and emotionally strong.",
-      girls_no_sports: "Anyone can enjoy sports and being active.",
-      girls_only_look: "Girls are valued for their thoughts, talents and character, not just looks."
-    };
 
-    const cards = document.querySelectorAll(".stereotype-card");
-    const realZone = document.getElementById("realZone");
-    const beliefList = document.getElementById("beliefList");
-    const zoneHint = document.getElementById("zoneHint");
+            <!-- QUESTION -->
 
-    const freedCountEl = document.getElementById("freedCount");
-    const progressPercentEl = document.getElementById("progressPercent");
-    const rankTextEl = document.getElementById("rankText");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
-    const resetBtn = document.getElementById("resetBtn");
-    const finishBtn = document.getElementById("finishBtn");
-    const gameWrapper = document.getElementById("gameWrapper");
+            <div
+                class="question-card"
+                id="questionCard"
+            >
 
-    const totalCards = cards.length;
-    let freedCount = 0;
-    let draggingCard = null;
-    let freedIds = new Set();
+                <div class="question-label">
+                    Break this box rule
+                </div>
 
-    function updateScore(){
-      freedCountEl.textContent = freedCount;
-      const percent = Math.round((freedCount / totalCards) * 100);
-      progressPercentEl.textContent = percent + "%";
-      stageIndicator.textContent = "Cards freed: " + freedCount + " / " + totalCards;
+                <div
+                    class="question-stereotype"
+                    id="questionStereotype"
+                ></div>
 
-      if(percent >= 80){
-        rankTextEl.textContent = "Box Breaker";
-      } else if(percent >= 50){
-        rankTextEl.textContent = "Questioner";
-      } else {
-        rankTextEl.textContent = "Starter";
-      }
+                <div class="question-prompt">
+                    Which statement is the fairest and healthiest replacement?
+                </div>
+
+                <div
+                    class="rewrite-options"
+                    id="rewriteOptions"
+                ></div>
+
+            </div>
+
+
+            <!-- FREED BELIEFS -->
+
+            <div class="belief-title">
+                Freed Beliefs
+            </div>
+
+            <div
+                class="belief-list"
+                id="beliefList"
+            ></div>
+
+
+            <!-- FEEDBACK -->
+
+            <div
+                class="feedback"
+                id="feedback"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- CONTROLS -->
+
+            <div class="controls">
+
+
+                <button
+                    class="btn btn-secondary"
+                    id="resetBtn"
+                    type="button"
+                >
+                    Reset Boxes
+                </button>
+
+
+                <div id="progressText">
+                    Tap a stereotype card to begin.
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    id="finishBtn"
+                    type="button"
+                    disabled
+                >
+                    Finish
+                </button>
+
+
+            </div>
+
+
+            <!-- VOLUME -->
+
+            <div class="volume">
+
+                <span>
+                    🔊 Sounds
+                </span>
+
+                <input
+                    type="range"
+                    id="volumeSlider"
+                    min="0"
+                    max="100"
+                    value="80"
+                >
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+/* ======================================================
+   SPLASH
+====================================================== */
+
+const splash =
+    document.getElementById(
+        "splash"
+    );
+
+const game =
+    document.getElementById(
+        "game"
+    );
+
+setTimeout(
+    () => {
+
+        splash
+            .classList
+            .add(
+                "hide"
+            );
+
+        game
+            .classList
+            .add(
+                "visible"
+            );
+
+    },
+    5000
+);
+
+
+/* ======================================================
+   AUDIO
+====================================================== */
+
+const correctSound =
+    new Audio(
+        "assets/correct.mp3"
+    );
+
+const wrongSound =
+    new Audio(
+        "assets/wrong.mp3"
+    );
+
+const celebrationSound =
+    new Audio(
+        "assets/freesound_community-claps-44774.mp3"
+    );
+
+let volume =
+    .8;
+
+[
+    correctSound,
+    wrongSound,
+    celebrationSound
+]
+.forEach(
+    sound => {
+
+        sound.volume =
+            volume;
+
+    }
+);
+
+function playSound(
+    sound
+){
+
+    sound.currentTime =
+        0;
+
+    sound
+        .play()
+        .catch(
+            () => {}
+        );
+
+}
+
+document
+    .getElementById(
+        "volumeSlider"
+    )
+    .addEventListener(
+        "input",
+        event => {
+
+            volume =
+                event.target.value /
+                100;
+
+            [
+                correctSound,
+                wrongSound,
+                celebrationSound
+            ]
+            .forEach(
+                sound => {
+
+                    sound.volume =
+                        volume;
+
+                }
+            );
+
+        }
+    );
+
+
+/* ======================================================
+   GAME DATA
+====================================================== */
+
+const stereotypes = [
+
+    {
+        id:"boys_dont_cry",
+
+        group:"boy",
+
+        text:
+            "Boys should never cry.",
+
+        correct:
+            "Everyone can show feelings. Crying is a normal human response.",
+
+        distractors:[
+            "Boys should hide sadness but can show anger.",
+            "Boys should only cry when nobody else can see."
+        ]
+    },
+
+
+    {
+        id:"boys_tough",
+
+        group:"boy",
+
+        text:
+            "Boys must always be tough.",
+
+        correct:
+            "People can be strong and also gentle, caring or vulnerable.",
+
+        distractors:[
+            "Boys should act tough even when they need help.",
+            "Being strong means never admitting that something is difficult."
+        ]
+    },
+
+
+    {
+        id:"boys_no_care",
+
+        group:"boy",
+
+        text:
+            "Boys should not like caring for babies.",
+
+        correct:
+            "Anyone can enjoy caring for babies and younger children.",
+
+        distractors:[
+            "Boys can help with babies only when an adult tells them to.",
+            "Caring for babies is mainly for girls, but boys can sometimes assist."
+        ]
+    },
+
+
+    {
+        id:"boys_no_art",
+
+        group:"boy",
+
+        text:
+            "Boys should not like art or dance.",
+
+        correct:
+            "People of any gender can enjoy art, music, dance or any creative activity.",
+
+        distractors:[
+            "Boys can do art, but sports are more suitable for them.",
+            "Dance is fine for boys only if it is competitive."
+        ]
+    },
+
+
+    {
+        id:"boys_dominate",
+
+        group:"boy",
+
+        text:
+            "Boys should be the boss in every group.",
+
+        correct:
+            "Leadership depends on skills, respect and teamwork, not gender.",
+
+        distractors:[
+            "Boys should lead while others help them.",
+            "Boys should lead most groups because they are naturally more confident."
+        ]
+    },
+
+
+    {
+        id:"girls_quiet",
+
+        group:"girl",
+
+        text:
+            "Girls should always be quiet and polite.",
+
+        correct:
+            "Girls can speak up, express opinions and set respectful boundaries.",
+
+        distractors:[
+            "Girls can speak up only when they are asked.",
+            "Girls should stay quiet when other people disagree with them."
+        ]
+    },
+
+
+    {
+        id:"girls_no_lead",
+
+        group:"girl",
+
+        text:
+            "Girls cannot be good leaders.",
+
+        correct:
+            "People of all genders can become effective leaders.",
+
+        distractors:[
+            "Girls can lead only groups made mostly of girls.",
+            "Girls can help leaders but should not make the main decisions."
+        ]
+    },
+
+
+    {
+        id:"girls_weak",
+
+        group:"girl",
+
+        text:
+            "Girls are weak and always need protection.",
+
+        correct:
+            "Strength is individual. Girls can be physically and emotionally strong.",
+
+        distractors:[
+            "Girls can become strong, but boys are naturally stronger in every situation.",
+            "Girls should avoid difficult tasks unless someone protects them."
+        ]
+    },
+
+
+    {
+        id:"girls_no_sports",
+
+        group:"girl",
+
+        text:
+            "Girls should not play rough sports.",
+
+        correct:
+            "Anyone can enjoy sports that suit their interests, abilities and safety.",
+
+        distractors:[
+            "Girls should choose only gentle sports.",
+            "Girls can play rough sports only if boys are not playing."
+        ]
+    },
+
+
+    {
+        id:"girls_only_look",
+
+        group:"girl",
+
+        text:
+            "A girl's main job is to look pretty.",
+
+        correct:
+            "A person's value comes from many qualities, including ideas, character, abilities and actions.",
+
+        distractors:[
+            "Looking attractive should still be a girl's most important quality.",
+            "Girls should focus on appearance first and talents second."
+        ]
     }
 
-    function handleDragStart(e){
-      draggingCard = e.target;
-      draggingCard.classList.add("dragging");
+];
+
+
+/* ======================================================
+   ELEMENTS
+====================================================== */
+
+const boyCards =
+    document.getElementById(
+        "boyCards"
+    );
+
+const girlCards =
+    document.getElementById(
+        "girlCards"
+    );
+
+const questionCard =
+    document.getElementById(
+        "questionCard"
+    );
+
+const questionStereotype =
+    document.getElementById(
+        "questionStereotype"
+    );
+
+const rewriteOptions =
+    document.getElementById(
+        "rewriteOptions"
+    );
+
+const beliefList =
+    document.getElementById(
+        "beliefList"
+    );
+
+const feedback =
+    document.getElementById(
+        "feedback"
+    );
+
+const freedCount =
+    document.getElementById(
+        "freedCount"
+    );
+
+const accuracyText =
+    document.getElementById(
+        "accuracyText"
+    );
+
+const rankText =
+    document.getElementById(
+        "rankText"
+    );
+
+const stageIndicator =
+    document.getElementById(
+        "stageIndicator"
+    );
+
+const progressFill =
+    document.getElementById(
+        "progressFill"
+    );
+
+const progressNumber =
+    document.getElementById(
+        "progressNumber"
+    );
+
+const progressText =
+    document.getElementById(
+        "progressText"
+    );
+
+const finishBtn =
+    document.getElementById(
+        "finishBtn"
+    );
+
+const resetBtn =
+    document.getElementById(
+        "resetBtn"
+    );
+
+const gameWrapper =
+    document.getElementById(
+        "gameWrapper"
+    );
+
+
+/* ======================================================
+   STATE
+====================================================== */
+
+let freedIds =
+    new Set();
+
+let selectedId =
+    null;
+
+let wrongAttempts =
+    0;
+
+let locked =
+    false;
+
+
+/* ======================================================
+   SHUFFLE
+====================================================== */
+
+function shuffle(
+    array
+){
+
+    for(
+        let i =
+            array.length - 1;
+
+        i > 0;
+
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (
+                    i + 1
+                )
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
     }
 
-    function handleDragEnd(e){
-      if(draggingCard){
-        draggingCard.classList.remove("dragging");
-      }
-      draggingCard = null;
+    return array;
+
+}
+
+
+/* ======================================================
+   FIND ITEM
+====================================================== */
+
+function getStereotype(
+    id
+){
+
+    return stereotypes
+        .find(
+            item =>
+                item.id === id
+        );
+
+}
+
+
+/* ======================================================
+   ACCURACY
+====================================================== */
+
+function getAccuracy(){
+
+    const correct =
+        freedIds.size;
+
+    const totalAttempts =
+        correct +
+        wrongAttempts;
+
+    if(
+        totalAttempts === 0
+    ){
+
+        return 100;
+
     }
 
-    cards.forEach(card => {
-      card.draggable = true;
-      card.addEventListener("dragstart", handleDragStart);
-      card.addEventListener("dragend", handleDragEnd);
-    });
+    return Math.round(
+        (
+            correct /
+            totalAttempts
+        ) *
+        100
+    );
 
-    realZone.addEventListener("dragover", e => {
-      e.preventDefault();
-    });
+}
 
-    realZone.addEventListener("drop", e => {
-      e.preventDefault();
-      if(!draggingCard) return;
 
-      const id = draggingCard.dataset.id;
-      if(freedIds.has(id)){
-        feedbackEl.className = "feedback good";
-        feedbackEl.textContent = "This card is already in the Real People Zone. Try breaking another box rule.";
-        feedbackEl.style.display = "block";
-        draggingCard = null;
+/* ======================================================
+   RENDER CARDS
+====================================================== */
+
+function renderCards(){
+
+    boyCards.innerHTML =
+        "";
+
+    girlCards.innerHTML =
+        "";
+
+
+    stereotypes
+        .forEach(
+            item => {
+
+                const button =
+                    document
+                        .createElement(
+                            "button"
+                        );
+
+                button.type =
+                    "button";
+
+                button.className =
+                    "stereotype-card";
+
+                button.dataset.id =
+                    item.id;
+
+
+                if(
+                    selectedId ===
+                    item.id
+                ){
+
+                    button
+                        .classList
+                        .add(
+                            "selected"
+                        );
+
+                }
+
+
+                if(
+                    freedIds.has(
+                        item.id
+                    )
+                ){
+
+                    button
+                        .classList
+                        .add(
+                            "freed"
+                        );
+
+                    button.disabled =
+                        true;
+
+                    button.innerHTML =
+                        `${item.text}
+                        <span class="card-status">
+                            ✓ Freed from the box
+                        </span>`;
+
+                }
+
+                else{
+
+                    button.textContent =
+                        item.text;
+
+                }
+
+
+                button
+                    .addEventListener(
+                        "click",
+                        () => {
+
+                            selectStereotype(
+                                item.id
+                            );
+
+                        }
+                    );
+
+
+                if(
+                    item.group ===
+                    "boy"
+                ){
+
+                    boyCards
+                        .appendChild(
+                            button
+                        );
+
+                }
+
+                else{
+
+                    girlCards
+                        .appendChild(
+                            button
+                        );
+
+                }
+
+            }
+        );
+
+}
+
+
+/* ======================================================
+   SELECT STEREOTYPE
+====================================================== */
+
+function selectStereotype(
+    id
+){
+
+    if(
+        freedIds.has(
+            id
+        )
+    ){
+
         return;
-      }
 
-      // Break stereotype
-      freedIds.add(id);
-      draggingCard.style.opacity = 0.3;
-      draggingCard.draggable = false;
+    }
 
-      const beliefText = beliefMap[id] || "Everyone can be themselves without strict gender rules.";
-      const chip = document.createElement("div");
-      chip.className = "belief-chip";
-      chip.textContent = beliefText;
-      beliefList.appendChild(chip);
 
-      freedCount++;
-      updateScore();
-      playGood();
+    selectedId =
+        id;
 
-      zoneHint.style.display = "none";
-      feedbackEl.className = "feedback good";
-      feedbackEl.textContent = "Good job! You changed a stereotype into a fair belief. Stereotypes can hurt people and limit their potential.[file:35]";
-      feedbackEl.style.display = "block";
+    locked =
+        false;
 
-      progressTextEl.textContent = "Keep dragging cards until all box rules are turned into Real People beliefs.";
-      draggingCard = null;
-    });
 
-    resetBtn.addEventListener("click", () => {
-      // reset cards
-      cards.forEach(card => {
-        card.style.opacity = 1;
-        card.draggable = true;
-      });
-      // reset beliefs
-      beliefList.innerHTML = "";
-      zoneHint.style.display = "block";
-      freedIds.clear();
-      freedCount = 0;
-      updateScore();
-      feedbackEl.style.display = "none";
-      progressTextEl.textContent = "Drag each stereotype card into the Real People Zone to break that box rule.";
-    });
+    const item =
+        getStereotype(
+            id
+        );
 
-    finishBtn.addEventListener("click", () => {
-      const percent = Math.round((freedCount / totalCards) * 100);
-      playCelebrate();
 
-      let rank, badge, text;
-      if(percent === 100){
-        rank = "Stereotype Breaker";
-        badge = "💥";
-        text = "You freed all the cards from the gender boxes. You understand that stereotypes are learnt, not natural, and they limit everyone’s potential.[file:35]";
-      } else if(percent >= 60){
-        rank = "Brave Questioner";
-        badge = "🗺";
-        text = "You broke many box rules. Keep noticing and challenging stereotypes in real life to support yourself and others.[file:35]";
-      } else {
-        rank = "New Thinker";
-        badge = "🌱";
-        text = "You started to see how gender stereotypes work. With more practice, you can help create a fairer world for everyone.[file:35]";
-      }
+    questionStereotype.textContent =
+        item.text;
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Box Breaker Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Cards freed: ${freedCount} / ${totalCards} (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Break the Boxes Again</button>
-        </div>
-      `;
-      gameWrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    });
 
-    // Initial score
+    questionCard
+        .classList
+        .add(
+            "active"
+        );
+
+
+    feedback.className =
+        "feedback";
+
+    feedback.textContent =
+        "";
+
+
+    renderCards();
+
+    renderOptions(
+        item
+    );
+
+
+    progressText.textContent =
+        "Choose the fairest replacement for this stereotype.";
+
+
+    if(
+        window
+            .matchMedia(
+                "(max-width:640px)"
+            )
+            .matches
+    ){
+
+        setTimeout(
+            () => {
+
+                questionCard
+                    .scrollIntoView(
+                        {
+                            behavior:"smooth",
+                            block:"start"
+                        }
+                    );
+
+            },
+            80
+        );
+
+    }
+
+}
+
+
+/* ======================================================
+   RENDER OPTIONS
+====================================================== */
+
+function renderOptions(
+    item
+){
+
+    rewriteOptions.innerHTML =
+        "";
+
+
+    const options =
+        shuffle(
+            [
+                {
+                    text:item.correct,
+                    correct:true
+                },
+
+                ...item.distractors
+                    .map(
+                        text => ({
+                            text,
+                            correct:false
+                        })
+                    )
+            ]
+        );
+
+
+    options.forEach(
+        option => {
+
+            const button =
+                document
+                    .createElement(
+                        "button"
+                    );
+
+            button.type =
+                "button";
+
+            button.className =
+                "rewrite-btn";
+
+            button.textContent =
+                option.text;
+
+
+            button
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        checkRewrite(
+                            item,
+                            option,
+                            button
+                        );
+
+                    }
+                );
+
+
+            rewriteOptions
+                .appendChild(
+                    button
+                );
+
+        }
+    );
+
+}
+
+
+/* ======================================================
+   CHECK REWRITE
+====================================================== */
+
+function checkRewrite(
+    item,
+    option,
+    button
+){
+
+    if(
+        locked
+    ){
+
+        return;
+
+    }
+
+
+    /* CORRECT */
+
+    if(
+        option.correct
+    ){
+
+        locked =
+            true;
+
+
+        freedIds.add(
+            item.id
+        );
+
+
+        playSound(
+            correctSound
+        );
+
+
+        button
+            .classList
+            .add(
+                "correct"
+            );
+
+
+        document
+            .querySelectorAll(
+                ".rewrite-btn"
+            )
+            .forEach(
+                optionButton => {
+
+                    optionButton.disabled =
+                        true;
+
+                }
+            );
+
+
+        feedback.className =
+            "feedback good";
+
+
+        feedback.innerHTML =
+            `✅ <b>Box broken!</b> ${item.correct}`;
+
+
+        addBelief(
+            item
+        );
+
+
+        selectedId =
+            null;
+
+
+        setTimeout(
+            () => {
+
+                questionCard
+                    .classList
+                    .remove(
+                        "active"
+                    );
+
+                renderCards();
+
+                updateScore();
+
+                if(
+                    freedIds.size <
+                    stereotypes.length
+                ){
+
+                    progressText.textContent =
+                        "Great. Tap another stereotype card.";
+
+                }
+
+            },
+            700
+        );
+
+    }
+
+
+    /* WRONG */
+
+    else{
+
+        wrongAttempts++;
+
+
+        playSound(
+            wrongSound
+        );
+
+
+        button
+            .classList
+            .add(
+                "wrong"
+            );
+
+
+        button.disabled =
+            true;
+
+
+        feedback.className =
+            "feedback warn";
+
+
+        feedback.innerHTML =
+            "💡 That statement still keeps part of the stereotype. Look for the option that gives people freedom without gender rules.";
+
+
+        updateScore();
+
+    }
+
+}
+
+
+/* ======================================================
+   ADD FREED BELIEF
+====================================================== */
+
+function addBelief(
+    item
+){
+
+    const chip =
+        document
+            .createElement(
+                "div"
+            );
+
+    chip.className =
+        "belief-chip";
+
+    chip.textContent =
+        `✓ ${item.correct}`;
+
+
+    beliefList
+        .appendChild(
+            chip
+        );
+
+}
+
+
+/* ======================================================
+   UPDATE SCORE
+====================================================== */
+
+function updateScore(){
+
+    const correct =
+        freedIds.size;
+
+
+    const percent =
+        Math.round(
+            (
+                correct /
+                stereotypes.length
+            ) *
+            100
+        );
+
+
+    const accuracy =
+        getAccuracy();
+
+
+    freedCount.textContent =
+        `${correct} / ${stereotypes.length}`;
+
+
+    accuracyText.textContent =
+        accuracy +
+        "%";
+
+
+    stageIndicator.textContent =
+        `Boxes broken: ${correct} / ${stereotypes.length}`;
+
+
+    progressNumber.textContent =
+        `${correct} / ${stereotypes.length}`;
+
+
+    progressFill.style.width =
+        percent +
+        "%";
+
+
+    if(
+        correct >= 8 &&
+        accuracy >= 80
+    ){
+
+        rankText.textContent =
+            "Box Breaker";
+
+    }
+
+    else if(
+        correct >= 5
+    ){
+
+        rankText.textContent =
+            "Questioner";
+
+    }
+
+    else{
+
+        rankText.textContent =
+            "Starter";
+
+    }
+
+
+    finishBtn.disabled =
+        correct !==
+        stereotypes.length;
+
+
+    finishBtn
+        .classList
+        .toggle(
+            "finish-ready",
+            correct ===
+            stereotypes.length
+        );
+
+
+    if(
+        correct ===
+        stereotypes.length
+    ){
+
+        progressText.textContent =
+            "All 10 stereotype cards are free. Finish the activity!";
+
+
+        if(
+            window
+                .matchMedia(
+                    "(max-width:640px)"
+                )
+                .matches
+        ){
+
+            setTimeout(
+                () => {
+
+                    finishBtn
+                        .scrollIntoView(
+                            {
+                                behavior:"smooth",
+                                block:"nearest"
+                            }
+                        );
+
+                },
+                100
+            );
+
+        }
+
+    }
+
+}
+
+
+/* ======================================================
+   RESET GAME
+====================================================== */
+
+function resetGame(){
+
+    freedIds.clear();
+
+    selectedId =
+        null;
+
+    wrongAttempts =
+        0;
+
+    locked =
+        false;
+
+
+    beliefList.innerHTML =
+        "";
+
+
+    questionCard
+        .classList
+        .remove(
+            "active"
+        );
+
+
+    feedback.className =
+        "feedback";
+
+    feedback.textContent =
+        "";
+
+
+    progressText.textContent =
+        "Tap a stereotype card to begin.";
+
+
+    renderCards();
+
     updateScore();
-  </script>
+
+}
+
+
+/* ======================================================
+   FINISH
+====================================================== */
+
+function finishGame(){
+
+    if(
+        freedIds.size !==
+        stereotypes.length
+    ){
+
+        feedback.className =
+            "feedback warn";
+
+        feedback.textContent =
+            "Free all 10 stereotype cards before finishing.";
+
+        return;
+
+    }
+
+
+    playSound(
+        celebrationSound
+    );
+
+
+    const accuracy =
+        getAccuracy();
+
+
+    let rank;
+    let badge;
+    let text;
+
+
+    if(
+        accuracy >= 90
+    ){
+
+        rank =
+            "Stereotype Breaker";
+
+        badge =
+            "💥";
+
+        text =
+            "Excellent work. You recognised fair beliefs that give people freedom to express feelings, follow interests, develop strengths and take opportunities without gender stereotypes.";
+
+    }
+
+    else if(
+        accuracy >= 70
+    ){
+
+        rank =
+            "Brave Questioner";
+
+        badge =
+            "🌟";
+
+        text =
+            "You successfully broke all 10 stereotype rules. Keep practising how to recognise statements that sound fair but still contain hidden gender expectations.";
+
+    }
+
+    else{
+
+        rank =
+            "Growing Thinker";
+
+        badge =
+            "🌱";
+
+        text =
+            "You broke every box. With more practice, you will become even better at spotting subtle stereotypes and replacing them with fair beliefs.";
+
+    }
+
+
+    gameWrapper.innerHTML =
+        `
+
+        <section class="final">
+
+            <div class="final-title">
+                Box Breaker Report
+            </div>
+
+            <div class="final-badge">
+                ${badge}
+            </div>
+
+            <div class="final-rank">
+                ${rank}
+            </div>
+
+            <div class="final-score">
+                10 / 10 boxes broken
+                · Accuracy: ${accuracy}%
+            </div>
+
+            <div class="final-text">
+                ${text}
+            </div>
+
+            <button
+                class="btn btn-primary"
+                id="playAgainBtn"
+                type="button"
+            >
+                Break the Boxes Again
+            </button>
+
+        </section>
+
+        `;
+
+
+    document
+        .getElementById(
+            "playAgainBtn"
+        )
+        .addEventListener(
+            "click",
+            () => {
+
+                location.reload();
+
+            }
+        );
+
+
+    window.scrollTo(
+        {
+            top:0,
+            behavior:"smooth"
+        }
+    );
+
+}
+
+
+/* ======================================================
+   EVENTS
+====================================================== */
+
+resetBtn
+    .addEventListener(
+        "click",
+        resetGame
+    );
+
+
+finishBtn
+    .addEventListener(
+        "click",
+        finishGame
+    );
+
+
+/* ======================================================
+   START
+====================================================== */
+
+resetGame();
+
+</script>
+
 </body>
 </html>
