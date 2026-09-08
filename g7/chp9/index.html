@@ -1,3794 +1,4250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Bounce-Back Challenge – Resilience Runner</title>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --ink: #223247;
-      --muted: #66768a;
-      --blue: #5c86f7;
-      --blue-dark: #3d63c9;
-      --sky: #eaf6ff;
-      --mint: #eaf9f1;
-      --green: #35ad76;
-      --green-dark: #237a54;
-      --yellow: #fff5cf;
-      --orange: #f39b49;
-      --red: #dc6b67;
-      --line: #dbe6ef;
-      --card: #ffffff;
-      --soft: #f7fafe;
-      --shadow: 0 14px 34px rgba(55, 83, 115, 0.13);
-    }
-
-    html {
-      width: 100%;
-      overflow-x: hidden;
-      scroll-behavior: smooth;
-    }
-
-    body {
-      width: 100%;
-      min-height: 100vh;
-      min-height: 100dvh;
-
-      overflow-x: hidden;
-      overflow-y: auto;
-
-      font-family:
-        "Trebuchet MS",
-        "Segoe UI",
-        Arial,
-        sans-serif;
-
-      color: var(--ink);
-
-      background:
-        radial-gradient(
-          circle at top left,
-          rgba(135, 201, 255, 0.22),
-          transparent 30%
-        ),
-        radial-gradient(
-          circle at top right,
-          rgba(133, 224, 177, 0.20),
-          transparent 30%
-        ),
-        linear-gradient(
-          180deg,
-          #f8fbff 0%,
-          #eef6ff 100%
-        );
-
-      padding: 16px;
-    }
-
-    button,
-    input {
-      font: inherit;
-    }
-
-    button:focus-visible,
-    input:focus-visible {
-      outline: 3px solid #ffd968;
-      outline-offset: 3px;
-    }
-
-
-    /* =========================================
-       SPLASH
-    ========================================= */
-
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-
-      z-index: 9999;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background: white;
-
-      transition: opacity .45s ease;
-    }
-
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .splash-screen img {
-      width: min(430px, 82vw);
-      height: auto;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Bounce-Back Challenge – Resilience Runner</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+:root{
+  --ink:#24384c;
+  --muted:#6c7f92;
+  --blue:#5f8fe7;
+  --blue2:#eaf3ff;
+  --green:#48b17b;
+  --green2:#eaf8f0;
+  --yellow:#fff3cf;
+  --orange:#ef9b4a;
+  --red:#d96b67;
+  --line:#dce7ef;
+  --panel:#fff;
+  --soft:#f6f9fc;
+}
+
+html{
+  width:100%;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
+
+body{
+  width:100%;
+  min-height:100vh;
+  overflow-x:hidden;
+  overflow-y:auto;
+
+  font-family:
+    "Trebuchet MS",
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  color:var(--ink);
+
+  background:
+    linear-gradient(
+      180deg,
+      #f8fcff,
+      #eef6ff
+    );
+
+  padding:16px;
+}
+
+button,
+input{
+  font:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+  outline:3px solid #ffd565;
+  outline-offset:3px;
+}
+
+
+/* =========================================
+   SPLASH
+========================================= */
+
+.splash{
+  position:fixed;
+  inset:0;
+
+  z-index:9999;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#fff;
+
+  transition:
+    opacity .4s;
+}
+
+.splash.hide{
+  opacity:0;
+  pointer-events:none;
+}
+
+.splash img{
+  width:min(430px,82vw);
+  height:auto;
+
+  animation:
+    float
+    2s
+    ease-in-out
+    infinite;
+}
 
-      animation:
-        splashFloat
-        2s
-        ease-in-out
-        infinite;
-    }
+@keyframes float{
+  50%{
+    transform:
+      translateY(-9px);
+  }
+}
 
-    @keyframes splashFloat {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
 
-      50% {
-        transform: translateY(-10px);
-      }
-    }
+/* =========================================
+   GAME SHELL
+========================================= */
 
+.game{
+  width:min(1120px,100%);
 
-    /* =========================================
-       GAME SHELL
-    ========================================= */
+  margin:0 auto;
 
-    .container {
-      width: min(1120px, 100%);
+  background:#fff;
 
-      margin: 0 auto;
+  border:
+    1px solid
+    #dbe7ef;
 
-      background:
-        rgba(
-          255,
-          255,
-          255,
-          .98
-        );
+  border-radius:28px;
 
-      border:
-        1px solid #d9e6f1;
+  overflow:hidden;
 
-      border-radius: 28px;
+  box-shadow:
+    0 18px 45px
+    rgba(55,82,108,.13);
 
-      overflow: hidden;
+  opacity:0;
 
-      box-shadow:
-        var(--shadow);
+  transition:
+    opacity .4s;
+}
 
-      opacity: 0;
+.game.visible{
+  opacity:1;
+}
 
-      transition:
-        opacity .45s ease;
-    }
 
-    .container.visible {
-      opacity: 1;
-    }
+/* =========================================
+   HEADER
+========================================= */
 
+.header{
+  padding:
+    22px
+    18px
+    18px;
 
-    /* =========================================
-       HEADER
-    ========================================= */
+  text-align:center;
 
-    .header {
-      position: relative;
+  background:
+    linear-gradient(
+      135deg,
+      #e1f3ff,
+      #e7f9ee 55%,
+      #fff2d3
+    );
 
-      padding:
-        22px 20px 18px;
+  border-bottom:
+    1px solid
+    #dbe7ef;
+}
 
-      text-align: center;
+.header h1{
+  font-size:
+    clamp(
+      26px,
+      4vw,
+      38px
+    );
 
-      background:
-        radial-gradient(
-          circle at 18% 18%,
-          rgba(255,255,255,.65),
-          transparent 30%
-        ),
-        linear-gradient(
-          135deg,
-          #dff3ff 0%,
-          #e5f8ed 54%,
-          #fff3d3 100%
-        );
+  line-height:1.1;
 
-      border-bottom:
-        1px solid #d9e6ef;
-    }
+  color:#304f69;
 
-    .header h1 {
-      font-size:
-        clamp(
-          26px,
-          4vw,
-          36px
-        );
+  margin-bottom:6px;
+}
 
-      line-height: 1.15;
+.subtitle{
+  font-size:14px;
 
-      margin-bottom: 6px;
+  font-weight:800;
 
-      color: #23405e;
-    }
+  color:#60768a;
+}
 
-    .subtitle {
-      color: #5c7085;
+.stage{
+  display:inline-block;
 
-      font-size: 14px;
+  margin-top:10px;
 
-      font-weight: 800;
-    }
+  padding:
+    7px
+    14px;
 
-    .stage-indicator {
-      display: inline-block;
+  border-radius:999px;
 
-      margin-top: 10px;
+  background:#fff;
 
-      padding:
-        7px 14px;
+  border:
+    1px solid
+    #cfdeea;
 
-      border-radius: 999px;
+  color:#3f68b0;
 
-      background: white;
+  font-size:13px;
 
-      border:
-        1px solid #cfdeeb;
+  font-weight:900;
+}
 
-      color:
-        var(--blue-dark);
 
-      font-size: 13px;
+/* =========================================
+   INTRO
+========================================= */
 
-      font-weight: 900;
+.intro{
+  display:grid;
 
-      box-shadow:
-        0 4px 12px
-        rgba(60, 94, 128, .08);
-    }
+  grid-template-columns:
+    1fr 1fr;
 
+  gap:9px;
 
-    /* =========================================
-       INTRODUCTION
-    ========================================= */
+  padding:
+    11px
+    16px;
 
-    .intro-bar {
-      display: grid;
+  background:#fbfdff;
 
-      grid-template-columns:
-        1fr 1fr;
+  border-bottom:
+    1px solid
+    #e8eef4;
+}
 
-      gap: 10px;
+.note{
+  padding:
+    10px
+    12px;
 
-      padding:
-        12px 18px;
+  border-radius:13px;
 
-      background:
-        #fbfdff;
+  background:#f5f9fc;
 
-      border-bottom:
-        1px solid #e6eef5;
-    }
+  border:
+    1px solid
+    #e3ebf2;
 
-    .intro-note {
-      min-width: 0;
+  color:#607488;
 
-      padding:
-        11px 13px;
+  font-size:12px;
 
-      border-radius: 14px;
+  line-height:1.45;
+}
 
-      background:
-        #f4f8fc;
 
-      border:
-        1px solid #e3eaf2;
+/* =========================================
+   LAYOUT
+========================================= */
 
-      color:
-        #5c6f83;
+.layout{
+  display:grid;
 
-      font-size: 12px;
+  grid-template-columns:
+    minmax(0,1.16fr)
+    minmax(0,.84fr);
 
-      line-height: 1.45;
+  gap:18px;
 
-      overflow-wrap: anywhere;
-    }
+  padding:18px;
 
+  align-items:start;
+}
 
-    /* =========================================
-       MAIN LAYOUT
-    ========================================= */
+.panel{
+  min-width:0;
 
-    .layout {
-      display: grid;
+  border:
+    1px solid
+    var(--line);
 
-      grid-template-columns:
-        minmax(0, 1.18fr)
-        minmax(0, .92fr);
+  border-radius:20px;
 
-      gap: 18px;
+  background:#fff;
 
-      padding: 18px;
+  box-shadow:
+    0 8px 22px
+    rgba(55,82,108,.06);
+}
 
-      align-items: start;
-    }
 
-    .panel {
-      min-width: 0;
+/* =========================================
+   RUNNER PANEL
+========================================= */
 
-      background: white;
+.runner-panel{
+  padding:15px;
 
-      border:
-        1px solid var(--line);
+  background:
+    linear-gradient(
+      180deg,
+      #fcfeff,
+      #f7fbff
+    );
+}
 
-      border-radius: 20px;
+.panel-title{
+  text-align:center;
 
-      box-shadow:
-        0 8px 22px
-        rgba(51, 77, 105, .07);
-    }
+  font-size:14px;
 
+  font-weight:900;
 
-    /* =========================================
-       RUNNER PANEL
-    ========================================= */
+  letter-spacing:.7px;
 
-    .game-panel {
-      padding: 16px;
+  text-transform:uppercase;
 
-      display: flex;
+  color:#52708a;
 
-      flex-direction: column;
+  margin-bottom:10px;
+}
 
-      gap: 12px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #fcfeff 0%,
-          #f7fbff 100%
-        );
-    }
+/* =========================================
+   RUNNING SCENE
+========================================= */
 
-    .game-title {
-      text-align: center;
+.scene{
+  position:relative;
 
-      font-size: 14px;
+  height:320px;
 
-      text-transform: uppercase;
+  overflow:hidden;
 
-      letter-spacing: .7px;
+  border-radius:19px;
 
-      color: #52708d;
+  border:
+    1px solid
+    #d4e5ef;
 
-      font-weight: 900;
-    }
+  background:
+    linear-gradient(
+      180deg,
+      #cfeeff 0 58%,
+      #dff3d7 59%,
+      #cbe6bb 100%
+    );
 
+  touch-action:pan-y;
+}
 
-    /* =========================================
-       RUNNING SCENE
-    ========================================= */
 
-    .runner-scene {
-      position: relative;
+/* SUN */
 
-      min-height: 300px;
+.sun{
+  position:absolute;
 
-      overflow: hidden;
+  right:24px;
+  top:22px;
 
-      border-radius: 20px;
+  width:46px;
+  height:46px;
 
-      background:
-        radial-gradient(
-          circle at 80% 20%,
-          rgba(255,255,255,.95) 0 6%,
-          transparent 7%
-        ),
-        linear-gradient(
-          to bottom,
-          #cfeeff 0%,
-          #eaf8ff 58%,
-          #dff4d9 59%,
-          #cfe8bf 100%
-        );
+  border-radius:50%;
 
-      border:
-        1px solid #d3e4ef;
+  background:#ffd76a;
 
-      box-shadow:
-        inset 0 -12px 25px
-        rgba(89, 126, 88, .08);
-    }
+  box-shadow:
+    0 0 0 8px
+    rgba(255,215,106,.18);
+}
 
 
-    /* CLOUDS */
+/* CLOUDS */
 
-    .cloud {
-      position: absolute;
+.cloud{
+  position:absolute;
 
-      width: 66px;
-      height: 24px;
+  width:64px;
+  height:22px;
 
-      border-radius: 999px;
+  border-radius:999px;
 
-      background:
-        rgba(255,255,255,.92);
-    }
+  background:
+    rgba(255,255,255,.9);
+}
 
-    .cloud::before,
-    .cloud::after {
-      content: "";
+.cloud:before,
+.cloud:after{
+  content:"";
 
-      position: absolute;
+  position:absolute;
 
-      border-radius: 50%;
+  border-radius:50%;
 
-      background: inherit;
-    }
+  background:inherit;
+}
 
-    .cloud::before {
-      width: 28px;
-      height: 28px;
+.cloud:before{
+  width:28px;
+  height:28px;
 
-      left: 10px;
-      top: -12px;
-    }
+  left:10px;
+  top:-12px;
+}
 
-    .cloud::after {
-      width: 34px;
-      height: 34px;
+.cloud:after{
+  width:34px;
+  height:34px;
 
-      right: 9px;
-      top: -16px;
-    }
+  right:8px;
+  top:-16px;
+}
 
-    .cloud.one {
-      top: 45px;
-      left: 9%;
-    }
+.cloud.c1{
+  top:58px;
+  left:8%;
+}
 
-    .cloud.two {
-      top: 78px;
-      right: 12%;
+.cloud.c2{
+  top:86px;
+  right:18%;
 
-      transform:
-        scale(.78);
-    }
+  transform:
+    scale(.8);
+}
 
 
-    /* SKY TEXT */
+/* SCENE TITLE */
 
-    .sky-text {
-      position: absolute;
+.scene-title{
+  position:absolute;
 
-      top: 14px;
-      left: 50%;
+  left:50%;
+  top:12px;
 
-      width:
-        min(
-          92%,
-          560px
-        );
+  transform:
+    translateX(-50%);
 
-      transform:
-        translateX(-50%);
+  width:
+    min(
+      86%,
+      520px
+    );
 
-      text-align: center;
+  text-align:center;
 
-      font-size: 13px;
+  font-size:12px;
 
-      line-height: 1.35;
+  line-height:1.35;
 
-      font-weight: 900;
+  font-weight:900;
 
-      color: #3d6281;
+  color:#40627f;
 
-      overflow-wrap: anywhere;
-    }
+  z-index:3;
+}
 
 
-    /* GROUND */
+/* GROUND */
 
-    .ground {
-      position: absolute;
+.ground{
+  position:absolute;
 
-      left: 0;
-      right: 0;
-      bottom: 0;
+  left:0;
+  right:0;
+  bottom:0;
 
-      height: 88px;
+  height:96px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #8dce79 0%,
-          #73b662 100%
-        );
-    }
+  background:
+    linear-gradient(
+      #88cb75,
+      #70b35f
+    );
+}
 
 
-    /* TRACK */
+/* TRACK */
 
-    .track {
-      position: absolute;
+.track{
+  position:absolute;
 
-      left: 0;
-      right: 0;
+  left:0;
+  right:0;
 
-      bottom: 28px;
+  bottom:28px;
 
-      height: 36px;
+  height:42px;
 
-      background:
-        #8a6b56;
+  background:#8d6b53;
 
-      border-top:
-        3px solid
-        rgba(255,255,255,.55);
+  border-top:
+    3px solid
+    rgba(255,255,255,.55);
 
-      border-bottom:
-        3px solid
-        rgba(255,255,255,.35);
-    }
+  border-bottom:
+    3px solid
+    rgba(255,255,255,.32);
+}
 
-    .lane-line {
-      position: absolute;
+.track:after{
+  content:"";
 
-      left: 0;
-      right: 0;
+  position:absolute;
 
-      bottom: 44px;
+  left:0;
+  right:0;
+  top:18px;
 
-      height: 3px;
+  height:3px;
 
-      background:
-        repeating-linear-gradient(
-          to right,
-          rgba(255,255,255,.95) 0 34px,
-          transparent 34px 50px
-        );
-    }
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #fff 0 34px,
+      transparent 34px 52px
+    );
 
+  opacity:.85;
+}
 
-    /* =========================================
-       RUNNER
-    ========================================= */
 
-    .runner {
-      position: absolute;
+/* =========================================
+   RUNNER
+========================================= */
 
-      left: 56px;
+.runner-wrap{
+  position:absolute;
 
-      bottom: 58px;
+  left:72px;
+  bottom:66px;
 
-      width: 44px;
-      height: 84px;
+  width:48px;
+  height:86px;
 
-      transform-origin:
-        bottom center;
+  z-index:5;
 
-      transition:
-        left .7s ease;
+  will-change:
+    transform;
+}
 
-      z-index: 4;
-    }
+.runner-figure{
+  position:relative;
 
-    .runner-head {
-      position: absolute;
+  width:48px;
+  height:86px;
 
-      left: 50%;
-      top: 0;
+  transform-origin:
+    bottom center;
+}
 
-      width: 22px;
-      height: 22px;
+.runner-head{
+  position:absolute;
 
-      transform:
-        translateX(-50%);
+  left:50%;
+  top:0;
 
-      border-radius: 50%;
+  width:23px;
+  height:23px;
 
-      background:
-        #ffd0a8;
+  transform:
+    translateX(-50%);
 
-      border:
-        3px solid #4f7cff;
-    }
+  border-radius:50%;
 
-    .runner-body {
-      position: absolute;
+  background:#ffd1aa;
 
-      left: 50%;
-      top: 21px;
+  border:
+    3px solid
+    #4f7cff;
+}
 
-      width: 4px;
-      height: 30px;
+.runner-body{
+  position:absolute;
 
-      transform:
-        translateX(-50%);
+  left:50%;
+  top:22px;
 
-      background:
-        #34506f;
+  width:5px;
+  height:31px;
 
-      border-radius:
-        999px;
-    }
+  transform:
+    translateX(-50%);
 
-    .runner-arm,
-    .runner-leg {
-      position: absolute;
+  background:#334f6d;
 
-      width: 4px;
+  border-radius:999px;
+}
 
-      background:
-        #34506f;
+.arm,
+.leg{
+  position:absolute;
 
-      border-radius:
-        999px;
+  width:4px;
 
-      transform-origin:
-        top center;
-    }
+  background:#334f6d;
 
-    .runner-arm {
-      top: 28px;
+  border-radius:999px;
 
-      height: 26px;
-    }
+  transform-origin:
+    top center;
+}
 
-    .runner-arm.left {
-      left: 48%;
+.arm{
+  top:29px;
+  height:26px;
+}
 
-      transform:
-        rotate(42deg);
-    }
+.arm.a1{
+  left:48%;
 
-    .runner-arm.right {
-      left: 52%;
+  transform:
+    rotate(42deg);
+}
 
-      transform:
-        rotate(-42deg);
-    }
+.arm.a2{
+  left:52%;
 
-    .runner-leg {
-      top: 49px;
+  transform:
+    rotate(-42deg);
+}
 
-      height: 31px;
-    }
+.leg{
+  top:51px;
+  height:32px;
+}
 
-    .runner-leg.left {
-      left: 48%;
+.leg.l1{
+  left:48%;
+}
 
-      animation:
-        legLeft
-        .45s
-        linear
-        infinite;
-    }
+.leg.l2{
+  left:52%;
+}
 
-    .runner-leg.right {
-      left: 52%;
+.running .l1{
+  animation:
+    leg1
+    .34s
+    linear
+    infinite;
+}
 
-      animation:
-        legRight
-        .45s
-        linear
-        infinite;
-    }
+.running .l2{
+  animation:
+    leg2
+    .34s
+    linear
+    infinite;
+}
 
-    @keyframes legLeft {
-      0%,
-      100% {
-        transform:
-          rotate(20deg);
-      }
+.running .a1{
+  animation:
+    arm1
+    .34s
+    linear
+    infinite;
+}
 
-      50% {
-        transform:
-          rotate(-18deg);
-      }
-    }
+.running .a2{
+  animation:
+    arm2
+    .34s
+    linear
+    infinite;
+}
 
-    @keyframes legRight {
-      0%,
-      100% {
-        transform:
-          rotate(-18deg);
-      }
+@keyframes leg1{
+  0%,
+  100%{
+    transform:
+      rotate(24deg);
+  }
 
-      50% {
-        transform:
-          rotate(20deg);
-      }
-    }
+  50%{
+    transform:
+      rotate(-22deg);
+  }
+}
 
-    .runner.jump {
-      animation:
-        jumpArc
-        .78s
-        ease-out;
-    }
+@keyframes leg2{
+  0%,
+  100%{
+    transform:
+      rotate(-22deg);
+  }
 
-    @keyframes jumpArc {
-      0% {
-        transform:
-          translateY(0)
-          rotate(0);
-      }
+  50%{
+    transform:
+      rotate(24deg);
+  }
+}
 
-      48% {
-        transform:
-          translateY(-84px)
-          rotate(-3deg);
-      }
+@keyframes arm1{
+  0%,
+  100%{
+    transform:
+      rotate(40deg);
+  }
 
-      100% {
-        transform:
-          translateY(0)
-          rotate(0);
-      }
-    }
+  50%{
+    transform:
+      rotate(-35deg);
+  }
+}
 
+@keyframes arm2{
+  0%,
+  100%{
+    transform:
+      rotate(-35deg);
+  }
 
-    /* =========================================
-       BARRIER
-    ========================================= */
+  50%{
+    transform:
+      rotate(40deg);
+  }
+}
 
-    .barrier {
-      position: absolute;
 
-      right: 84px;
+/* =========================================
+   HURDLE
+========================================= */
 
-      bottom: 61px;
+.hurdle{
+  position:absolute;
 
-      width: 34px;
-      height: 56px;
+  left:0;
+  bottom:67px;
 
-      border-radius:
-        7px 7px 3px 3px;
+  width:38px;
+  height:58px;
 
-      background:
-        linear-gradient(
-          180deg,
-          #ffb55e 0%,
-          #ef8339 100%
-        );
+  z-index:4;
 
-      border:
-        3px solid white;
+  will-change:
+    transform;
+}
 
-      box-shadow:
-        0 7px 14px
-        rgba(125, 75, 35, .18);
+.hurdle-post{
+  position:absolute;
 
-      z-index: 3;
-    }
+  bottom:0;
 
-    .barrier::before,
-    .barrier::after {
-      content: "";
+  width:6px;
+  height:50px;
 
-      position: absolute;
+  border-radius:3px;
 
-      left: -8px;
+  background:#e77e37;
 
-      width: 50px;
-      height: 7px;
+  border:
+    2px solid
+    #fff;
+}
 
-      border-radius:
-        999px;
+.hurdle-post.p1{
+  left:4px;
+}
 
-      background:
-        #ef8339;
+.hurdle-post.p2{
+  right:4px;
+}
 
-      border:
-        2px solid white;
-    }
+.hurdle-bar{
+  position:absolute;
 
-    .barrier::before {
-      top: 10px;
-    }
+  left:0;
+  right:0;
+  top:9px;
 
-    .barrier::after {
-      top: 31px;
-    }
+  height:8px;
 
+  border-radius:999px;
 
-    /* =========================================
-       SCENE MESSAGE
-    ========================================= */
+  background:#f39a49;
 
-    .scene-message {
-      display: flex;
+  border:
+    2px solid
+    #fff;
 
-      align-items: center;
+  box-shadow:
+    0 3px 8px
+    rgba(130,72,33,.16);
+}
 
-      gap: 10px;
+.hurdle-foot{
+  position:absolute;
 
-      padding:
-        12px 13px;
+  bottom:0;
+  left:-4px;
 
-      border-radius:
-        14px;
+  width:46px;
+  height:6px;
 
-      background:
-        #edf7ff;
+  border-radius:999px;
 
-      border:
-        1px solid #d7e8f6;
+  background:#e77e37;
 
-      color:
-        #4b6680;
+  border:
+    2px solid
+    #fff;
+}
 
-      font-size:
-        13px;
 
-      line-height:
-        1.45;
-    }
+/* JUMP WARNING */
 
-    .scene-message span:first-child {
-      font-size: 22px;
+.warning{
+  position:absolute;
 
-      flex-shrink: 0;
-    }
+  right:16px;
+  bottom:118px;
 
+  padding:
+    6px
+    9px;
 
-    /* =========================================
-       RIGHT PANEL
-    ========================================= */
+  border-radius:999px;
 
-    .right-panel {
-      padding: 16px;
+  background:#fff4d7;
 
-      display: flex;
+  border:
+    1px solid
+    #ead39b;
 
-      flex-direction: column;
+  color:#8b651d;
 
-      gap: 12px;
-    }
+  font-size:10px;
 
+  font-weight:900;
 
-    /* SCORE */
+  opacity:0;
 
-    .score-row {
-      display: grid;
+  transition:
+    opacity .2s;
+}
 
-      grid-template-columns:
-        repeat(
-          3,
-          minmax(0, 1fr)
-        );
+.warning.show{
+  opacity:1;
+}
 
-      gap: 8px;
-    }
 
-    .score-card {
-      min-width: 0;
+/* =========================================
+   SCENE STATUS
+========================================= */
 
-      padding:
-        10px 7px;
+.scene-status{
+  display:flex;
 
-      text-align: center;
+  align-items:center;
 
-      border-radius:
-        14px;
+  gap:9px;
 
-      background:
-        #f8fbff;
+  margin-top:10px;
 
-      border:
-        1px solid #dce7f2;
-    }
+  padding:
+    11px
+    12px;
 
-    .score-label {
-      color:
-        #75869a;
+  border-radius:14px;
 
-      font-size:
-        10px;
+  background:#eef7ff;
 
-      line-height:
-        1.2;
+  border:
+    1px solid
+    #d7e8f6;
 
-      font-weight:
-        900;
+  color:#4f687f;
 
-      text-transform:
-        uppercase;
+  font-size:12px;
 
-      overflow-wrap:
-        anywhere;
-    }
+  line-height:1.45;
+}
 
-    .score-value {
-      margin-top:
-        3px;
+.scene-status .emoji{
+  font-size:21px;
 
-      color:
-        var(--blue-dark);
+  flex-shrink:0;
+}
 
-      font-size:
-        18px;
 
-      font-weight:
-        900;
-    }
+/* =========================================
+   JUMP CONTROL
+========================================= */
 
+.jump-zone{
+  display:grid;
 
-    /* =========================================
-       RESILIENCE METER
-    ========================================= */
+  grid-template-columns:
+    1fr auto;
 
-    .meter-card {
-      padding: 12px;
+  gap:9px;
 
-      border-radius:
-        15px;
+  align-items:center;
 
-      background:
-        #f5fbf7;
+  margin-top:10px;
+}
 
-      border:
-        1px solid #d8ebdf;
-    }
+.jump-help{
+  font-size:11px;
 
-    .meter-label {
-      margin-bottom:
-        7px;
+  color:#6d7f91;
 
-      text-align:
-        center;
+  line-height:1.4;
+}
 
-      font-size:
-        12px;
+.jump-btn{
+  min-width:150px;
 
-      font-weight:
-        900;
+  min-height:52px;
 
-      color:
-        #4c705c;
+  border:0;
 
-      text-transform:
-        uppercase;
+  border-radius:15px;
 
-      letter-spacing:
-        .5px;
-    }
+  background:
+    linear-gradient(
+      135deg,
+      #ffe17f,
+      #ffb65d
+    );
 
-    .meter-bar {
-      position:
-        relative;
+  color:#624817;
 
-      height: 18px;
+  font-weight:900;
 
-      overflow:
-        hidden;
+  cursor:pointer;
 
-      border-radius:
-        999px;
+  box-shadow:
+    0 6px 16px
+    rgba(218,151,54,.22);
+}
 
-      background:
-        #e6ece9;
-    }
+.jump-btn:active:not(:disabled){
+  transform:
+    translateY(1px)
+    scale(.99);
+}
 
-    .meter-fill {
-      position:
-        absolute;
+.jump-btn:disabled{
+  opacity:.43;
 
-      inset:
-        0 auto 0 0;
+  cursor:not-allowed;
 
-      width: 50%;
+  box-shadow:none;
+}
 
-      border-radius:
-        inherit;
 
-      background:
-        linear-gradient(
-          90deg,
-          #ffb15e 0%,
-          #55c789 100%
-        );
+/* =========================================
+   INFO PANEL
+========================================= */
 
-      transition:
-        width .35s ease;
-    }
+.info-panel{
+  padding:15px;
 
-    .meter-text {
-      position:
-        relative;
+  display:flex;
 
-      z-index: 2;
+  flex-direction:column;
 
-      height: 100%;
+  gap:11px;
 
-      display:
-        flex;
+  background:#fffefa;
+}
 
-      align-items:
-        center;
 
-      justify-content:
-        center;
+/* SCORE */
 
-      color:
-        #2f4b3d;
+.score-row{
+  display:grid;
 
-      font-size:
-        11px;
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0,1fr)
+    );
 
-      font-weight:
-        900;
-    }
+  gap:6px;
+}
 
+.score-card{
+  min-width:0;
 
-    /* =========================================
-       SCENARIO
-    ========================================= */
+  padding:
+    9px
+    5px;
 
-    .scenario-card {
-      padding: 14px;
+  text-align:center;
 
-      border-radius:
-        16px;
+  border-radius:13px;
 
-      background:
-        var(--yellow);
+  background:#f8fbff;
 
-      border:
-        1px solid #eddda5;
-    }
+  border:
+    1px solid
+    #dce7f1;
+}
 
-    .scenario-title {
-      margin-bottom:
-        6px;
+.score-label{
+  font-size:9px;
 
-      color:
-        #9c6b0e;
+  line-height:1.2;
 
-      font-size:
-        12px;
+  text-transform:uppercase;
 
-      font-weight:
-        900;
+  font-weight:900;
 
-      text-transform:
-        uppercase;
+  color:#75869a;
 
-      letter-spacing:
-        .55px;
-    }
+  overflow-wrap:anywhere;
+}
 
-    .scenario-text {
-      color:
-        #51482e;
+.score-value{
+  margin-top:3px;
 
-      font-size:
-        14px;
+  font-size:16px;
 
-      line-height:
-        1.48;
+  font-weight:900;
 
-      overflow-wrap:
-        anywhere;
-    }
+  color:#3f68b0;
+}
 
 
-    /* =========================================
-       TIP
-    ========================================= */
+/* =========================================
+   PROGRESS METER
+========================================= */
 
-    .tip-box {
-      padding:
-        11px 12px;
+.meter{
+  padding:
+    10px
+    11px;
 
-      border-radius:
-        14px;
+  border-radius:14px;
 
-      background:
-        #f5f8fc;
+  background:#f4faf6;
 
-      border:
-        1px solid #e2e9f1;
+  border:
+    1px solid
+    #dbeadf;
+}
 
-      color:
-        #62758b;
+.meter-head{
+  display:flex;
 
-      font-size:
-        12px;
+  justify-content:space-between;
 
-      line-height:
-        1.45;
+  gap:8px;
 
-      overflow-wrap:
-        anywhere;
-    }
+  font-size:10px;
 
+  font-weight:900;
 
-    /* =========================================
-       RESPONSE OPTIONS
-    ========================================= */
+  color:#597467;
 
-    .response-area {
-      display:
-        none;
+  margin-bottom:6px;
+}
 
-      flex-direction:
-        column;
+.meter-track{
+  height:14px;
 
-      gap: 8px;
-    }
+  border-radius:999px;
 
-    .response-area.active {
-      display: flex;
-    }
+  background:#e6ece8;
 
-    .response-title {
-      color:
-        #506b87;
+  overflow:hidden;
+}
 
-      font-size:
-        12px;
+.meter-fill{
+  height:100%;
 
-      font-weight:
-        900;
+  width:0;
 
-      text-transform:
-        uppercase;
+  background:
+    linear-gradient(
+      90deg,
+      #f0a052,
+      #56c286
+    );
 
-      letter-spacing:
-        .5px;
-    }
+  transition:
+    width .3s;
+}
 
-    .choice-btn {
-      width: 100%;
 
-      border:
-        2px solid #dbe5ef;
+/* =========================================
+   SCENARIO
+========================================= */
 
-      border-radius:
-        15px;
+.scenario{
+  padding:13px;
 
-      padding:
-        12px 13px;
+  border-radius:15px;
 
-      text-align:
-        left;
+  background:var(--yellow);
 
-      background:
-        white;
+  border:
+    1px solid
+    #eadca9;
+}
 
-      color:
-        #314861;
+.scenario-label{
+  font-size:10px;
 
-      font-size:
-        13px;
+  text-transform:uppercase;
 
-      line-height:
-        1.45;
+  letter-spacing:.5px;
 
-      font-weight:
-        700;
+  font-weight:900;
 
-      cursor:
-        pointer;
+  color:#946b19;
 
-      transition:
-        .18s ease;
+  margin-bottom:4px;
+}
 
-      overflow-wrap:
-        anywhere;
-    }
+.scenario-text{
+  font-size:13px;
 
-    .choice-btn:hover:not(:disabled) {
-      border-color:
-        #7ca6ff;
+  line-height:1.48;
 
-      transform:
-        translateY(-1px);
+  color:#5f5434;
+}
 
-      box-shadow:
-        0 6px 14px
-        rgba(76, 115, 157, .10);
-    }
 
-    .choice-btn.good-choice {
-      border-color:
-        #5fc58d;
+/* =========================================
+   TIP
+========================================= */
 
-      background:
-        #ecf9f2;
+.tip{
+  padding:
+    10px
+    11px;
 
-      color:
-        #256848;
-    }
+  border-radius:13px;
 
-    .choice-btn.bad-choice {
-      border-color:
-        #e38b86;
+  background:#f5f8fb;
 
-      background:
-        #fff1f0;
+  border:
+    1px solid
+    #e1e9ef;
 
-      color:
-        #8a403e;
-    }
+  color:#65778b;
 
-    .choice-btn:disabled {
-      cursor:
-        default;
-    }
+  font-size:11px;
 
+  line-height:1.45;
+}
 
-    /* =========================================
-       FEEDBACK
-    ========================================= */
 
-    .feedback {
-      display:
-        none;
+/* =========================================
+   RESPONSE OPTIONS
+========================================= */
 
-      padding:
-        11px 12px;
+.responses{
+  display:none;
 
-      border-radius:
-        14px;
+  flex-direction:column;
 
-      font-size:
-        12px;
+  gap:7px;
+}
 
-      line-height:
-        1.45;
+.responses.active{
+  display:flex;
+}
 
-      overflow-wrap:
-        anywhere;
-    }
+.response-title{
+  font-size:11px;
 
-    .feedback.good {
-      display:
-        block;
+  text-transform:uppercase;
 
-      background:
-        #ebf9f1;
+  letter-spacing:.5px;
 
-      border:
-        1px solid #b8e4ca;
+  font-weight:900;
 
-      color:
-        #286848;
-    }
+  color:#586f84;
+}
 
-    .feedback.warn {
-      display:
-        block;
+.choice{
+  width:100%;
 
-      background:
-        #fff3e7;
+  min-height:50px;
 
-      border:
-        1px solid #efc79f;
+  padding:
+    10px
+    11px;
 
-      color:
-        #865224;
-    }
+  border:
+    2px solid
+    #dbe5ef;
 
+  border-radius:14px;
 
-    /* =========================================
-       CONTROLS
-    ========================================= */
+  background:#fff;
 
-    .controls {
-      display: grid;
+  color:#344d65;
 
-      grid-template-columns:
-        auto 1fr;
+  text-align:left;
 
-      gap: 10px;
+  font-size:11px;
 
-      align-items:
-        center;
-    }
+  line-height:1.43;
 
-    .action-buttons {
-      display: grid;
+  font-weight:800;
 
-      grid-template-columns:
-        1fr 1fr;
+  cursor:pointer;
+}
 
-      gap: 8px;
-    }
+.choice:hover:not(:disabled){
+  border-color:#80a7e7;
+}
 
-    .btn-primary,
-    .btn-secondary,
-    .jump-button {
-      min-height:
-        46px;
+.choice.correct{
+  border-color:#7fc79d;
 
-      border-radius:
-        14px;
+  background:#edf9f2;
 
-      cursor:
-        pointer;
+  color:#2b704e;
+}
 
-      font-weight:
-        900;
+.choice.wrong{
+  border-color:#dc8581;
 
-      transition:
-        .18s ease;
-    }
+  background:#fff0ef;
 
-    .btn-primary {
-      border:
-        0;
+  color:#8a4643;
+}
 
-      padding:
-        11px 15px;
+.choice:disabled{
+  cursor:default;
+}
 
-      color:
-        white;
 
-      background:
-        linear-gradient(
-          135deg,
-          #5f89f7,
-          #4eba86
-        );
+/* =========================================
+   FEEDBACK
+========================================= */
 
-      box-shadow:
-        0 6px 15px
-        rgba(73, 126, 168, .18);
-    }
+.feedback{
+  display:none;
 
-    .btn-secondary {
-      border:
-        1px solid #d3dee9;
+  padding:
+    10px
+    11px;
 
-      padding:
-        10px 13px;
+  border-radius:13px;
 
-      color:
-        #566c83;
+  font-size:11px;
 
-      background:
-        #f6f9fc;
-    }
+  line-height:1.45;
+}
 
-    .jump-button {
-      border:
-        0;
+.feedback.good{
+  display:block;
 
-      padding:
-        12px 15px;
+  background:#ebf9f1;
 
-      color:
-        #5a4517;
+  border:
+    1px solid
+    #b5e0c6;
 
-      background:
-        linear-gradient(
-          135deg,
-          #ffe082,
-          #ffb65f
-        );
+  color:#286a49;
+}
 
-      box-shadow:
-        0 6px 15px
-        rgba(222, 155, 63, .22);
-    }
+.feedback.warn{
+  display:block;
 
-    .btn-primary:hover,
-    .btn-secondary:hover,
-    .jump-button:hover {
-      transform:
-        translateY(-1px);
-    }
+  background:#fff4e5;
 
-    .btn-primary:disabled,
-    .jump-button:disabled {
-      opacity:
-        .45;
+  border:
+    1px solid
+    #edca9d;
 
-      cursor:
-        not-allowed;
+  color:#80551e;
+}
 
-      transform:
-        none;
 
-      box-shadow:
-        none;
-    }
+/* =========================================
+   CONTROLS
+========================================= */
 
-    #progressText {
-      color:
-        #6b7d90;
+.controls{
+  display:grid;
 
-      font-size:
-        11px;
+  grid-template-columns:
+    auto 1fr auto;
 
-      line-height:
-        1.4;
+  gap:8px;
 
-      text-align:
-        center;
+  align-items:center;
+}
 
-      overflow-wrap:
-        anywhere;
-    }
+.btn{
+  min-height:44px;
 
+  border-radius:13px;
 
-    /* =========================================
-       NEXT BUTTON
-    ========================================= */
+  font-weight:900;
 
-    .next-row {
-      display:
-        none;
-    }
+  cursor:pointer;
+}
 
-    .next-row.active {
-      display:
-        block;
-    }
+.btn-secondary{
+  padding:
+    9px
+    11px;
 
-    .next-row .btn-primary {
-      width:
-        100%;
-    }
+  border:
+    1px solid
+    #d4dee8;
 
+  background:#f5f8fb;
 
-    /* =========================================
-       VOLUME
-    ========================================= */
+  color:#5b6f82;
+}
 
-    .volume-control {
-      display:
-        flex;
+.btn-primary{
+  padding:
+    10px
+    14px;
 
-      align-items:
-        center;
+  border:0;
 
-      gap: 8px;
+  background:
+    linear-gradient(
+      135deg,
+      #5f8ee5,
+      #4cb97f
+    );
 
-      color:
-        #7b8a9a;
+  color:#fff;
+}
 
-      font-size:
-        11px;
-    }
+.btn:disabled{
+  opacity:.42;
 
-    .volume-control input {
-      flex:
-        1;
+  cursor:not-allowed;
+}
 
-      min-width:
-        0;
-    }
+#progressText{
+  font-size:10px;
 
+  line-height:1.4;
 
-    /* =========================================
-       FINAL SCREEN
-    ========================================= */
+  color:#718296;
 
-    .final-screen {
-      grid-column:
-        1 / -1;
+  text-align:center;
+}
 
-      padding:
-        34px 22px;
 
-      text-align:
-        center;
+/* =========================================
+   NEXT
+========================================= */
 
-      background:
-        white;
+.next-row{
+  display:none;
+}
 
-      border:
-        1px solid var(--line);
+.next-row.active{
+  display:block;
+}
 
-      border-radius:
-        20px;
+.next-row .btn-primary{
+  width:100%;
 
-      box-shadow:
-        0 8px 22px
-        rgba(51, 77, 105, .07);
-    }
+  min-height:48px;
+}
 
-    .final-title {
-      color:
-        var(--blue-dark);
 
-      font-size:
-        26px;
+/* =========================================
+   VOLUME
+========================================= */
 
-      font-weight:
-        900;
+.volume{
+  display:flex;
 
-      margin-bottom:
-        8px;
-    }
+  align-items:center;
 
-    .final-badge {
-      font-size:
-        58px;
+  gap:7px;
 
-      margin:
-        10px 0;
-    }
+  font-size:10px;
 
-    .final-rank {
-      font-size:
-        22px;
+  color:#7b8998;
+}
 
-      font-weight:
-        900;
+.volume input{
+  flex:1;
 
-      margin-bottom:
-        6px;
-    }
+  min-width:0;
+}
 
-    .final-score {
-      font-size:
-        17px;
 
-      font-weight:
-        800;
+/* =========================================
+   FINAL
+========================================= */
 
-      margin:
-        8px 0;
+.final{
+  grid-column:1/-1;
 
-      color:
-        #53677d;
-    }
+  padding:
+    36px
+    22px;
 
-    .final-text {
-      max-width:
-        640px;
+  text-align:center;
 
-      margin:
-        0 auto 18px;
+  border:
+    1px solid
+    var(--line);
 
-      color:
-        #64768a;
+  border-radius:20px;
 
-      font-size:
-        14px;
+  background:#fff;
+}
 
-      line-height:
-        1.55;
+.final-title{
+  font-size:27px;
 
-      overflow-wrap:
-        anywhere;
-    }
+  font-weight:900;
 
+  color:#3e67ad;
 
-    /* =========================================
-       TABLET
-    ========================================= */
+  margin-bottom:8px;
+}
 
-    @media
-    (max-width: 900px) {
+.final-badge{
+  font-size:58px;
 
-      .layout {
-        grid-template-columns:
-          1fr;
-      }
+  margin:
+    10px 0;
+}
 
-      .intro-bar {
-        grid-template-columns:
-          1fr;
-      }
+.final-rank{
+  font-size:22px;
 
-    }
+  font-weight:900;
 
+  margin-bottom:6px;
+}
 
-    /* =========================================
-       MOBILE
-    ========================================= */
+.final-score{
+  font-size:16px;
 
-    @media
-    (max-width: 640px) {
+  font-weight:800;
 
-      html,
-      body {
-        width:
-          100%;
+  color:#586d81;
 
-        max-width:
-          100%;
+  margin:
+    8px 0;
+}
 
-        overflow-x:
-          hidden;
+.final-text{
+  max-width:660px;
 
-        overflow-y:
-          auto;
-      }
+  margin:
+    0 auto 18px;
 
-      body {
-        padding:
-          0;
+  color:#67798b;
 
-        background:
-          #f6faff;
-      }
+  font-size:14px;
 
-      .container {
-        width:
-          100%;
+  line-height:1.55;
+}
 
-        max-width:
-          100%;
 
-        min-height:
-          100dvh;
+/* =========================================
+   TABLET
+========================================= */
 
-        margin:
-          0;
+@media(max-width:900px){
 
-        border:
-          0;
+  .layout{
+    grid-template-columns:1fr;
+  }
 
-        border-radius:
-          0;
+  .intro{
+    grid-template-columns:1fr;
+  }
 
-        box-shadow:
-          none;
+}
 
-        overflow:
-          visible;
-      }
 
-      .header {
-        padding:
-          16px 13px 14px;
-      }
+/* =========================================
+   MOBILE
+========================================= */
 
-      .header h1 {
-        font-size:
-          23px;
-      }
+@media(max-width:640px){
 
-      .subtitle {
-        font-size:
-          12px;
-      }
+  html,
+  body{
+    width:100%;
+    max-width:100%;
 
-      .intro-bar {
-        padding:
-          10px;
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
 
-        gap:
-          8px;
-      }
+  body{
+    padding:0;
 
-      .intro-note {
-        padding:
-          9px 10px;
+    background:#f7fbff;
+  }
 
-        font-size:
-          11px;
-      }
+  .game{
+    width:100%;
+    max-width:100%;
 
-      .layout {
-        display:
-          block;
+    margin:0;
 
-        width:
-          100%;
+    border:0;
+    border-radius:0;
 
-        padding:
-          10px;
-      }
+    box-shadow:none;
 
-      .panel {
-        width:
-          100%;
+    overflow:visible;
+  }
 
-        max-width:
-          100%;
+  .header{
+    padding:
+      15px
+      12px
+      13px;
+  }
 
-        min-width:
-          0;
+  .header h1{
+    font-size:22px;
+  }
 
-        border-radius:
-          16px;
-      }
+  .subtitle{
+    font-size:12px;
+  }
 
-      .game-panel {
-        padding:
-          11px;
+  .intro{
+    padding:9px;
 
-        margin-bottom:
-          12px;
-      }
+    gap:6px;
+  }
 
-      .runner-scene {
-        min-height:
-          220px;
-      }
+  .note{
+    font-size:10px;
 
-      .runner {
-        left:
-          28px;
+    padding:
+      8px
+      9px;
+  }
 
-        bottom:
-          54px;
+  .layout{
+    display:block;
 
-        transform:
-          scale(.88);
-      }
+    padding:9px;
+  }
 
-      .barrier {
-        right:
-          34px;
+  .panel{
+    width:100%;
+    max-width:100%;
 
-        bottom:
-          57px;
+    min-width:0;
 
-        transform:
-          scale(.88);
+    border-radius:15px;
+  }
 
-        transform-origin:
-          bottom center;
-      }
+  .runner-panel{
+    padding:10px;
 
-      .sky-text {
-        top:
-          10px;
+    margin-bottom:10px;
+  }
 
-        width:
-          92%;
+  .scene{
+    height:245px;
+  }
 
-        font-size:
-          11px;
-      }
+  .runner-wrap{
+    left:42px;
 
-      .right-panel {
-        padding:
-          12px;
+    bottom:59px;
 
-        width:
-          100%;
+    transform-origin:
+      bottom left;
+  }
 
-        max-width:
-          100%;
+  .runner-figure{
+    transform:
+      scale(.88);
 
-        min-width:
-          0;
-      }
+    transform-origin:
+      bottom left;
+  }
 
-      .score-row {
-        gap:
-          6px;
-      }
+  .hurdle{
+    bottom:60px;
 
-      .score-card {
-        padding:
-          8px 4px;
-      }
+    transform:
+      scale(.9);
 
-      .score-label {
-        font-size:
-          9px;
-      }
+    transform-origin:
+      bottom left;
+  }
 
-      .score-value {
-        font-size:
-          16px;
-      }
+  .scene-title{
+    font-size:10px;
 
-      .scenario-text,
-      .choice-btn {
-        font-size:
-          13px;
-      }
+    top:9px;
+  }
 
-      .controls {
-        grid-template-columns:
-          1fr;
-      }
+  .jump-zone{
+    position:sticky;
 
-      .action-buttons {
-        grid-template-columns:
-          1fr 1fr;
-      }
+    bottom:7px;
 
-      #progressText {
-        order:
-          -1;
+    z-index:30;
 
-        text-align:
-          left;
-      }
+    padding:6px;
 
-      .jump-button,
-      .btn-primary,
-      .btn-secondary {
-        width:
-          100%;
-      }
+    border-radius:15px;
 
-      .volume-control {
-        padding-bottom:
-          calc(
-            8px +
-            env(
-              safe-area-inset-bottom
-            )
-          );
-      }
+    background:
+      rgba(255,255,255,.96);
 
-      /*
-        Keeps the continuation button
-        reachable after answering.
-      */
+    border:
+      1px solid
+      #dce6ee;
+  }
 
-      .next-row.active {
-        position:
-          sticky;
+  .jump-help{
+    font-size:9px;
+  }
 
-        bottom:
-          calc(
-            8px +
-            env(
-              safe-area-inset-bottom
-            )
-          );
+  .jump-btn{
+    min-width:120px;
 
-        z-index:
-          20;
+    min-height:50px;
+  }
 
-        padding-top:
-          4px;
-      }
+  .info-panel{
+    padding:11px;
+  }
 
-      .next-row .btn-primary {
-        border:
-          3px solid white;
+  .score-row{
+    gap:5px;
+  }
 
-        min-height:
-          50px;
+  .score-label{
+    font-size:8px;
+  }
 
-        box-shadow:
-          0 8px 20px
-          rgba(66, 103, 144, .22);
-      }
+  .score-value{
+    font-size:14px;
+  }
 
-    }
+  .controls{
+    grid-template-columns:1fr;
+  }
 
+  .controls .btn{
+    width:100%;
+  }
 
-    /* =========================================
-       VERY SMALL PHONES
-    ========================================= */
+  #progressText{
+    order:-1;
 
-    @media
-    (max-width: 360px) {
+    text-align:left;
+  }
 
-      .header h1 {
-        font-size:
-          20px;
-      }
+  .next-row.active{
+    position:sticky;
 
-      .score-row {
-        grid-template-columns:
-          1fr;
-      }
+    bottom:7px;
 
-      .score-card {
-        display:
-          flex;
+    z-index:29;
 
-        align-items:
-          center;
+    padding-top:3px;
+  }
 
-        justify-content:
-          space-between;
+  .next-row .btn-primary{
+    border:
+      3px solid
+      #fff;
 
-        text-align:
-          left;
-      }
+    box-shadow:
+      0 8px 18px
+      rgba(60,91,124,.18);
+  }
 
-      .score-value {
-        margin-top:
-          0;
-      }
+  .volume{
+    padding-bottom:
+      calc(
+        6px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
 
-      .action-buttons {
-        grid-template-columns:
-          1fr;
-      }
+}
 
-    }
 
+/* =========================================
+   SMALL PHONES
+========================================= */
 
-    /* =========================================
-       REDUCED MOTION
-    ========================================= */
+@media(max-width:360px){
 
-    @media
-    (prefers-reduced-motion: reduce) {
+  .header h1{
+    font-size:19px;
+  }
 
-      *,
-      *::before,
-      *::after {
-        animation-duration:
-          .01ms !important;
+  .score-row{
+    grid-template-columns:1fr;
+  }
 
-        animation-iteration-count:
-          1 !important;
+  .score-card{
+    display:flex;
 
-        transition-duration:
-          .01ms !important;
+    justify-content:
+      space-between;
 
-        scroll-behavior:
-          auto !important;
-      }
+    align-items:center;
 
-    }
+    text-align:left;
+  }
 
-  </style>
+  .score-value{
+    margin:0;
+  }
+
+  .jump-zone{
+    grid-template-columns:1fr;
+  }
+
+  .jump-btn{
+    width:100%;
+  }
+
+}
+
+
+@media(prefers-reduced-motion:reduce){
+
+  *{
+    scroll-behavior:
+      auto !important;
+  }
+
+}
+
+</style>
 </head>
 
 
 <body>
 
 
-  <!-- =========================================
-       SPLASH SCREEN
-  ========================================== -->
+<!-- =========================================
+     SPLASH
+========================================= -->
 
-  <div
-    class="splash-screen"
-    id="splashScreen"
+<div
+  class="splash"
+  id="splash"
+>
+
+  <img
+    src="assets/innovine-logo.png"
+    alt="Innovine Logo"
+    onerror="this.style.display='none'"
   >
 
-    <img
-      src="assets/innovine-logo.png"
-      alt="Innovine Logo"
-      onerror="this.style.display='none'"
-    />
-
-  </div>
+</div>
 
 
-  <!-- =========================================
-       GAME
-  ========================================== -->
+<!-- =========================================
+     GAME
+========================================= -->
 
-  <div
-    class="container"
-    id="mainContainer"
-  >
-
-
-    <!-- HEADER -->
-
-    <header class="header">
-
-      <h1>
-        🏃 Bounce-Back Challenge
-      </h1>
-
-      <div class="subtitle">
-        Resilience Runner · Positive Attitude
-      </div>
-
-      <div
-        class="stage-indicator"
-        id="stageIndicator"
-      >
-        Obstacle 1 of 6
-      </div>
-
-    </header>
+<div
+  class="game"
+  id="game"
+>
 
 
-    <!-- INTRO -->
+  <header class="header">
 
-    <div class="intro-bar">
+    <h1>
+      🏃 Bounce-Back Challenge
+    </h1>
 
-      <div class="intro-note">
+    <div class="subtitle">
+      Resilience Runner · Positive Attitude
+    </div>
 
-        Your school day is a running track. Each obstacle represents a difficult moment. Jump the barrier, then choose the response that shows resilience and a positive attitude.
+    <div
+      class="stage"
+      id="stage"
+    >
+      Obstacle 1 of 6
+    </div>
 
-      </div>
+  </header>
 
 
-      <div class="intro-note">
+  <div class="intro">
 
-        On a phone, the page scrolls normally. You do not need perfect timing: tap Jump when you are ready, then make your choice.
+    <div class="note">
 
-      </div>
+      Run through six school-day challenges.
+      Each hurdle is a setback. Time your jump
+      to clear it, then choose the response that
+      shows resilience.
 
     </div>
 
 
-    <!-- MAIN -->
+    <div class="note">
 
-    <main
-      class="layout"
-      id="gameWrapper"
-    >
+      <b>Controls:</b>
+      tap Jump on a phone, or press Space / ↑
+      on a keyboard. If you hit the hurdle,
+      you simply retry that obstacle.
+
+    </div>
+
+  </div>
 
 
-      <!-- =====================================
-           RUNNER SCENE
-      ====================================== -->
+  <main
+    class="layout"
+    id="gameWrapper"
+  >
 
-      <section
-        class="panel game-panel"
+
+    <!-- =====================================
+         RUNNER
+    ====================================== -->
+
+    <section class="panel runner-panel">
+
+      <div class="panel-title">
+        School Day Run
+      </div>
+
+
+      <div
+        class="scene"
+        id="scene"
+        tabindex="0"
+        aria-label="Running track game"
       >
 
-        <div class="game-title">
-          School Day Run
-        </div>
+        <div class="sun"></div>
+
+        <div class="cloud c1"></div>
+
+        <div class="cloud c2"></div>
 
 
         <div
-          class="runner-scene"
-          id="runnerScene"
+          class="scene-title"
+          id="sceneTitle"
+        >
+          Press Start Run to begin.
+        </div>
+
+
+        <div class="ground"></div>
+
+        <div class="track"></div>
+
+
+        <!-- RUNNER -->
+
+        <div
+          class="runner-wrap"
+          id="runnerWrap"
         >
 
-
-          <div class="cloud one"></div>
-
-          <div class="cloud two"></div>
-
-
           <div
-            class="sky-text"
-            id="skyText"
-          >
-
-            Morning: A new school day begins.
-
-          </div>
-
-
-          <div class="ground"></div>
-
-          <div class="track"></div>
-
-          <div class="lane-line"></div>
-
-
-          <!-- RUNNER -->
-
-          <div
-            class="runner"
-            id="runner"
-            aria-label="Runner"
+            class="runner-figure"
+            id="runnerFigure"
           >
 
             <div class="runner-head"></div>
 
             <div class="runner-body"></div>
 
-            <div class="runner-arm left"></div>
+            <div class="arm a1"></div>
 
-            <div class="runner-arm right"></div>
+            <div class="arm a2"></div>
 
-            <div class="runner-leg left"></div>
+            <div class="leg l1"></div>
 
-            <div class="runner-leg right"></div>
+            <div class="leg l2"></div>
 
           </div>
 
+        </div>
 
-          <!-- BARRIER -->
 
-          <div
-            class="barrier"
-            id="barrier"
-            aria-label="Obstacle barrier"
-          ></div>
+        <!-- HURDLE -->
 
+        <div
+          class="hurdle"
+          id="hurdle"
+        >
+
+          <div class="hurdle-post p1"></div>
+
+          <div class="hurdle-post p2"></div>
+
+          <div class="hurdle-bar"></div>
+
+          <div class="hurdle-foot"></div>
 
         </div>
 
 
         <div
-          class="scene-message"
-          id="sceneMessage"
+          class="warning"
+          id="warning"
         >
-
-          <span>
-            🌱
-          </span>
-
-          <span>
-            Start your run, then clear each obstacle one at a time.
-          </span>
-
+          ⚡ Jump now!
         </div>
 
+      </div>
 
-      </section>
 
-
-      <!-- =====================================
-           GAME INFORMATION
-      ====================================== -->
-
-      <section
-        class="panel right-panel"
+      <div
+        class="scene-status"
+        id="sceneStatus"
       >
 
+        <span class="emoji">
+          🌱
+        </span>
 
-        <!-- SCORE -->
+        <span>
+          Start the run. The first hurdle will move towards you.
+        </span>
 
-        <div class="score-row">
-
-
-          <div class="score-card">
-
-            <div class="score-label">
-              Obstacle
-            </div>
-
-            <div
-              class="score-value"
-              id="obstacleCounter"
-            >
-              1 / 6
-            </div>
-
-          </div>
+      </div>
 
 
-          <div class="score-card">
-
-            <div class="score-label">
-              Positive Choices
-            </div>
-
-            <div
-              class="score-value"
-              id="positiveCount"
-            >
-              0
-            </div>
-
-          </div>
-
-
-          <div class="score-card">
-
-            <div class="score-label">
-              Resilience Score
-            </div>
-
-            <div
-              class="score-value"
-              id="resilienceScore"
-            >
-              0%
-            </div>
-
-          </div>
-
-
-        </div>
-
-
-        <!-- RESILIENCE METER -->
-
-        <div class="meter-card">
-
-          <div class="meter-label">
-            Resilience Meter
-          </div>
-
-
-          <div class="meter-bar">
-
-            <div
-              class="meter-fill"
-              id="meterFill"
-            ></div>
-
-
-            <div
-              class="meter-text"
-              id="meterText"
-            >
-              50%
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- SCENARIO -->
-
-        <div class="scenario-card">
-
-          <div class="scenario-title">
-            Current Situation
-          </div>
-
-          <div
-            class="scenario-text"
-            id="scenarioText"
-          >
-
-            Your day is like a running track. Obstacles will appear, but your attitude decides how you move past them.
-
-          </div>
-
-        </div>
-
-
-        <!-- TIP -->
+      <div class="jump-zone">
 
         <div
-          class="tip-box"
-          id="tipBox"
+          class="jump-help"
+          id="jumpHelp"
         >
 
-          Positive attitude means staying hopeful, noticing what you can control and responding to difficulties constructively.
-
-        </div>
-
-
-        <!-- RESPONSES -->
-
-        <div
-          class="response-area"
-          id="responseArea"
-        >
-
-          <div class="response-title">
-            How will you respond?
-          </div>
-
-
-          <button
-            class="choice-btn"
-            id="qPositive"
-            type="button"
-          ></button>
-
-
-          <button
-            class="choice-btn"
-            id="qNegative"
-            type="button"
-          ></button>
-
-
-        </div>
-
-
-        <!-- FEEDBACK -->
-
-        <div
-          class="feedback"
-          id="feedback"
-          aria-live="polite"
-        ></div>
-
-
-        <!-- CONTROLS -->
-
-        <div class="controls">
-
-          <button
-            class="btn-secondary"
-            id="resetBtn"
-            type="button"
-          >
-            Restart Run
-          </button>
-
-
-          <div id="progressText">
-
-            Tap Start Run to begin.
-
-          </div>
-
-        </div>
-
-
-        <!-- MAIN ACTION BUTTONS -->
-
-        <div class="action-buttons">
-
-
-          <button
-            class="btn-primary"
-            id="startBtn"
-            type="button"
-          >
-            Start Run
-          </button>
-
-
-          <button
-            class="jump-button"
-            id="jumpBtn"
-            type="button"
-            disabled
-          >
-            Jump
-          </button>
-
-
-        </div>
-
-
-        <!-- NEXT -->
-
-        <div
-          class="next-row"
-          id="nextRow"
-        >
-
-          <button
-            class="btn-primary"
-            id="nextBtn"
-            type="button"
-          >
-            Next Obstacle →
-          </button>
-
-        </div>
-
-
-        <!-- VOLUME -->
-
-        <div class="volume-control">
-
-          <span>
-            🔊 Volume
-          </span>
-
-
-          <input
-            type="range"
-            id="volumeSlider"
-            min="0"
-            max="100"
-            value="80"
-          />
-
-        </div>
-
-
-      </section>
-
-
-    </main>
-
-  </div>
-
-
-<script>
-
-
-  /* =========================================
-     SPLASH
-  ========================================= */
-
-  setTimeout(
-    () => {
-
-      document
-        .getElementById(
-          "splashScreen"
-        )
-        .classList
-        .add(
-          "hidden"
-        );
-
-
-      document
-        .getElementById(
-          "mainContainer"
-        )
-        .classList
-        .add(
-          "visible"
-        );
-
-    },
-    5000
-  );
-
-
-  /* =========================================
-     AUDIO
-  ========================================= */
-
-  const goodSound =
-    new Audio(
-      "assets/correct.mp3"
-    );
-
-
-  const badSound =
-    new Audio(
-      "assets/wrong.mp3"
-    );
-
-
-  const finishSound =
-    new Audio(
-      "assets/freesound_community-claps-44774.mp3"
-    );
-
-
-  let volume =
-    0.8;
-
-
-  [
-    goodSound,
-    badSound,
-    finishSound
-  ]
-  .forEach(
-    sound => {
-
-      sound.volume =
-        volume;
-
-    }
-  );
-
-
-  function playSound(
-    sound
-  ) {
-
-    sound.currentTime =
-      0;
-
-
-    sound
-      .play()
-      .catch(
-        () => {}
-      );
-
-  }
-
-
-  document
-    .getElementById(
-      "volumeSlider"
-    )
-    .addEventListener(
-      "input",
-      event => {
-
-        volume =
-          event.target.value /
-          100;
-
-
-        [
-          goodSound,
-          badSound,
-          finishSound
-        ]
-        .forEach(
-          sound => {
-
-            sound.volume =
-              volume;
-
-          }
-        );
-
-      }
-    );
-
-
-  /* =========================================
-     OBSTACLE DATA
-  ========================================= */
-
-  const obstacles = [
-
-
-    /* 1 */
-
-    {
-
-      time:
-        "Morning",
-
-      situation:
-        "You have a big exam today. You studied, but you still feel nervous and your heart is racing.",
-
-      positiveChoice:
-        "Take a few slow breaths, remind yourself of what you prepared and tell yourself that you will try your best.",
-
-      negativeChoice:
-        "Keep telling yourself that you will fail and think about giving up before the exam begins.",
-
-      positiveTip:
-        "A positive attitude can help you calm yourself, manage exam stress and focus on what you can do.",
-
-      negativeTip:
-        "Negative self-talk can increase stress and make it harder to focus."
-
-    },
-
-
-    /* 2 */
-
-    {
-
-      time:
-        "Mid-morning",
-
-      situation:
-        "You see classmates scoring higher marks and sharing their achievements in a group chat.",
-
-      positiveChoice:
-        "Feel happy for them, use their success as motivation and focus on your own progress.",
-
-      negativeChoice:
-        "Compare yourself constantly, feel jealous and decide that you will never be good enough.",
-
-      positiveTip:
-        "Positivity helps you appreciate others while staying focused on your own growth.",
-
-      negativeTip:
-        "Constant comparison can pull attention away from your own strengths and progress."
-
-    },
-
-
-    /* 3 */
-
-    {
-
-      time:
-        "Lunch break",
-
-      situation:
-        "You have homework, activities and sports after school and you feel overwhelmed.",
-
-      positiveChoice:
-        "Make a small plan, do one task at a time and remind yourself that you can handle it step by step.",
-
-      negativeChoice:
-        "Complain all day, do nothing and tell yourself that everything is too difficult.",
-
-      positiveTip:
-        "Breaking a challenge into smaller steps can make it feel manageable and strengthen resilience.",
-
-      negativeTip:
-        "Hopeless thinking can make a difficult situation feel even bigger."
-
-    },
-
-
-    /* 4 */
-
-    {
-
-      time:
-        "Afternoon",
-
-      situation:
-        "You make a mistake while answering in class and a few students giggle.",
-
-      positiveChoice:
-        "Accept the mistake, learn from it and remind yourself that everyone makes mistakes sometimes.",
-
-      negativeChoice:
-        "Feel ashamed, stay silent for the rest of the day and decide never to answer again.",
-
-      positiveTip:
-        "Resilient people learn from mistakes instead of allowing one mistake to stop them from trying.",
-
-      negativeTip:
-        "Fear of making mistakes can stop you from learning and participating."
-
-    },
-
-
-    /* 5 */
-
-    {
-
-      time:
-        "After school",
-
-      situation:
-        "Your friend wins a competition that you also tried for.",
-
-      positiveChoice:
-        "Congratulate your friend, appreciate their success and feel motivated to practise and try again.",
-
-      negativeChoice:
-        "Act cold towards your friend and keep thinking that their success proves you are less talented.",
-
-      positiveTip:
-        "Celebrating another person’s success while continuing to work on your own goals shows confidence and resilience.",
-
-      negativeTip:
-        "Resentment can hurt friendships without helping you improve your own skills."
-
-    },
-
-
-    /* 6 */
-
-    {
-
-      time:
-        "Evening",
-
-      situation:
-        "You feel tired and a family member speaks sharply to you about something small.",
-
-      positiveChoice:
-        "Pause, calm yourself and respond kindly instead of taking the comment personally.",
-
-      negativeChoice:
-        "Shout back, stay angry for the rest of the evening and decide that everything is going badly.",
-
-      positiveTip:
-        "Pausing before reacting helps you manage emotions and choose a constructive response.",
-
-      negativeTip:
-        "Holding onto anger can make one difficult moment affect the rest of your day."
-
-    }
-
-  ];
-
-
-  /* =========================================
-     ELEMENTS
-  ========================================= */
-
-  const runner =
-    document.getElementById(
-      "runner"
-    );
-
-
-  const runnerScene =
-    document.getElementById(
-      "runnerScene"
-    );
-
-
-  const skyText =
-    document.getElementById(
-      "skyText"
-    );
-
-
-  const sceneMessage =
-    document.getElementById(
-      "sceneMessage"
-    );
-
-
-  const obstacleCounterEl =
-    document.getElementById(
-      "obstacleCounter"
-    );
-
-
-  const positiveCountEl =
-    document.getElementById(
-      "positiveCount"
-    );
-
-
-  const resilienceScoreEl =
-    document.getElementById(
-      "resilienceScore"
-    );
-
-
-  const stageIndicator =
-    document.getElementById(
-      "stageIndicator"
-    );
-
-
-  const meterFill =
-    document.getElementById(
-      "meterFill"
-    );
-
-
-  const meterText =
-    document.getElementById(
-      "meterText"
-    );
-
-
-  const scenarioTextEl =
-    document.getElementById(
-      "scenarioText"
-    );
-
-
-  const tipBox =
-    document.getElementById(
-      "tipBox"
-    );
-
-
-  const feedbackEl =
-    document.getElementById(
-      "feedback"
-    );
-
-
-  const progressTextEl =
-    document.getElementById(
-      "progressText"
-    );
-
-
-  const responseArea =
-    document.getElementById(
-      "responseArea"
-    );
-
-
-  const qPositive =
-    document.getElementById(
-      "qPositive"
-    );
-
-
-  const qNegative =
-    document.getElementById(
-      "qNegative"
-    );
-
-
-  const resetBtn =
-    document.getElementById(
-      "resetBtn"
-    );
-
-
-  const startBtn =
-    document.getElementById(
-      "startBtn"
-    );
-
-
-  const jumpBtn =
-    document.getElementById(
-      "jumpBtn"
-    );
-
-
-  const nextBtn =
-    document.getElementById(
-      "nextBtn"
-    );
-
-
-  const nextRow =
-    document.getElementById(
-      "nextRow"
-    );
-
-
-  const gameWrapper =
-    document.getElementById(
-      "gameWrapper"
-    );
-
-
-  /* =========================================
-     GAME STATE
-  ========================================= */
-
-  let currentIndex =
-    0;
-
-
-  let positiveChoices =
-    0;
-
-
-  let resilience =
-    50;
-
-
-  let runStarted =
-    false;
-
-
-  let jumped =
-    false;
-
-
-  let choiceLocked =
-    false;
-
-
-  /* =========================================
-     UPDATE UI
-  ========================================= */
-
-  function updateUI() {
-
-    obstacleCounterEl.textContent =
-      `${currentIndex + 1} / ${obstacles.length}`;
-
-
-    positiveCountEl.textContent =
-      String(
-        positiveChoices
-      );
-
-
-    const scorePercent =
-      Math.round(
-        (
-          positiveChoices /
-          obstacles.length
-        ) *
-        100
-      );
-
-
-    resilienceScoreEl.textContent =
-      scorePercent +
-      "%";
-
-
-    stageIndicator.textContent =
-      `Obstacle ${currentIndex + 1} of ${obstacles.length}`;
-
-
-    resilience =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          resilience
-        )
-      );
-
-
-    meterFill.style.width =
-      resilience +
-      "%";
-
-
-    meterText.textContent =
-      resilience +
-      "%";
-
-  }
-
-
-  /* =========================================
-     RESET RUNNER POSITION
-  ========================================= */
-
-  function resetRunnerPosition() {
-
-    const mobile =
-      window
-        .matchMedia(
-          "(max-width: 640px)"
-        )
-        .matches;
-
-
-    runner.style.left =
-      mobile
-        ?
-        "28px"
-        :
-        "56px";
-
-
-    runner
-      .classList
-      .remove(
-        "jump"
-      );
-
-  }
-
-
-  /* =========================================
-     LOAD OBSTACLE
-  ========================================= */
-
-  function loadObstacle() {
-
-    const obstacle =
-      obstacles[
-        currentIndex
-      ];
-
-
-    choiceLocked =
-      false;
-
-
-    jumped =
-      false;
-
-
-    skyText.textContent =
-      `${obstacle.time}: A new challenge appears.`;
-
-
-    scenarioTextEl.textContent =
-      obstacle.situation;
-
-
-    tipBox.textContent =
-      "Tap Jump when you are ready to clear the barrier. After the jump, choose how you would respond.";
-
-
-    responseArea
-      .classList
-      .remove(
-        "active"
-      );
-
-
-    feedbackEl.className =
-      "feedback";
-
-
-    feedbackEl.textContent =
-      "";
-
-
-    qPositive.className =
-      "choice-btn";
-
-
-    qNegative.className =
-      "choice-btn";
-
-
-    qPositive.disabled =
-      false;
-
-
-    qNegative.disabled =
-      false;
-
-
-    jumpBtn.disabled =
-      !runStarted;
-
-
-    nextRow
-      .classList
-      .remove(
-        "active"
-      );
-
-
-    progressTextEl.textContent =
-      runStarted
-        ?
-        "Tap Jump to clear this obstacle."
-        :
-        "Tap Start Run to begin.";
-
-
-    sceneMessage.innerHTML =
-      `
-
-      <span>
-        🏃
-      </span>
-
-      <span>
-        ${obstacle.time}: clear the barrier, then make a resilient choice.
-      </span>
-
-      `;
-
-
-    resetRunnerPosition();
-
-
-    updateUI();
-
-  }
-
-
-  /* =========================================
-     START
-  ========================================= */
-
-  function startRun() {
-
-    currentIndex =
-      0;
-
-
-    positiveChoices =
-      0;
-
-
-    resilience =
-      50;
-
-
-    runStarted =
-      true;
-
-
-    startBtn.textContent =
-      "Run Active";
-
-
-    startBtn.disabled =
-      true;
-
-
-    loadObstacle();
-
-  }
-
-
-  /* =========================================
-     RESTART
-  ========================================= */
-
-  function restartRun() {
-
-    currentIndex =
-      0;
-
-
-    positiveChoices =
-      0;
-
-
-    resilience =
-      50;
-
-
-    runStarted =
-      true;
-
-
-    startBtn.textContent =
-      "Run Active";
-
-
-    startBtn.disabled =
-      true;
-
-
-    loadObstacle();
-
-
-    window.scrollTo(
-      {
-
-        top:
-          0,
-
-        behavior:
-          "smooth"
-
-      }
-    );
-
-  }
-
-
-  /* =========================================
-     JUMP MECHANIC
-  ========================================= */
-
-  function handleJump() {
-
-    if(
-      !runStarted ||
-      jumped ||
-      choiceLocked
-    ) {
-
-      return;
-
-    }
-
-
-    jumped =
-      true;
-
-
-    jumpBtn.disabled =
-      true;
-
-
-    progressTextEl.textContent =
-      "Great jump! Now choose the response that shows resilience.";
-
-
-    const mobile =
-      window
-        .matchMedia(
-          "(max-width: 640px)"
-        )
-        .matches;
-
-
-    const sceneWidth =
-      runnerScene
-        .getBoundingClientRect()
-        .width;
-
-
-    const targetLeft =
-      mobile
-        ?
-        Math.max(
-          120,
-          sceneWidth - 130
-        )
-        :
-        Math.max(
-          260,
-          sceneWidth - 180
-        );
-
-
-    runner.style.left =
-      targetLeft +
-      "px";
-
-
-    runner
-      .classList
-      .add(
-        "jump"
-      );
-
-
-    setTimeout(
-      () => {
-
-
-        runner
-          .classList
-          .remove(
-            "jump"
-          );
-
-
-        responseArea
-          .classList
-          .add(
-            "active"
-          );
-
-
-        const obstacle =
-          obstacles[
-            currentIndex
-          ];
-
-
-        qPositive.textContent =
-          obstacle.positiveChoice;
-
-
-        qNegative.textContent =
-          obstacle.negativeChoice;
-
-
-        sceneMessage.innerHTML =
-          `
-
-          <span>
-            ✨
-          </span>
-
-          <span>
-            Barrier cleared. Your response is the next part of the challenge.
-          </span>
-
-          `;
-
-
-        /*
-          On mobile, bring the choices
-          into view automatically.
-        */
-
-        if(
-          window
-            .matchMedia(
-              "(max-width: 640px)"
-            )
-            .matches
-        ) {
-
-
-          setTimeout(
-            () => {
-
-              responseArea
-                .scrollIntoView(
-                  {
-
-                    behavior:
-                      "smooth",
-
-                    block:
-                      "start"
-
-                  }
-                );
-
-            },
-            120
-          );
-
-        }
-
-      },
-      760
-    );
-
-  }
-
-
-  /* =========================================
-     ANSWER CHOICE
-  ========================================= */
-
-  function handleChoice(
-    isPositive
-  ) {
-
-    if(
-      choiceLocked
-    ) {
-
-      return;
-
-    }
-
-
-    choiceLocked =
-      true;
-
-
-    const obstacle =
-      obstacles[
-        currentIndex
-      ];
-
-
-    qPositive.disabled =
-      true;
-
-
-    qNegative.disabled =
-      true;
-
-
-    /* POSITIVE RESPONSE */
-
-    if(
-      isPositive
-    ) {
-
-      positiveChoices++;
-
-
-      resilience +=
-        10;
-
-
-      playSound(
-        goodSound
-      );
-
-
-      qPositive
-        .classList
-        .add(
-          "good-choice"
-        );
-
-
-      feedbackEl.className =
-        "feedback good";
-
-
-      feedbackEl.textContent =
-        "✅ " +
-        obstacle.positiveTip;
-
-
-      sceneMessage.innerHTML =
-        `
-
-        <span>
-          🌟
-        </span>
-
-        <span>
-          You bounced back with a constructive and hopeful response.
-        </span>
-
-        `;
-
-    }
-
-
-    /* LESS HELPFUL RESPONSE */
-
-    else {
-
-      resilience -=
-        8;
-
-
-      playSound(
-        badSound
-      );
-
-
-      qNegative
-        .classList
-        .add(
-          "bad-choice"
-        );
-
-
-      /*
-        Highlight the stronger answer.
-      */
-
-      qPositive
-        .classList
-        .add(
-          "good-choice"
-        );
-
-
-      feedbackEl.className =
-        "feedback warn";
-
-
-      feedbackEl.textContent =
-        "💡 " +
-        obstacle.negativeTip +
-        " A stronger response is highlighted above.";
-
-
-      sceneMessage.innerHTML =
-        `
-
-        <span>
-          💡
-        </span>
-
-        <span>
-          Every setback is a chance to practise a stronger response next time.
-        </span>
-
-        `;
-
-    }
-
-
-    /*
-      Show the positive learning point
-      after either response.
-    */
-
-    tipBox.textContent =
-      obstacle.positiveTip;
-
-
-    /*
-      Show continuation button.
-    */
-
-    nextRow
-      .classList
-      .add(
-        "active"
-      );
-
-
-    progressTextEl.textContent =
-      "Review the feedback, then continue to the next obstacle.";
-
-
-    updateUI();
-
-
-    /*
-      Keep the Next button accessible
-      on phones.
-    */
-
-    if(
-      window
-        .matchMedia(
-          "(max-width: 640px)"
-        )
-        .matches
-    ) {
-
-
-      setTimeout(
-        () => {
-
-          nextBtn
-            .scrollIntoView(
-              {
-
-                behavior:
-                  "smooth",
-
-                block:
-                  "nearest"
-
-              }
-            );
-
-        },
-        140
-      );
-
-    }
-
-  }
-
-
-  /* =========================================
-     NEXT OBSTACLE
-  ========================================= */
-
-  function nextObstacle() {
-
-    if(
-      !choiceLocked
-    ) {
-
-      return;
-
-    }
-
-
-    currentIndex++;
-
-
-    if(
-      currentIndex <
-      obstacles.length
-    ) {
-
-
-      loadObstacle();
-
-
-      /*
-        Bring the next runner scene
-        into view on mobile.
-      */
-
-      if(
-        window
-          .matchMedia(
-            "(max-width: 640px)"
-          )
-          .matches
-      ) {
-
-
-        setTimeout(
-          () => {
-
-            runnerScene
-              .scrollIntoView(
-                {
-
-                  behavior:
-                    "smooth",
-
-                  block:
-                    "start"
-
-                }
-              );
-
-          },
-          100
-        );
-
-      }
-
-    }
-
-
-    else {
-
-      finishRun();
-
-    }
-
-  }
-
-
-  /* =========================================
-     FINAL SCREEN
-  ========================================= */
-
-  function finishRun() {
-
-    runStarted =
-      false;
-
-
-    playSound(
-      finishSound
-    );
-
-
-    const scorePercent =
-      Math.round(
-        (
-          positiveChoices /
-          obstacles.length
-        ) *
-        100
-      );
-
-
-    let rank;
-
-    let badge;
-
-    let text;
-
-
-    if(
-      scorePercent >=
-      80
-    ) {
-
-      rank =
-        "Resilience Hero";
-
-
-      badge =
-        "💪";
-
-
-      text =
-        "You consistently choose hopeful, constructive responses and keep moving forward when challenges appear.";
-
-    }
-
-
-    else if(
-      scorePercent >=
-      50
-    ) {
-
-      rank =
-        "Growing Resilience Star";
-
-
-      badge =
-        "🌟";
-
-
-      text =
-        "You already use several positive strategies. Keep practising calm self-talk, perspective and constructive responses.";
-
-    }
-
-
-    else {
-
-      rank =
-        "Resilience Starter";
-
-
-      badge =
-        "🌱";
-
-
-      text =
-        "Resilience grows with practice. Each difficult moment is a new chance to pause, rethink and choose a stronger response.";
-
-    }
-
-
-    gameWrapper.innerHTML =
-      `
-
-      <section class="final-screen">
-
-        <div class="final-title">
-          Resilience Run Report
-        </div>
-
-
-        <div class="final-badge">
-          ${badge}
-        </div>
-
-
-        <div class="final-rank">
-          ${rank}
-        </div>
-
-
-        <div class="final-score">
-
-          Positive choices:
-          ${positiveChoices}
-          /
-          ${obstacles.length}
-          (${scorePercent}%)
-
-        </div>
-
-
-        <div class="final-text">
-
-          ${text}
+          Wait for the hurdle to approach, then jump.
+          You can jump a little early — the timing
+          window is forgiving.
 
         </div>
 
 
         <button
-          class="btn-primary"
-          id="playAgainBtn"
+          class="jump-btn"
+          id="jumpBtn"
           type="button"
+          disabled
         >
-
-          Run Again
-
+          ⬆ Jump
         </button>
 
-      </section>
+      </div>
 
-      `;
+    </section>
 
 
-    document
-      .getElementById(
-        "playAgainBtn"
-      )
-      .addEventListener(
-        "click",
-        () => {
+    <!-- =====================================
+         INFORMATION
+    ====================================== -->
 
-          location.reload();
+    <section class="panel info-panel">
+
+
+      <div class="score-row">
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Obstacle
+          </div>
+
+          <div
+            class="score-value"
+            id="obstacleCount"
+          >
+            1 / 6
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Cleared
+          </div>
+
+          <div
+            class="score-value"
+            id="clearedCount"
+          >
+            0 / 6
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Positive Choices
+          </div>
+
+          <div
+            class="score-value"
+            id="positiveCount"
+          >
+            0
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- PROGRESS -->
+
+      <div class="meter">
+
+        <div class="meter-head">
+
+          <span>
+            Resilience Progress
+          </span>
+
+          <span id="meterLabel">
+            0%
+          </span>
+
+        </div>
+
+
+        <div class="meter-track">
+
+          <div
+            class="meter-fill"
+            id="meterFill"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- SCENARIO -->
+
+      <div class="scenario">
+
+        <div
+          class="scenario-label"
+          id="timeLabel"
+        >
+          Morning
+        </div>
+
+        <div
+          class="scenario-text"
+          id="scenarioText"
+        ></div>
+
+      </div>
+
+
+      <div
+        class="tip"
+        id="tip"
+      >
+        Clear the physical hurdle first.
+        Then you will decide how to handle
+        the situation.
+      </div>
+
+
+      <!-- RESPONSES -->
+
+      <div
+        class="responses"
+        id="responses"
+      >
+
+        <div class="response-title">
+          How will you bounce back?
+        </div>
+
+
+        <button
+          class="choice"
+          id="positiveBtn"
+          type="button"
+        ></button>
+
+
+        <button
+          class="choice"
+          id="negativeBtn"
+          type="button"
+        ></button>
+
+      </div>
+
+
+      <div
+        class="feedback"
+        id="feedback"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- CONTROLS -->
+
+      <div class="controls">
+
+
+        <button
+          class="btn btn-secondary"
+          id="restartBtn"
+          type="button"
+        >
+          Restart Run
+        </button>
+
+
+        <div id="progressText">
+          Press Start Run to begin.
+        </div>
+
+
+        <button
+          class="btn btn-primary"
+          id="startBtn"
+          type="button"
+        >
+          Start Run
+        </button>
+
+
+      </div>
+
+
+      <!-- NEXT -->
+
+      <div
+        class="next-row"
+        id="nextRow"
+      >
+
+        <button
+          class="btn btn-primary"
+          id="nextBtn"
+          type="button"
+        >
+          Next Obstacle →
+        </button>
+
+      </div>
+
+
+      <!-- VOLUME -->
+
+      <div class="volume">
+
+        <span>
+          🔊 Sounds
+        </span>
+
+        <input
+          type="range"
+          id="volume"
+          min="0"
+          max="100"
+          value="80"
+        >
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   SPLASH
+========================================= */
+
+const splash =
+  document.getElementById(
+    "splash"
+  );
+
+const game =
+  document.getElementById(
+    "game"
+  );
+
+setTimeout(
+  () => {
+
+    splash
+      .classList
+      .add(
+        "hide"
+      );
+
+    game
+      .classList
+      .add(
+        "visible"
+      );
+
+  },
+  5000
+);
+
+
+/* =========================================
+   AUDIO
+========================================= */
+
+const goodSound =
+  new Audio(
+    "assets/correct.mp3"
+  );
+
+const badSound =
+  new Audio(
+    "assets/wrong.mp3"
+  );
+
+const finishSound =
+  new Audio(
+    "assets/freesound_community-claps-44774.mp3"
+  );
+
+let soundVolume =
+  .8;
+
+[
+  goodSound,
+  badSound,
+  finishSound
+]
+.forEach(
+  sound => {
+
+    sound.volume =
+      soundVolume;
+
+  }
+);
+
+function playSound(
+  sound
+){
+
+  sound.currentTime =
+    0;
+
+  sound
+    .play()
+    .catch(
+      () => {}
+    );
+
+}
+
+document
+  .getElementById(
+    "volume"
+  )
+  .addEventListener(
+    "input",
+    event => {
+
+      soundVolume =
+        event.target.value /
+        100;
+
+      [
+        goodSound,
+        badSound,
+        finishSound
+      ]
+      .forEach(
+        sound => {
+
+          sound.volume =
+            soundVolume;
 
         }
       );
 
+    }
+  );
 
-    window.scrollTo(
-      {
 
-        top:
-          0,
+/* =========================================
+   OBSTACLE CONTENT
+========================================= */
 
-        behavior:
-          "smooth"
+const obstacles = [
+
+
+  {
+    time:
+      "Morning",
+
+    situation:
+      "You have a big exam today. You studied, but you still feel nervous and your heart is racing.",
+
+    positive:
+      "Take a few slow breaths, remind yourself of what you prepared and tell yourself that you will try your best.",
+
+    negative:
+      "Keep telling yourself that you will fail and think about giving up before the exam begins.",
+
+    positiveTip:
+      "Calm self-talk can reduce stress and help you focus on what you can control.",
+
+    negativeTip:
+      "Negative self-talk can make stress stronger and distract you from what you already know."
+  },
+
+
+  {
+    time:
+      "Mid-morning",
+
+    situation:
+      "You see classmates scoring higher marks and sharing their achievements in a group chat.",
+
+    positive:
+      "Feel happy for them, use their success as motivation and focus on your own progress.",
+
+    negative:
+      "Compare yourself constantly, feel jealous and decide that you will never be good enough.",
+
+    positiveTip:
+      "Resilience includes appreciating others while keeping attention on your own growth.",
+
+    negativeTip:
+      "Constant comparison can pull attention away from your strengths and progress."
+  },
+
+
+  {
+    time:
+      "Lunch break",
+
+    situation:
+      "You have homework, activities and sports after school and you feel overwhelmed.",
+
+    positive:
+      "Make a small plan, do one task at a time and remind yourself that you can handle it step by step.",
+
+    negative:
+      "Complain all day, do nothing and tell yourself that everything is too difficult.",
+
+    positiveTip:
+      "Breaking a challenge into smaller steps makes it more manageable.",
+
+    negativeTip:
+      "Hopeless thinking can make a difficult situation feel even bigger."
+  },
+
+
+  {
+    time:
+      "Afternoon",
+
+    situation:
+      "You make a mistake while answering in class and a few students giggle.",
+
+    positive:
+      "Accept the mistake, learn from it and remind yourself that everyone makes mistakes sometimes.",
+
+    negative:
+      "Feel ashamed, stay silent for the rest of the day and decide never to answer again.",
+
+    positiveTip:
+      "Resilient people treat mistakes as information for learning, not a reason to stop trying.",
+
+    negativeTip:
+      "Fear of mistakes can stop you from participating and learning."
+  },
+
+
+  {
+    time:
+      "After school",
+
+    situation:
+      "Your friend wins a competition that you also tried for.",
+
+    positive:
+      "Congratulate your friend, appreciate their success and feel motivated to practise and try again.",
+
+    negative:
+      "Act cold towards your friend and keep thinking that their success proves you are less talented.",
+
+    positiveTip:
+      "Celebrating another person's success while continuing your own effort shows confidence and resilience.",
+
+    negativeTip:
+      "Resentment can hurt a friendship without helping you improve."
+  },
+
+
+  {
+    time:
+      "Evening",
+
+    situation:
+      "You feel tired and a family member speaks sharply to you about something small.",
+
+    positive:
+      "Pause, calm yourself and respond kindly instead of taking the comment personally.",
+
+    negative:
+      "Shout back, stay angry for the rest of the evening and decide that everything is going badly.",
+
+    positiveTip:
+      "Pausing before reacting gives you space to choose a constructive response.",
+
+    negativeTip:
+      "Holding onto anger can make one difficult moment affect the rest of your day."
+  }
+
+];
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const scene =
+  document.getElementById(
+    "scene"
+  );
+
+const runnerWrap =
+  document.getElementById(
+    "runnerWrap"
+  );
+
+const runnerFigure =
+  document.getElementById(
+    "runnerFigure"
+  );
+
+const hurdle =
+  document.getElementById(
+    "hurdle"
+  );
+
+const warning =
+  document.getElementById(
+    "warning"
+  );
+
+const sceneTitle =
+  document.getElementById(
+    "sceneTitle"
+  );
+
+const sceneStatus =
+  document.getElementById(
+    "sceneStatus"
+  );
+
+const jumpBtn =
+  document.getElementById(
+    "jumpBtn"
+  );
+
+const jumpHelp =
+  document.getElementById(
+    "jumpHelp"
+  );
+
+const stage =
+  document.getElementById(
+    "stage"
+  );
+
+const obstacleCount =
+  document.getElementById(
+    "obstacleCount"
+  );
+
+const clearedCount =
+  document.getElementById(
+    "clearedCount"
+  );
+
+const positiveCount =
+  document.getElementById(
+    "positiveCount"
+  );
+
+const meterFill =
+  document.getElementById(
+    "meterFill"
+  );
+
+const meterLabel =
+  document.getElementById(
+    "meterLabel"
+  );
+
+const timeLabel =
+  document.getElementById(
+    "timeLabel"
+  );
+
+const scenarioText =
+  document.getElementById(
+    "scenarioText"
+  );
+
+const tip =
+  document.getElementById(
+    "tip"
+  );
+
+const responses =
+  document.getElementById(
+    "responses"
+  );
+
+const positiveBtn =
+  document.getElementById(
+    "positiveBtn"
+  );
+
+const negativeBtn =
+  document.getElementById(
+    "negativeBtn"
+  );
+
+const feedback =
+  document.getElementById(
+    "feedback"
+  );
+
+const restartBtn =
+  document.getElementById(
+    "restartBtn"
+  );
+
+const startBtn =
+  document.getElementById(
+    "startBtn"
+  );
+
+const nextRow =
+  document.getElementById(
+    "nextRow"
+  );
+
+const nextBtn =
+  document.getElementById(
+    "nextBtn"
+  );
+
+const progressText =
+  document.getElementById(
+    "progressText"
+  );
+
+const gameWrapper =
+  document.getElementById(
+    "gameWrapper"
+  );
+
+
+/* =========================================
+   GAME STATE
+========================================= */
+
+let index =
+  0;
+
+let cleared =
+  0;
+
+let positiveChoices =
+  0;
+
+let state =
+  "idle";
+
+/*
+  idle
+  approach
+  failed
+  cleared
+  question
+  done
+*/
+
+let rafId =
+  null;
+
+let lastTime =
+  0;
+
+let hurdleX =
+  0;
+
+let hurdleSpeed =
+  150;
+
+let jumpY =
+  0;
+
+let jumpVelocity =
+  0;
+
+let isJumping =
+  false;
+
+let collisionHandled =
+  false;
+
+let answerLocked =
+  false;
+
+
+/*
+  Physics values are intentionally
+  forgiving rather than realistic.
+*/
+
+const gravity =
+  1450;
+
+const jumpPower =
+  620;
+
+
+/* =========================================
+   MOBILE CHECK
+========================================= */
+
+function isMobile(){
+
+  return window
+    .matchMedia(
+      "(max-width:640px)"
+    )
+    .matches;
+
+}
+
+
+/* =========================================
+   UPDATE GAME INFORMATION
+========================================= */
+
+function updateContent(){
+
+  const obstacle =
+    obstacles[
+      index
+    ];
+
+
+  stage.textContent =
+    `Obstacle ${index + 1} of ${obstacles.length}`;
+
+
+  obstacleCount.textContent =
+    `${index + 1} / ${obstacles.length}`;
+
+
+  clearedCount.textContent =
+    `${cleared} / ${obstacles.length}`;
+
+
+  positiveCount.textContent =
+    String(
+      positiveChoices
+    );
+
+
+  const progress =
+    Math.round(
+      (
+        cleared /
+        obstacles.length
+      ) *
+      100
+    );
+
+
+  meterFill.style.width =
+    progress +
+    "%";
+
+
+  meterLabel.textContent =
+    progress +
+    "%";
+
+
+  timeLabel.textContent =
+    obstacle.time;
+
+
+  scenarioText.textContent =
+    obstacle.situation;
+
+}
+
+
+/* =========================================
+   RUNNER VERTICAL POSITION
+========================================= */
+
+function setRunnerY(
+  y
+){
+
+  jumpY =
+    y;
+
+
+  runnerWrap.style.transform =
+    `translate3d(0,${-jumpY}px,0)`;
+
+}
+
+
+/* =========================================
+   HURDLE POSITION
+========================================= */
+
+function setHurdleX(
+  x
+){
+
+  hurdleX =
+    x;
+
+
+  hurdle.style.transform =
+    `translate3d(${hurdleX}px,0,0)${
+      isMobile()
+        ?
+      " scale(.9)"
+        :
+      ""
+    }`;
+
+}
+
+
+/* =========================================
+   SCENE SIZE
+========================================= */
+
+function sceneMetrics(){
+
+  const sceneRect =
+    scene
+      .getBoundingClientRect();
+
+
+  const hurdleWidth =
+    isMobile()
+      ?
+    34
+      :
+    38;
+
+
+  return{
+    sceneWidth:
+      sceneRect.width,
+
+    hurdleWidth:
+      hurdleWidth
+  };
+
+}
+
+
+/* =========================================
+   RESET OBSTACLE
+========================================= */
+
+function resetObstaclePosition(){
+
+  const {
+    sceneWidth
+  } =
+    sceneMetrics();
+
+
+  /*
+    The hurdle begins slightly beyond
+    the right edge and moves towards
+    the fixed runner.
+  */
+
+  setHurdleX(
+    sceneWidth +
+    40
+  );
+
+
+  setRunnerY(
+    0
+  );
+
+
+  jumpVelocity =
+    0;
+
+
+  isJumping =
+    false;
+
+
+  collisionHandled =
+    false;
+
+
+  warning
+    .classList
+    .remove(
+      "show"
+    );
+
+}
+
+
+/* =========================================
+   START HURDLE
+========================================= */
+
+function startObstacle(){
+
+  cancelLoop();
+
+
+  state =
+    "approach";
+
+
+  answerLocked =
+    false;
+
+
+  responses
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  positiveBtn.className =
+    "choice";
+
+
+  negativeBtn.className =
+    "choice";
+
+
+  positiveBtn.disabled =
+    false;
+
+
+  negativeBtn.disabled =
+    false;
+
+
+  tip.textContent =
+    "Watch the hurdle move towards you. Jump over it, then choose how you would handle the setback.";
+
+
+  progressText.textContent =
+    "The hurdle is coming. Time your jump.";
+
+
+  sceneTitle.textContent =
+    `${obstacles[index].time}: obstacle approaching`;
+
+
+  sceneStatus.innerHTML =
+    '<span class="emoji">🏃</span><span>Keep running. Jump when the hurdle reaches you.</span>';
+
+
+  jumpBtn.disabled =
+    false;
+
+
+  startBtn.disabled =
+    true;
+
+
+  startBtn.textContent =
+    "Run Active";
+
+
+  runnerFigure
+    .classList
+    .add(
+      "running"
+    );
+
+
+  resetObstaclePosition();
+
+
+  lastTime =
+    performance.now();
+
+
+  rafId =
+    requestAnimationFrame(
+      gameLoop
+    );
+
+}
+
+
+/* =========================================
+   CANCEL GAME LOOP
+========================================= */
+
+function cancelLoop(){
+
+  if(
+    rafId !==
+    null
+  ){
+
+    cancelAnimationFrame(
+      rafId
+    );
+
+
+    rafId =
+      null;
+
+  }
+
+}
+
+
+/* =========================================
+   JUMP
+========================================= */
+
+function jump(){
+
+  if(
+    state !==
+    "approach" ||
+    isJumping
+  ){
+
+    return;
+
+  }
+
+
+  isJumping =
+    true;
+
+
+  jumpVelocity =
+    jumpPower;
+
+
+  jumpBtn.disabled =
+    true;
+
+
+  /*
+    The button becomes available again
+    once the runner lands.
+  */
+
+  setTimeout(
+    () => {
+
+      if(
+        state ===
+        "approach" &&
+        !isJumping
+      ){
+
+        jumpBtn.disabled =
+          false;
 
       }
+
+    },
+    60
+  );
+
+}
+
+
+/* =========================================
+   COLLISION
+========================================= */
+
+function boxesOverlap(
+  a,
+  b
+){
+
+  return !(
+    a.right <
+    b.left ||
+
+    a.left >
+    b.right ||
+
+    a.bottom <
+    b.top ||
+
+    a.top >
+    b.bottom
+  );
+
+}
+
+
+function checkCollision(){
+
+  const runnerRect =
+    runnerWrap
+      .getBoundingClientRect();
+
+
+  const hurdleRect =
+    hurdle
+      .getBoundingClientRect();
+
+
+  /*
+    Slightly smaller hit boxes make
+    the game feel fairer and avoid
+    punishing near-miss jumps.
+  */
+
+  const runnerHit = {
+
+    left:
+      runnerRect.left +
+      8,
+
+    right:
+      runnerRect.right -
+      8,
+
+    top:
+      runnerRect.top +
+      8,
+
+    bottom:
+      runnerRect.bottom -
+      4
+
+  };
+
+
+  const hurdleHit = {
+
+    left:
+      hurdleRect.left +
+      4,
+
+    right:
+      hurdleRect.right -
+      4,
+
+    top:
+      hurdleRect.top +
+      4,
+
+    bottom:
+      hurdleRect.bottom
+
+  };
+
+
+  return boxesOverlap(
+    runnerHit,
+    hurdleHit
+  );
+
+}
+
+
+/* =========================================
+   GAME LOOP
+========================================= */
+
+function gameLoop(
+  now
+){
+
+  if(
+    state !==
+    "approach"
+  ){
+
+    return;
+
+  }
+
+
+  let dt =
+    (
+      now -
+      lastTime
+    ) /
+    1000;
+
+
+  lastTime =
+    now;
+
+
+  /*
+    Prevent huge movement jumps if
+    browser rendering pauses briefly.
+  */
+
+  dt =
+    Math.min(
+      dt,
+      .035
+    );
+
+
+  /* MOVE HURDLE */
+
+  hurdleX -=
+    hurdleSpeed *
+    dt;
+
+
+  setHurdleX(
+    hurdleX
+  );
+
+
+  /* JUMP PHYSICS */
+
+  if(
+    isJumping
+  ){
+
+    jumpY +=
+      jumpVelocity *
+      dt;
+
+
+    jumpVelocity -=
+      gravity *
+      dt;
+
+
+    if(
+      jumpY <=
+      0
+    ){
+
+      jumpY =
+        0;
+
+
+      jumpVelocity =
+        0;
+
+
+      isJumping =
+        false;
+
+
+      jumpBtn.disabled =
+        false;
+
+    }
+
+
+    setRunnerY(
+      jumpY
     );
 
   }
 
 
-  /* =========================================
-     BUTTON EVENTS
-  ========================================= */
+  const sceneRect =
+    scene
+      .getBoundingClientRect();
 
-  startBtn
-    .addEventListener(
-      "click",
-      startRun
+
+  const hurdleRect =
+    hurdle
+      .getBoundingClientRect();
+
+
+  const runnerRect =
+    runnerWrap
+      .getBoundingClientRect();
+
+
+  const distance =
+    hurdleRect.left -
+    runnerRect.right;
+
+
+  /*
+    Visual warning before the ideal
+    jumping window.
+  */
+
+  warning
+    .classList
+    .toggle(
+      "show",
+      distance <
+      165 &&
+      distance >
+      5
     );
 
 
-  resetBtn
-    .addEventListener(
-      "click",
-      restartRun
+  /* COLLISION */
+
+  if(
+    !collisionHandled &&
+    checkCollision()
+  ){
+
+    collisionHandled =
+      true;
+
+
+    failObstacle();
+
+
+    return;
+
+  }
+
+
+  /*
+    If hurdle is fully behind the runner,
+    the jump was successful.
+  */
+
+  if(
+    hurdleRect.right <
+    runnerRect.left -
+    8
+  ){
+
+    clearObstacle();
+
+
+    return;
+
+  }
+
+
+  /*
+    Safety check in case the hurdle
+    somehow travels beyond the scene.
+  */
+
+  if(
+    hurdleRect.right <
+    sceneRect.left -
+    20
+  ){
+
+    clearObstacle();
+
+
+    return;
+
+  }
+
+
+  rafId =
+    requestAnimationFrame(
+      gameLoop
+    );
+
+}
+
+
+/* =========================================
+   FAILED HURDLE
+========================================= */
+
+function failObstacle(){
+
+  cancelLoop();
+
+
+  state =
+    "failed";
+
+
+  runnerFigure
+    .classList
+    .remove(
+      "running"
     );
 
 
-  jumpBtn
-    .addEventListener(
-      "click",
-      handleJump
+  jumpBtn.disabled =
+    true;
+
+
+  warning
+    .classList
+    .remove(
+      "show"
     );
 
 
-  nextBtn
-    .addEventListener(
-      "click",
-      nextObstacle
+  playSound(
+    badSound
+  );
+
+
+  sceneTitle.textContent =
+    "Hurdle hit — retry";
+
+
+  sceneStatus.innerHTML =
+    '<span class="emoji">💫</span><span>You clipped the hurdle. Setbacks happen — reset and try the same obstacle again.</span>';
+
+
+  tip.textContent =
+    "Try jumping a little earlier. Watch the hurdle as it approaches the runner.";
+
+
+  progressText.textContent =
+    "Retry this obstacle when you are ready.";
+
+
+  startBtn.disabled =
+    false;
+
+
+  startBtn.textContent =
+    "Retry Hurdle";
+
+}
+
+
+/* =========================================
+   HURDLE CLEARED
+========================================= */
+
+function clearObstacle(){
+
+  cancelLoop();
+
+
+  state =
+    "cleared";
+
+
+  runnerFigure
+    .classList
+    .remove(
+      "running"
     );
 
 
-  qPositive
+  jumpBtn.disabled =
+    true;
+
+
+  warning
+    .classList
+    .remove(
+      "show"
+    );
+
+
+  cleared++;
+
+
+  updateContent();
+
+
+  playSound(
+    goodSound
+  );
+
+
+  sceneTitle.textContent =
+    "Hurdle cleared!";
+
+
+  sceneStatus.innerHTML =
+    '<span class="emoji">✨</span><span>Nice timing. Now the real resilience challenge: how will you respond to the situation?</span>';
+
+
+  revealQuestion();
+
+}
+
+
+/* =========================================
+   REVEAL QUESTION
+========================================= */
+
+function revealQuestion(){
+
+  state =
+    "question";
+
+
+  const obstacle =
+    obstacles[
+      index
+    ];
+
+
+  positiveBtn.textContent =
+    obstacle.positive;
+
+
+  negativeBtn.textContent =
+    obstacle.negative;
+
+
+  responses
+    .classList
+    .add(
+      "active"
+    );
+
+
+  tip.textContent =
+    "Choose the response that helps you recover, learn or move forward constructively.";
+
+
+  progressText.textContent =
+    "Choose how you would bounce back.";
+
+
+  if(
+    isMobile()
+  ){
+
+    setTimeout(
+      () => {
+
+        responses
+          .scrollIntoView(
+            {
+              behavior:
+                "smooth",
+
+              block:
+                "start"
+            }
+          );
+
+      },
+      100
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   RESPONSE
+========================================= */
+
+function answer(
+  isPositive
+){
+
+  if(
+    state !==
+    "question" ||
+    answerLocked
+  ){
+
+    return;
+
+  }
+
+
+  answerLocked =
+    true;
+
+
+  positiveBtn.disabled =
+    true;
+
+
+  negativeBtn.disabled =
+    true;
+
+
+  const obstacle =
+    obstacles[
+      index
+    ];
+
+
+  if(
+    isPositive
+  ){
+
+    positiveChoices++;
+
+
+    playSound(
+      goodSound
+    );
+
+
+    positiveBtn
+      .classList
+      .add(
+        "correct"
+      );
+
+
+    feedback.className =
+      "feedback good";
+
+
+    feedback.textContent =
+      "✅ " +
+      obstacle.positiveTip;
+
+  }
+
+  else{
+
+    playSound(
+      badSound
+    );
+
+
+    negativeBtn
+      .classList
+      .add(
+        "wrong"
+      );
+
+
+    /*
+      Reveal the more resilient option.
+    */
+
+    positiveBtn
+      .classList
+      .add(
+        "correct"
+      );
+
+
+    feedback.className =
+      "feedback warn";
+
+
+    feedback.textContent =
+      "💡 " +
+      obstacle.negativeTip +
+      " The stronger response is highlighted.";
+
+  }
+
+
+  positiveCount.textContent =
+    String(
+      positiveChoices
+    );
+
+
+  nextBtn.textContent =
+    index ===
+    obstacles.length -
+    1
+
+      ?
+
+    "Finish Run"
+
+      :
+
+    "Next Obstacle →";
+
+
+  nextRow
+    .classList
+    .add(
+      "active"
+    );
+
+
+  progressText.textContent =
+    index ===
+    obstacles.length -
+    1
+
+      ?
+
+    "Review the feedback, then finish your run."
+
+      :
+
+    "Review the feedback, then continue.";
+
+
+  if(
+    isMobile()
+  ){
+
+    setTimeout(
+      () => {
+
+        nextBtn
+          .scrollIntoView(
+            {
+              behavior:
+                "smooth",
+
+              block:
+                "nearest"
+            }
+          );
+
+      },
+      100
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   NEXT OBSTACLE
+========================================= */
+
+function nextObstacle(){
+
+  if(
+    state !==
+    "question" ||
+    !answerLocked
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    index ===
+    obstacles.length -
+    1
+  ){
+
+    finishRun();
+
+
+    return;
+
+  }
+
+
+  index++;
+
+
+  updateContent();
+
+
+  state =
+    "idle";
+
+
+  responses
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  sceneTitle.textContent =
+    `${obstacles[index].time}: get ready`;
+
+
+  sceneStatus.innerHTML =
+    '<span class="emoji">🏃</span><span>New obstacle ahead. Press Start Hurdle to run.</span>';
+
+
+  tip.textContent =
+    "Start this obstacle, watch the hurdle approach, then jump.";
+
+
+  progressText.textContent =
+    "Press Start Hurdle when ready.";
+
+
+  startBtn.disabled =
+    false;
+
+
+  startBtn.textContent =
+    "Start Hurdle";
+
+
+  jumpBtn.disabled =
+    true;
+
+
+  resetObstaclePosition();
+
+
+  if(
+    isMobile()
+  ){
+
+    setTimeout(
+      () => {
+
+        scene
+          .scrollIntoView(
+            {
+              behavior:
+                "smooth",
+
+              block:
+                "start"
+            }
+          );
+
+      },
+      100
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   RESTART
+========================================= */
+
+function restartRun(){
+
+  cancelLoop();
+
+
+  index =
+    0;
+
+
+  cleared =
+    0;
+
+
+  positiveChoices =
+    0;
+
+
+  state =
+    "idle";
+
+
+  answerLocked =
+    false;
+
+
+  runnerFigure
+    .classList
+    .remove(
+      "running"
+    );
+
+
+  responses
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  startBtn.disabled =
+    false;
+
+
+  startBtn.textContent =
+    "Start Run";
+
+
+  jumpBtn.disabled =
+    true;
+
+
+  updateContent();
+
+
+  resetObstaclePosition();
+
+
+  sceneTitle.textContent =
+    "Press Start Run to begin.";
+
+
+  sceneStatus.innerHTML =
+    '<span class="emoji">🌱</span><span>Start the run. The first hurdle will move towards you.</span>';
+
+
+  tip.textContent =
+    "Clear the physical hurdle first. Then you will decide how to handle the situation.";
+
+
+  progressText.textContent =
+    "Press Start Run to begin.";
+
+
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
+
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+function finishRun(){
+
+  cancelLoop();
+
+
+  state =
+    "done";
+
+
+  playSound(
+    finishSound
+  );
+
+
+  const score =
+    Math.round(
+      (
+        positiveChoices /
+        obstacles.length
+      ) *
+      100
+    );
+
+
+  let rank;
+  let badge;
+  let text;
+
+
+  if(
+    score >=
+    80
+  ){
+
+    rank =
+      "Resilience Hero";
+
+
+    badge =
+      "💪";
+
+
+    text =
+      "You cleared every hurdle and consistently chose responses that help you recover, learn and keep moving forward.";
+
+  }
+
+  else if(
+    score >=
+    50
+  ){
+
+    rank =
+      "Growing Resilience Star";
+
+
+    badge =
+      "🌟";
+
+
+    text =
+      "You completed the resilience run and made several constructive choices. Keep practising calm self-talk, perspective and problem solving.";
+
+  }
+
+  else{
+
+    rank =
+      "Resilience Starter";
+
+
+    badge =
+      "🌱";
+
+
+    text =
+      "You completed every hurdle. Resilience grows with practice — each setback is another chance to choose a stronger response.";
+
+  }
+
+
+  gameWrapper.innerHTML =
+    `
+
+    <section class="final">
+
+      <div class="final-title">
+        Resilience Run Report
+      </div>
+
+      <div class="final-badge">
+        ${badge}
+      </div>
+
+      <div class="final-rank">
+        ${rank}
+      </div>
+
+      <div class="final-score">
+        Hurdles cleared:
+        6 / 6
+        · Positive choices:
+        ${positiveChoices} / 6
+        (${score}%)
+      </div>
+
+      <div class="final-text">
+        ${text}
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="againBtn"
+        type="button"
+      >
+        Run Again
+      </button>
+
+    </section>
+
+    `;
+
+
+  document
+    .getElementById(
+      "againBtn"
+    )
     .addEventListener(
       "click",
       () => {
 
-        handleChoice(
-          true
-        );
+        location.reload();
 
       }
     );
 
 
-  qNegative
-    .addEventListener(
-      "click",
-      () => {
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
 
-        handleChoice(
-          false
-        );
-
-      }
-    );
+}
 
 
-  /* =========================================
-     RESPONSIVE RUNNER POSITION
-  ========================================= */
+/* =========================================
+   CONTROLS
+========================================= */
 
-  window
-    .addEventListener(
-      "resize",
-      () => {
+startBtn
+  .addEventListener(
+    "click",
+    () => {
 
-        if(
-          !jumped
-        ) {
+      if(
+        state ===
+        "idle" ||
+        state ===
+        "failed"
+      ){
 
-          resetRunnerPosition();
-
-        }
+        startObstacle();
 
       }
-    );
+
+    }
+  );
 
 
-  /* =========================================
-     INITIAL STATE
-  ========================================= */
+jumpBtn
+  .addEventListener(
+    "click",
+    jump
+  );
 
-  updateUI();
 
-  loadObstacle();
+positiveBtn
+  .addEventListener(
+    "click",
+    () => {
 
+      answer(
+        true
+      );
+
+    }
+  );
+
+
+negativeBtn
+  .addEventListener(
+    "click",
+    () => {
+
+      answer(
+        false
+      );
+
+    }
+  );
+
+
+nextBtn
+  .addEventListener(
+    "click",
+    nextObstacle
+  );
+
+
+restartBtn
+  .addEventListener(
+    "click",
+    restartRun
+  );
+
+
+/* =========================================
+   KEYBOARD CONTROLS
+========================================= */
+
+scene
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if(
+        (
+          event.code ===
+          "Space" ||
+
+          event.code ===
+          "ArrowUp"
+        ) &&
+        state ===
+        "approach"
+      ){
+
+        event.preventDefault();
+
+
+        jump();
+
+      }
+
+    }
+  );
+
+
+window
+  .addEventListener(
+    "keydown",
+    event => {
+
+      const tag =
+        document
+          .activeElement
+          ?.tagName;
+
+
+      if(
+        (
+          event.code ===
+          "Space" ||
+
+          event.code ===
+          "ArrowUp"
+        ) &&
+        state ===
+        "approach" &&
+        ![
+          "INPUT",
+          "TEXTAREA",
+          "SELECT"
+        ]
+        .includes(
+          tag
+        )
+      ){
+
+        event.preventDefault();
+
+
+        jump();
+
+      }
+
+    }
+  );
+
+
+/* =========================================
+   RESPONSIVE RESET
+========================================= */
+
+window
+  .addEventListener(
+    "resize",
+    () => {
+
+      if(
+        state ===
+        "idle" ||
+        state ===
+        "failed"
+      ){
+
+        resetObstaclePosition();
+
+      }
+
+    }
+  );
+
+
+/* =========================================
+   INITIAL STATE
+========================================= */
+
+updateContent();
+
+resetObstaclePosition();
 
 </script>
-
 </body>
 </html>
