@@ -1,656 +1,3450 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plan Switchboard – Adaptability Game</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #020617;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #0f172a;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Plan Switchboard – Adaptability Challenge</title>
 
-    /* Splash */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    .shell {
-      max-width: 1000px;
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34,197,94,0.7);
-      position: relative;
-      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 40%, #022c22 100%);
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .shell.visible { opacity: 1; }
+:root{
+  --ink:#26394c;
+  --muted:#6b7e91;
+  --blue:#5f8fe7;
+  --blue-dark:#3763ad;
+  --green:#4bb07b;
+  --mint:#ebf8f0;
+  --yellow:#fff3cf;
+  --orange:#efa25a;
+  --red:#d96c68;
+  --line:#dce7ef;
+  --soft:#f6f9fc;
+  --white:#fff;
+}
 
-    .top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 46px;
-      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
-      color: #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 12px;
-      font-size: 11px;
-      z-index: 5;
-    }
-    .top-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .top-title {
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .top-sub {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .meter {
-      width: 100px;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      overflow: hidden;
-      border: 1px solid rgba(148,163,184,0.8);
-    }
-    .meter-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #f97316, #22c55e);
-      transition: width 0.3s ease-out;
-    }
+html{
+  width:100%;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
 
-    .layout {
-      position: absolute;
-      inset: 46px 0 0 0;
-      display: grid;
-      grid-template-columns: 2fr 1.3fr;
-      padding: 10px;
-      gap: 10px;
-    }
+body{
+  width:100%;
+  min-height:100vh;
 
-    /* Scenario panel */
-    .scenario-panel {
-      border-radius: 18px;
-      background: #e0f2fe;
-      padding: 10px;
-      box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      color: #1f2937;
-    }
-    .scenario-text {
-      font-size: 12px;
-      color: #374151;
-      text-align: center;
-      min-height: 32px;
-    }
+  overflow-x:hidden;
+  overflow-y:auto;
 
-    .diagram {
-      flex: 1;
-      border-radius: 16px;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #bbf7d0 100%);
-      padding: 8px 10px;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0,1fr));
-      gap: 6px;
-      align-items: center;
-    }
+  font-family:
+    "Trebuchet MS",
+    "Segoe UI",
+    Arial,
+    sans-serif;
 
-    .node {
-      border-radius: 12px;
-      background: rgba(15,23,42,0.9);
-      color: #e5e7eb;
-      padding: 6px;
-      text-align: center;
-      font-size: 11px;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.8);
-    }
-    .node.goal {
-      background: #16a34a;
-    }
-    .node.block {
-      background: #b91c1c;
-    }
+  color:var(--ink);
 
-    .arrow {
-      text-align: center;
-      font-size: 18px;
-      color: #4b5563;
-    }
+  background:
+    linear-gradient(
+      180deg,
+      #f8fcff,
+      #eef7ff 55%,
+      #fffaf1
+    );
 
-    .label-small {
-      margin-top: 2px;
-      font-size: 10px;
-      color: #9ca3af;
-    }
+  padding:16px;
+}
 
-    /* Switchboard panel */
-    .switchboard-panel {
-      border-radius: 18px;
-      background: #0f172a;
-      padding: 10px;
-      color: #e5e7eb;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
-    }
-    .switchboard-title {
-      font-size: 12px;
-      font-weight: bold;
-      text-align: center;
-    }
+button,
+input{
+  font:inherit;
+}
 
-    .switchboard {
-      flex: 1;
-      border-radius: 16px;
-      background: radial-gradient(circle at top, #111827 0%, #020617 100%);
-      padding: 8px;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 6px;
-    }
+button:focus-visible,
+input:focus-visible{
+  outline:3px solid #ffd465;
+  outline-offset:3px;
+}
 
-    .switch {
-      border-radius: 10px;
-      padding: 6px 6px 4px;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.8);
-      cursor: pointer;
-      font-size: 11px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .switch:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.8);
-    }
-    .switch-line1 {
-      font-weight: bold;
-      font-size: 11px;
-    }
-    .switch-line2 {
-      font-size: 10px;
-      color: #cbd5f5;
-    }
-    .switch-tag {
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.9);
-      display: inline-block;
-      margin-top: 2px;
-    }
 
-    .feedback {
-      border-radius: 10px;
-      padding: 5px 7px;
-      font-size: 11px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
-    }
-    .feedback.warn {
-      background: rgba(254,202,202,0.7);
-      border: 1px solid #f97316;
-      color: #7c2d12;
-    }
+/* =========================================
+   SPLASH
+========================================= */
 
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 11px;
-      margin-top: 4px;
-    }
-    .btn {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 11px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn.primary {
-      border: none;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
-    .btn.secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
-    }
+.splash{
+  position:fixed;
+  inset:0;
 
-    .footer-text {
-      position: absolute;
-      left: 50%;
-      bottom: 6px;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: #e5e7eb;
-      text-align: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(148,163,184,0.7);
-    }
+  z-index:9999;
 
-    /* End screen */
-    .end-screen {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #f9fafb;
-      text-align: center;
-      gap: 8px;
-      z-index: 20;
-    }
-    .end-title {
-      font-size: 22px;
-    }
-    .end-sub {
-      font-size: 13px;
-      max-width: 360px;
-      opacity: 0.95;
-    }
-    .end-badge {
-      font-size: 44px;
-    }
-    .end-btn {
-      margin-top: 8px;
-      padding: 7px 16px;
-      font-size: 12px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .end-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    @media (max-width: 768px) {
-      .layout { grid-template-columns: 1fr; }
-      .scenario-text { font-size: 11px; }
-    }
-  </style>
+  background:#fff;
+
+  transition:
+    opacity .45s ease;
+}
+
+.splash.hide{
+  opacity:0;
+  pointer-events:none;
+}
+
+.splash img{
+  width:min(430px,82vw);
+  height:auto;
+
+  animation:
+    floatLogo
+    2s
+    ease-in-out
+    infinite;
+}
+
+@keyframes floatLogo{
+
+  50%{
+    transform:
+      translateY(-9px);
+  }
+
+}
+
+
+/* =========================================
+   GAME SHELL
+========================================= */
+
+.game{
+  width:min(1140px,100%);
+
+  margin:0 auto;
+
+  background:#fff;
+
+  border:
+    1px solid
+    #dbe7ef;
+
+  border-radius:28px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 18px 46px
+    rgba(57,87,118,.14);
+
+  opacity:0;
+
+  transition:
+    opacity .45s ease;
+}
+
+.game.visible{
+  opacity:1;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header{
+  padding:
+    22px
+    18px
+    18px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dff4ff,
+      #e7f9ee 52%,
+      #fff1c8
+    );
+
+  border-bottom:
+    1px solid
+    #dae7ef;
+}
+
+.header h1{
+  font-size:
+    clamp(
+      27px,
+      4vw,
+      38px
+    );
+
+  line-height:1.12;
+
+  color:#2d4d66;
+
+  margin-bottom:6px;
+}
+
+.subtitle{
+  font-size:14px;
+
+  font-weight:800;
+
+  color:#5d7488;
+}
+
+.stage{
+  display:inline-block;
+
+  margin-top:10px;
+
+  padding:
+    7px
+    15px;
+
+  border-radius:999px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    #ccdae6;
+
+  color:var(--blue-dark);
+
+  font-size:13px;
+
+  font-weight:900;
+}
+
+
+/* =========================================
+   INTRO
+========================================= */
+
+.intro{
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:10px;
+
+  padding:
+    12px
+    18px;
+
+  background:#fbfdff;
+
+  border-bottom:
+    1px solid
+    #e8eef4;
+}
+
+.intro-card{
+  min-width:0;
+
+  padding:
+    11px
+    13px;
+
+  border-radius:14px;
+
+  border:
+    1px solid
+    #e3ebf2;
+
+  background:#f5f9fc;
+
+  color:#5f7286;
+
+  font-size:12px;
+
+  line-height:1.45;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+.progress-area{
+  display:grid;
+
+  grid-template-columns:
+    auto
+    minmax(0,1fr)
+    auto;
+
+  gap:10px;
+
+  align-items:center;
+
+  padding:
+    11px
+    18px;
+
+  background:#fff;
+}
+
+.progress-label,
+.progress-number{
+  font-size:11px;
+
+  font-weight:900;
+
+  color:#65798d;
+}
+
+.progress-bar{
+  height:13px;
+
+  overflow:hidden;
+
+  border-radius:999px;
+
+  background:#e6ecef;
+}
+
+.progress-fill{
+  height:100%;
+
+  width:0;
+
+  border-radius:inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #68aaf0,
+      #54c187
+    );
+
+  transition:
+    width .35s ease;
+}
+
+
+/* =========================================
+   LAYOUT
+========================================= */
+
+.layout{
+  display:grid;
+
+  grid-template-columns:
+    minmax(0,1.05fr)
+    minmax(0,.95fr);
+
+  gap:18px;
+
+  padding:18px;
+
+  align-items:start;
+}
+
+.panel{
+  min-width:0;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:20px;
+
+  background:#fff;
+
+  box-shadow:
+    0 8px 22px
+    rgba(54,81,107,.07);
+}
+
+
+/* =========================================
+   DIAGRAM PANEL
+========================================= */
+
+.diagram-panel{
+  padding:16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfeff,
+      #f7fbff
+    );
+}
+
+.panel-title{
+  text-align:center;
+
+  font-size:14px;
+
+  font-weight:900;
+
+  letter-spacing:.7px;
+
+  text-transform:uppercase;
+
+  color:#527089;
+
+  margin-bottom:4px;
+}
+
+.panel-subtitle{
+  text-align:center;
+
+  font-size:12px;
+
+  line-height:1.4;
+
+  color:#748597;
+
+  margin-bottom:12px;
+}
+
+
+/* =========================================
+   SCENARIO
+========================================= */
+
+.scenario-card{
+  padding:13px;
+
+  border-radius:15px;
+
+  background:var(--yellow);
+
+  border:
+    1px solid
+    #ecdda9;
+
+  margin-bottom:12px;
+}
+
+.scenario-label{
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+  font-weight:900;
+
+  color:#8d6815;
+
+  margin-bottom:4px;
+}
+
+.scenario-title{
+  font-size:15px;
+
+  font-weight:900;
+
+  color:#5e511f;
+
+  margin-bottom:4px;
+}
+
+.scenario-text{
+  font-size:12px;
+
+  line-height:1.48;
+
+  color:#625837;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   PLAN ROUTE
+========================================= */
+
+.route{
+  display:grid;
+
+  grid-template-columns:
+    1fr
+    auto
+    1fr;
+
+  gap:8px;
+
+  align-items:stretch;
+}
+
+.route-node{
+  min-width:0;
+
+  min-height:112px;
+
+  padding:11px;
+
+  border-radius:16px;
+
+  background:#f8fbff;
+
+  border:
+    2px solid
+    #d9e5ee;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  transition:.2s ease;
+}
+
+.node-icon{
+  font-size:27px;
+
+  margin-bottom:4px;
+}
+
+.node-name{
+  font-size:10px;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.45px;
+
+  color:#6e8092;
+
+  margin-bottom:3px;
+}
+
+.node-copy{
+  font-size:11px;
+
+  line-height:1.35;
+
+  font-weight:800;
+
+  color:#425c74;
+
+  overflow-wrap:anywhere;
+}
+
+.route-node.plan-a{
+  background:#eef5ff;
+
+  border-color:#b8cfed;
+}
+
+.route-node.blocked{
+  background:#fff1ef;
+
+  border-color:#edc0bc;
+}
+
+.route-node.plan-b{
+  background:#f7f9fb;
+
+  border-style:dashed;
+}
+
+.route-node.goal{
+  background:#f3faf6;
+
+  border-color:#c7e3d2;
+}
+
+.route-node.plan-b.unlocked{
+  background:#eef9f2;
+
+  border-style:solid;
+
+  border-color:#8fceaa;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(75,176,123,.08);
+}
+
+.route-node.goal.reached{
+  background:#e8f8ef;
+
+  border-color:#75c394;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(75,176,123,.1);
+}
+
+.route-arrow{
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:23px;
+
+  color:#8ca0b2;
+}
+
+.route-bottom{
+  display:grid;
+
+  grid-template-columns:
+    1fr
+    auto
+    1fr;
+
+  gap:8px;
+
+  align-items:stretch;
+
+  margin-top:8px;
+}
+
+.route-spacer{
+  visibility:hidden;
+}
+
+
+/* =========================================
+   SWITCH PANEL
+========================================= */
+
+.switch-panel{
+  padding:16px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+  background:#fffefa;
+}
+
+
+/* =========================================
+   SCORE
+========================================= */
+
+.score-row{
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0,1fr)
+    );
+
+  gap:7px;
+}
+
+.score-card{
+  min-width:0;
+
+  padding:
+    9px
+    5px;
+
+  text-align:center;
+
+  border:
+    1px solid
+    #dce6ef;
+
+  border-radius:14px;
+
+  background:#f8fbff;
+}
+
+.score-label{
+  font-size:9px;
+
+  line-height:1.2;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  color:#738598;
+
+  overflow-wrap:anywhere;
+}
+
+.score-value{
+  margin-top:3px;
+
+  font-size:17px;
+
+  font-weight:900;
+
+  color:#3f69b2;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   CHALLENGE
+========================================= */
+
+.challenge-box{
+  padding:12px;
+
+  border-radius:14px;
+
+  background:#f4f8fc;
+
+  border:
+    1px solid
+    #e1e9ef;
+
+  color:#607488;
+
+  font-size:12px;
+
+  line-height:1.45;
+}
+
+.challenge-box strong{
+  color:#3f5e78;
+}
+
+.choice-title{
+  font-size:11px;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+  color:#587086;
+}
+
+
+/* =========================================
+   SWITCHES
+========================================= */
+
+.switchboard{
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+}
+
+.switch{
+  width:100%;
+
+  min-height:62px;
+
+  padding:
+    10px
+    11px;
+
+  border:
+    2px solid
+    #dbe5ef;
+
+  border-radius:15px;
+
+  background:#fff;
+
+  color:#344d65;
+
+  text-align:left;
+
+  cursor:pointer;
+
+  transition:.18s ease;
+}
+
+.switch:hover:not(:disabled){
+  border-color:#80a7e7;
+
+  transform:
+    translateY(-1px);
+}
+
+.switch-line1{
+  font-size:12px;
+
+  font-weight:900;
+
+  margin-bottom:2px;
+}
+
+.switch-line2{
+  font-size:11px;
+
+  line-height:1.4;
+
+  color:#65798d;
+}
+
+.switch-tag{
+  display:inline-block;
+
+  margin-top:5px;
+
+  padding:
+    3px
+    7px;
+
+  border-radius:999px;
+
+  background:#f2f6fa;
+
+  border:
+    1px solid
+    #dde6ed;
+
+  color:#718296;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  letter-spacing:.35px;
+}
+
+.switch.correct{
+  border-color:#7fc79d;
+
+  background:#edf9f2;
+
+  color:#2b704e;
+}
+
+.switch.correct
+.switch-line2{
+  color:#4d785f;
+}
+
+.switch.wrong{
+  border-color:#dc8581;
+
+  background:#fff0ef;
+
+  color:#8a4643;
+}
+
+.switch.wrong
+.switch-line2{
+  color:#95605d;
+}
+
+.switch.hint{
+  box-shadow:
+    0 0 0 4px
+    rgba(95,143,231,.13);
+
+  border-color:#80a7e7;
+}
+
+.switch:disabled{
+  cursor:default;
+}
+
+
+/* =========================================
+   FEEDBACK
+========================================= */
+
+.feedback{
+  display:none;
+
+  padding:
+    11px
+    12px;
+
+  border-radius:14px;
+
+  font-size:12px;
+
+  line-height:1.45;
+
+  overflow-wrap:anywhere;
+}
+
+.feedback.good{
+  display:block;
+
+  background:#ebf9f1;
+
+  border:
+    1px solid
+    #b4e0c5;
+
+  color:#286a49;
+}
+
+.feedback.warn{
+  display:block;
+
+  background:#fff3e9;
+
+  border:
+    1px solid
+    #edc69f;
+
+  color:#835224;
+}
+
+
+/* =========================================
+   NEXT
+========================================= */
+
+.next-row{
+  display:none;
+}
+
+.next-row.active{
+  display:block;
+}
+
+.next-row .btn-primary{
+  width:100%;
+
+  min-height:48px;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.controls{
+  display:grid;
+
+  grid-template-columns:
+    auto 1fr;
+
+  gap:8px;
+
+  align-items:center;
+}
+
+.btn{
+  min-height:44px;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  font-weight:900;
+
+  transition:.18s ease;
+}
+
+.btn-secondary{
+  padding:
+    9px
+    12px;
+
+  border:
+    1px solid
+    #d3dee7;
+
+  background:#f5f8fb;
+
+  color:#586d82;
+}
+
+.btn-primary{
+  padding:
+    10px
+    16px;
+
+  border:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6093ea,
+      #4eba82
+    );
+
+  color:#fff;
+
+  box-shadow:
+    0 6px 15px
+    rgba(66,120,161,.17);
+}
+
+.btn:hover:not(:disabled){
+  transform:
+    translateY(-1px);
+}
+
+.btn:disabled{
+  opacity:.42;
+
+  cursor:not-allowed;
+
+  box-shadow:none;
+}
+
+#progressText{
+  min-width:0;
+
+  text-align:center;
+
+  color:#708195;
+
+  font-size:10px;
+
+  line-height:1.4;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   VOLUME
+========================================= */
+
+.volume{
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  color:#7b8998;
+
+  font-size:11px;
+}
+
+.volume input{
+  flex:1;
+
+  min-width:0;
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+.final{
+  grid-column:1/-1;
+
+  padding:
+    36px
+    22px;
+
+  text-align:center;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:20px;
+
+  background:#fff;
+}
+
+.final-title{
+  font-size:27px;
+
+  font-weight:900;
+
+  color:#3e67ad;
+
+  margin-bottom:8px;
+}
+
+.final-badge{
+  font-size:58px;
+
+  margin:
+    10px 0;
+}
+
+.final-rank{
+  font-size:22px;
+
+  font-weight:900;
+
+  margin-bottom:6px;
+}
+
+.final-score{
+  margin:
+    8px 0;
+
+  color:#576c81;
+
+  font-size:16px;
+
+  font-weight:800;
+}
+
+.final-text{
+  max-width:680px;
+
+  margin:
+    0 auto 18px;
+
+  color:#67798b;
+
+  font-size:14px;
+
+  line-height:1.55;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media(max-width:900px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .intro{
+    grid-template-columns:1fr;
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:640px){
+
+  html,
+  body{
+    width:100%;
+    max-width:100%;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  body{
+    padding:0;
+
+    background:#f7fbff;
+  }
+
+  .game{
+    width:100%;
+    max-width:100%;
+
+    margin:0;
+
+    border:0;
+    border-radius:0;
+
+    box-shadow:none;
+
+    overflow:visible;
+  }
+
+  .header{
+    padding:
+      16px
+      13px
+      14px;
+  }
+
+  .header h1{
+    font-size:23px;
+  }
+
+  .subtitle{
+    font-size:12px;
+  }
+
+  .intro{
+    padding:10px;
+
+    gap:7px;
+  }
+
+  .intro-card{
+    padding:
+      9px
+      10px;
+
+    font-size:11px;
+  }
+
+  .progress-area{
+    position:sticky;
+
+    top:0;
+
+    z-index:20;
+
+    padding:
+      9px
+      10px;
+
+    background:
+      rgba(255,255,255,.97);
+
+    box-shadow:
+      0 3px 10px
+      rgba(55,78,102,.06);
+  }
+
+  .layout{
+    display:block;
+
+    width:100%;
+
+    padding:10px;
+  }
+
+  .panel{
+    width:100%;
+    max-width:100%;
+
+    min-width:0;
+
+    border-radius:16px;
+  }
+
+  .diagram-panel{
+    padding:11px;
+
+    margin-bottom:12px;
+  }
+
+  .switch-panel{
+    padding:12px;
+  }
+
+  .route{
+    grid-template-columns:1fr;
+  }
+
+  .route-bottom{
+    grid-template-columns:1fr;
+  }
+
+  .route-arrow{
+    transform:
+      rotate(90deg);
+
+    min-height:20px;
+  }
+
+  .route-spacer{
+    display:none;
+  }
+
+  .route-node{
+    min-height:86px;
+  }
+
+  .score-row{
+    gap:5px;
+  }
+
+  .score-card{
+    padding:
+      8px
+      4px;
+  }
+
+  .score-label{
+    font-size:8px;
+  }
+
+  .score-value{
+    font-size:14px;
+  }
+
+  .switch{
+    min-height:64px;
+  }
+
+  .controls{
+    grid-template-columns:1fr;
+  }
+
+  .controls .btn{
+    width:100%;
+  }
+
+  #progressText{
+    order:-1;
+
+    text-align:left;
+  }
+
+  .next-row.active{
+    position:sticky;
+
+    bottom:
+      calc(
+        8px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+
+    z-index:30;
+
+    padding-top:4px;
+  }
+
+  .next-row .btn-primary{
+    border:
+      3px solid #fff;
+
+    box-shadow:
+      0 8px 20px
+      rgba(58,90,123,.2);
+  }
+
+  .volume{
+    padding-bottom:
+      calc(
+        8px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
+
+}
+
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media(max-width:360px){
+
+  .header h1{
+    font-size:20px;
+  }
+
+  .progress-area{
+    grid-template-columns:1fr;
+
+    gap:4px;
+  }
+
+  .progress-label,
+  .progress-number{
+    text-align:center;
+  }
+
+  .score-row{
+    grid-template-columns:1fr;
+  }
+
+  .score-card{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:
+      space-between;
+
+    text-align:left;
+  }
+
+  .score-value{
+    margin:0;
+  }
+
+}
+
+
+/* =========================================
+   REDUCED MOTION
+========================================= */
+
+@media(prefers-reduced-motion:reduce){
+
+  *{
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+
+}
+
+</style>
 </head>
+
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Plan Switchboard...</div>
+
+
+<!-- =========================================
+     SPLASH
+========================================= -->
+
+<div
+  class="splash"
+  id="splash"
+>
+
+  <img
+    src="assets/innovine-logo.png"
+    alt="Innovine Logo"
+    onerror="this.style.display='none'"
+  >
+
+</div>
+
+
+<!-- =========================================
+     GAME
+========================================= -->
+
+<div
+  class="game"
+  id="game"
+>
+
+
+  <header class="header">
+
+    <h1>
+      🔁 Plan Switchboard
+    </h1>
+
+    <div class="subtitle">
+      Adaptability Challenge · Plan A to Plan B
     </div>
+
+    <div
+      class="stage"
+      id="stageIndicator"
+    >
+      Scenario 1 of 6
+    </div>
+
+  </header>
+
+
+  <div class="intro">
+
+    <div class="intro-card">
+
+      Adaptability means adjusting your actions
+      or thinking when the original plan no longer works.
+
+    </div>
+
+
+    <div class="intro-card">
+
+      Study the goal, Plan A and the new block.
+      Then choose the Plan B that still moves you
+      towards the same goal.
+
+    </div>
+
   </div>
 
-  <div class="shell" id="shell">
-    <div class="top-bar">
-      <div class="top-left">
-        <div class="top-title">Plan Switchboard – Plan A / Plan B</div>
-        <div class="top-sub" id="topSub">
-          When Plan A is blocked, adaptability means trying Plan B instead of giving up.[file:38]
-        </div>
-      </div>
-      <div class="top-right">
-        <span>Adaptability Score</span>
-        <div class="meter">
-          <div class="meter-fill" id="meterFill"></div>
-        </div>
-        <span>🌱</span>
-      </div>
+
+  <div class="progress-area">
+
+    <div class="progress-label">
+      Adaptability Progress
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="scenario-panel">
-        <div class="scenario-title" id="scenarioTitle">Scenario</div>
-        <div class="scenario-text" id="scenarioText"></div>
+    <div class="progress-bar">
 
-        <div class="diagram">
-          <div class="node" id="nodeStart">
-            START
-            <div class="label-small" id="startLabel"></div>
-          </div>
-          <div class="arrow" id="arrow1">➡</div>
-          <div class="node" id="nodePlanA">
-            PLAN A
-            <div class="label-small" id="planALabel"></div>
-          </div>
-          <div class="arrow" id="arrow2">➡</div>
-          <div class="node block" id="nodeBlock">
-            BLOCK
-            <div class="label-small" id="blockLabel"></div>
-          </div>
-          <div class="arrow" id="arrow3">⬇</div>
-          <div></div>
-          <div class="node goal" id="nodeGoal">
-            GOAL
-            <div class="label-small" id="goalLabel"></div>
-          </div>
-        </div>
-      </div>
+      <div
+        class="progress-fill"
+        id="progressFill"
+      ></div>
 
-      <div class="switchboard-panel">
-        <div class="switchboard-title">Choose a Plan B on the Switchboard</div>
-        <div class="switchboard" id="switchboard"></div>
-
-        <div class="feedback" id="feedback"></div>
-
-        <div class="controls">
-          <button class="btn secondary" id="nextBtn">Next scenario</button>
-          <div id="progressText">Choose one switch for each scenario. Then click “Finish Game”.</div>
-          <button class="btn primary" id="finishBtn">Finish Game</button>
-        </div>
-      </div>
     </div>
 
-    <div class="footer-text">
-      Plan A blocked? Adaptive people ask questions, learn from mistakes and try a new way.[file:38]
+    <div
+      class="progress-number"
+      id="progressNumber"
+    >
+      0 / 6
     </div>
+
   </div>
 
-  <script>
-    // Splash & shell
-    const splashScreen = document.getElementById("splashScreen");
-    const shell = document.getElementById("shell");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      shell.classList.add("visible");
-    }, 2200);
 
-    // Sounds
-    const goodSound = new Audio("assets/correct.mp3");
-    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
-    goodSound.volume = 0.8;
-    celebrationSound.volume = 0.8;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+  <main
+    class="layout"
+    id="gameWrapper"
+  >
 
-    // Elements
-    const scenarioTitleEl = document.getElementById("scenarioTitle");
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const startLabelEl = document.getElementById("startLabel");
-    const planALabelEl = document.getElementById("planALabel");
-    const blockLabelEl = document.getElementById("blockLabel");
-    const goalLabelEl = document.getElementById("goalLabel");
-    const switchboardEl = document.getElementById("switchboard");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
-    const nextBtn = document.getElementById("nextBtn");
-    const finishBtn = document.getElementById("finishBtn");
-    const meterFill = document.getElementById("meterFill");
 
-    // Scenarios built from the adaptability checklist ideas: try new things, change approach, move to Plan B, see opportunity.[file:38]
-    const scenarios = [
+    <!-- =====================================
+         PLAN DIAGRAM
+    ====================================== -->
+
+    <section class="panel diagram-panel">
+
+      <div class="panel-title">
+        Plan Route
+      </div>
+
+      <div class="panel-subtitle">
+
+        The goal stays the same,
+        but the route can change.
+
+      </div>
+
+
+      <div class="scenario-card">
+
+        <div class="scenario-label">
+          Current Situation
+        </div>
+
+        <div
+          class="scenario-title"
+          id="scenarioTitle"
+        ></div>
+
+        <div
+          class="scenario-text"
+          id="scenarioText"
+        ></div>
+
+      </div>
+
+
+      <!-- GOAL -> PLAN A -->
+
+      <div class="route">
+
+
+        <div class="route-node">
+
+          <div class="node-icon">
+            🎯
+          </div>
+
+          <div class="node-name">
+            Goal
+          </div>
+
+          <div
+            class="node-copy"
+            id="goalLabel"
+          ></div>
+
+        </div>
+
+
+        <div class="route-arrow">
+          →
+        </div>
+
+
+        <div class="route-node plan-a">
+
+          <div class="node-icon">
+            🅰️
+          </div>
+
+          <div class="node-name">
+            Plan A
+          </div>
+
+          <div
+            class="node-copy"
+            id="planALabel"
+          ></div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- BLOCK -> PLAN B -->
+
+      <div class="route-bottom">
+
+
+        <div class="route-node blocked">
+
+          <div class="node-icon">
+            🚧
+          </div>
+
+          <div class="node-name">
+            Block
+          </div>
+
+          <div
+            class="node-copy"
+            id="blockLabel"
+          ></div>
+
+        </div>
+
+
+        <div class="route-arrow">
+          →
+        </div>
+
+
+        <div
+          class="route-node plan-b"
+          id="planBNode"
+        >
+
+          <div class="node-icon">
+            🅱️
+          </div>
+
+          <div class="node-name">
+            Plan B
+          </div>
+
+          <div
+            class="node-copy"
+            id="planBLabel"
+          >
+            Choose a new route
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- GOAL REACHED -->
+
+      <div class="route-bottom">
+
+        <div class="route-spacer"></div>
+
+        <div class="route-arrow">
+          →
+        </div>
+
+        <div
+          class="route-node goal"
+          id="goalNode"
+        >
+
+          <div class="node-icon">
+            🏁
+          </div>
+
+          <div class="node-name">
+            Goal Reached
+          </div>
+
+          <div class="node-copy">
+            Unlocks after a useful Plan B
+          </div>
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- =====================================
+         SWITCHBOARD
+    ====================================== -->
+
+    <section class="panel switch-panel">
+
+
+      <div class="score-row">
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Plans Switched
+          </div>
+
+          <div
+            class="score-value"
+            id="solvedCount"
+          >
+            0 / 6
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            First-Try Accuracy
+          </div>
+
+          <div
+            class="score-value"
+            id="accuracyText"
+          >
+            100%
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Adaptability Rank
+          </div>
+
+          <div
+            class="score-value"
+            id="rankText"
+          >
+            Explorer
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <div
+        class="challenge-box"
+        id="challengeBox"
+      >
+
+        <strong>
+          Switchboard Challenge
+        </strong>
+
+        <br>
+
+        Which Plan B keeps the goal possible
+        without ignoring the new problem?
+
+      </div>
+
+
+      <div class="choice-title">
+        Choose the best Plan B
+      </div>
+
+
+      <div
+        class="switchboard"
+        id="switchboard"
+      ></div>
+
+
+      <div
+        class="feedback"
+        id="feedback"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- NEXT -->
+
+      <div
+        class="next-row"
+        id="nextRow"
+      >
+
+        <button
+          class="btn btn-primary"
+          id="nextBtn"
+          type="button"
+        >
+          Next Scenario →
+        </button>
+
+      </div>
+
+
+      <div class="controls">
+
+        <button
+          class="btn btn-secondary"
+          id="resetBtn"
+          type="button"
+        >
+          Restart Game
+        </button>
+
+
+        <div id="progressText">
+
+          Choose the Plan B that adapts
+          to the block.
+
+        </div>
+
+      </div>
+
+
+      <div class="volume">
+
+        <span>
+          🔊 Sounds
+        </span>
+
+        <input
+          type="range"
+          id="volumeSlider"
+          min="0"
+          max="100"
+          value="80"
+        >
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   SPLASH
+========================================= */
+
+const splash =
+  document.getElementById(
+    "splash"
+  );
+
+const game =
+  document.getElementById(
+    "game"
+  );
+
+setTimeout(
+  () => {
+
+    splash
+      .classList
+      .add(
+        "hide"
+      );
+
+    game
+      .classList
+      .add(
+        "visible"
+      );
+
+  },
+  5000
+);
+
+
+/* =========================================
+   AUDIO
+========================================= */
+
+const correctSound =
+  new Audio(
+    "assets/correct.mp3"
+  );
+
+const wrongSound =
+  new Audio(
+    "assets/wrong.mp3"
+  );
+
+const celebrationSound =
+  new Audio(
+    "assets/freesound_community-claps-44774.mp3"
+  );
+
+let volume =
+  .8;
+
+[
+  correctSound,
+  wrongSound,
+  celebrationSound
+]
+.forEach(
+  sound => {
+
+    sound.volume =
+      volume;
+
+  }
+);
+
+function playSound(
+  sound
+){
+
+  sound.currentTime =
+    0;
+
+  sound
+    .play()
+    .catch(
+      () => {}
+    );
+
+}
+
+document
+  .getElementById(
+    "volumeSlider"
+  )
+  .addEventListener(
+    "input",
+    event => {
+
+      volume =
+        event.target.value /
+        100;
+
+      [
+        correctSound,
+        wrongSound,
+        celebrationSound
+      ]
+      .forEach(
+        sound => {
+
+          sound.volume =
+            volume;
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================
+   SCENARIOS
+========================================= */
+
+const scenarios = [
+
+
+  /* =====================================
+     1
+  ====================================== */
+
+  {
+
+    title:
+      "Rain Changes Game Time",
+
+    text:
+      "You planned to play football outside after school, but heavy rain starts just before playtime.",
+
+    goal:
+      "Have fun and stay active",
+
+    planA:
+      "Play football outside",
+
+    block:
+      "Heavy rain makes the field unsafe",
+
+    choices:[
+
+
       {
-        title: "Homework Plan",
-        text: "You plan to finish homework after TV. But the electricity goes off when the show ends.",
-        start: "Homework after school",
-        planA: "Watch TV, then study",
-        block: "Power cut, no light",
-        goal: "Homework done calmly",
-        goodSwitchId: "b_change_order"
+
+        good:true,
+
+        title:
+          "Switch Activities",
+
+        text:
+          "Choose a safe indoor movement game with your friends.",
+
+        tag:
+          "Flexible action",
+
+        feedback:
+          "You kept the goal—having fun and staying active—but changed the route because the weather changed."
+
       },
+
+
       {
-        title: "Game Time",
-        text: "You want to play football, but it starts raining heavily.",
-        start: "Free time",
-        planA: "Play outside football",
-        block: "Heavy rain",
-        goal: "Have fun and move body",
-        goodSwitchId: "risk_try_new"
+
+        good:false,
+
+        title:
+          "Ignore the Rain",
+
+        text:
+          "Go onto the wet field anyway because football was the original plan.",
+
+        tag:
+          "Unsafe",
+
+        feedback:
+          "Adaptability does not mean ignoring a real safety problem. The new plan needs to fit the changed situation."
+
       },
+
+
       {
-        title: "Group Project",
-        text: "You planned to work with one friend, but they are absent today.",
-        start: "Project due soon",
-        planA: "Work only with that friend",
-        block: "Friend is absent",
-        goal: "Project finished on time",
-        goodSwitchId: "ask_help"
-      },
-      {
-        title: "Math Problem",
-        text: "You tried one method for a math problem many times and it still doesn’t work.",
-        start: "One hard question",
-        planA: "Repeat same method",
-        block: "Still wrong answer",
-        goal: "Understand and solve it",
-        goodSwitchId: "learn_new_way"
+
+        good:false,
+
+        title:
+          "Give Up",
+
+        text:
+          "Decide there is nothing enjoyable to do now and stay upset all afternoon.",
+
+        tag:
+          "Stay stuck",
+
+        feedback:
+          "The original plan is blocked, but the goal can still be reached in another safe way."
+
       }
+
+
+    ]
+
+  },
+
+
+  /* =====================================
+     2
+  ====================================== */
+
+  {
+
+    title:
+      "Partner Is Absent",
+
+    text:
+      "You planned to complete a group task with one particular classmate, but they are absent today and the work is due soon.",
+
+    goal:
+      "Complete the group task on time",
+
+    planA:
+      "Work only with your usual partner",
+
+    block:
+      "Your partner is absent",
+
+    choices:[
+
+
+      {
+
+        good:true,
+
+        title:
+          "Ask and Reorganise",
+
+        text:
+          "Ask the teacher or team how the work can be shared differently today, then continue.",
+
+        tag:
+          "Ask for help",
+
+        feedback:
+          "You accepted the change, asked for useful information and reorganised the work instead of waiting for Plan A to return."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Wait All Day",
+
+        text:
+          "Do nothing until your usual partner comes back another day.",
+
+        tag:
+          "Delay",
+
+        feedback:
+          "Waiting does not help with a task that is due soon. Adaptability means adjusting when the situation changes."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Blame the Partner",
+
+        text:
+          "Spend the lesson complaining that the absent student has ruined everything.",
+
+        tag:
+          "Blame",
+
+        feedback:
+          "Blame uses time and energy without creating a new route towards the goal."
+
+      }
+
+
+    ]
+
+  },
+
+
+  /* =====================================
+     3
+  ====================================== */
+
+  {
+
+    title:
+      "Math Method Is Not Working",
+
+    text:
+      "You have tried the same method several times on a maths problem, but you still do not understand how to solve it.",
+
+    goal:
+      "Understand and solve the problem",
+
+    planA:
+      "Keep repeating the same method",
+
+    block:
+      "The method is still not helping",
+
+    choices:[
+
+
+      {
+
+        good:true,
+
+        title:
+          "Try a New Strategy",
+
+        text:
+          "Look at another example, draw the problem differently or ask for a hint about another method.",
+
+        tag:
+          "Change thinking",
+
+        feedback:
+          "Adaptability includes changing your thinking strategy when repeating the same approach is not helping."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Repeat Faster",
+
+        text:
+          "Use exactly the same method again and again without checking what is confusing you.",
+
+        tag:
+          "Same route",
+
+        feedback:
+          "Persistence is useful, but repeating an approach that is not helping is different from adapting it."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Skip Learning",
+
+        text:
+          "Copy an answer without trying to understand the problem.",
+
+        tag:
+          "Avoid",
+
+        feedback:
+          "That may fill the answer space, but it does not reach the real goal of understanding how to solve the problem."
+
+      }
+
+
+    ]
+
+  },
+
+
+  /* =====================================
+     4
+  ====================================== */
+
+  {
+
+    title:
+      "Presentation File Will Not Open",
+
+    text:
+      "Your group is ready to present, but the digital presentation file suddenly will not open on the classroom computer.",
+
+    goal:
+      "Explain your project clearly",
+
+    planA:
+      "Show the digital slides",
+
+    block:
+      "The file will not open",
+
+    choices:[
+
+
+      {
+
+        good:true,
+
+        title:
+          "Present Another Way",
+
+        text:
+          "Use your notes, diagrams and spoken explanation while someone checks the file later.",
+
+        tag:
+          "Plan B",
+
+        feedback:
+          "You protected the real goal—explaining the project—by changing the format when the technology failed."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Refuse to Present",
+
+        text:
+          "Say the presentation cannot happen at all because the slides are unavailable.",
+
+        tag:
+          "All or nothing",
+
+        feedback:
+          "The slides were one route to the goal, not the goal itself. An adaptable response looks for another route."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Keep Clicking",
+
+        text:
+          "Spend the whole presentation time repeatedly opening the same file without trying another option.",
+
+        tag:
+          "Stay stuck",
+
+        feedback:
+          "Trying the same blocked action again and again can waste the chance to use another workable plan."
+
+      }
+
+
+    ]
+
+  },
+
+
+  /* =====================================
+     5
+  ====================================== */
+
+  {
+
+    title:
+      "Book You Need Is Unavailable",
+
+    text:
+      "You planned to use one library book for your project, but another learner has already borrowed it.",
+
+    goal:
+      "Find reliable information for the project",
+
+    planA:
+      "Use one specific library book",
+
+    block:
+      "The book is currently unavailable",
+
+    choices:[
+
+
+      {
+
+        good:true,
+
+        title:
+          "Use Another Reliable Source",
+
+        text:
+          "Ask the librarian for a similar book or another suitable source and reserve the original if needed.",
+
+        tag:
+          "Find an alternative",
+
+        feedback:
+          "You kept the information goal but changed the source when your first choice was unavailable."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Stop the Project",
+
+        text:
+          "Decide the project is impossible until that exact book returns.",
+
+        tag:
+          "Stay stuck",
+
+        feedback:
+          "One unavailable resource does not necessarily block the whole goal. Adaptability looks for another useful source."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Use Any Random Information",
+
+        text:
+          "Copy the first information you find without checking whether it is reliable or relevant.",
+
+        tag:
+          "Poor substitute",
+
+        feedback:
+          "A Plan B still needs to support the goal well. Changing plans does not mean lowering important standards."
+
+      }
+
+
+    ]
+
+  },
+
+
+  /* =====================================
+     6
+  ====================================== */
+
+  {
+
+    title:
+      "Activity Schedule Changes",
+
+    text:
+      "You were excited about one activity on a school outing, but the organisers change the schedule because the place is temporarily closed.",
+
+    goal:
+      "Learn and enjoy the outing",
+
+    planA:
+      "Do the activity you expected first",
+
+    block:
+      "That activity is temporarily unavailable",
+
+    choices:[
+
+
+      {
+
+        good:true,
+
+        title:
+          "Adjust and Explore",
+
+        text:
+          "Join the replacement activity, notice what it offers and ask when the original activity may be possible later.",
+
+        tag:
+          "Open to change",
+
+        feedback:
+          "You accepted what could not be controlled and looked for value in the new option without losing sight of the outing's goal."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Refuse Everything Else",
+
+        text:
+          "Reject every other activity because the schedule is not exactly what you expected.",
+
+        tag:
+          "Rigid",
+
+        feedback:
+          "Being disappointed is understandable, but refusing every new option keeps you stuck instead of adapting."
+
+      },
+
+
+      {
+
+        good:false,
+
+        title:
+          "Complain Through the Outing",
+
+        text:
+          "Spend the rest of the visit focusing only on how the schedule should not have changed.",
+
+        tag:
+          "Focus on block",
+
+        feedback:
+          "Adaptability means noticing the change, then shifting attention towards what you can still do."
+
+      }
+
+
+    ]
+
+  }
+
+];
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const scenarioTitle =
+  document.getElementById(
+    "scenarioTitle"
+  );
+
+const scenarioText =
+  document.getElementById(
+    "scenarioText"
+  );
+
+const goalLabel =
+  document.getElementById(
+    "goalLabel"
+  );
+
+const planALabel =
+  document.getElementById(
+    "planALabel"
+  );
+
+const blockLabel =
+  document.getElementById(
+    "blockLabel"
+  );
+
+const planBNode =
+  document.getElementById(
+    "planBNode"
+  );
+
+const planBLabel =
+  document.getElementById(
+    "planBLabel"
+  );
+
+const goalNode =
+  document.getElementById(
+    "goalNode"
+  );
+
+const switchboard =
+  document.getElementById(
+    "switchboard"
+  );
+
+const feedback =
+  document.getElementById(
+    "feedback"
+  );
+
+const nextRow =
+  document.getElementById(
+    "nextRow"
+  );
+
+const nextBtn =
+  document.getElementById(
+    "nextBtn"
+  );
+
+const resetBtn =
+  document.getElementById(
+    "resetBtn"
+  );
+
+const stageIndicator =
+  document.getElementById(
+    "stageIndicator"
+  );
+
+const progressFill =
+  document.getElementById(
+    "progressFill"
+  );
+
+const progressNumber =
+  document.getElementById(
+    "progressNumber"
+  );
+
+const solvedCount =
+  document.getElementById(
+    "solvedCount"
+  );
+
+const accuracyText =
+  document.getElementById(
+    "accuracyText"
+  );
+
+const rankText =
+  document.getElementById(
+    "rankText"
+  );
+
+const progressText =
+  document.getElementById(
+    "progressText"
+  );
+
+const gameWrapper =
+  document.getElementById(
+    "gameWrapper"
+  );
+
+
+/* =========================================
+   STATE
+========================================= */
+
+let index =
+  0;
+
+let solved =
+  0;
+
+let firstTryCorrect =
+  0;
+
+let wrongThisScenario =
+  0;
+
+let locked =
+  false;
+
+
+/* =========================================
+   SHUFFLE
+========================================= */
+
+function shuffle(
+  array
+){
+
+  for(
+    let i =
+      array.length - 1;
+
+    i > 0;
+
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random() *
+        (
+          i + 1
+        )
+      );
+
+    [
+      array[i],
+      array[j]
+    ] =
+    [
+      array[j],
+      array[i]
     ];
 
-    const switches = [
-      {
-        id: "stay_stuck",
-        line1: "Stay Stuck",
-        line2: "Do nothing different.",
-        tag: "Give up"
-      },
-      {
-        id: "blame",
-        line1: "Blame Others",
-        line2: "Say it is not your fault.",
-        tag: "Not adaptive"
-      },
-      {
-        id: "b_change_order",
-        line1: "Change Order",
-        line2: "Study first, then relax later.",
-        tag: "Plan B"
-      },
-      {
-        id: "ask_help",
-        line1: "Ask for Help",
-        line2: "Work with someone else or teacher.",
-        tag: "Learn from others"
-      },
-      {
-        id: "risk_try_new",
-        line1: "Try Something Else",
-        line2: "Choose a safe indoor game instead.",
-        tag: "Try new"
-      },
-      {
-        id: "learn_new_way",
-        line1: "New Method",
-        line2: "Use a different strategy or example.",
-        tag: "Change thinking"
-      }
+  }
+
+
+  return array;
+
+}
+
+
+/* =========================================
+   ACCURACY
+========================================= */
+
+function accuracy(){
+
+  if(
+    solved ===
+    0
+  ){
+
+    return 100;
+
+  }
+
+
+  return Math.round(
+    (
+      firstTryCorrect /
+      solved
+    ) *
+    100
+  );
+
+}
+
+
+/* =========================================
+   UPDATE SCORE
+========================================= */
+
+function updateScore(){
+
+  solvedCount.textContent =
+    `${solved} / ${scenarios.length}`;
+
+
+  accuracyText.textContent =
+    `${accuracy()}%`;
+
+
+  progressNumber.textContent =
+    `${solved} / ${scenarios.length}`;
+
+
+  progressFill.style.width =
+    `${
+      Math.round(
+        (
+          solved /
+          scenarios.length
+        ) *
+        100
+      )
+    }%`;
+
+
+  stageIndicator.textContent =
+    solved ===
+    scenarios.length
+
+      ?
+
+    "Switchboard complete"
+
+      :
+
+    `Scenario ${
+      index + 1
+    } of ${
+      scenarios.length
+    }`;
+
+
+  if(
+    solved >=
+    5 &&
+    accuracy() >=
+    80
+  ){
+
+    rankText.textContent =
+      "Plan Switch Champion";
+
+  }
+
+  else if(
+    solved >=
+    3
+  ){
+
+    rankText.textContent =
+      "Adaptive Thinker";
+
+  }
+
+  else{
+
+    rankText.textContent =
+      "Explorer";
+
+  }
+
+}
+
+
+/* =========================================
+   LOAD SCENARIO
+========================================= */
+
+function loadScenario(){
+
+  locked =
+    false;
+
+
+  wrongThisScenario =
+    0;
+
+
+  const scenario =
+    scenarios[
+      index
     ];
 
-    let currentScenarioIndex = 0;
-    let correctChoices = 0;
 
-    function updateMeter(){
-      const total = scenarios.length;
-      const percent = Math.round((correctChoices / total) * 100);
-      meterFill.style.width = percent + "%";
+  scenarioTitle.textContent =
+    scenario.title;
+
+
+  scenarioText.textContent =
+    scenario.text;
+
+
+  goalLabel.textContent =
+    scenario.goal;
+
+
+  planALabel.textContent =
+    scenario.planA;
+
+
+  blockLabel.textContent =
+    scenario.block;
+
+
+  planBLabel.textContent =
+    "Choose a new route";
+
+
+  planBNode
+    .classList
+    .remove(
+      "unlocked"
+    );
+
+
+  goalNode
+    .classList
+    .remove(
+      "reached"
+    );
+
+
+  goalNode
+    .querySelector(
+      ".node-copy"
+    )
+    .textContent =
+      "Unlocks after a useful Plan B";
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  switchboard.innerHTML =
+    "";
+
+
+  shuffle(
+    [
+      ...scenario.choices
+    ]
+  )
+  .forEach(
+    choice => {
+
+      const button =
+        document
+          .createElement(
+            "button"
+          );
+
+
+      button.type =
+        "button";
+
+
+      button.className =
+        "switch";
+
+
+      button.innerHTML =
+        `
+
+        <div class="switch-line1">
+          ${choice.title}
+        </div>
+
+        <div class="switch-line2">
+          ${choice.text}
+        </div>
+
+        <div class="switch-tag">
+          ${choice.tag}
+        </div>
+
+        `;
+
+
+      button
+        .addEventListener(
+          "click",
+          () => {
+
+            choosePlan(
+              choice,
+              button
+            );
+
+          }
+        );
+
+
+      switchboard
+        .appendChild(
+          button
+        );
+
+    }
+  );
+
+
+  progressText.textContent =
+    "Choose the Plan B that adapts to the block and still supports the goal.";
+
+
+  updateScore();
+
+
+  if(
+    window
+      .matchMedia(
+        "(max-width:640px)"
+      )
+      .matches
+  ){
+
+    setTimeout(
+      () => {
+
+        document
+          .querySelector(
+            ".scenario-card"
+          )
+          .scrollIntoView(
+            {
+              behavior:"smooth",
+              block:"start"
+            }
+          );
+
+      },
+      80
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   CHOOSE PLAN
+========================================= */
+
+function choosePlan(
+  choice,
+  button
+){
+
+  if(
+    locked
+  ){
+
+    return;
+
+  }
+
+
+  /* CORRECT */
+
+  if(
+    choice.good
+  ){
+
+    locked =
+      true;
+
+
+    solved++;
+
+
+    if(
+      wrongThisScenario ===
+      0
+    ){
+
+      firstTryCorrect++;
+
     }
 
-    function loadScenario(){
-      const s = scenarios[currentScenarioIndex];
-      scenarioTitleEl.textContent = s.title;
-      scenarioTextEl.textContent = s.text;
-      startLabelEl.textContent = s.start;
-      planALabelEl.textContent = s.planA;
-      blockLabelEl.textContent = s.block;
-      goalLabelEl.textContent = s.goal;
-      feedbackEl.style.display = "none";
-      buildSwitchboard();
-      progressTextEl.textContent = `Scenario ${currentScenarioIndex + 1} of ${scenarios.length} · Choose the best Plan B.`;
-      updateMeter();
+
+    playSound(
+      correctSound
+    );
+
+
+    button
+      .classList
+      .add(
+        "correct"
+      );
+
+
+    document
+      .querySelectorAll(
+        ".switch"
+      )
+      .forEach(
+        switchButton => {
+
+          switchButton.disabled =
+            true;
+
+        }
+      );
+
+
+    feedback.className =
+      "feedback good";
+
+
+    feedback.textContent =
+      "✅ " +
+      choice.feedback;
+
+
+    planBLabel.textContent =
+      choice.title;
+
+
+    planBNode
+      .classList
+      .add(
+        "unlocked"
+      );
+
+
+    goalNode
+      .classList
+      .add(
+        "reached"
+      );
+
+
+    goalNode
+      .querySelector(
+        ".node-copy"
+      )
+      .textContent =
+        "Goal remains possible through the new plan";
+
+
+    updateScore();
+
+
+    nextBtn.textContent =
+      index ===
+      scenarios.length - 1
+
+        ?
+
+      "Finish Game"
+
+        :
+
+      "Next Scenario →";
+
+
+    nextRow
+      .classList
+      .add(
+        "active"
+      );
+
+
+    progressText.textContent =
+      index ===
+      scenarios.length - 1
+
+        ?
+
+      "All scenarios are complete. View your adaptability report."
+
+        :
+
+      "Review why this Plan B works, then continue.";
+
+
+    if(
+      window
+        .matchMedia(
+          "(max-width:640px)"
+        )
+        .matches
+    ){
+
+      setTimeout(
+        () => {
+
+          nextBtn
+            .scrollIntoView(
+              {
+                behavior:"smooth",
+                block:"nearest"
+              }
+            );
+
+        },
+        100
+      );
+
     }
 
-    function buildSwitchboard(){
-      switchboardEl.innerHTML = "";
-      switches.forEach(sw => {
-        const btn = document.createElement("button");
-        btn.className = "switch";
-        btn.dataset.id = sw.id;
+  }
 
-        const line1 = document.createElement("div");
-        line1.className = "switch-line1";
-        line1.textContent = sw.line1;
 
-        const line2 = document.createElement("div");
-        line2.className = "switch-line2";
-        line2.textContent = sw.line2;
+  /* WRONG */
 
-        const tag = document.createElement("div");
-        tag.className = "switch-tag";
-        tag.textContent = sw.tag;
+  else{
 
-        btn.appendChild(line1);
-        btn.appendChild(line2);
-        btn.appendChild(tag);
+    wrongThisScenario++;
 
-        btn.addEventListener("click", () => handleSwitchClick(sw.id));
-        switchboardEl.appendChild(btn);
-      });
-    }
 
-    function handleSwitchClick(id){
-      const s = scenarios[currentScenarioIndex];
-      feedbackEl.style.display = "block";
-      if(id === s.goodSwitchId){
-        playGood();
-        feedbackEl.className = "feedback good";
-        feedbackEl.textContent = "Good choice. You changed your plan instead of giving up. That is adaptability in action: moving from Plan A to Plan B.[file:38]";
-        correctChoices++;
-      } else {
-        feedbackEl.className = "feedback warn";
-        feedbackEl.textContent = "This does not really move you forward. Try a switch that changes your actions or thinking so you can still reach the goal.[file:38]";
+    playSound(
+      wrongSound
+    );
+
+
+    button
+      .classList
+      .add(
+        "wrong"
+      );
+
+
+    button.disabled =
+      true;
+
+
+    feedback.className =
+      "feedback warn";
+
+
+    feedback.textContent =
+      "💡 " +
+      choice.feedback +
+      " Try another switch.";
+
+
+    progressText.textContent =
+      "Look again at the goal and the block, then choose another Plan B.";
+
+
+    /*
+      After two incorrect choices,
+      subtly highlight the correct route.
+    */
+
+    if(
+      wrongThisScenario >=
+      2
+    ){
+
+      const correctChoice =
+        scenarios[
+          index
+        ]
+        .choices
+        .find(
+          choiceItem =>
+            choiceItem.good
+        );
+
+
+      if(
+        correctChoice
+      ){
+
+        [
+          ...switchboard.children
+        ]
+        .forEach(
+          switchButton => {
+
+            const title =
+              switchButton
+                .querySelector(
+                  ".switch-line1"
+                )
+                ?.textContent
+                .trim();
+
+
+            if(
+              title ===
+              correctChoice.title
+            ){
+
+              switchButton
+                .classList
+                .add(
+                  "hint"
+                );
+
+            }
+
+          }
+        );
+
       }
-      updateMeter();
+
     }
 
-    nextBtn.addEventListener("click", () => {
-      if(currentScenarioIndex < scenarios.length - 1){
-        currentScenarioIndex++;
-        loadScenario();
-      } else {
-        progressTextEl.textContent = "You have seen all scenarios. Click “Finish Game” to see your adaptability result.";
+  }
+
+}
+
+
+/* =========================================
+   NEXT SCENARIO
+========================================= */
+
+function nextScenario(){
+
+  if(
+    !locked
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    index ===
+    scenarios.length - 1
+  ){
+
+    finishGame();
+
+    return;
+
+  }
+
+
+  index++;
+
+
+  loadScenario();
+
+}
+
+
+/* =========================================
+   RESTART
+========================================= */
+
+function restartGame(){
+
+  index =
+    0;
+
+
+  solved =
+    0;
+
+
+  firstTryCorrect =
+    0;
+
+
+  wrongThisScenario =
+    0;
+
+
+  locked =
+    false;
+
+
+  loadScenario();
+
+
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
+
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+function finishGame(){
+
+  playSound(
+    celebrationSound
+  );
+
+
+  const acc =
+    accuracy();
+
+
+  let rank;
+  let badge;
+  let text;
+
+
+  if(
+    acc >=
+    90
+  ){
+
+    rank =
+      "Plan Switch Champion";
+
+
+    badge =
+      "🔁🌟";
+
+
+    text =
+      "Excellent work. You consistently recognised that adaptability keeps the goal in sight while changing the route when circumstances change.";
+
+  }
+
+  else if(
+    acc >=
+    70
+  ){
+
+    rank =
+      "Adaptive Thinker";
+
+
+    badge =
+      "🔁🧠";
+
+
+    text =
+      "You completed every Plan B challenge and used feedback well. Keep practising how to adjust actions, seek help and try new strategies when a plan is blocked.";
+
+  }
+
+  else{
+
+    rank =
+      "Growing Adapter";
+
+
+    badge =
+      "🔁🌱";
+
+
+    text =
+      "You completed all the scenarios. Adaptability becomes stronger when you separate the goal from the original plan and look for another workable route.";
+
+  }
+
+
+  gameWrapper.innerHTML =
+    `
+
+    <section class="final">
+
+      <div class="final-title">
+        Plan Switchboard Report
+      </div>
+
+      <div class="final-badge">
+        ${badge}
+      </div>
+
+      <div class="final-rank">
+        ${rank}
+      </div>
+
+      <div class="final-score">
+        6 / 6 plans switched
+        · First-try accuracy:
+        ${acc}%
+      </div>
+
+      <div class="final-text">
+        ${text}
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="againBtn"
+        type="button"
+      >
+        Play Again
+      </button>
+
+    </section>
+
+    `;
+
+
+  document
+    .getElementById(
+      "againBtn"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        location.reload();
+
       }
-    });
+    );
 
-    finishBtn.addEventListener("click", () => {
-      const total = scenarios.length;
-      const percent = Math.round((correctChoices / total) * 100);
-      playCelebrate();
 
-      const end = document.createElement("div");
-      end.className = "end-screen";
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
 
-      let title, badge, sub;
-      if(percent >= 75){
-        title = "Plan Switch Champion";
-        badge = "🔁🌟";
-        sub = "You are quick to move to Plan B when Plan A is blocked. You try new ways, ask for help and change your thinking when needed.[file:38]";
-      } else if(percent >= 50){
-        title = "Adaptability Learner";
-        badge = "🔁🌱";
-        sub = "You sometimes change your plan, but you can keep practising trying something else when things don't work the first time.[file:38]";
-      } else {
-        title = "Stuck on Plan A";
-        badge = "🔁🧱";
-        sub = "You often stay with Plan A even when it is blocked. With practice, you can learn to switch plans and see change as a new chance.[file:38]";
-      }
+}
 
-      end.innerHTML = `
-        <div class="end-badge">${badge}</div>
-        <div class="end-title">${title}</div>
-        <div class="end-sub">${sub}</div>
-        <button class="end-btn" id="playAgainBtn">Play Again</button>
-      `;
-      shell.appendChild(end);
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    });
 
-    // Init
-    loadScenario();
-  </script>
+/* =========================================
+   EVENTS
+========================================= */
+
+nextBtn
+  .addEventListener(
+    "click",
+    nextScenario
+  );
+
+
+resetBtn
+  .addEventListener(
+    "click",
+    restartGame
+  );
+
+
+/* =========================================
+   START
+========================================= */
+
+loadScenario();
+
+</script>
+
 </body>
 </html>
