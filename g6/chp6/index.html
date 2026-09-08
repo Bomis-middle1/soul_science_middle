@@ -1,796 +1,3793 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conflict Path – Choose Your Steps</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #e0f2fe 0%, #fef9c3 45%, #fee2e2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 10px;
-      color: #0f172a;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Conflict Path – Choose Your Steps</title>
 
-    /* Splash screen */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100 { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
 
-    .container {
-      max-width: 1100px; width: 100%;
-      background: #f9fafb;
-      border-radius: 20px;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34, 197, 94, 0.5);
-      overflow: hidden;
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .container.visible { opacity: 1; }
+:root{
+  --ink:#26394c;
+  --muted:#6b7e91;
+  --blue:#5f8fe7;
+  --blueDark:#3763ad;
+  --green:#4bb07b;
+  --mint:#ebf8f0;
+  --yellow:#fff3cf;
+  --orange:#efa25a;
+  --red:#d96c68;
+  --line:#dce7ef;
+  --soft:#f6f9fc;
+  --white:#fff;
+}
 
-    .header {
-      position: relative;
-      padding: 16px 16px 18px;
-      text-align: center;
-      background: linear-gradient(135deg, #22c55e 0%, #22c55e 40%, #38bdf8 80%);
-      color: #022c22;
-      box-shadow: 0 4px 14px rgba(34,197,94,0.7);
-    }
-    .header::before {
-      content: '';
-      position: absolute; inset: -60%;
-      background:
-        radial-gradient(circle at 10% 20%, rgba(255,255,255,0.7) 0, transparent 55%),
-        radial-gradient(circle at 80% 10%, rgba(254,249,195,0.8) 0, transparent 55%);
-      opacity: 0.7;
-      animation: headerGlow 20s linear infinite;
-    }
-    @keyframes headerGlow {
-      0% { transform: translate(0,0); }
-      100% { transform: translate(-70px,35px); }
-    }
-    .header-content { position: relative; z-index: 1; }
-    .header h1 {
-      font-size: 24px;
-      letter-spacing: 1.3px;
-      text-shadow: 0 0 9px rgba(255,255,255,0.7);
-      margin-bottom: 4px;
-    }
-    .subtitle {
-      font-size: 13px;
-      font-weight: bold;
-      color: #fefce8;
-    }
-    .stage-indicator {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 5px 14px;
-      border-radius: 16px;
-      background: rgba(15,23,42,0.9);
-      border: 2px solid #fef3c7;
-      color: #fefce8;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 16px rgba(59,130,246,0.9);
-    }
+html{
+  width:100%;
+  overflow-x:hidden;
+  scroll-behavior:smooth;
+}
 
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 16px;
-      background: linear-gradient(to right, #fef3c7, #e0f2fe);
-      border-bottom: 1px solid rgba(148,163,184,0.7);
-      font-size: 13px;
-      color: #374151;
-    }
+body{
+  width:100%;
+  min-height:100vh;
 
-    .layout {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 14px;
-      gap: 14px;
-      background:
-        radial-gradient(circle at 10% 0%, #bfdbfe 0%, transparent 40%),
-        radial-gradient(circle at 90% 0%, #bbf7d0 0%, transparent 40%),
-        #f9fafb;
-    }
+  overflow-x:hidden;
+  overflow-y:auto;
 
-    .path-panel {
-      flex: 1.4;
-      min-width: 360px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 10px;
-      background: #e0f2fe;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .path-title {
-      font-size: 14px;
-      font-weight: bold;
-      color: #0f172a;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      text-align: center;
-    }
+  font-family:
+    "Trebuchet MS",
+    "Segoe UI",
+    Arial,
+    sans-serif;
 
-    .path-scene {
-      flex: 1;
-      border-radius: 14px;
-      background:
-        linear-gradient(to top, #bbf7d0 0%, #fef9c3 45%, #7dd3fc 80%);
-      padding: 8px;
-      position: relative;
-      overflow: hidden;
-      box-shadow: inset 0 0 18px rgba(148,163,184,0.7);
-    }
+  color:var(--ink);
 
-    .path-line {
-      position: absolute;
-      left: 40px;
-      top: 40px;
-      bottom: 40px;
-      width: 4px;
-      background: linear-gradient(to bottom, #22c55e, #38bdf8);
-      border-radius: 999px;
-    }
+  background:
+    linear-gradient(
+      180deg,
+      #f8fcff,
+      #eef7ff 55%,
+      #fffaf1
+    );
 
-    .step-node {
-      position: absolute;
-      left: 28px;
-      width: 28px;
-      height: 28px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      border: 2px solid #9ca3af;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: bold;
-      color: #4b5563;
-    }
-    .step-node.active {
-      background: #22c55e;
-      border-color: #16a34a;
-      color: #f9fafb;
-      box-shadow: 0 0 12px rgba(34,197,94,0.9);
-    }
-    .step-node.done {
-      background: #38bdf8;
-      border-color: #0ea5e9;
-      color: #f9fafb;
-      box-shadow: 0 0 12px rgba(59,130,246,0.9);
-    }
+  padding:16px;
+}
 
-    .step-label {
-      position: absolute;
-      left: 70px;
-      width: calc(100% - 90px);
-      font-size: 11px;
-      color: #111827;
-    }
+button,
+input{
+  font:inherit;
+}
 
-    /* Right panel: scenario + choices */
-    .right-panel {
-      flex: 1;
-      min-width: 320px;
-      border-radius: 18px;
-      border: 2px solid rgba(56,189,248,0.8);
-      padding: 12px;
-      background: #fefce8;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+button:focus-visible,
+input:focus-visible{
+  outline:3px solid #ffd465;
+  outline-offset:3px;
+}
 
-    .score-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .score-card {
-      flex: 1;
-      text-align: center;
-      padding: 6px 5px;
-      border-radius: 12px;
-      background: #eff6ff;
-      border: 1px solid rgba(148, 163, 184, 0.8);
-      box-shadow: 0 3px 7px rgba(148,163,184,0.7);
-    }
-    .score-label {
-      font-size: 11px;
-      letter-spacing: 0.5px;
-      color: #4b5563;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .score-value {
-      font-size: 18px;
-      font-weight: bold;
-      color: #0f172a;
-    }
 
-    .status-text {
-      font-size: 12px;
-      color: #374151;
-      text-align: center;
-      margin-top: 2px;
-    }
+/* =========================================
+   SPLASH
+========================================= */
 
-    .scenario-title {
-      font-size: 13px;
-      font-weight: bold;
-      color: #7c2d12;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      text-align: center;
-    }
+.splash{
+  position:fixed;
+  inset:0;
 
-    .scenario-text {
-      font-size: 13px;
-      color: #374151;
-      text-align: center;
-      min-height: 44px;
-    }
+  z-index:9999;
 
-    .choice-box {
-      margin-top: 4px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 8px;
-      background: #fffbeb;
-      font-size: 12px;
-      color: #374151;
-    }
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    .choice-list {
-      margin-top: 4px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .choice-btn {
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      padding: 6px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-      text-align: left;
-    }
-    .choice-btn:hover {
-      border-color: #22c55e;
-      box-shadow: 0 0 8px rgba(34,197,94,0.6);
-    }
+  background:#fff;
 
-    .feedback {
-      margin-top: 4px;
-      font-size: 12px;
-      line-height: 1.4;
-      border-radius: 10px;
-      padding: 6px 8px;
-      display: none;
-    }
-    .feedback.good {
-      background: rgba(134,239,172,0.6);
-      border: 1px solid #16a34a;
-      color: #064e3b;
-    }
-    .feedback.warn {
-      background: rgba(254,202,202,0.7);
-      border: 1px solid #f97316;
-      color: #7c2d12;
-    }
+  transition:
+    opacity .45s ease;
+}
 
-    .controls {
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #4b5563;
-    }
+.splash.hide{
+  opacity:0;
+  pointer-events:none;
+}
 
-    .btn-primary {
-      padding: 7px 14px;
-      border-radius: 18px;
-      border: none;
-      font-size: 13px;
-      font-weight: bold;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(34,197,94,0.9);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
-    }
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(34,197,94,1);
-    }
+.splash img{
+  width:min(430px,82vw);
+  height:auto;
 
-    .btn-secondary {
-      padding: 6px 10px;
-      border-radius: 16px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 12px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn-secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
-    }
+  animation:
+    floatLogo
+    2s
+    ease-in-out
+    infinite;
+}
 
-    .volume-control {
-      margin-top: 4px;
-      font-size: 11px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #4b5563;
-    }
-    .volume-control input { flex: 1; }
+@keyframes floatLogo{
+  50%{
+    transform:
+      translateY(-9px);
+  }
+}
 
-    .final-screen {
-      padding: 20px 16px 16px;
-      text-align: center;
-    }
-    .final-title {
-      font-size: 20px;
-      margin-bottom: 8px;
-      color: #7c2d12;
-    }
-    .final-badge { font-size: 40px; margin: 10px 0; }
-    .final-rank { font-size: 18px; margin-bottom: 4px; font-weight: bold; color: #1f2937; }
-    .final-score { font-size: 18px; margin: 4px 0; color: #1f2937; }
-    .final-text { font-size: 14px; color: #374151; margin-bottom: 10px; }
 
-    @media (max-width: 768px) {
-      .header h1 { font-size: 20px; }
-      .layout { flex-direction: column; }
-      .path-panel, .right-panel { min-width: 100%; }
-    }
-  </style>
+/* =========================================
+   SHELL
+========================================= */
+
+.game{
+  width:min(1140px,100%);
+
+  margin:0 auto;
+
+  background:#fff;
+
+  border:
+    1px solid
+    #dbe7ef;
+
+  border-radius:28px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 18px 46px
+    rgba(57,87,118,.14);
+
+  opacity:0;
+
+  transition:
+    opacity .45s ease;
+}
+
+.game.visible{
+  opacity:1;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.header{
+  padding:
+    22px
+    18px
+    18px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dff4ff,
+      #e7f9ee 52%,
+      #fff1c8
+    );
+
+  border-bottom:
+    1px solid
+    #dae7ef;
+}
+
+.header h1{
+  font-size:
+    clamp(
+      27px,
+      4vw,
+      38px
+    );
+
+  line-height:1.12;
+
+  color:#2d4d66;
+
+  margin-bottom:6px;
+}
+
+.subtitle{
+  font-size:14px;
+
+  font-weight:800;
+
+  color:#5d7488;
+}
+
+.stage{
+  display:inline-block;
+
+  margin-top:10px;
+
+  padding:
+    7px
+    15px;
+
+  border-radius:999px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    #ccdae6;
+
+  color:var(--blueDark);
+
+  font-size:13px;
+
+  font-weight:900;
+}
+
+
+/* =========================================
+   INTRO
+========================================= */
+
+.intro{
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:10px;
+
+  padding:
+    12px
+    18px;
+
+  background:#fbfdff;
+
+  border-bottom:
+    1px solid
+    #e8eef4;
+}
+
+.intro-card{
+  min-width:0;
+
+  padding:
+    11px
+    13px;
+
+  border-radius:14px;
+
+  border:
+    1px solid
+    #e3ebf2;
+
+  background:#f5f9fc;
+
+  color:#5f7286;
+
+  font-size:12px;
+
+  line-height:1.45;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   PROGRESS
+========================================= */
+
+.progress-area{
+  display:grid;
+
+  grid-template-columns:
+    auto
+    minmax(0,1fr)
+    auto;
+
+  gap:10px;
+
+  align-items:center;
+
+  padding:
+    11px
+    18px;
+
+  background:#fff;
+}
+
+.progress-label,
+.progress-number{
+  font-size:11px;
+
+  font-weight:900;
+
+  color:#65798d;
+}
+
+.progress-bar{
+  height:13px;
+
+  overflow:hidden;
+
+  border-radius:999px;
+
+  background:#e6ecef;
+}
+
+.progress-fill{
+  height:100%;
+
+  width:0;
+
+  border-radius:inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #68aaf0,
+      #54c187
+    );
+
+  transition:
+    width .35s ease;
+}
+
+
+/* =========================================
+   LAYOUT
+========================================= */
+
+.layout{
+  display:grid;
+
+  grid-template-columns:
+    minmax(0,1.02fr)
+    minmax(0,.98fr);
+
+  gap:18px;
+
+  padding:18px;
+
+  align-items:start;
+}
+
+.panel{
+  min-width:0;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:20px;
+
+  background:#fff;
+
+  box-shadow:
+    0 8px 22px
+    rgba(54,81,107,.07);
+}
+
+
+/* =========================================
+   PATH PANEL
+========================================= */
+
+.path-panel{
+  padding:16px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfeff,
+      #f7fbff
+    );
+}
+
+.panel-title{
+  text-align:center;
+
+  font-size:14px;
+
+  font-weight:900;
+
+  letter-spacing:.7px;
+
+  text-transform:uppercase;
+
+  color:#527089;
+
+  margin-bottom:4px;
+}
+
+.panel-subtitle{
+  text-align:center;
+
+  font-size:12px;
+
+  line-height:1.4;
+
+  color:#748597;
+
+  margin-bottom:12px;
+}
+
+
+/* =========================================
+   PATH
+========================================= */
+
+.path-card{
+  position:relative;
+
+  padding:
+    10px
+    10px
+    10px
+    14px;
+
+  border-radius:18px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #edf8ff,
+      #f5fbff
+    );
+
+  border:
+    1px solid
+    #d9e8f2;
+}
+
+.path-line{
+  position:absolute;
+
+  left:29px;
+  top:38px;
+  bottom:38px;
+
+  width:4px;
+
+  border-radius:999px;
+
+  background:#d6e4eb;
+}
+
+.step-list{
+  position:relative;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:10px;
+}
+
+.step-item{
+  position:relative;
+
+  display:grid;
+
+  grid-template-columns:
+    42px
+    minmax(0,1fr);
+
+  gap:9px;
+
+  align-items:center;
+
+  min-width:0;
+}
+
+.step-node{
+  width:32px;
+  height:32px;
+
+  margin-left:0;
+
+  border-radius:50%;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  background:#fff;
+
+  border:
+    2px solid
+    #cbd9e5;
+
+  color:#6d7f91;
+
+  font-size:12px;
+
+  font-weight:900;
+
+  z-index:2;
+
+  transition:.2s ease;
+}
+
+.step-copy{
+  min-width:0;
+
+  padding:
+    9px
+    10px;
+
+  border-radius:13px;
+
+  background:#fff;
+
+  border:
+    1px solid
+    #e1e9ef;
+
+  color:#607387;
+}
+
+.step-name{
+  font-size:11px;
+
+  font-weight:900;
+
+  color:#36566f;
+
+  margin-bottom:2px;
+}
+
+.step-help{
+  font-size:9px;
+
+  line-height:1.35;
+
+  color:#75869a;
+}
+
+.step-item.active
+.step-node{
+  background:#5f8fe7;
+
+  border-color:#4e7fd4;
+
+  color:#fff;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(95,143,231,.12);
+}
+
+.step-item.active
+.step-copy{
+  border-color:#91b2e9;
+
+  background:#f0f6ff;
+}
+
+.step-item.done
+.step-node{
+  background:#4bb07b;
+
+  border-color:#3c9868;
+
+  color:#fff;
+}
+
+.step-item.done
+.step-copy{
+  border-color:#b9dfc7;
+
+  background:#f0faf4;
+}
+
+
+/* =========================================
+   CONFLICT PICKER
+========================================= */
+
+.conflict-picker{
+  margin-top:12px;
+
+  padding:11px;
+
+  border-radius:15px;
+
+  background:#fff7e8;
+
+  border:
+    1px solid
+    #edd7aa;
+}
+
+.conflict-picker-title{
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+  font-weight:900;
+
+  color:#8a671d;
+
+  margin-bottom:7px;
+}
+
+.conflict-buttons{
+  display:grid;
+
+  grid-template-columns:1fr;
+
+  gap:6px;
+}
+
+.conflict-btn{
+  width:100%;
+
+  padding:
+    9px
+    10px;
+
+  border:
+    1px solid
+    #e0d1ae;
+
+  border-radius:12px;
+
+  background:#fff;
+
+  color:#675837;
+
+  text-align:left;
+
+  font-size:10px;
+
+  line-height:1.35;
+
+  font-weight:800;
+
+  cursor:pointer;
+}
+
+.conflict-btn.selected{
+  border-color:#e5b85c;
+
+  background:#fff0c8;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(229,184,92,.12);
+}
+
+
+/* =========================================
+   RIGHT PANEL
+========================================= */
+
+.right-panel{
+  padding:16px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:12px;
+
+  background:#fffefa;
+}
+
+
+/* =========================================
+   SCORE
+========================================= */
+
+.score-row{
+  display:grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0,1fr)
+    );
+
+  gap:7px;
+}
+
+.score-card{
+  min-width:0;
+
+  padding:
+    9px
+    5px;
+
+  text-align:center;
+
+  border:
+    1px solid
+    #dce6ef;
+
+  border-radius:14px;
+
+  background:#f8fbff;
+}
+
+.score-label{
+  font-size:9px;
+
+  line-height:1.2;
+
+  font-weight:900;
+
+  text-transform:uppercase;
+
+  color:#738598;
+
+  overflow-wrap:anywhere;
+}
+
+.score-value{
+  margin-top:3px;
+
+  font-size:17px;
+
+  font-weight:900;
+
+  color:#3f69b2;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   SCENARIO
+========================================= */
+
+.scenario{
+  padding:13px;
+
+  border-radius:15px;
+
+  background:var(--yellow);
+
+  border:
+    1px solid
+    #ecdda9;
+}
+
+.scenario-label{
+  font-size:10px;
+
+  text-transform:uppercase;
+
+  letter-spacing:.5px;
+
+  font-weight:900;
+
+  color:#8d6815;
+
+  margin-bottom:4px;
+}
+
+.scenario-title{
+  font-size:14px;
+
+  font-weight:900;
+
+  color:#5e511f;
+
+  margin-bottom:4px;
+}
+
+.scenario-text{
+  font-size:12px;
+
+  line-height:1.48;
+
+  color:#625837;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   STEP BOX
+========================================= */
+
+.step-box{
+  padding:12px;
+
+  border-radius:14px;
+
+  background:#f4f8fc;
+
+  border:
+    1px solid
+    #e1e9ef;
+
+  color:#607488;
+
+  font-size:12px;
+
+  line-height:1.45;
+}
+
+.step-box strong{
+  color:#3f5e78;
+}
+
+
+/* =========================================
+   CHOICES
+========================================= */
+
+.choice-list{
+  display:flex;
+
+  flex-direction:column;
+
+  gap:8px;
+}
+
+.choice-btn{
+  width:100%;
+
+  min-height:52px;
+
+  padding:
+    11px
+    12px;
+
+  border:
+    2px solid
+    #dbe5ef;
+
+  border-radius:15px;
+
+  background:#fff;
+
+  color:#344d65;
+
+  text-align:left;
+
+  font-size:12px;
+
+  line-height:1.45;
+
+  font-weight:800;
+
+  cursor:pointer;
+
+  transition:.18s ease;
+
+  overflow-wrap:anywhere;
+}
+
+.choice-btn:hover:not(:disabled){
+  border-color:#80a7e7;
+
+  transform:
+    translateY(-1px);
+}
+
+.choice-btn.correct{
+  border-color:#7fc79d;
+
+  background:#edf9f2;
+
+  color:#2b704e;
+}
+
+.choice-btn.wrong{
+  border-color:#dc8581;
+
+  background:#fff0ef;
+
+  color:#8a4643;
+}
+
+.choice-btn:disabled{
+  cursor:default;
+}
+
+
+/* =========================================
+   FEEDBACK
+========================================= */
+
+.feedback{
+  display:none;
+
+  padding:
+    11px
+    12px;
+
+  border-radius:14px;
+
+  font-size:12px;
+
+  line-height:1.45;
+
+  overflow-wrap:anywhere;
+}
+
+.feedback.good{
+  display:block;
+
+  background:#ebf9f1;
+
+  border:
+    1px solid
+    #b4e0c5;
+
+  color:#286a49;
+}
+
+.feedback.warn{
+  display:block;
+
+  background:#fff3e9;
+
+  border:
+    1px solid
+    #edc69f;
+
+  color:#835224;
+}
+
+
+/* =========================================
+   NEXT
+========================================= */
+
+.next-row{
+  display:none;
+}
+
+.next-row.active{
+  display:block;
+}
+
+.next-row .btn-primary{
+  width:100%;
+
+  min-height:48px;
+}
+
+
+/* =========================================
+   CONTROLS
+========================================= */
+
+.controls{
+  display:grid;
+
+  grid-template-columns:
+    auto
+    1fr
+    auto;
+
+  gap:8px;
+
+  align-items:center;
+}
+
+.btn{
+  min-height:44px;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  font-weight:900;
+
+  transition:.18s ease;
+}
+
+.btn-secondary{
+  padding:
+    9px
+    12px;
+
+  border:
+    1px solid
+    #d3dee7;
+
+  background:#f5f8fb;
+
+  color:#586d82;
+}
+
+.btn-primary{
+  padding:
+    10px
+    16px;
+
+  border:0;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6093ea,
+      #4eba82
+    );
+
+  color:#fff;
+
+  box-shadow:
+    0 6px 15px
+    rgba(66,120,161,.17);
+}
+
+.btn:hover:not(:disabled){
+  transform:
+    translateY(-1px);
+}
+
+.btn:disabled{
+  opacity:.42;
+
+  cursor:not-allowed;
+
+  box-shadow:none;
+}
+
+#progressText{
+  min-width:0;
+
+  text-align:center;
+
+  color:#708195;
+
+  font-size:10px;
+
+  line-height:1.4;
+
+  overflow-wrap:anywhere;
+}
+
+
+/* =========================================
+   VOLUME
+========================================= */
+
+.volume{
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  color:#7b8998;
+
+  font-size:11px;
+}
+
+.volume input{
+  flex:1;
+
+  min-width:0;
+}
+
+
+/* =========================================
+   FINAL
+========================================= */
+
+.final{
+  grid-column:1/-1;
+
+  padding:
+    36px
+    22px;
+
+  text-align:center;
+
+  border:
+    1px solid
+    var(--line);
+
+  border-radius:20px;
+
+  background:#fff;
+}
+
+.final-title{
+  font-size:27px;
+
+  font-weight:900;
+
+  color:#3e67ad;
+
+  margin-bottom:8px;
+}
+
+.final-badge{
+  font-size:58px;
+
+  margin:
+    10px 0;
+}
+
+.final-rank{
+  font-size:22px;
+
+  font-weight:900;
+
+  margin-bottom:6px;
+}
+
+.final-score{
+  margin:
+    8px 0;
+
+  color:#576c81;
+
+  font-size:16px;
+
+  font-weight:800;
+}
+
+.final-text{
+  max-width:680px;
+
+  margin:
+    0 auto 18px;
+
+  color:#67798b;
+
+  font-size:14px;
+
+  line-height:1.55;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media(max-width:900px){
+
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .intro{
+    grid-template-columns:1fr;
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media(max-width:640px){
+
+  html,
+  body{
+    width:100%;
+    max-width:100%;
+
+    overflow-x:hidden;
+    overflow-y:auto;
+  }
+
+  body{
+    padding:0;
+
+    background:#f7fbff;
+  }
+
+  .game{
+    width:100%;
+    max-width:100%;
+
+    margin:0;
+
+    border:0;
+    border-radius:0;
+
+    box-shadow:none;
+
+    overflow:visible;
+  }
+
+  .header{
+    padding:
+      16px
+      13px
+      14px;
+  }
+
+  .header h1{
+    font-size:23px;
+  }
+
+  .subtitle{
+    font-size:12px;
+  }
+
+  .intro{
+    padding:10px;
+
+    gap:7px;
+  }
+
+  .intro-card{
+    padding:
+      9px
+      10px;
+
+    font-size:11px;
+  }
+
+  .progress-area{
+    position:sticky;
+
+    top:0;
+
+    z-index:20;
+
+    padding:
+      9px
+      10px;
+
+    background:
+      rgba(255,255,255,.97);
+
+    box-shadow:
+      0 3px 10px
+      rgba(55,78,102,.06);
+  }
+
+  .layout{
+    display:block;
+
+    width:100%;
+
+    padding:10px;
+  }
+
+  .panel{
+    width:100%;
+    max-width:100%;
+
+    min-width:0;
+
+    border-radius:16px;
+  }
+
+  .path-panel{
+    padding:11px;
+
+    margin-bottom:12px;
+  }
+
+  .right-panel{
+    padding:12px;
+  }
+
+  .score-row{
+    gap:5px;
+  }
+
+  .score-card{
+    padding:
+      8px
+      4px;
+  }
+
+  .score-label{
+    font-size:8px;
+  }
+
+  .score-value{
+    font-size:14px;
+  }
+
+  .step-item{
+    grid-template-columns:
+      38px
+      minmax(0,1fr);
+
+    gap:7px;
+  }
+
+  .step-node{
+    width:29px;
+    height:29px;
+  }
+
+  .path-line{
+    left:26px;
+  }
+
+  .choice-btn{
+    min-height:54px;
+
+    font-size:12px;
+  }
+
+  .controls{
+    grid-template-columns:1fr;
+  }
+
+  .controls .btn{
+    width:100%;
+  }
+
+  #progressText{
+    order:-1;
+
+    text-align:left;
+  }
+
+  .next-row.active{
+    position:sticky;
+
+    bottom:
+      calc(
+        8px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+
+    z-index:30;
+
+    padding-top:4px;
+  }
+
+  .next-row .btn-primary{
+    border:
+      3px solid
+      #fff;
+
+    box-shadow:
+      0 8px 20px
+      rgba(58,90,123,.2);
+  }
+
+  .volume{
+    padding-bottom:
+      calc(
+        8px +
+        env(
+          safe-area-inset-bottom
+        )
+      );
+  }
+
+}
+
+
+/* =========================================
+   SMALL PHONES
+========================================= */
+
+@media(max-width:360px){
+
+  .header h1{
+    font-size:20px;
+  }
+
+  .progress-area{
+    grid-template-columns:1fr;
+
+    gap:4px;
+  }
+
+  .progress-label,
+  .progress-number{
+    text-align:center;
+  }
+
+  .score-row{
+    grid-template-columns:1fr;
+  }
+
+  .score-card{
+    display:flex;
+
+    align-items:center;
+
+    justify-content:
+      space-between;
+
+    text-align:left;
+  }
+
+  .score-value{
+    margin:0;
+  }
+
+}
+
+
+@media(prefers-reduced-motion:reduce){
+
+  *{
+    animation-duration:.01ms !important;
+    transition-duration:.01ms !important;
+    scroll-behavior:auto !important;
+  }
+
+}
+
+</style>
 </head>
+
+
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Conflict Path...</div>
+
+
+<!-- =========================================
+     SPLASH
+========================================= -->
+
+<div
+  class="splash"
+  id="splash"
+>
+
+  <img
+    src="assets/innovine-logo.png"
+    alt="Innovine Logo"
+    onerror="this.style.display='none'"
+  >
+
+</div>
+
+
+<!-- =========================================
+     GAME
+========================================= -->
+
+<div
+  class="game"
+  id="game"
+>
+
+
+  <header class="header">
+
+    <h1>
+      🛤 Conflict Path
+    </h1>
+
+    <div class="subtitle">
+      Choose Your Steps · Conflict Resolution
     </div>
+
+    <div
+      class="stage"
+      id="stageIndicator"
+    >
+      Choose a conflict
+    </div>
+
+  </header>
+
+
+  <div class="intro">
+
+    <div class="intro-card">
+
+      Conflict can be handled peacefully when you calm down,
+      communicate clearly, listen, think of options and choose
+      a fair solution.
+
+    </div>
+
+
+    <div class="intro-card">
+
+      Work through all six steps. If a response is unhelpful,
+      use the feedback and try again before moving forward.
+
+    </div>
+
   </div>
 
-  <div class="container" id="mainContainer">
-    <div class="header">
-      <div class="header-content">
-        <h1>🛤 Conflict Path – Choose Your Steps</h1>
-        <div class="subtitle">Chapter 6 – Conflict Resolution · Grade 6</div>
-        <div class="stage-indicator" id="stageIndicator">Step 1 of 6 – STOP</div>
-      </div>
+
+  <div class="progress-area">
+
+    <div class="progress-label">
+      Peace Path Progress
     </div>
 
-    <div class="top-bar">
-      <div>Conflict is a disagreement that can hurt feelings and relationships, but it can be resolved peacefully.[file:35]</div>
-      <div>Follow the path: STOP · SAY · THINK · CHOOSE · RESPECT to solve a school conflict calmly.[file:35]</div>
+    <div class="progress-bar">
+
+      <div
+        class="progress-fill"
+        id="progressFill"
+      ></div>
+
     </div>
 
-    <div class="layout" id="gameWrapper">
-      <div class="path-panel">
-        <div class="path-title">Conflict Resolution Path</div>
-        <div class="path-scene">
-          <div class="path-line"></div>
-
-          <!-- Nodes -->
-          <div class="step-node active" data-index="0" style="top:40px;">1</div>
-          <div class="step-label" style="top:42px;">STOP – Calm down before reacting.[file:35]</div>
-
-          <div class="step-node" data-index="1" style="top:90px;">2</div>
-          <div class="step-label" style="top:92px;">SAY – Share the problem using “I” statements.[file:35]</div>
-
-          <div class="step-node" data-index="2" style="top:140px;">3</div>
-          <div class="step-label" style="top:142px;">THINK – Listen, take responsibility and understand both sides.[file:35]</div>
-
-          <div class="step-node" data-index="3" style="top:190px;">4</div>
-          <div class="step-label" style="top:192px;">BRAINSTORM – Suggest different solutions together.[file:35]</div>
-
-          <div class="step-node" data-index="4" style="top:240px;">5</div>
-          <div class="step-label" style="top:242px;">CHOOSE – Pick a fair solution that helps everyone.[file:35]</div>
-
-          <div class="step-node" data-index="5" style="top:290px;">6</div>
-          <div class="step-label" style="top:292px;">RESPECT – Affirm, forgive or thank each other.[file:35]</div>
-        </div>
-      </div>
-
-      <div class="right-panel">
-        <div class="score-row">
-          <div class="score-card">
-            <div class="score-label">Peace Steps</div>
-            <div class="score-value" id="peaceSteps">0 / 6</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Calm & Respect</div>
-            <div class="score-value" id="calmScore">0%</div>
-          </div>
-          <div class="score-card">
-            <div class="score-label">Path Rank</div>
-            <div class="score-value" id="rankText">Beginner</div>
-          </div>
-        </div>
-
-        <div class="status-text" id="statusText">Click “Start Conflict” to see a school conflict and begin the path.</div>
-
-        <div class="scenario-title">Conflict Scenario</div>
-        <div class="scenario-text" id="scenarioText"></div>
-
-        <div class="choice-box" id="stepBox">
-          Choose one action for this step. Try to keep calm, listen and look for win‑win solutions.
-        </div>
-
-        <div class="choice-list" id="choiceList"></div>
-
-        <div class="feedback" id="feedback"></div>
-
-        <div class="controls">
-          <button class="btn-secondary" id="resetBtn">New conflict</button>
-          <div id="progressText">Follow the steps one by one. You cannot skip ahead.</div>
-          <button class="btn-primary" id="startBtn">Start Conflict</button>
-        </div>
-
-        <div class="volume-control">
-          <span>🔊 Sounds</span>
-          <input type="range" id="volumeSlider" min="0" max="100" value="80" />
-        </div>
-      </div>
+    <div
+      class="progress-number"
+      id="progressNumber"
+    >
+      0 / 6
     </div>
+
   </div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const mainContainer = document.getElementById("mainContainer");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      mainContainer.classList.add("visible");
-    }, 2500);
 
-    // Audio
-    const goodSound = new Audio('assets/correct.mp3');
-    const celebrationSound = new Audio('assets/freesound_community-claps-44774.mp3');
-    let volume = 0.8;
-    goodSound.volume = volume;
-    celebrationSound.volume = volume;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+  <main
+    class="layout"
+    id="gameWrapper"
+  >
 
-    document.getElementById("volumeSlider").addEventListener("input", e => {
-      volume = e.target.value / 100;
-      goodSound.volume = volume;
-      celebrationSound.volume = volume;
-    });
 
-    // Conflict scenarios (based on reflection sheet examples).[file:35]
-    const conflicts = [
-      {
-        title: "Group Project Problem",
-        text: "You and your friend are in a group project. They refuse to do their share of work and you feel stressed and angry.[file:35]"
-      },
-      {
-        title: "Being Left Out",
-        text: "A group of friends regularly excludes you from their games and activities, and you feel hurt.[file:35]"
-      },
-      {
-        title: "Rumours and Reputation",
-        text: "A friend spreads rumours about you to make others dislike you, and your reputation is being damaged.[file:35]"
-      }
-    ];
+    <!-- =====================================
+         PATH
+    ====================================== -->
 
-    // Steps and choices aligned with chapter steps.[file:35]
-    const steps = [
-      {
-        key: "STOP",
-        boxText: "Step 1 – STOP & CALM DOWN: Before solving the problem, how will you calm yourself?[file:35]",
-        choices: [
-          {
-            text: "Take slow deep breaths and count to 10 before reacting.",
-            good: true,
-            feedback: "Calming your body first gives your brain time to think clearly before you respond.[file:35]"
-          },
-          {
-            text: "Immediately shout and tell them how angry you are.",
-            good: false,
-            feedback: "Reacting suddenly can make the conflict bigger. First, let the feelings cool down.[file:35]"
-          }
-        ]
-      },
-      {
-        key: "SAY",
-        boxText: "Step 2 – SAY & SHARE: How will you explain the problem? Use an “I” statement.[file:35]",
-        choices: [
-          {
-            text: "Say: “I feel upset when you don’t do your part because it leaves me with all the work.”",
-            good: true,
-            feedback: "Using “I feel… when… because…” shares your feelings without attacking the person.[file:35]"
-          },
-          {
-            text: "Say: “You are lazy and you never do anything right.”",
-            good: false,
-            feedback: "Blaming words make others defensive and stop them from listening.[file:35]"
-          }
-        ]
-      },
-      {
-        key: "THINK",
-        boxText: "Step 3 – THINK, LISTEN & TAKE RESPONSIBILITY: What will you do next?[file:35]",
-        choices: [
-          {
-            text: "Listen to their side and think, “Is there anything I could do differently too?”",
-            good: true,
-            feedback: "Listening and taking some responsibility opens the door to understanding both sides.[file:35]"
-          },
-          {
-            text: "Refuse to listen and say: “I don’t care what you think.”",
-            good: false,
-            feedback: "Ignoring their point of view keeps the conflict stuck.[file:35]"
-          }
-        ]
-      },
-      {
-        key: "BRAINSTORM",
-        boxText: "Step 4 – BRAINSTORM SOLUTIONS: What kind of ideas will you suggest?[file:35]",
-        choices: [
-          {
-            text: "Suggest a few different ideas so you both can choose one together.",
-            good: true,
-            feedback: "Brainstorming together helps you find options that could work for everyone.[file:35]"
-          },
-          {
-            text: "Insist on only one solution: “You must do exactly what I say.”",
-            good: false,
-            feedback: "Insisting on only your way is more like a fight than a solution.[file:35]"
-          }
-        ]
-      },
-      {
-        key: "CHOOSE",
-        boxText: "Step 5 – CHOOSE A FAIR SOLUTION: Which choice is best now?[file:35]",
-        choices: [
-          {
-            text: "Pick a solution where both of you share work more fairly next time.",
-            good: true,
-            feedback: "A fair solution is closer to a win‑win, like the collaborative ‘owl’ style.[file:35]"
-          },
-          {
-            text: "Choose a solution where only you win and they lose completely.",
-            good: false,
-            feedback: "A win‑lose decision may solve today’s problem but hurts the relationship.[file:35]"
-          }
-        ]
-      },
-      {
-        key: "RESPECT",
-        boxText: "Step 6 – RESPECT, AFFIRM & THANK: How will you close the conflict?[file:35]",
-        choices: [
-          {
-            text: "Say something like: “Thank you for talking this out with me. I’m glad we found a solution.”",
-            good: true,
-            feedback: "Affirming and thanking shows respect and helps rebuild the relationship.[file:35]"
-          },
-          {
-            text: "Stay silent, roll your eyes and walk away angrily.",
-            good: false,
-            feedback: "Staying angry keeps the conflict open instead of truly resolving it.[file:35]"
-          }
-        ]
-      }
-    ];
+    <section class="panel path-panel">
 
-    const stepNodes = document.querySelectorAll(".step-node");
-    const stageIndicator = document.getElementById("stageIndicator");
-    const scenarioTextEl = document.getElementById("scenarioText");
-    const statusTextEl = document.getElementById("statusText");
-    const stepBoxEl = document.getElementById("stepBox");
-    const choiceListEl = document.getElementById("choiceList");
-    const feedbackEl = document.getElementById("feedback");
-    const progressTextEl = document.getElementById("progressText");
+      <div class="panel-title">
+        Conflict Resolution Path
+      </div>
 
-    const peaceStepsEl = document.getElementById("peaceSteps");
-    const calmScoreEl = document.getElementById("calmScore");
-    const rankTextEl = document.getElementById("rankText");
+      <div class="panel-subtitle">
 
-    const resetBtn = document.getElementById("resetBtn");
-    const startBtn = document.getElementById("startBtn");
+        Complete each step in order.
+        The wording changes to fit the conflict you chose.
 
-    let currentConflict = null;
-    let currentStep = 0;
-    let goodChoices = 0;
+      </div>
 
-    function resetNodes(){
-      stepNodes.forEach(node => {
-        node.classList.remove("active", "done");
-      });
-      stepNodes[0].classList.add("active");
-    }
 
-    function updateScore(){
-      peaceStepsEl.textContent = goodChoices + " / 6";
-      const percent = Math.round((goodChoices / 6) * 100);
-      calmScoreEl.textContent = percent + "%";
+      <div class="path-card">
 
-      if(percent >= 80){
-        rankTextEl.textContent = "Peace Builder";
-      } else if(percent >= 50){
-        rankTextEl.textContent = "Problem Solver";
-      } else {
-        rankTextEl.textContent = "Beginner";
-      }
-    }
+        <div class="path-line"></div>
 
-    function loadConflict(){
-      currentConflict = conflicts[Math.floor(Math.random() * conflicts.length)];
-      scenarioTextEl.textContent = currentConflict.title + ": " + currentConflict.text;
-    }
+        <div
+          class="step-list"
+          id="stepList"
+        ></div>
 
-    function loadStep(){
-      const step = steps[currentStep];
-      stageIndicator.textContent = "Step " + (currentStep + 1) + " of 6 – " + step.key;
-      stepBoxEl.textContent = step.boxText;
-      feedbackEl.style.display = "none";
+      </div>
 
-      choiceListEl.innerHTML = "";
-      step.choices.forEach((choice, index) => {
-        const btn = document.createElement("button");
-        btn.className = "choice-btn";
-        btn.textContent = choice.text;
-        btn.addEventListener("click", () => handleChoice(choice));
-        choiceListEl.appendChild(btn);
-      });
 
-      stepNodes.forEach(node => node.classList.remove("active"));
-      const activeNode = document.querySelector('.step-node[data-index="' + currentStep + '"]');
-      if(activeNode) activeNode.classList.add("active");
+      <div class="conflict-picker">
 
-      statusTextEl.textContent = "You are now on step " + (currentStep + 1) + ": " + step.key + ".";
-      progressTextEl.textContent = "Choose your action for this step, then move to the next one.";
-    }
+        <div class="conflict-picker-title">
+          Choose a conflict to practise
+        </div>
 
-    function handleChoice(choice){
-      // mark node as done
-      const currentNode = document.querySelector('.step-node[data-index="' + currentStep + '"]');
-      if(currentNode) {
-        currentNode.classList.remove("active");
-        currentNode.classList.add("done");
-      }
+        <div
+          class="conflict-buttons"
+          id="conflictButtons"
+        ></div>
 
-      feedbackEl.style.display = "block";
+      </div>
 
-      if(choice.good){
-        goodChoices++;
-        playGood();
-        feedbackEl.className = "feedback good";
-        feedbackEl.textContent = choice.feedback;
-      } else {
-        feedbackEl.className = "feedback warn";
-        feedbackEl.textContent = choice.feedback;
-      }
-      updateScore();
+    </section>
 
-      // move to next step or finish
-      setTimeout(() => {
-        currentStep++;
-        if(currentStep < steps.length){
-          loadStep();
-        } else {
-          finishPath();
+
+    <!-- =====================================
+         RIGHT PANEL
+    ====================================== -->
+
+    <section class="panel right-panel">
+
+
+      <div class="score-row">
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Peace Steps
+          </div>
+
+          <div
+            class="score-value"
+            id="peaceSteps"
+          >
+            0 / 6
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            First-Try Accuracy
+          </div>
+
+          <div
+            class="score-value"
+            id="accuracyText"
+          >
+            100%
+          </div>
+
+        </div>
+
+
+        <div class="score-card">
+
+          <div class="score-label">
+            Path Rank
+          </div>
+
+          <div
+            class="score-value"
+            id="rankText"
+          >
+            Beginner
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- SCENARIO -->
+
+      <div class="scenario">
+
+        <div class="scenario-label">
+          Conflict Scenario
+        </div>
+
+        <div
+          class="scenario-title"
+          id="scenarioTitle"
+        >
+          Choose a conflict
+        </div>
+
+        <div
+          class="scenario-text"
+          id="scenarioText"
+        >
+          Select one of the conflict situations on the left,
+          then start the path.
+        </div>
+
+      </div>
+
+
+      <!-- STEP -->
+
+      <div
+        class="step-box"
+        id="stepBox"
+      >
+
+        <strong>
+          Ready?
+        </strong>
+
+        Choose a conflict and press Start Path.
+
+      </div>
+
+
+      <div
+        class="choice-list"
+        id="choiceList"
+      ></div>
+
+
+      <div
+        class="feedback"
+        id="feedback"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- NEXT -->
+
+      <div
+        class="next-row"
+        id="nextRow"
+      >
+
+        <button
+          class="btn btn-primary"
+          id="nextBtn"
+          type="button"
+        >
+          Next Step →
+        </button>
+
+      </div>
+
+
+      <!-- CONTROLS -->
+
+      <div class="controls">
+
+        <button
+          class="btn btn-secondary"
+          id="resetBtn"
+          type="button"
+        >
+          New Conflict
+        </button>
+
+        <div id="progressText">
+          Choose a conflict to begin.
+        </div>
+
+        <button
+          class="btn btn-primary"
+          id="startBtn"
+          type="button"
+        >
+          Start Path
+        </button>
+
+      </div>
+
+
+      <div class="volume">
+
+        <span>
+          🔊 Sounds
+        </span>
+
+        <input
+          type="range"
+          id="volumeSlider"
+          min="0"
+          max="100"
+          value="80"
+        >
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+
+</div>
+
+
+<script>
+
+/* =========================================
+   SPLASH
+========================================= */
+
+const splash =
+  document.getElementById(
+    "splash"
+  );
+
+const game =
+  document.getElementById(
+    "game"
+  );
+
+setTimeout(
+  () => {
+
+    splash
+      .classList
+      .add(
+        "hide"
+      );
+
+    game
+      .classList
+      .add(
+        "visible"
+      );
+
+  },
+  5000
+);
+
+
+/* =========================================
+   AUDIO
+========================================= */
+
+const correctSound =
+  new Audio(
+    "assets/correct.mp3"
+  );
+
+const wrongSound =
+  new Audio(
+    "assets/wrong.mp3"
+  );
+
+const celebrationSound =
+  new Audio(
+    "assets/freesound_community-claps-44774.mp3"
+  );
+
+let volume =
+  .8;
+
+[
+  correctSound,
+  wrongSound,
+  celebrationSound
+]
+.forEach(
+  sound => {
+
+    sound.volume =
+      volume;
+
+  }
+);
+
+function playSound(
+  sound
+){
+
+  sound.currentTime =
+    0;
+
+  sound
+    .play()
+    .catch(
+      () => {}
+    );
+
+}
+
+document
+  .getElementById(
+    "volumeSlider"
+  )
+  .addEventListener(
+    "input",
+    event => {
+
+      volume =
+        event.target.value /
+        100;
+
+      [
+        correctSound,
+        wrongSound,
+        celebrationSound
+      ]
+      .forEach(
+        sound => {
+
+          sound.volume =
+            volume;
+
         }
-      }, 1400);
-    }
+      );
 
-    function finishPath(){
-      playCelebrate();
-      const percent = Math.round((goodChoices / 6) * 100);
-      let rank, badge, text;
-      if(percent >= 80){
-        rank = "Conflict Resolver";
-        badge = "🕊";
-        text = "You used calm, listening, brainstorming and fair choices to reach a peaceful solution. This is strong conflict resolution.[file:35]";
-      } else if(percent >= 50){
-        rank = "Growing Mediator";
-        badge = "🤝";
-        text = "You made some good choices. With more practice using “I” statements and win‑win thinking, you will handle conflicts even better.[file:35]";
-      } else {
-        rank = "New Explorer";
-        badge = "🌱";
-        text = "You’ve started learning the steps. Remember: calm down, talk it out, listen and look for solutions that help everyone.[file:35]";
+    }
+  );
+
+
+/* =========================================
+   PATH STEPS
+========================================= */
+
+const stepMeta = [
+
+  {
+    key:"STOP",
+    help:"Calm down before reacting."
+  },
+
+  {
+    key:"SAY",
+    help:"Share the problem using an I statement."
+  },
+
+  {
+    key:"THINK",
+    help:"Listen and understand both sides."
+  },
+
+  {
+    key:"BRAINSTORM",
+    help:"Suggest possible solutions together."
+  },
+
+  {
+    key:"CHOOSE",
+    help:"Pick a fair solution."
+  },
+
+  {
+    key:"RESPECT",
+    help:"Close the conflict with respect."
+  }
+
+];
+
+
+/* =========================================
+   CONFLICT DATA
+========================================= */
+
+const conflicts = [
+
+
+  /* =====================================
+     GROUP PROJECT
+  ====================================== */
+
+  {
+
+    id:"project",
+
+    title:
+      "Group Project Problem",
+
+    text:
+      "You and a friend are working on a group project. They have not completed their part, and you feel stressed and angry.",
+
+    steps:[
+
+
+      /* STOP */
+
+      {
+
+        prompt:
+          "Step 1 – STOP: What should you do before speaking?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Take a few slow breaths and give yourself a moment to calm down.",
+
+            feedback:
+              "Calming your body first helps you think more clearly and prevents the conflict from growing."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Send an angry message to the group immediately.",
+
+            feedback:
+              "Reacting while very angry can make the problem bigger. Calm yourself first."
+          }
+
+        ]
+
+      },
+
+
+      /* SAY */
+
+      {
+
+        prompt:
+          "Step 2 – SAY: Which message explains the problem without attacking your friend?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "I feel stressed when the work is not shared because I am worried we will not finish on time.",
+
+            feedback:
+              "This I statement explains your feeling, the situation and why it matters without insulting the other person."
+          },
+
+          {
+            good:false,
+
+            text:
+              "You are lazy and you never do anything properly.",
+
+            feedback:
+              "Labels and blame usually make people defensive instead of helping them listen."
+          }
+
+        ]
+
+      },
+
+
+      /* THINK */
+
+      {
+
+        prompt:
+          "Step 3 – THINK: How can you understand both sides?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Ask what got in the way, listen to their answer and think about whether the tasks were clear to everyone.",
+
+            feedback:
+              "Listening and checking your own part in the misunderstanding helps you understand the whole situation."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Refuse to listen because you have already decided that everything is their fault.",
+
+            feedback:
+              "Conflict resolution gets stuck when only one side is allowed to speak."
+          }
+
+        ]
+
+      },
+
+
+      /* BRAINSTORM */
+
+      {
+
+        prompt:
+          "Step 4 – BRAINSTORM: What is the best way to generate solutions?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Suggest splitting the remaining work, setting a short timeline and checking progress together.",
+
+            feedback:
+              "Brainstorming several practical ideas creates more chances for a solution that works for everyone."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Tell them there is only one option: they must do exactly what you say.",
+
+            feedback:
+              "Brainstorming means considering options together, not forcing one person to accept your plan."
+          }
+
+        ]
+
+      },
+
+
+      /* CHOOSE */
+
+      {
+
+        prompt:
+          "Step 5 – CHOOSE: Which solution is fairest?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Agree on clear tasks for each person and a deadline that gives everyone a fair share.",
+
+            feedback:
+              "A fair solution shares responsibility and gives both people a clear way forward."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Do the entire project yourself and refuse to let your friend contribute at all.",
+
+            feedback:
+              "Taking over may finish the task, but it does not resolve the teamwork problem fairly."
+          }
+
+        ]
+
+      },
+
+
+      /* RESPECT */
+
+      {
+
+        prompt:
+          "Step 6 – RESPECT: How should you close the conversation?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Thank them for talking it through and agree to check in with each other before the deadline.",
+
+            feedback:
+              "Ending respectfully helps rebuild trust and makes the agreement more likely to work."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Roll your eyes and remind them that you are still angry even after agreeing on a plan.",
+
+            feedback:
+              "A respectful closing helps the conflict truly settle instead of keeping the tension alive."
+          }
+
+        ]
+
       }
 
-      const html = `
-        <div class="final-screen">
-          <div class="final-title">Conflict Path Report</div>
-          <div class="final-badge">${badge}</div>
-          <div class="final-rank">${rank}</div>
-          <div class="final-score">Peace steps chosen: ${goodChoices} / 6 (${percent}%)</div>
-          <div class="final-text">${text}</div>
-          <button class="btn-primary" id="playAgainBtn">Try Another Conflict</button>
-        </div>
-      `;
-      const wrapper = document.getElementById("gameWrapper");
-      wrapper.innerHTML = html;
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
+    ]
+
+  },
+
+
+  /* =====================================
+     BEING LEFT OUT
+  ====================================== */
+
+  {
+
+    id:"leftout",
+
+    title:
+      "Being Left Out",
+
+    text:
+      "A group of friends has been leaving you out of games and activities, and you feel hurt and confused.",
+
+    steps:[
+
+
+      /* STOP */
+
+      {
+
+        prompt:
+          "Step 1 – STOP: What should you do before confronting the group?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Pause, breathe slowly and wait until you feel calm enough to speak clearly.",
+
+            feedback:
+              "Calming down first makes it easier to explain hurt feelings without turning the situation into a fight."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Walk over immediately and accuse everyone loudly in front of others.",
+
+            feedback:
+              "A public angry reaction can make everyone defensive and make the conflict harder to solve."
+          }
+
+        ]
+
+      },
+
+
+      /* SAY */
+
+      {
+
+        prompt:
+          "Step 2 – SAY: Which I statement shares your experience clearly?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "I feel hurt when I am left out because I value spending time with you.",
+
+            feedback:
+              "This communicates your feelings and the situation without attacking anyone."
+          },
+
+          {
+            good:false,
+
+            text:
+              "You are all horrible friends and you always treat me badly.",
+
+            feedback:
+              "General accusations can shift attention away from the specific problem you want to solve."
+          }
+
+        ]
+
+      },
+
+
+      /* THINK */
+
+      {
+
+        prompt:
+          "Step 3 – THINK: What should happen next?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Listen to their explanation and ask questions before deciding why you were left out.",
+
+            feedback:
+              "Listening helps you check whether there was a misunderstanding, a practical reason or a pattern that needs addressing."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Interrupt every explanation because you already know what they meant.",
+
+            feedback:
+              "Listening is necessary if you want to understand the conflict rather than only react to it."
+          }
+
+        ]
+
+      },
+
+
+      /* BRAINSTORM */
+
+      {
+
+        prompt:
+          "Step 4 – BRAINSTORM: Which approach creates useful options?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Suggest joining the next game, choosing an activity everyone can play or agreeing to tell each other directly when plans change.",
+
+            feedback:
+              "These options focus on inclusion and clearer communication rather than blame."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Demand that the group must always choose whatever activity you want.",
+
+            feedback:
+              "A fair solution should consider everyone, not replace one person being excluded with everyone else losing their choice."
+          }
+
+        ]
+
+      },
+
+
+      /* CHOOSE */
+
+      {
+
+        prompt:
+          "Step 5 – CHOOSE: Which solution is most balanced?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Agree on a simple way to include everyone when possible and to explain honestly when something cannot include the whole group.",
+
+            feedback:
+              "This solution supports inclusion while recognising that not every plan will always involve every person."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Tell them they can only be your friends if they never spend time without you.",
+
+            feedback:
+              "Healthy friendships need inclusion and respect, but also reasonable boundaries and independence."
+          }
+
+        ]
+
+      },
+
+
+      /* RESPECT */
+
+      {
+
+        prompt:
+          "Step 6 – RESPECT: How can you close the conflict positively?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Thank them for listening and say you are glad you could explain how the situation felt.",
+
+            feedback:
+              "A respectful closing acknowledges the conversation and helps the relationship move forward."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Say you accept the solution but continue making sarcastic comments about the group.",
+
+            feedback:
+              "Sarcasm can reopen the hurt instead of helping everyone move forward."
+          }
+
+        ]
+
+      }
+
+    ]
+
+  },
+
+
+  /* =====================================
+     RUMOURS
+  ====================================== */
+
+  {
+
+    id:"rumour",
+
+    title:
+      "Rumours and Reputation",
+
+    text:
+      "You learn that a friend has repeated a false rumour about you, and other students have started believing it.",
+
+    steps:[
+
+
+      /* STOP */
+
+      {
+
+        prompt:
+          "Step 1 – STOP: What is the strongest first response?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Pause, calm yourself and avoid posting an angry response or spreading a rumour back.",
+
+            feedback:
+              "A calm pause prevents retaliation from creating an even larger conflict."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Immediately post something embarrassing about your friend in return.",
+
+            feedback:
+              "Retaliation adds another problem instead of resolving the first one."
+          }
+
+        ]
+
+      },
+
+
+      /* SAY */
+
+      {
+
+        prompt:
+          "Step 2 – SAY: How can you explain the problem directly?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "I feel hurt and worried when a false story about me is repeated because it affects how others see me.",
+
+            feedback:
+              "This clearly explains the impact of the rumour without beginning with insults or threats."
+          },
+
+          {
+            good:false,
+
+            text:
+              "You are a liar and I am going to make everyone hate you too.",
+
+            feedback:
+              "Threats and insults can turn the situation into a bigger fight and make repair less likely."
+          }
+
+        ]
+
+      },
+
+
+      /* THINK */
+
+      {
+
+        prompt:
+          "Step 3 – THINK: What information do you need?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Ask what they heard, why they repeated it and listen carefully while checking the facts.",
+
+            feedback:
+              "Understanding what happened helps separate assumptions from facts and shows whether there was a misunderstanding or deliberate harm."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Refuse to hear anything they say because there is no point understanding what happened.",
+
+            feedback:
+              "You can still set firm boundaries while listening. Understanding the situation helps you choose the right solution."
+          }
+
+        ]
+
+      },
+
+
+      /* BRAINSTORM */
+
+      {
+
+        prompt:
+          "Step 4 – BRAINSTORM: Which set of ideas could repair the harm?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Discuss stopping the rumour, correcting it with people who heard it and asking a trusted adult for help if it continues.",
+
+            feedback:
+              "These options address both the false information and the need for support if the problem keeps happening."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Agree that both of you should spread rumours about each other until one person gives up.",
+
+            feedback:
+              "Repeating harmful behaviour keeps the conflict going rather than solving it."
+          }
+
+        ]
+
+      },
+
+
+      /* CHOOSE */
+
+      {
+
+        prompt:
+          "Step 5 – CHOOSE: What is the fairest practical solution?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Agree that the rumour will stop, the false information will be corrected and support will be sought if the behaviour happens again.",
+
+            feedback:
+              "This solution repairs the immediate harm and sets a clear boundary for the future."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Pretend nothing happened even though the rumour is still spreading.",
+
+            feedback:
+              "Ignoring an ongoing harmful situation does not resolve it. The false information needs to be addressed."
+          }
+
+        ]
+
+      },
+
+
+      /* RESPECT */
+
+      {
+
+        prompt:
+          "Step 6 – RESPECT: How can you close while keeping a healthy boundary?",
+
+        choices:[
+
+          {
+            good:true,
+
+            text:
+              "Acknowledge any genuine apology, thank them for correcting the rumour and explain that trust may take time to rebuild.",
+
+            feedback:
+              "Respect does not mean pretending the harm never happened. It can include forgiveness, clear boundaries and time to rebuild trust."
+          },
+
+          {
+            good:false,
+
+            text:
+              "Accept the apology but keep humiliating them in front of others whenever you get the chance.",
+
+            feedback:
+              "Continuing to humiliate someone keeps the conflict active rather than closing it respectfully."
+          }
+
+        ]
+
+      }
+
+    ]
+
+  }
+
+];
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const stepList =
+  document.getElementById(
+    "stepList"
+  );
+
+const conflictButtons =
+  document.getElementById(
+    "conflictButtons"
+  );
+
+const stageIndicator =
+  document.getElementById(
+    "stageIndicator"
+  );
+
+const progressFill =
+  document.getElementById(
+    "progressFill"
+  );
+
+const progressNumber =
+  document.getElementById(
+    "progressNumber"
+  );
+
+const peaceSteps =
+  document.getElementById(
+    "peaceSteps"
+  );
+
+const accuracyText =
+  document.getElementById(
+    "accuracyText"
+  );
+
+const rankText =
+  document.getElementById(
+    "rankText"
+  );
+
+const scenarioTitle =
+  document.getElementById(
+    "scenarioTitle"
+  );
+
+const scenarioText =
+  document.getElementById(
+    "scenarioText"
+  );
+
+const stepBox =
+  document.getElementById(
+    "stepBox"
+  );
+
+const choiceList =
+  document.getElementById(
+    "choiceList"
+  );
+
+const feedback =
+  document.getElementById(
+    "feedback"
+  );
+
+const nextRow =
+  document.getElementById(
+    "nextRow"
+  );
+
+const nextBtn =
+  document.getElementById(
+    "nextBtn"
+  );
+
+const resetBtn =
+  document.getElementById(
+    "resetBtn"
+  );
+
+const startBtn =
+  document.getElementById(
+    "startBtn"
+  );
+
+const progressText =
+  document.getElementById(
+    "progressText"
+  );
+
+const gameWrapper =
+  document.getElementById(
+    "gameWrapper"
+  );
+
+
+/* =========================================
+   STATE
+========================================= */
+
+let selectedConflictIndex =
+  0;
+
+let currentStep =
+  0;
+
+let completedSteps =
+  0;
+
+let firstTryCorrect =
+  0;
+
+let wrongThisStep =
+  0;
+
+let stepLocked =
+  false;
+
+let started =
+  false;
+
+
+/* =========================================
+   BUILD PATH
+========================================= */
+
+function buildPath(){
+
+  stepList.innerHTML =
+    "";
+
+
+  stepMeta
+    .forEach(
+      (
+        step,
+        i
+      ) => {
+
+        const row =
+          document
+            .createElement(
+              "div"
+            );
+
+
+        row.className =
+          "step-item";
+
+
+        row.dataset.index =
+          String(
+            i
+          );
+
+
+        row.innerHTML =
+          `
+
+          <div class="step-node">
+            ${i + 1}
+          </div>
+
+          <div class="step-copy">
+
+            <div class="step-name">
+              ${step.key}
+            </div>
+
+            <div class="step-help">
+              ${step.help}
+            </div>
+
+          </div>
+
+          `;
+
+
+        stepList
+          .appendChild(
+            row
+          );
+
+      }
+    );
+
+}
+
+
+/* =========================================
+   CONFLICT BUTTONS
+========================================= */
+
+function buildConflictButtons(){
+
+  conflictButtons.innerHTML =
+    "";
+
+
+  conflicts
+    .forEach(
+      (
+        conflict,
+        i
+      ) => {
+
+        const btn =
+          document
+            .createElement(
+              "button"
+            );
+
+
+        btn.type =
+          "button";
+
+
+        btn.className =
+          "conflict-btn" +
+          (
+            i ===
+            selectedConflictIndex
+
+              ?
+
+            " selected"
+
+              :
+
+            ""
+          );
+
+
+        btn.textContent =
+          conflict.title;
+
+
+        btn
+          .addEventListener(
+            "click",
+            () => {
+
+              selectConflict(
+                i
+              );
+
+            }
+          );
+
+
+        conflictButtons
+          .appendChild(
+            btn
+          );
+
+      }
+    );
+
+}
+
+
+/* =========================================
+   SELECT CONFLICT
+========================================= */
+
+function selectConflict(
+  i
+){
+
+  selectedConflictIndex =
+    i;
+
+
+  started =
+    false;
+
+
+  currentStep =
+    0;
+
+
+  completedSteps =
+    0;
+
+
+  firstTryCorrect =
+    0;
+
+
+  stepLocked =
+    false;
+
+
+  buildConflictButtons();
+
+
+  updateScenarioPreview();
+
+
+  resetPathVisual();
+
+
+  updateScore();
+
+
+  choiceList.innerHTML =
+    "";
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  stepBox.innerHTML =
+    "<strong>Ready?</strong> Press Start Path to work through the six conflict-resolution steps.";
+
+
+  progressText.textContent =
+    "Press Start Path when you are ready.";
+
+
+  startBtn.disabled =
+    false;
+
+
+  startBtn.textContent =
+    "Start Path";
+
+}
+
+
+/* =========================================
+   SCENARIO PREVIEW
+========================================= */
+
+function updateScenarioPreview(){
+
+  const conflict =
+    conflicts[
+      selectedConflictIndex
+    ];
+
+
+  scenarioTitle.textContent =
+    conflict.title;
+
+
+  scenarioText.textContent =
+    conflict.text;
+
+}
+
+
+/* =========================================
+   PATH VISUAL
+========================================= */
+
+function resetPathVisual(){
+
+  document
+    .querySelectorAll(
+      ".step-item"
+    )
+    .forEach(
+      (
+        item,
+        i
+      ) => {
+
+        item
+          .classList
+          .remove(
+            "active",
+            "done"
+          );
+
+
+        if(
+          started &&
+          i ===
+          currentStep
+        ){
+
+          item
+            .classList
+            .add(
+              "active"
+            );
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =========================================
+   ACCURACY
+========================================= */
+
+function firstTryAccuracy(){
+
+  if(
+    completedSteps ===
+    0
+  ){
+
+    return 100;
+
+  }
+
+
+  return Math.round(
+    (
+      firstTryCorrect /
+      completedSteps
+    ) *
+    100
+  );
+
+}
+
+
+/* =========================================
+   UPDATE SCORE
+========================================= */
+
+function updateScore(){
+
+  peaceSteps.textContent =
+    `${completedSteps} / 6`;
+
+
+  const accuracy =
+    firstTryAccuracy();
+
+
+  accuracyText.textContent =
+    `${accuracy}%`;
+
+
+  progressNumber.textContent =
+    `${completedSteps} / 6`;
+
+
+  progressFill.style.width =
+    `${
+      Math.round(
+        (
+          completedSteps /
+          6
+        ) *
+        100
+      )
+    }%`;
+
+
+  if(
+    completedSteps >=
+    5 &&
+    accuracy >=
+    80
+  ){
+
+    rankText.textContent =
+      "Peace Builder";
+
+  }
+
+  else if(
+    completedSteps >=
+    3
+  ){
+
+    rankText.textContent =
+      "Problem Solver";
+
+  }
+
+  else{
+
+    rankText.textContent =
+      "Beginner";
+
+  }
+
+
+  stageIndicator.textContent =
+    started
+
+      ?
+
+    `Step ${currentStep + 1} of 6 – ${stepMeta[currentStep].key}`
+
+      :
+
+    "Choose a conflict";
+
+}
+
+
+/* =========================================
+   SHUFFLE
+========================================= */
+
+function shuffle(
+  array
+){
+
+  for(
+    let i =
+      array.length - 1;
+
+    i > 0;
+
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random() *
+        (
+          i + 1
+        )
+      );
+
+
+    [
+      array[i],
+      array[j]
+    ] =
+    [
+      array[j],
+      array[i]
+    ];
+
+  }
+
+
+  return array;
+
+}
+
+
+/* =========================================
+   START PATH
+========================================= */
+
+function startPath(){
+
+  started =
+    true;
+
+
+  currentStep =
+    0;
+
+
+  completedSteps =
+    0;
+
+
+  firstTryCorrect =
+    0;
+
+
+  stepLocked =
+    false;
+
+
+  startBtn.disabled =
+    true;
+
+
+  startBtn.textContent =
+    "Path Active";
+
+
+  loadStep();
+
+}
+
+
+/* =========================================
+   LOAD STEP
+========================================= */
+
+function loadStep(){
+
+  const conflict =
+    conflicts[
+      selectedConflictIndex
+    ];
+
+
+  const step =
+    conflict
+      .steps[
+        currentStep
+      ];
+
+
+  wrongThisStep =
+    0;
+
+
+  stepLocked =
+    false;
+
+
+  resetPathVisual();
+
+
+  updateScore();
+
+
+  stepBox.innerHTML =
+    `
+
+    <strong>
+      ${stepMeta[currentStep].key}
+    </strong>
+
+    <br>
+
+    ${step.prompt}
+
+    `;
+
+
+  choiceList.innerHTML =
+    "";
+
+
+  feedback.className =
+    "feedback";
+
+
+  feedback.textContent =
+    "";
+
+
+  nextRow
+    .classList
+    .remove(
+      "active"
+    );
+
+
+  shuffle(
+    [
+      ...step.choices
+    ]
+  )
+  .forEach(
+    choice => {
+
+      const btn =
+        document
+          .createElement(
+            "button"
+          );
+
+
+      btn.type =
+        "button";
+
+
+      btn.className =
+        "choice-btn";
+
+
+      btn.textContent =
+        choice.text;
+
+
+      btn
+        .addEventListener(
+          "click",
+          () => {
+
+            handleChoice(
+              choice,
+              btn
+            );
+
+          }
+        );
+
+
+      choiceList
+        .appendChild(
+          btn
+        );
+
+    }
+  );
+
+
+  progressText.textContent =
+    "Choose the response that best fits this step.";
+
+
+  if(
+    window
+      .matchMedia(
+        "(max-width:640px)"
+      )
+      .matches
+  ){
+
+    setTimeout(
+      () => {
+
+        stepBox
+          .scrollIntoView(
+            {
+              behavior:"smooth",
+              block:"start"
+            }
+          );
+
+      },
+      80
+    );
+
+  }
+
+}
+
+
+/* =========================================
+   HANDLE CHOICE
+========================================= */
+
+function handleChoice(
+  choice,
+  button
+){
+
+  if(
+    stepLocked
+  ){
+
+    return;
+
+  }
+
+
+  /* CORRECT */
+
+  if(
+    choice.good
+  ){
+
+    stepLocked =
+      true;
+
+
+    if(
+      wrongThisStep ===
+      0
+    ){
+
+      firstTryCorrect++;
+
     }
 
-    resetBtn.addEventListener("click", () => {
-      currentStep = 0;
-      goodChoices = 0;
-      resetNodes();
-      updateScore();
-      feedbackEl.style.display = "none";
-      scenarioTextEl.textContent = "";
-      stepBoxEl.textContent = "Choose one action for this step. Try to keep calm, listen and look for win‑win solutions.";
-      choiceListEl.innerHTML = "";
-      statusTextEl.textContent = "Click “Start Conflict” to see a school conflict and begin the path.";
-      progressTextEl.textContent = "Follow the steps one by one. You cannot skip ahead.";
-    });
 
-    startBtn.addEventListener("click", () => {
-      currentStep = 0;
-      goodChoices = 0;
-      resetNodes();
-      updateScore();
-      loadConflict();
-      loadStep();
-    });
+    completedSteps++;
 
-    // Initial score
+
+    playSound(
+      correctSound
+    );
+
+
+    button
+      .classList
+      .add(
+        "correct"
+      );
+
+
+    document
+      .querySelectorAll(
+        ".choice-btn"
+      )
+      .forEach(
+        choiceButton => {
+
+          choiceButton.disabled =
+            true;
+
+        }
+      );
+
+
+    const item =
+      document
+        .querySelector(
+          `.step-item[data-index="${currentStep}"]`
+        );
+
+
+    if(
+      item
+    ){
+
+      item
+        .classList
+        .remove(
+          "active"
+        );
+
+
+      item
+        .classList
+        .add(
+          "done"
+        );
+
+    }
+
+
+    feedback.className =
+      "feedback good";
+
+
+    feedback.textContent =
+      "✅ " +
+      choice.feedback;
+
+
     updateScore();
-  </script>
+
+
+    nextBtn.textContent =
+      currentStep ===
+      5
+
+        ?
+
+      "Finish Path"
+
+        :
+
+      "Next Step →";
+
+
+    nextRow
+      .classList
+      .add(
+        "active"
+      );
+
+
+    progressText.textContent =
+      currentStep ===
+      5
+
+        ?
+
+      "All six steps are complete. View your conflict-resolution report."
+
+        :
+
+      "Review the feedback, then continue.";
+
+
+    if(
+      window
+        .matchMedia(
+          "(max-width:640px)"
+        )
+        .matches
+    ){
+
+      setTimeout(
+        () => {
+
+          nextBtn
+            .scrollIntoView(
+              {
+                behavior:"smooth",
+                block:"nearest"
+              }
+            );
+
+        },
+        100
+      );
+
+    }
+
+  }
+
+
+  /* WRONG */
+
+  else{
+
+    wrongThisStep++;
+
+
+    playSound(
+      wrongSound
+    );
+
+
+    button
+      .classList
+      .add(
+        "wrong"
+      );
+
+
+    button.disabled =
+      true;
+
+
+    feedback.className =
+      "feedback warn";
+
+
+    feedback.textContent =
+      "💡 " +
+      choice.feedback +
+      " Try the other response before moving on.";
+
+
+    progressText.textContent =
+      "Use the feedback and try again.";
+
+  }
+
+}
+
+
+/* =========================================
+   NEXT STEP
+========================================= */
+
+function nextStep(){
+
+  if(
+    !stepLocked
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    currentStep ===
+    5
+  ){
+
+    finishPath();
+
+    return;
+
+  }
+
+
+  currentStep++;
+
+
+  loadStep();
+
+}
+
+
+/* =========================================
+   FINISH
+========================================= */
+
+function finishPath(){
+
+  playSound(
+    celebrationSound
+  );
+
+
+  const accuracy =
+    firstTryAccuracy();
+
+
+  const conflict =
+    conflicts[
+      selectedConflictIndex
+    ];
+
+
+  let rank;
+  let badge;
+  let text;
+
+
+  if(
+    accuracy >=
+    90
+  ){
+
+    rank =
+      "Conflict Resolver";
+
+
+    badge =
+      "🕊️";
+
+
+    text =
+      "You moved through the conflict calmly, communicated clearly, listened to both sides and chose fair solutions with excellent first-try accuracy.";
+
+  }
+
+  else if(
+    accuracy >=
+    70
+  ){
+
+    rank =
+      "Growing Mediator";
+
+
+    badge =
+      "🤝";
+
+
+    text =
+      "You completed every peace step and used feedback well. Keep practising calm communication, listening and win-win thinking.";
+
+  }
+
+  else{
+
+    rank =
+      "Peace Path Explorer";
+
+
+    badge =
+      "🌱";
+
+
+    text =
+      "You completed all six conflict-resolution steps. With practice, choosing calm, respectful responses will become easier and more natural.";
+
+  }
+
+
+  gameWrapper.innerHTML =
+    `
+
+    <section class="final">
+
+      <div class="final-title">
+        Conflict Path Report
+      </div>
+
+      <div class="final-badge">
+        ${badge}
+      </div>
+
+      <div class="final-rank">
+        ${rank}
+      </div>
+
+      <div class="final-score">
+        ${conflict.title}
+        · 6 / 6 peace steps
+        · First-try accuracy:
+        ${accuracy}%
+      </div>
+
+      <div class="final-text">
+        ${text}
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="againBtn"
+        type="button"
+      >
+        Try Another Conflict
+      </button>
+
+    </section>
+
+    `;
+
+
+  document
+    .getElementById(
+      "againBtn"
+    )
+    .addEventListener(
+      "click",
+      () => {
+
+        location.reload();
+
+      }
+    );
+
+
+  window.scrollTo(
+    {
+      top:0,
+      behavior:"smooth"
+    }
+  );
+
+}
+
+
+/* =========================================
+   NEW CONFLICT
+========================================= */
+
+function newConflict(){
+
+  selectedConflictIndex =
+    (
+      selectedConflictIndex +
+      1
+    ) %
+    conflicts.length;
+
+
+  selectConflict(
+    selectedConflictIndex
+  );
+
+}
+
+
+/* =========================================
+   EVENTS
+========================================= */
+
+startBtn
+  .addEventListener(
+    "click",
+    startPath
+  );
+
+
+nextBtn
+  .addEventListener(
+    "click",
+    nextStep
+  );
+
+
+resetBtn
+  .addEventListener(
+    "click",
+    newConflict
+  );
+
+
+/* =========================================
+   INITIALISE
+========================================= */
+
+buildPath();
+
+buildConflictButtons();
+
+updateScenarioPreview();
+
+resetPathVisual();
+
+updateScore();
+
+</script>
+
 </body>
 </html>
