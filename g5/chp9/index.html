@@ -1,742 +1,553 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Self-Care Checker – Cobbler's Shoes</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, sans-serif;
-      background: #020617;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: #0f172a;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Self-Care Checker – Cobbler's Shoes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#26394c;--muted:#6b7e91;--blue:#5f8fe7;--blue-dark:#3763ad;
+  --green:#4bb07b;--mint:#ebf8f0;--yellow:#fff3cf;--orange:#efa25a;
+  --red:#d96c68;--line:#dce7ef;--soft:#f6f9fc;--white:#fff
+}
+html{width:100%;overflow-x:hidden;scroll-behavior:smooth}
+body{
+  width:100%;min-height:100vh;overflow-x:hidden;overflow-y:auto;
+  font-family:"Trebuchet MS","Segoe UI",Arial,sans-serif;color:var(--ink);
+  background:linear-gradient(180deg,#f8fcff,#eef7ff 55%,#fffaf1);padding:16px
+}
+button,input{font:inherit}
+button:focus-visible,input:focus-visible{outline:3px solid #ffd465;outline-offset:3px}
 
-    /* Splash */
-    .splash-screen {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top, #0ea5e9 0%, #0369a1 40%, #022c22 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.6s ease-out;
-    }
-    .splash-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .splash-content {
-      text-align: center;
-      color: #e0f2fe;
-    }
-    .splash-content img {
-      max-width: 260px;
-      width: 80%;
-      height: auto;
-      margin-bottom: 12px;
-      animation: logoFloat 2s ease-in-out infinite;
-    }
-    .splash-title {
-      font-size: 18px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      text-shadow: 0 0 12px rgba(15,23,42,0.9);
-    }
-    @keyframes logoFloat {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
+.splash{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#fff;transition:opacity .45s ease}
+.splash.hide{opacity:0;pointer-events:none}
+.splash img{width:min(430px,82vw);height:auto;animation:floatLogo 2s ease-in-out infinite}
+@keyframes floatLogo{50%{transform:translateY(-9px)}}
 
-    .shell {
-      max-width: 1000px;
-      width: 100%;
-      aspect-ratio: 16/9;
-      border-radius: 24px;
-      overflow: hidden;
-      border: 3px solid #22c55e;
-      box-shadow: 0 0 40px rgba(34,197,94,0.7);
-      position: relative;
-      background: radial-gradient(circle at top, #1d4ed8 0%, #22c55e 40%, #022c22 100%);
-      opacity: 0;
-      transition: opacity 0.7s ease-in;
-    }
-    .shell.visible { opacity: 1; }
+.game{width:min(1140px,100%);margin:0 auto;background:#fff;border:1px solid #dbe7ef;border-radius:28px;overflow:hidden;box-shadow:0 18px 46px rgba(57,87,118,.14);opacity:0;transition:opacity .45s ease}
+.game.visible{opacity:1}
 
-    .top-bar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 46px;
-      background: linear-gradient(to right, #0f172a, #1d4ed8, #16a34a);
-      color: #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 12px;
-      font-size: 11px;
-      z-index: 5;
-    }
-    .top-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .top-title {
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .top-sub {
-      font-size: 11px;
-      opacity: 0.9;
-    }
-    .top-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+.header{padding:22px 18px 18px;text-align:center;background:linear-gradient(135deg,#dff4ff,#e7f9ee 52%,#fff1c8);border-bottom:1px solid #dae7ef}
+.header h1{font-size:clamp(27px,4vw,38px);line-height:1.12;color:#2d4d66;margin-bottom:6px}
+.subtitle{font-size:14px;font-weight:800;color:#5d7488}
+.stage{display:inline-block;margin-top:10px;padding:7px 15px;border-radius:999px;background:#fff;border:1px solid #ccdae6;color:var(--blue-dark);font-size:13px;font-weight:900}
 
-    .meter {
-      width: 110px;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      overflow: hidden;
-      border: 1px solid rgba(148,163,184,0.8);
-    }
-    .meter-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #f97316, #22c55e);
-      transition: width 0.3s ease-out;
-    }
+.intro{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 18px;background:#fbfdff;border-bottom:1px solid #e8eef4}
+.intro-card{min-width:0;padding:11px 13px;border-radius:14px;border:1px solid #e3ebf2;background:#f5f9fc;color:#5f7286;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
 
-    .layout {
-      position: absolute;
-      inset: 46px 0 0 0;
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 2fr 1.2fr;
-      gap: 10px;
-    }
+.progress-area{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 18px;background:#fff}
+.progress-label,.progress-number{font-size:11px;font-weight:900;color:#65798d}
+.progress-bar{height:13px;overflow:hidden;border-radius:999px;background:#e6ecef}
+.progress-fill{height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#68aaf0,#54c187);transition:width .35s ease}
 
-    /* Scene panel */
-    .scene-panel {
-      border-radius: 18px;
-      background: #e0f2fe;
-      padding: 10px;
-      box-shadow: inset 0 0 16px rgba(148,163,184,0.7);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;padding:18px;align-items:start}
+.panel{min-width:0;border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 8px 22px rgba(54,81,107,.07)}
+.scene-panel{padding:16px;background:linear-gradient(180deg,#fcfeff,#f7fbff)}
+.choice-panel{padding:16px;display:flex;flex-direction:column;gap:12px;background:#fffefa}
+.panel-title{text-align:center;font-size:14px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#527089;margin-bottom:4px}
+.panel-subtitle{text-align:center;font-size:12px;line-height:1.4;color:#748597;margin-bottom:12px}
 
-    .scene-title {
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      color: #1f2937;
-    }
-    .scene-text {
-      font-size: 12px;
-      text-align: center;
-      color: #374151;
-      min-height: 32px;
-    }
+.story-card{padding:13px;border-radius:15px;background:var(--yellow);border:1px solid #ecdda9;margin-bottom:12px}
+.story-label{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:900;color:#8d6815;margin-bottom:4px}
+.story-title{font-size:15px;font-weight:900;color:#5e511f;margin-bottom:4px}
+.story-text{font-size:12px;line-height:1.48;color:#625837;overflow-wrap:anywhere}
 
-    .scene-area {
-      flex: 1;
-      border-radius: 16px;
-      background: radial-gradient(circle at top, #bfdbfe 0%, #fef9c3 40%, #bbf7d0 100%);
-      padding: 8px;
-      display: grid;
-      grid-template-columns: 1.3fr 1.3fr 1fr;
-      gap: 6px;
-      align-items: stretch;
-    }
+.scene{position:relative;min-height:290px;border-radius:18px;overflow:hidden;border:1px solid #d5e8ef;background:linear-gradient(180deg,#dff4ff 0 57%,#edf7df 58%,#cbe3bc 100%)}
+.shop{position:absolute;left:7%;bottom:34px;width:42%;height:155px;border-radius:14px 14px 5px 5px;background:#f4d1a8;border:3px solid #c18c57;box-shadow:0 8px 20px rgba(70,83,98,.12)}
+.awning{position:absolute;left:-3px;right:-3px;top:0;height:32px;background:repeating-linear-gradient(90deg,#d96c68 0 28px,#fff4e6 28px 56px);border-radius:11px 11px 0 0;border-bottom:3px solid #b97a52}
+.shop-sign{position:absolute;left:50%;top:42px;transform:translateX(-50%);width:80%;padding:6px;border-radius:10px;background:#fff7e9;text-align:center;font-size:10px;font-weight:900;color:#72543b;border:1px solid #d4b28e}
+.cobbler{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:2px}
+.cobbler-face{font-size:42px}
+.shoes{display:flex;gap:4px;font-size:23px;filter:grayscale(.25)}
+.shoes.tired{filter:grayscale(.8);opacity:.75}
+.workbench{position:absolute;left:10%;right:10%;bottom:8px;height:18px;border-radius:5px;background:#9b6947}
 
-    .cobbler-area, .queue-area, .town-area {
-      border-radius: 14px;
-      background: rgba(255,255,255,0.7);
-      padding: 6px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      font-size: 11px;
-    }
+.queue{position:absolute;right:6%;bottom:38px;width:39%;display:flex;flex-direction:column;gap:7px}
+.customer{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:999px;background:rgba(255,255,255,.92);border:1px solid #dce7ef;font-size:10px;color:#536a7f;box-shadow:0 4px 10px rgba(57,87,118,.08)}
+.customer span:first-child{font-size:20px}
+.sun{position:absolute;top:18px;right:22px;width:42px;height:42px;border-radius:50%;background:#ffd965;box-shadow:0 0 0 8px rgba(255,217,101,.16)}
 
-    .area-title {
-      font-weight: bold;
-      color: #111827;
-      text-align: center;
-      margin-bottom: 2px;
-    }
+.energy-card{margin-top:12px;padding:12px;border-radius:15px;background:#f8fbff;border:1px solid #dce7ef}
+.energy-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:7px}
+.energy-title{font-size:11px;font-weight:900;color:#587086;text-transform:uppercase;letter-spacing:.45px}
+.energy-value{font-size:13px;font-weight:900;color:#3f69b2}
+.energy-bar{height:14px;border-radius:999px;background:#e5ecef;overflow:hidden}
+.energy-fill{height:100%;width:70%;border-radius:inherit;background:linear-gradient(90deg,#efa25a,#4bb07b);transition:width .35s ease}
+.energy-note{margin-top:6px;font-size:10px;line-height:1.4;color:#728397}
 
-    .cobbler {
-      flex: 1;
-      border-radius: 10px;
-      background: linear-gradient(to top, #0f172a, #1f2937);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #e5e7eb;
-      gap: 4px;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.8);
-    }
+.score-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.score-card{min-width:0;padding:9px 5px;text-align:center;border:1px solid #dce6ef;border-radius:14px;background:#f8fbff}
+.score-label{font-size:9px;line-height:1.2;font-weight:900;text-transform:uppercase;color:#738598;overflow-wrap:anywhere}
+.score-value{margin-top:3px;font-size:17px;font-weight:900;color:#3f69b2;overflow-wrap:anywhere}
 
-    .cobbler-face {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 20%, #fee2e2 0, #fecaca 60%);
-      border: 2px solid rgba(148,163,184,0.8);
-      position: relative;
-    }
-    .cobbler-health-legs {
-      width: 40px;
-      height: 16px;
-      border-radius: 12px;
-      background: #4b5563;
-      position: relative;
-      margin-top: 2px;
-    }
-    .shoe {
-      position: absolute;
-      bottom: -4px;
-      width: 14px;
-      height: 8px;
-      border-radius: 4px;
-      background: #111827;
-    }
-    .shoe.left { left: 4px; }
-    .shoe.right { right: 4px; }
-    .shoe.cracked {
-      background: #6b7280;
-    }
+.challenge{padding:12px;border-radius:14px;background:#f4f8fc;border:1px solid #e1e9ef;color:#607488;font-size:12px;line-height:1.45}
+.challenge strong{color:#3f5e78}
+.choice-title{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;color:#587086}
+.choice-list{display:flex;flex-direction:column;gap:8px}
+.choice-btn{width:100%;min-height:56px;padding:11px 12px;border:2px solid #dbe5ef;border-radius:15px;background:#fff;color:#344d65;text-align:left;font-size:12px;line-height:1.45;font-weight:800;cursor:pointer;transition:.18s ease;overflow-wrap:anywhere}
+.choice-btn:hover:not(:disabled){border-color:#80a7e7;transform:translateY(-1px)}
+.choice-btn.correct{border-color:#7fc79d;background:#edf9f2;color:#2b704e}
+.choice-btn.wrong{border-color:#dc8581;background:#fff0ef;color:#8a4643}
+.choice-btn.hint{box-shadow:0 0 0 4px rgba(95,143,231,.13);border-color:#80a7e7}
+.choice-btn:disabled{cursor:default}
 
-    .health-bar-wrap {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.7);
-      overflow: hidden;
-      margin-top: 4px;
-    }
-    .health-bar-fill {
-      height: 100%;
-      width: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #f97316, #22c55e);
-      transition: width 0.3s ease-out;
-    }
-    .health-label {
-      font-size: 10px;
-      text-align: center;
-      color: #e5e7eb;
-      margin-top: 2px;
-    }
+.feedback{display:none;padding:11px 12px;border-radius:14px;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+.feedback.good{display:block;background:#ebf9f1;border:1px solid #b4e0c5;color:#286a49}
+.feedback.warn{display:block;background:#fff3e9;border:1px solid #edc69f;color:#835224}
 
-    .queue-list {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .villager {
-      border-radius: 999px;
-      padding: 2px 6px;
-      background: #bfdbfe;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 10px;
-    }
-    .villager span:first-child {
-      font-size: 14px;
-    }
+.next-row{display:none}.next-row.active{display:block}.next-row .btn-primary{width:100%;min-height:48px}
+.controls{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
+.btn{min-height:44px;border-radius:14px;cursor:pointer;font-weight:900;transition:.18s ease}
+.btn-secondary{padding:9px 12px;border:1px solid #d3dee7;background:#f5f8fb;color:#586d82}
+.btn-primary{padding:10px 16px;border:0;background:linear-gradient(135deg,#6093ea,#4eba82);color:#fff;box-shadow:0 6px 15px rgba(66,120,161,.17)}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+#progressText{min-width:0;text-align:center;color:#708195;font-size:10px;line-height:1.4;overflow-wrap:anywhere}
+.volume{display:flex;align-items:center;gap:8px;color:#7b8998;font-size:11px}.volume input{flex:1;min-width:0}
 
-    .town-people {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-    }
-    .town-row {
-      display: flex;
-      gap: 4px;
-    }
-    .town-person {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #f97316;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: #f9fafb;
-    }
-    .town-person.hurt {
-      background: #6b7280;
-    }
+.final{grid-column:1/-1;padding:36px 22px;text-align:center;border:1px solid var(--line);border-radius:20px;background:#fff}
+.final-title{font-size:27px;font-weight:900;color:#3e67ad;margin-bottom:8px}
+.final-badge{font-size:58px;margin:10px 0}.final-rank{font-size:22px;font-weight:900;margin-bottom:6px}
+.final-score{margin:8px 0;color:#576c81;font-size:16px;font-weight:800}.final-text{max-width:680px;margin:0 auto 18px;color:#67798b;font-size:14px;line-height:1.55}
 
-    .town-mood {
-      font-size: 11px;
-      text-align: center;
-      color: #374151;
-    }
-
-    /* Choice panel */
-    .choice-panel {
-      border-radius: 18px;
-      background: #0f172a;
-      padding: 10px;
-      color: #e5e7eb;
-      box-shadow: inset 0 0 16px rgba(0,0,0,0.8);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .choice-title {
-      font-size: 12px;
-      font-weight: bold;
-      text-align: center;
-    }
-    .round-text {
-      font-size: 11px;
-      text-align: center;
-      min-height: 26px;
-    }
-
-    .buttons-row {
-      display: flex;
-      gap: 8px;
-      justify-content: center;
-      margin-top: 4px;
-    }
-    .btn {
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.9);
-      font-size: 11px;
-      cursor: pointer;
-      background: #eff6ff;
-      color: #111827;
-    }
-    .btn.primary {
-      border: none;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .btn.primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
-    .btn.secondary:hover {
-      border-color: #f97316;
-      box-shadow: 0 0 8px rgba(248,171,60,0.6);
-    }
-
-    .round-info {
-      font-size: 11px;
-      text-align: center;
-      color: #cbd5f5;
-    }
-
-    .feedback {
-      margin-top: 4px;
-      border-radius: 10px;
-      padding: 5px 7px;
-      font-size: 11px;
-      min-height: 26px;
-      background: rgba(15,23,42,0.85);
-      border: 1px solid rgba(148,163,184,0.7);
-    }
-
-    .summary {
-      font-size: 11px;
-      display: flex;
-      justify-content: space-between;
-      margin-top: 4px;
-      color: #cbd5f5;
-    }
-
-    .footer-text {
-      position: absolute;
-      left: 50%;
-      bottom: 6px;
-      transform: translateX(-50%);
-      font-size: 11px;
-      color: #e5e7eb;
-      text-align: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.8);
-      border: 1px solid rgba(148,163,184,0.7);
-    }
-
-    /* End screen */
-    .end-screen {
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(34,197,94,0.95), rgba(15,23,42,0.98));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: #f9fafb;
-      text-align: center;
-      gap: 8px;
-      z-index: 20;
-    }
-    .end-title {
-      font-size: 22px;
-    }
-    .end-sub {
-      font-size: 13px;
-      max-width: 380px;
-      opacity: 0.95;
-    }
-    .end-badge {
-      font-size: 44px;
-    }
-    .end-btn {
-      margin-top: 8px;
-      padding: 7px 16px;
-      font-size: 12px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #f9fafb;
-      box-shadow: 0 3px 10px rgba(15,23,42,0.9);
-    }
-    .end-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15,23,42,1);
-    }
-
-    @media (max-width: 768px) {
-      .layout { grid-template-columns: 1fr; }
-      .scene-text { font-size: 11px; }
-    }
-  </style>
+@media(max-width:900px){.layout{grid-template-columns:1fr}.intro{grid-template-columns:1fr}}
+@media(max-width:640px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;overflow-y:auto}
+  body{padding:0;background:#f7fbff}.game{width:100%;max-width:100%;margin:0;border:0;border-radius:0;box-shadow:none;overflow:visible}
+  .header{padding:16px 13px 14px}.header h1{font-size:23px}.subtitle{font-size:12px}
+  .intro{padding:10px;gap:7px}.intro-card{padding:9px 10px;font-size:11px}
+  .progress-area{position:sticky;top:0;z-index:20;padding:9px 10px;background:rgba(255,255,255,.97);box-shadow:0 3px 10px rgba(55,78,102,.06)}
+  .layout{display:block;width:100%;padding:10px}.panel{width:100%;max-width:100%;min-width:0;border-radius:16px}
+  .scene-panel{padding:11px;margin-bottom:12px}.choice-panel{padding:12px}.scene{min-height:250px}
+  .shop{left:4%;width:47%;height:145px}.queue{right:4%;width:43%}.customer{font-size:9px;padding:6px 7px}.customer span:first-child{font-size:17px}
+  .score-row{gap:5px}.score-card{padding:8px 4px}.score-label{font-size:8px}.score-value{font-size:14px}
+  .controls{grid-template-columns:1fr}.controls .btn{width:100%}#progressText{order:-1;text-align:left}
+  .next-row.active{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:30;padding-top:4px}.next-row .btn-primary{border:3px solid #fff;box-shadow:0 8px 20px rgba(58,90,123,.2)}
+  .volume{padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+}
+@media(max-width:360px){.header h1{font-size:20px}.progress-area{grid-template-columns:1fr;gap:4px}.progress-label,.progress-number{text-align:center}.score-row{grid-template-columns:1fr}.score-card{display:flex;align-items:center;justify-content:space-between;text-align:left}.score-value{margin:0}.scene{min-height:235px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
-  <!-- Innovine splash -->
-  <div class="splash-screen" id="splashScreen">
-    <div class="splash-content">
-      <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'" />
-      <div class="splash-title">Loading Self-Care Checker...</div>
+
+<div class="splash" id="splash">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo" onerror="this.style.display='none'">
+</div>
+
+<div class="game" id="game">
+  <header class="header">
+    <h1>👞 Self-Care Checker</h1>
+    <div class="subtitle">Cobbler's Shoes · Balanced Helper Challenge</div>
+    <div class="stage" id="stageIndicator">Round 1 of 5</div>
+  </header>
+
+  <div class="intro">
+    <div class="intro-card">
+      Caring for others matters, but helping well also means noticing when your own body and mind need rest, support or attention.
+    </div>
+    <div class="intro-card">
+      Help the cobbler make balanced choices. The best choice should care for customers <b>and</b> protect his ability to keep helping over time.
     </div>
   </div>
 
-  <div class="shell" id="shell">
-    <div class="top-bar">
-      <div class="top-left">
-        <div class="top-title">Self-Care Checker – Cobbler's Shoes</div>
-        <div class="top-sub">
-          Help the cobbler choose between only fixing others’ shoes or also fixing his own.[file:39]
-        </div>
-      </div>
-      <div class="top-right">
-        <span>Cobbler Self-Care</span>
-        <div class="meter">
-          <div class="meter-fill" id="meterFill"></div>
-        </div>
-        <span>🥿</span>
-      </div>
-    </div>
-
-    <div class="layout" id="gameWrapper">
-      <!-- Scene panel -->
-      <div class="scene-panel">
-        <div class="scene-title">Cobbler in the Town</div>
-        <div class="scene-text" id="sceneText">
-          Round 1 · The cobbler has many customers. His own shoes are starting to break.
-        </div>
-
-        <div class="scene-area">
-          <div class="cobbler-area">
-            <div class="area-title">Cobbler</div>
-            <div class="cobbler">
-              <div class="cobbler-face" id="cobblerFace"></div>
-              <div class="cobbler-health-legs">
-                <div class="shoe left" id="shoeLeft"></div>
-                <div class="shoe right" id="shoeRight"></div>
-              </div>
-              <div class="health-bar-wrap">
-                <div class="health-bar-fill" id="healthBarFill"></div>
-              </div>
-              <div class="health-label" id="healthLabel">Feet OK</div>
-            </div>
-          </div>
-
-          <div class="queue-area">
-            <div class="area-title">Customers Queue</div>
-            <div class="queue-list" id="queueList"></div>
-          </div>
-
-          <div class="town-area">
-            <div class="area-title">Town</div>
-            <div class="town-people">
-              <div class="town-row">
-                <div class="town-person" id="town1">🙂</div>
-                <div class="town-person" id="town2">🙂</div>
-                <div class="town-person" id="town3">🙂</div>
-              </div>
-              <div class="town-row">
-                <div class="town-person" id="town4">🙂</div>
-                <div class="town-person" id="town5">🙂</div>
-              </div>
-            </div>
-            <div class="town-mood" id="townMood">Town is walking well.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Choice panel -->
-      <div class="choice-panel">
-        <div class="choice-title">What should the cobbler do?</div>
-        <div class="round-text" id="roundText">
-          Click one choice for this round.
-        </div>
-
-        <div class="buttons-row">
-          <button class="btn secondary" id="btnOthers">Only fix others’ shoes</button>
-          <button class="btn primary" id="btnBalance">Fix others and also my shoes</button>
-        </div>
-
-        <div class="feedback" id="feedback">
-          Choose an action to see what happens to the cobbler and the town.
-        </div>
-
-        <div class="summary">
-          <span>Round: <span id="roundCounter">1</span> / 5</span>
-          <span>Self-care choices: <span id="selfCareCount">0</span></span>
-        </div>
-
-        <div class="buttons-row" style="margin-top:6px;">
-          <button class="btn secondary" id="nextBtn">Next Round</button>
-          <button class="btn primary" id="finishBtn">Finish Story</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-text">
-      Moral: You must look after your own health before you can keep helping others.[file:39]
-    </div>
+  <div class="progress-area">
+    <div class="progress-label">Story Progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-number" id="progressNumber">0 / 5</div>
   </div>
 
-  <script>
-    // Splash
-    const splashScreen = document.getElementById("splashScreen");
-    const shell = document.getElementById("shell");
-    setTimeout(() => {
-      splashScreen.classList.add("hidden");
-      shell.classList.add("visible");
-    }, 2200);
+  <main class="layout" id="gameWrapper">
+    <section class="panel scene-panel">
+      <div class="panel-title">Cobbler's Workshop</div>
+      <div class="panel-subtitle">Watch how each balanced choice protects both the cobbler and the people who depend on him.</div>
 
-    // Sounds
-    const goodSound = new Audio("assets/correct.mp3");
-    const celebrationSound = new Audio("assets/freesound_community-claps-44774.mp3");
-    goodSound.volume = 0.8;
-    celebrationSound.volume = 0.8;
-    function playGood(){ goodSound.currentTime = 0; goodSound.play().catch(()=>{}); }
-    function playCelebrate(){ celebrationSound.currentTime = 0; celebrationSound.play().catch(()=>{}); }
+      <div class="story-card">
+        <div class="story-label">Current Round</div>
+        <div class="story-title" id="storyTitle"></div>
+        <div class="story-text" id="storyText"></div>
+      </div>
 
-    // Elements
-    const sceneTextEl = document.getElementById("sceneText");
-    const queueListEl = document.getElementById("queueList");
-    const healthBarFill = document.getElementById("healthBarFill");
-    const healthLabel = document.getElementById("healthLabel");
-    const shoeLeft = document.getElementById("shoeLeft");
-    const shoeRight = document.getElementById("shoeRight");
-    const townMood = document.getElementById("townMood");
-    const townPeopleEls = [
-      document.getElementById("town1"),
-      document.getElementById("town2"),
-      document.getElementById("town3"),
-      document.getElementById("town4"),
-      document.getElementById("town5")
-    ];
-    const meterFill = document.getElementById("meterFill");
+      <div class="scene" id="scene">
+        <div class="sun"></div>
+        <div class="shop">
+          <div class="awning"></div>
+          <div class="shop-sign">COBBLER'S WORKSHOP</div>
+          <div class="workbench"></div>
+          <div class="cobbler">
+            <div class="cobbler-face" id="cobblerFace">🧑‍🔧</div>
+            <div class="shoes" id="cobblerShoes">👞 👞</div>
+          </div>
+        </div>
+        <div class="queue" id="queue"></div>
+      </div>
 
-    const roundTextEl = document.getElementById("roundText");
-    const feedbackEl = document.getElementById("feedback");
-    const roundCounterEl = document.getElementById("roundCounter");
-    const selfCareCountEl = document.getElementById("selfCareCount");
-    const btnOthers = document.getElementById("btnOthers");
-    const btnBalance = document.getElementById("btnBalance");
-    const nextBtn = document.getElementById("nextBtn");
-    const finishBtn = document.getElementById("finishBtn");
+      <div class="energy-card">
+        <div class="energy-head">
+          <div class="energy-title">Cobbler's Energy</div>
+          <div class="energy-value" id="energyValue">70%</div>
+        </div>
+        <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
+        <div class="energy-note" id="energyNote">He has enough energy to help, but his own shoes also need attention.</div>
+      </div>
+    </section>
 
-    let round = 1;
-    const maxRounds = 5;
-    let cobblerHealth = 100; // 0–100
-    let selfCareCount = 0;
-    let lastChoice = null; // "others" or "balance"
+    <section class="panel choice-panel">
+      <div class="score-row">
+        <div class="score-card"><div class="score-label">Rounds Solved</div><div class="score-value" id="solvedCount">0 / 5</div></div>
+        <div class="score-card"><div class="score-label">First-Try Accuracy</div><div class="score-value" id="accuracyText">100%</div></div>
+        <div class="score-card"><div class="score-label">Self-Care Rank</div><div class="score-value" id="rankText">Explorer</div></div>
+      </div>
 
-    // Simple queue labels for flavour
-    const queueNames = [
-      "Farmer's boots",
-      "Teacher's sandals",
-      "Child's school shoes",
-      "Runner's sneakers",
-      "Old man's slippers"
-    ];
+      <div class="challenge" id="challengeBox"><strong>What should the cobbler do?</strong><br>Choose the response that balances caring for others with caring for himself.</div>
+      <div class="choice-title">Choose the most balanced response</div>
+      <div class="choice-list" id="choiceList"></div>
+      <div class="feedback" id="feedback" aria-live="polite"></div>
 
-    function buildQueue(){
-      queueListEl.innerHTML = "";
-      const itemsToShow = Math.min(round + 1, queueNames.length);
-      for(let i = 0; i < itemsToShow; i++){
-        const v = document.createElement("div");
-        v.className = "villager";
-        v.innerHTML = `<span>👟</span><span>${queueNames[i]}</span>`;
-        queueListEl.appendChild(v);
-      }
+      <div class="next-row" id="nextRow">
+        <button class="btn btn-primary" id="nextBtn" type="button">Next Round →</button>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-secondary" id="resetBtn" type="button">Restart Story</button>
+        <div id="progressText">Choose the response that protects both care and wellbeing.</div>
+      </div>
+
+      <div class="volume">
+        <span>🔊 Sounds</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="80">
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const splash=document.getElementById("splash");
+const game=document.getElementById("game");
+setTimeout(()=>{splash.classList.add("hide");game.classList.add("visible")},5000);
+
+const correctSound=new Audio("assets/correct.mp3");
+const wrongSound=new Audio("assets/wrong.mp3");
+const celebrationSound=new Audio("assets/freesound_community-claps-44774.mp3");
+let volume=.8;
+[correctSound,wrongSound,celebrationSound].forEach(s=>s.volume=volume);
+function playSound(sound){sound.currentTime=0;sound.play().catch(()=>{})}
+document.getElementById("volumeSlider").addEventListener("input",e=>{
+  volume=e.target.value/100;
+  [correctSound,wrongSound,celebrationSound].forEach(s=>s.volume=volume)
+});
+
+const rounds=[
+  {
+    title:"A Long Queue Appears",
+    text:"Several customers arrive at once. The cobbler notices that the sole of one of his own shoes is beginning to come loose.",
+    energyChange:4,
+    queue:["Farmer's boots","Teacher's sandals","Child's school shoes"],
+    choices:[
+      {good:true,text:"Finish the most urgent repair, tell the others when he can help them, and spend a few minutes fixing his own loose sole.",feedback:"This is balanced self-care. He still helps others, communicates clearly and prevents a small problem with his own shoe from becoming worse."},
+      {good:false,text:"Ignore his shoe completely and promise to finish every customer's repair before stopping.",feedback:"Helping everyone immediately may sound generous, but ignoring his own growing problem could make it harder for him to keep working."},
+      {good:false,text:"Close the shop for the whole day even though his shoe only needs a small repair.",feedback:"Self-care should fit the need. A short repair and clear communication are more balanced than abandoning all responsibility."}
+    ]
+  },
+  {
+    title:"He Has Been Working for Hours",
+    text:"By midday, the cobbler is tired and has not eaten. More shoes are waiting, but his concentration is beginning to drop.",
+    energyChange:7,
+    queue:["Runner's trainers","Nurse's shoes","Shopkeeper's sandals"],
+    choices:[
+      {good:true,text:"Tell the waiting customers he is taking a short meal and water break, then return to the repairs with more energy.",feedback:"A planned break supports his health and concentration, helping him work more safely and effectively afterwards."},
+      {good:false,text:"Skip food and water so nobody has to wait a few extra minutes.",feedback:"Ignoring basic needs can reduce energy and concentration. That can eventually make both his work and wellbeing suffer."},
+      {good:false,text:"Eat while rushing through repairs without pausing his work at all.",feedback:"Trying to do everything at once does not create a real break. A short pause gives his body and attention time to reset."}
+    ]
+  },
+  {
+    title:"His Feet Begin to Ache",
+    text:"In the afternoon, the cobbler's feet are sore from standing. One customer says their repair can wait until tomorrow.",
+    energyChange:6,
+    queue:["Grandmother's slippers","School bag buckle","Neighbour's sandals"],
+    choices:[
+      {good:true,text:"Accept the flexible deadline, sit and stretch for a few minutes, then complete only the repairs that truly need to be done today.",feedback:"He uses the flexibility available, listens to his body and still takes responsibility for urgent work."},
+      {good:false,text:"Refuse the extra time and insist that every repair must be finished today no matter how much his feet hurt.",feedback:"Being responsible does not mean ignoring pain or refusing reasonable flexibility. Sustainable helping includes limits."},
+      {good:false,text:"Stop every repair immediately and leave without telling the customers what will happen next.",feedback:"Self-care works best with communication. Caring for himself does not require leaving others confused."}
+    ]
+  },
+  {
+    title:"A Difficult Repair Needs Focus",
+    text:"A complicated pair of boots needs careful work, but the cobbler is mentally tired after a busy day.",
+    energyChange:8,
+    queue:["Hiker's boots","Office shoes"],
+    choices:[
+      {good:true,text:"Take a brief reset, check the repair instructions carefully, and continue only when he can concentrate properly.",feedback:"A short reset protects both the quality of his work and his own wellbeing. Self-care can support responsibility rather than compete with it."},
+      {good:false,text:"Rush through the repair while exhausted because taking a break would look lazy.",feedback:"Working while too tired to focus can create mistakes. Rest can be part of doing a job responsibly."},
+      {good:false,text:"Avoid the difficult repair forever because it feels tiring today.",feedback:"Self-care is not the same as avoiding every challenge. The balanced choice is to recover enough to handle it well."}
+    ]
+  },
+  {
+    title:"The Cobbler Plans Tomorrow",
+    text:"At closing time, the cobbler realises that busy days keep repeating. He wants to help the town without wearing himself out.",
+    energyChange:10,
+    queue:["Tomorrow's first customer","Reserved repair"],
+    choices:[
+      {good:true,text:"Set realistic working hours, plan short breaks, keep time for his own needs and give customers honest collection times.",feedback:"This turns self-care into a routine instead of waiting until he is exhausted. Boundaries and planning help him support others consistently."},
+      {good:false,text:"Promise to work whenever anyone asks, even if he has no time left to rest or care for himself.",feedback:"Without reasonable boundaries, helping can become unsustainable. He may eventually have less energy to support anyone."},
+      {good:false,text:"Decide never to help anyone again because helping people can be tiring.",feedback:"The lesson is balance, not withdrawal. Self-care helps him keep contributing without neglecting himself."}
+    ]
+  }
+];
+
+const storyTitle=document.getElementById("storyTitle");
+const storyText=document.getElementById("storyText");
+const queue=document.getElementById("queue");
+const energyFill=document.getElementById("energyFill");
+const energyValue=document.getElementById("energyValue");
+const energyNote=document.getElementById("energyNote");
+const cobblerShoes=document.getElementById("cobblerShoes");
+const cobblerFace=document.getElementById("cobblerFace");
+const choiceList=document.getElementById("choiceList");
+const feedback=document.getElementById("feedback");
+const nextRow=document.getElementById("nextRow");
+const nextBtn=document.getElementById("nextBtn");
+const resetBtn=document.getElementById("resetBtn");
+const progressText=document.getElementById("progressText");
+const stageIndicator=document.getElementById("stageIndicator");
+const progressFill=document.getElementById("progressFill");
+const progressNumber=document.getElementById("progressNumber");
+const solvedCount=document.getElementById("solvedCount");
+const accuracyText=document.getElementById("accuracyText");
+const rankText=document.getElementById("rankText");
+const gameWrapper=document.getElementById("gameWrapper");
+
+let index=0;
+let solved=0;
+let firstTryCorrect=0;
+let wrongThisRound=0;
+let locked=false;
+let energy=70;
+
+function shuffle(array){
+  for(let i=array.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [array[i],array[j]]=[array[j],array[i]]
+  }
+  return array
+}
+
+function accuracy(){
+  if(solved===0)return 100;
+  return Math.round((firstTryCorrect/solved)*100)
+}
+
+function updateEnergy(){
+  energy=Math.max(0,Math.min(100,energy));
+  energyFill.style.width=energy+"%";
+  energyValue.textContent=energy+"%";
+
+  if(energy>=75){
+    energyNote.textContent="He has enough energy to work carefully and keep helping.";
+    cobblerFace.textContent="🧑‍🔧";
+    cobblerShoes.classList.remove("tired")
+  }else if(energy>=45){
+    energyNote.textContent="He can still help, but he needs to pay attention to rest and his own needs.";
+    cobblerFace.textContent="😌";
+    cobblerShoes.classList.add("tired")
+  }else{
+    energyNote.textContent="His energy is low. Ignoring self-care for too long makes helping harder.";
+    cobblerFace.textContent="😓";
+    cobblerShoes.classList.add("tired")
+  }
+}
+
+function updateScore(){
+  solvedCount.textContent=`${solved} / ${rounds.length}`;
+  accuracyText.textContent=`${accuracy()}%`;
+  progressNumber.textContent=`${solved} / ${rounds.length}`;
+  progressFill.style.width=`${Math.round((solved/rounds.length)*100)}%`;
+  stageIndicator.textContent=solved===rounds.length?"Story complete":`Round ${index+1} of ${rounds.length}`;
+
+  if(solved>=4 && accuracy()>=80){rankText.textContent="Balanced Helper"}
+  else if(solved>=3){rankText.textContent="Self-Care Learner"}
+  else{rankText.textContent="Explorer"}
+}
+
+function buildQueue(items){
+  queue.innerHTML="";
+  items.forEach((item,i)=>{
+    const c=document.createElement("div");
+    c.className="customer";
+    c.innerHTML=`<span>${i%2===0?"👟":"🥾"}</span><span>${item}</span>`;
+    queue.appendChild(c)
+  })
+}
+
+function loadRound(){
+  locked=false;
+  wrongThisRound=0;
+  const round=rounds[index];
+  storyTitle.textContent=round.title;
+  storyText.textContent=round.text;
+  buildQueue(round.queue);
+  choiceList.innerHTML="";
+  feedback.className="feedback";
+  feedback.textContent="";
+  nextRow.classList.remove("active");
+
+  shuffle([...round.choices]).forEach(choice=>{
+    const btn=document.createElement("button");
+    btn.type="button";
+    btn.className="choice-btn";
+    btn.textContent=choice.text;
+    btn.addEventListener("click",()=>choose(choice,btn));
+    choiceList.appendChild(btn)
+  });
+
+  progressText.textContent="Choose the response that balances helping others with caring for himself.";
+  updateEnergy();
+  updateScore();
+
+  if(window.matchMedia("(max-width:640px)").matches){
+    setTimeout(()=>document.querySelector(".story-card").scrollIntoView({behavior:"smooth",block:"start"}),80)
+  }
+}
+
+function choose(choice,button){
+  if(locked)return;
+
+  if(choice.good){
+    locked=true;
+    solved++;
+    if(wrongThisRound===0)firstTryCorrect++;
+    energy+=rounds[index].energyChange;
+    playSound(correctSound);
+    button.classList.add("correct");
+    document.querySelectorAll(".choice-btn").forEach(btn=>btn.disabled=true);
+    feedback.className="feedback good";
+    feedback.textContent="✅ "+choice.feedback;
+    updateEnergy();
+    updateScore();
+
+    nextBtn.textContent=index===rounds.length-1?"Finish Story":"Next Round →";
+    nextRow.classList.add("active");
+    progressText.textContent=index===rounds.length-1?"All five rounds are complete. View the story ending.":"Review the feedback, then continue.";
+
+    if(window.matchMedia("(max-width:640px)").matches){
+      setTimeout(()=>nextBtn.scrollIntoView({behavior:"smooth",block:"nearest"}),100)
     }
+  }else{
+    wrongThisRound++;
+    energy-=4;
+    playSound(wrongSound);
+    button.classList.add("wrong");
+    button.disabled=true;
+    feedback.className="feedback warn";
+    feedback.textContent="💡 "+choice.feedback+" Try another response.";
+    progressText.textContent="Look for a choice that protects both responsibility and wellbeing.";
+    updateEnergy();
 
-    function updateHealth(delta){
-      cobblerHealth = Math.max(0, Math.min(100, cobblerHealth + delta));
-      healthBarFill.style.width = cobblerHealth + "%";
-
-      if(cobblerHealth > 70){
-        healthLabel.textContent = "Feet strong";
-        shoeLeft.classList.remove("cracked");
-        shoeRight.classList.remove("cracked");
-      } else if(cobblerHealth > 35){
-        healthLabel.textContent = "Feet tired";
-        shoeLeft.classList.add("cracked");
-        shoeRight.classList.remove("cracked");
-      } else {
-        healthLabel.textContent = "Feet hurt";
-        shoeLeft.classList.add("cracked");
-        shoeRight.classList.add("cracked");
-      }
-
-      // Update town mood
-      const hurtThreshold = 35;
-      const manyHurt = cobblerHealth <= hurtThreshold;
-      townPeopleEls.forEach(p => {
-        if(manyHurt){
-          p.classList.add("hurt");
-          p.textContent = "☹";
-        } else {
-          p.classList.remove("hurt");
-          p.textContent = "🙂";
-        }
-      });
-      if(manyHurt){
-        townMood.textContent = "Town is limping. The cobbler cannot keep up.";
-      } else {
-        townMood.textContent = "Town is walking well. Cobbler can still help.";
-      }
-
-      // top meter for self-care choices (not raw health)
-      const percent = Math.round((selfCareCount / maxRounds) * 100);
-      meterFill.style.width = percent + "%";
+    if(wrongThisRound>=2){
+      const correct=rounds[index].choices.find(c=>c.good);
+      [...choiceList.children].forEach(btn=>{
+        if(btn.textContent.trim()===correct.text)btn.classList.add("hint")
+      })
     }
+  }
+}
 
-    function updateTexts(){
-      roundCounterEl.textContent = round;
-      selfCareCountEl.textContent = selfCareCount;
+function nextRound(){
+  if(!locked)return;
+  if(index===rounds.length-1){finishGame();return}
+  index++;
+  loadRound()
+}
 
-      if(round === 1){
-        sceneTextEl.textContent = "Round 1 · The cobbler has many customers. His own shoes are starting to break.";
-      } else if(round === 2){
-        sceneTextEl.textContent = "Round 2 · More people arrive. The cobbler feels more tired.";
-      } else if(round === 3){
-        sceneTextEl.textContent = "Round 3 · The cobbler’s feet hurt, but customers still need him.";
-      } else if(round === 4){
-        sceneTextEl.textContent = "Round 4 · The cobbler limps. Will he make time to fix his own shoes?";
-      } else {
-        sceneTextEl.textContent = "Round 5 · This is the last round. Your choices will decide the ending.";
-      }
+function restartGame(){
+  index=0;
+  solved=0;
+  firstTryCorrect=0;
+  wrongThisRound=0;
+  locked=false;
+  energy=70;
 
-      roundTextEl.textContent = "Click one choice for this round.";
-      feedbackEl.textContent = "Think: If he never fixes his own shoes, what will happen later?";
-    }
+  loadRound();
 
-    function applyChoice(choice){
-      lastChoice = choice;
-      if(choice === "others"){
-        // Fix only others’ shoes: town short-term ok, cobbler health drops
-        updateHealth(-20);
-        feedbackEl.textContent = "He worked only on others’ shoes. His feet hurt more, even if others walk for now.";
-      } else {
-        // balance: small boost to self-care
-        selfCareCount++;
-        updateHealth(+5);
-        playGood();
-        feedbackEl.textContent = "He fixed some customers’ shoes and also his own. This self-care keeps him able to help.";
-      }
-    }
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  })
+}
 
-    btnOthers.addEventListener("click", () => applyChoice("others"));
-    btnBalance.addEventListener("click", () => applyChoice("balance"));
+function finishGame(){
+  playSound(celebrationSound);
 
-    nextBtn.addEventListener("click", () => {
-      if(round < maxRounds){
-        round++;
-        buildQueue();
-        updateTexts();
-      } else {
-        feedbackEl.textContent = "You finished all rounds. Click “Finish Story” to see what happens.";
-      }
-    });
+  const acc=accuracy();
 
-    finishBtn.addEventListener("click", () => {
-      showEndScreen();
-    });
+  let rank;
+  let badge;
+  let text;
 
-    function showEndScreen(){
-      playCelebrate();
-      const end = document.createElement("div");
-      end.className = "end-screen";
+  if(acc>=90){
+    rank="Balanced Helper";
+    badge="👞💚";
+    text="Excellent work. You consistently chose ways for the cobbler to care for customers while also protecting his own energy, health and ability to keep helping."
+  }else if(acc>=70){
+    rank="Self-Care Planner";
+    badge="🌿👞";
+    text="You completed the story and used feedback well. Healthy self-care includes realistic limits, short breaks, clear communication and planning ahead."
+  }else{
+    rank="Growing Self-Care Thinker";
+    badge="🌱";
+    text="You completed all five rounds. Remember that self-care is about balance: caring for yourself in ways that help you continue meeting responsibilities and supporting others."
+  }
 
-      const enoughSelfCare = selfCareCount >= 3 && cobblerHealth > 35;
+  gameWrapper.innerHTML=`
+    <section class="final">
+      <div class="final-title">
+        Cobbler's Self-Care Report
+      </div>
 
-      let badge, title, sub;
-      if(enoughSelfCare){
-        badge = "🥿💚";
-        title = "Balanced Helper";
-        sub = "The cobbler looked after his own feet and could keep fixing everyone’s shoes. Self-care is not selfish – it lets you help others for longer.[file:39]";
-      } else {
-        badge = "🥿💔";
-        title = "Forgot Self-Care";
-        sub = "The cobbler never fixed his own shoes. Soon he could not work and the whole town suffered. You must care for your health before you can keep helping others.[file:39]";
-      }
+      <div class="final-badge">
+        ${badge}
+      </div>
 
-      end.innerHTML = `
-        <div class="end-badge">${badge}</div>
-        <div class="end-title">${title}</div>
-        <div class="end-sub">${sub}</div>
-        <button class="end-btn" id="playAgainBtn">Play Again</button>
-      `;
-      shell.appendChild(end);
-      document.getElementById("playAgainBtn").addEventListener("click", () => location.reload());
-    }
+      <div class="final-rank">
+        ${rank}
+      </div>
 
-    // Init
-    buildQueue();
-    updateHealth(0);
-    updateTexts();
-  </script>
+      <div class="final-score">
+        5 / 5 rounds completed
+        · First-try accuracy: ${acc}%
+      </div>
+
+      <div class="final-text">
+        ${text}
+      </div>
+
+      <button
+        class="btn btn-primary"
+        id="againBtn"
+        type="button"
+      >
+        Play Again
+      </button>
+    </section>
+  `;
+
+  document
+    .getElementById("againBtn")
+    .addEventListener(
+      "click",
+      ()=>location.reload()
+    );
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  })
+}
+
+nextBtn.addEventListener("click",nextRound);
+resetBtn.addEventListener("click",restartGame);
+
+loadRound();
+</script>
 </body>
 </html>
